@@ -74,77 +74,83 @@ export default async function ProcessPage({
 
             <Separator className="my-6" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {topics.length > 0 && (
-                <Card className="shadow-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-primary" />
-                      Tematy
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <TopicsSection topics={topics} />
-                  </CardContent>
-                </Card>
-              )}
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+              {/* Main column with authors */}
+              <div className="space-y-8">
+                {Object.keys(authorsByClub).length > 0 && (
+                  <Card className="shadow-md">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-primary" />
+                        Autorzy według klubów
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <AuthorsSection authorsByClub={authorsByClub} />
+                    </CardContent>
+                  </Card>
+                )}
 
-              {Object.keys(authorsByClub).length > 0 && (
-                <Card className="shadow-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-primary" />
-                      Autorzy według klubów
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <AuthorsSection authorsByClub={authorsByClub} />
-                  </CardContent>
-                </Card>
-              )}
+                {stages.length > 0 && (
+                  <Card className="shadow-md">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <GitBranch className="h-5 w-5 text-primary" />
+                        Przebieg procesu
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ProcessStagesSection stages={stages} />
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
 
-              {relatedPrints.length > 0 && (
-                <Card className="shadow-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <GitBranch className="h-5 w-5 text-primary" />
-                      Powiązane druki ({relatedPrints.length})
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <RelatedPrintsSection prints={relatedPrints} />
-                  </CardContent>
-                </Card>
-              )}
+              {/* Side column with topics and related prints */}
+              <div className="space-y-8">
+                {topics.length > 0 && (
+                  <Card className="shadow-md">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <FileText className="h-5 w-5 text-primary" />
+                        Tematy
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <TopicsSection topics={topics} />
+                    </CardContent>
+                  </Card>
+                )}
 
-              {comments.length > 0 && (
-                <Card className="shadow-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MessageSquare className="h-5 w-5 text-primary" />
-                      Opinie i komentarze ({comments.length})
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CommentsSection comments={comments} />
-                  </CardContent>
-                </Card>
-              )}
+                {relatedPrints.length > 0 && (
+                  <Card className="shadow-md">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <GitBranch className="h-5 w-5 text-primary" />
+                        Powiązane druki
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <RelatedPrintsSection prints={relatedPrints} />
+                    </CardContent>
+                  </Card>
+                )}
+
+                {comments.length > 0 && (
+                  <Card className="shadow-md">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <MessageSquare className="h-5 w-5 text-primary" />
+                        Opinie i komentarze ({comments.length})
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CommentsSection comments={comments} />
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </div>
-
-            {stages.length > 0 && (
-              <Card className="shadow-md mt-8">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <GitBranch className="h-5 w-5 text-primary" />
-                    Przebieg procesu
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ProcessStagesSection stages={stages} />
-                </CardContent>
-              </Card>
-            )}
           </CardContent>
         </Card>
       </div>

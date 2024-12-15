@@ -2,24 +2,28 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Print, PrintAuthor, Topic, Comment, ProcessStage } from "@/lib/types";
-import { ChevronRight, User, Building2 } from 'lucide-react';
+import { ChevronRight, User, Building2 } from "lucide-react";
 
 export const AuthorsSection = ({
   authorsByClub,
 }: {
   authorsByClub: Record<string, PrintAuthor[]>;
 }) => (
-  <div className="space-y-4">
+  <div className="space-y-6">
     {Object.entries(authorsByClub).map(([club, authors]) => (
-      <div key={club} className="space-y-2">
-        <div className="flex items-center gap-2 text-primary">
-          <Building2 className="h-4 w-4" />
-          <span className="font-medium">{club}</span>
+      <div key={club} className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="px-3 py-1">
+            {club}
+          </Badge>
         </div>
-        <div className="pl-6 space-y-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
           {authors.map((author) => (
-            <div key={author.firstLastName} className="flex items-center gap-2 text-muted-foreground">
-              <User className="h-4 w-4" />
+            <div
+              key={author.firstLastName}
+              className="flex items-center gap-2 text-muted-foreground"
+            >
+              <User className="h-4 w-4 text-primary" />
               <span>{author.firstLastName}</span>
             </div>
           ))}
@@ -34,13 +38,13 @@ export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
     {topics.map((topic) => (
       <div
         key={topic.name}
-        className="flex items-center justify-between border border-primary/10 rounded-md p-2 hover:bg-accent transition-colors"
+        className="flex flex-col gap-2 border border-primary/10 rounded-md p-3 bg-primary/5"
       >
-        <Badge variant="outline" className="bg-primary/5">
-          {topic.name}
-        </Badge>
+        <span className="font-medium text-primary">{topic.name}</span>
         {topic.description && (
-          <span className="text-sm text-muted-foreground">{topic.description}</span>
+          <span className="text-sm text-muted-foreground">
+            {topic.description}
+          </span>
         )}
       </div>
     ))}
@@ -48,21 +52,19 @@ export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
 );
 
 export const RelatedPrintsSection = ({ prints }: { prints: Print[] }) => (
-  <ScrollArea className="h-64">
-    <div className="space-y-2 pr-4">
-      {prints.map((print) => (
-        <Card key={print.number} className="p-3 hover:bg-accent transition-colors">
+  <div className="space-y-2">
+    {prints.map((print) => (
+      <Card key={print.number} className="p-3">
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-primary">{print.title}</h3>
-              <p className="text-sm text-muted-foreground">Numer: {print.number}</p>
-            </div>
+            <Badge variant="outline">Nr {print.number}</Badge>
             <Badge variant="secondary">{print.documentType}</Badge>
           </div>
-        </Card>
-      ))}
-    </div>
-  </ScrollArea>
+          <h3 className="text-sm text-primary">{print.title}</h3>
+        </div>
+      </Card>
+    ))}
+  </div>
 );
 
 export const CommentsSection = ({ comments }: { comments: Comment[] }) => (
@@ -99,7 +101,11 @@ export const CommentsSection = ({ comments }: { comments: Comment[] }) => (
   </ScrollArea>
 );
 
-export const ProcessStagesSection = ({ stages }: { stages: ProcessStage[] }) => (
+export const ProcessStagesSection = ({
+  stages,
+}: {
+  stages: ProcessStage[];
+}) => (
   <div className="space-y-4">
     {stages.map((stage, index) => (
       <div
@@ -115,7 +121,9 @@ export const ProcessStagesSection = ({ stages }: { stages: ProcessStage[] }) => 
           )}
         </div>
         <div className="flex-1">
-          <div className="font-medium text-lg text-primary">{stage.stageName}</div>
+          <div className="font-medium text-lg text-primary">
+            {stage.stageName}
+          </div>
           <div className="text-sm text-muted-foreground mb-2">{stage.date}</div>
           {Array.isArray(stage.childStages) && stage.childStages.length > 0 && (
             <div className="ml-4 text-sm text-muted-foreground space-y-1">
@@ -132,4 +140,3 @@ export const ProcessStagesSection = ({ stages }: { stages: ProcessStage[] }) => 
     ))}
   </div>
 );
-
