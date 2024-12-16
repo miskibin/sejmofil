@@ -1,19 +1,25 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
 import {
   Calendar,
-  FileText,
   Users,
-  MessageSquare,
   GitBranch,
+  FileText,
+  ChevronRight,
 } from "lucide-react";
 import {
   AuthorsSection,
+  ProcessStagesSection,
   TopicsSection,
   RelatedPrintsSection,
-  CommentsSection,
-  ProcessStagesSection,
 } from "@/components/sections";
 import {
   getPrint,
@@ -23,7 +29,7 @@ import {
   getTopicsForPrint,
   getAllProcessStages,
 } from "@/lib/queries";
-import { PrintAuthor, Topic, Print, Comment, ProcessStage } from "@/lib/types";
+import { PrintAuthor } from "@/lib/types";
 
 export default async function ProcessPage({
   params,
@@ -53,106 +59,139 @@ export default async function ProcessPage({
     }, {} as Record<string, PrintAuthor[]>);
 
     return (
-      <div className="container mx-auto p-8 space-y-8">
-        <Card className="shadow-lg border-primary/10">
-          <CardHeader className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Badge variant="outline" className="text-lg px-4 py-1">
-                Nr {print.number}
-              </Badge>
-              <div className="text-sm text-muted-foreground flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                {new Date(print.documentDate).toLocaleDateString("pl-PL")}
-              </div>
-            </div>
-            <CardTitle>
-              <h1 className="text-3xl font-bold text-primary">{print.title}</h1>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            <p className="text-lg text-muted-foreground">{print.summary}</p>
+      <div className="container mx-auto px-4 py-6 space-y-6">
+        <div className="flex items-center justify-between mb-4">
+          <Badge variant="outline" className="text-base px-3 py-1">
+            Nr {print.number}
+          </Badge>
+          <div className="text-sm text-muted-foreground flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-primary" />
+            {new Date(print.documentDate).toLocaleDateString("pl-PL")}
+          </div>
+        </div>
 
-            <Separator className="my-6" />
+        <h1 className="text-2xl font-bold text-primary mb-4">{print.title}</h1>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
-              {/* Main column with authors */}
-              <div className="space-y-8">
-                {Object.keys(authorsByClub).length > 0 && (
-                  <Card className="shadow-md">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-primary" />
-                        Autorzy według klubów
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <AuthorsSection authorsByClub={authorsByClub} />
-                    </CardContent>
-                  </Card>
-                )}
+        <p className="text-muted-foreground mb-6">{print.summary}</p>
 
-                {stages.length > 0 && (
-                  <Card className="shadow-md">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <GitBranch className="h-5 w-5 text-primary" />
-                        Przebieg procesu
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ProcessStagesSection stages={stages} />
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
+        <Separator className="my-4" />
 
-              {/* Side column with topics and related prints */}
-              <div className="space-y-8">
-                {topics.length > 0 && (
-                  <Card className="shadow-md">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <FileText className="h-5 w-5 text-primary" />
-                        Tematy
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <TopicsSection topics={topics} />
-                    </CardContent>
-                  </Card>
-                )}
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
+          {/* Main column */}
+          <div className="space-y-6">
+            {Object.keys(authorsByClub).length > 0 && (
+              <Card className="shadow-sm">
+                <CardHeader className="p-4 pb-0">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Users className="h-4 w-4 text-primary" />
+                    Autorzy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-2">
+                  <AuthorsSection authorsByClub={authorsByClub} />
+                </CardContent>
+              </Card>
+            )}
 
-                {relatedPrints.length > 0 && (
-                  <Card className="shadow-md">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <GitBranch className="h-5 w-5 text-primary" />
-                        Powiązane druki
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <RelatedPrintsSection prints={relatedPrints} />
-                    </CardContent>
-                  </Card>
-                )}
+            {stages.length > 0 && (
+              <Card className="shadow-sm">
+                <CardHeader className="p-4 pb-0">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <GitBranch className="h-4 w-4 text-primary" />
+                    Przebieg procesu
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-2">
+                  <ProcessStagesSection stages={stages} />
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
-                {comments.length > 0 && (
-                  <Card className="shadow-md">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <MessageSquare className="h-5 w-5 text-primary" />
-                        Opinie i komentarze ({comments.length})
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CommentsSection comments={comments} />
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Side column */}
+          <div className="space-y-6">
+            {/* Topics */}
+            {topics.length > 0 && (
+              <Card className="shadow-sm">
+                <CardHeader className="p-4 pb-0">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <FileText className="h-4 w-4 text-primary" />
+                    Tematy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-2">
+                  <TopicsSection topics={topics} />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Related Prints */}
+            {relatedPrints.length > 0 && (
+              <Card className="shadow-sm">
+                <CardHeader className="p-4 pb-0">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <ChevronRight className="h-4 w-4 text-primary" />
+                    Powiązane druki
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-2">
+                  <RelatedPrintsSection prints={relatedPrints} />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+
+        {/* Comments Carousel */}
+        {comments.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-primary mb-4 flex items-center gap-2">
+              Opinie i komentarze ({comments.length})
+            </h2>
+            <Carousel
+              opts={{
+                align: "start",
+              }}
+              className="w-full"
+            >
+              <CarouselContent>
+                {comments.map((comment, index) => (
+                  <CarouselItem
+                    key={`${comment.author}-${comment.organization}-${index}`}
+                    className="md:basis-1/2 lg:basis-1/3"
+                  >
+                    <Card className="p-4 h-full">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-primary">
+                          {comment.author}
+                        </span>
+                        <Badge
+                          variant={
+                            comment.sentiment === "Pozytywny"
+                              ? "default"
+                              : comment.sentiment === "Negatywny"
+                              ? "destructive"
+                              : "secondary"
+                          }
+                        >
+                          {comment.sentiment}
+                        </Badge>
+                      </div>
+                      {comment.organization && (
+                        <span className="text-xs text-muted-foreground block mb-2">
+                          ({comment.organization})
+                        </span>
+                      )}
+                      <p className="text-sm">{comment.summary}</p>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
+        )}
       </div>
     );
   } catch (error) {
