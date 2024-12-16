@@ -1,6 +1,8 @@
-export type PrintAuthor = {
+export type Person = {
   firstLastName: string;
   club?: string;
+  firstName?: string;
+  lastName?: string;
 };
 
 export type ProcessStage = {

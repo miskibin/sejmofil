@@ -1,3 +1,4 @@
+"use cache";
 import { Badge } from "@/components/ui/badge";
 import {
   Carousel,
@@ -19,6 +20,8 @@ import {
   ProcessStagesSection,
   TopicsSection,
   RelatedPrintsSection,
+  TopicPrintsSection,
+  SubjectsSection,
 } from "@/components/sections";
 import {
   getPrint,
@@ -28,31 +31,42 @@ import {
   getTopicsForPrint,
   getAllProcessStages,
   getPrintsRelatedToTopic,
+  getPrintSubjects,
+  getSimmilarPrints,
 } from "@/lib/queries";
-import { PrintAuthor } from "@/lib/types";
-
+import { Person } from "@/lib/types";
+import Markdown from "react-markdown";
 export default async function ProcessPage({
   params,
 }: {
   params: { id: string };
 }) {
   try {
-    const processNumber = params.id;
-    const [print, stages, authorsData, comments, relatedPrints, topics] =
-      await Promise.all([
-        getPrint(processNumber),
-        getAllProcessStages(processNumber),
-        getPrintAuthors(processNumber),
-        getPrintComments(processNumber),
-        getRelatedPrints(processNumber),
-        getTopicsForPrint(processNumber),
-      ]);
+    const { id: processNumber } = await params;
+    const [
+      print,
+      stages,
+      authorsData,
+      comments,
+      relatedPrints,
+      topics,
+      subjects,
+      simmilarPrints,
+    ] = await Promise.all([
+      getPrint(processNumber),
+      getAllProcessStages(processNumber),
+      getPrintAuthors(processNumber),
+      getPrintComments(processNumber),
+      getRelatedPrints(processNumber),
+      getTopicsForPrint(processNumber),
+      getPrintSubjects(processNumber),
+      getSimmilarPrints(processNumber),
+    ]);
     // filter print, and relatedPrints from the list
-    const simmilarPrints = await getPrintsRelatedToTopic(topics[0].name).then(
+    const topicPrints = await getPrintsRelatedToTopic(topics[0].name).then(
       (prints) => prints.filter((p) => p.processPrint?.[0] !== processNumber)
     );
 
-    console.log(simmilarPrints);
     if (!print) throw new Error("Print not found");
 
     // Group authors by club
@@ -61,10 +75,10 @@ export default async function ProcessPage({
       if (!acc[club]) acc[club] = [];
       acc[club].push(author);
       return acc;
-    }, {} as Record<string, PrintAuthor[]>);
+    }, {} as Record<string, Person[]>);
 
     return (
-      <div className="container mx-auto px-4 py-6 space-y-4">
+      <div className="container container-fluid mx-auto px-4 py-6 space-y-4">
         <div className="flex items-center justify-between">
           <Badge variant="outline" className="text-base px-3 py-1">
             Nr {print.number}
@@ -86,8 +100,9 @@ export default async function ProcessPage({
         </div>
 
         <h1 className="text-2xl font-bold text-primary">{print.title}</h1>
-
-        <p className="text-muted-foreground">{print.summary}</p>
+        <Markdown className="prose dark:prose-invert max-w-none">
+          {print.summary}
+        </Markdown>
 
         <Separator />
 
@@ -200,7 +215,9 @@ export default async function ProcessPage({
                           ({comment.organization})
                         </span>
                       )}
-                      <p className="text-sm">{comment.summary}</p>
+                      <Markdown className="prose dark:prose-invert text-sm">
+                        {comment.summary}
+                      </Markdown>
                     </div>
                   </CarouselItem>
                 ))}
@@ -210,6 +227,8 @@ export default async function ProcessPage({
             </Carousel>
           </div>
         )}
+        <TopicPrintsSection prints={topicPrints} />
+        <SubjectsSection subjects={subjects} />
       </div>
     );
   } catch (error) {

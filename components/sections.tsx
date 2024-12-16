@@ -1,8 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Print, PrintAuthor, Topic, Comment, ProcessStage } from "@/lib/types";
-import { ChevronRight, User, ChevronDown } from "lucide-react";
-import { Card } from "./ui/card";
+import { Print, Person, Topic, Comment, ProcessStage } from "@/lib/types";
+import { ChevronRight, User, ChevronDown, FileText, Users } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -12,7 +11,7 @@ import {
 export const AuthorsSection = ({
   authorsByClub,
 }: {
-  authorsByClub: Record<string, PrintAuthor[]>;
+  authorsByClub: Record<string, Person[]>;
 }) => {
   return (
     <div className="space-y-6">
@@ -76,11 +75,9 @@ export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
         className="flex flex-col gap-2 border border-primary/10 rounded-md p-3 bg-primary/5"
       >
         <span className="font-medium text-primary">{topic.name}</span>
-        {topic.description && (
-          <span className="text-sm text-muted-foreground">
-            {topic.description}
-          </span>
-        )}
+        {topic.description.startsWith("{")
+          ? JSON.parse(topic.description)[topic.name]
+          : topic.description}
       </div>
     ))}
   </div>
@@ -106,39 +103,6 @@ export const RelatedPrintsSection = ({ prints }: { prints: Print[] }) => (
   </div>
 );
 
-export const CommentsSection = ({ comments }: { comments: Comment[] }) => (
-  <ScrollArea className="h-64">
-    <div className="space-y-4 pr-4">
-      {comments.map((comment) => (
-        <Card
-          key={`${comment.author}-${comment.organization}`}
-          className="p-3 hover:bg-accent transition-colors"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-medium text-primary">{comment.author}</span>
-            <Badge
-              variant={
-                comment.sentiment === "Pozytywny"
-                  ? "default"
-                  : comment.sentiment === "Negatywny"
-                  ? "destructive"
-                  : "secondary"
-              }
-            >
-              {comment.sentiment}
-            </Badge>
-          </div>
-          {comment.organization && (
-            <span className="text-sm text-muted-foreground block mb-2">
-              ({comment.organization})
-            </span>
-          )}
-          <p className="text-sm">{comment.summary}</p>
-        </Card>
-      ))}
-    </div>
-  </ScrollArea>
-);
 
 export const ProcessStagesSection = ({
   stages,
@@ -177,5 +141,48 @@ export const ProcessStagesSection = ({
         </div>
       </div>
     ))}
+  </div>
+);
+
+// Add new TopicPrintsSection component
+export const TopicPrintsSection = ({ prints }: { prints: Print[] }) => (
+  <ScrollArea className="h-64">
+    <div className="space-y-2 pr-4">
+      {prints.map((print) => (
+        <a
+          href={`/process/${print.number}`}
+          key={print.number}
+          className="block p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+        >
+          <div className="flex items-center justify-between mb-1">
+            <Badge variant="outline" className="flex items-center gap-1">
+              <FileText className="h-3 w-3" />
+              Nr {print.number}
+            </Badge>
+            <span className="text-xs text-muted-foreground">
+              {print.documentType}
+            </span>
+          </div>
+          <h3 className="text-sm text-primary line-clamp-2">{print.title}</h3>
+        </a>
+      ))}
+    </div>
+  </ScrollArea>
+);
+
+// Add new SubjectsSection component
+export const SubjectsSection = ({ subjects }: { subjects: Person[] }) => (
+  <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {subjects.map((subject) => (
+        <div
+          key={subject.firstLastName}
+          className="flex items-center gap-2 p-2 rounded-md hover:bg-accent/50 transition-colors"
+        >
+          <Users className="h-4 w-4 text-primary" />
+          <span className="text-sm">{subject.firstLastName}</span>
+        </div>
+      ))}
+    </div>
   </div>
 );
