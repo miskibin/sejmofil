@@ -4,8 +4,8 @@ import { Person, ProcessStage, Comment, Print, Topic } from "./types";
 
 const DB_URI = process.env.DB_URI || "bolt+s://neo.msulawiak.pl:7687";
 const DB_USER = process.env.DB_USER || "neo4j";
-const DB_PASSWORD = process.env.NEO4J_PASSWORD || "";
-
+const DB_PASSWORD = process.env.NEO4J_PASSWORD || "default_password";
+console.log(DB_URI);
 const driver: Driver = neo4j.driver(
   DB_URI,
   neo4j.auth.basic(DB_USER, DB_PASSWORD)
