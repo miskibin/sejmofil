@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Print, Person, Topic, Comment, ProcessStage } from "@/lib/types";
+import { Print, Person, Topic,  ProcessStage } from "@/lib/types";
 import { ChevronRight, User, ChevronDown, FileText, Users } from "lucide-react";
 import {
   Collapsible,

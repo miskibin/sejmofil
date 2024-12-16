@@ -11,11 +11,11 @@ const driver: Driver = neo4j.driver(
   neo4j.auth.basic(DB_USER, DB_PASSWORD)
 );
 
-const serializeData = (data: any): any => {
+const serializeData = (data: object): object | null => {
   if (!data) return null;
   if (Array.isArray(data)) return data.map(serializeData);
   if (typeof data === "object") {
-    const serialized: any = {};
+    const serialized: { [key: string]: unknown } = {};
     for (const [key, value] of Object.entries(data)) {
       if (
         value &&

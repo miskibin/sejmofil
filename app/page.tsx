@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
-import { Menu, Search, User } from "lucide-react";
+import {  Search, User } from "lucide-react";
 
 export default function Page() {
   return (
