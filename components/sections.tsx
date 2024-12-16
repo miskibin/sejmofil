@@ -1,37 +1,72 @@
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Print, PrintAuthor, Topic, Comment, ProcessStage } from "@/lib/types";
-import { ChevronRight, User } from "lucide-react";
+import { ChevronRight, User, ChevronDown } from "lucide-react";
+import { Card } from "./ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
 
 export const AuthorsSection = ({
   authorsByClub,
 }: {
   authorsByClub: Record<string, PrintAuthor[]>;
-}) => (
-  <div className="space-y-6">
-    {Object.entries(authorsByClub).map(([club, authors]) => (
-      <div key={club} className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="px-3 py-1">
-            {club}
-          </Badge>
+}) => {
+  return (
+    <div className="space-y-6">
+      {Object.entries(authorsByClub).map(([club, authors]) => (
+        <div key={club} className="space-y-3">
+          {authors.length > 10 ? (
+            <Collapsible>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="px-3 py-1">
+                  {club} ({authors.length})
+                </Badge>
+                <CollapsibleTrigger className="hover:bg-accent rounded-full p-1">
+                  <ChevronDown className="h-4 w-4 transition-transform" />
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
+                  {authors.map((author) => (
+                    <div
+                      key={author.firstLastName}
+                      className="flex items-center gap-2 text-muted-foreground"
+                    >
+                      <User className="h-4 w-4 text-primary" />
+                      <span>{author.firstLastName}</span>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="px-3 py-1">
+                  {club} ({authors.length})
+                </Badge>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
+                {authors.map((author) => (
+                  <div
+                    key={author.firstLastName}
+                    className="flex items-center gap-2 text-muted-foreground"
+                  >
+                    <User className="h-4 w-4 text-primary" />
+                    <span>{author.firstLastName}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
-          {authors.map((author) => (
-            <div
-              key={author.firstLastName}
-              className="flex items-center gap-2 text-muted-foreground"
-            >
-              <User className="h-4 w-4 text-primary" />
-              <span>{author.firstLastName}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+};
 
 export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
   <div className="space-y-2">
@@ -54,15 +89,19 @@ export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
 export const RelatedPrintsSection = ({ prints }: { prints: Print[] }) => (
   <div className="space-y-2">
     {prints.map((print) => (
-      <Card key={print.number} className="p-3">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Badge variant="outline">Nr {print.number}</Badge>
-            <Badge variant="secondary">{print.documentType}</Badge>
-          </div>
-          <h3 className="text-sm text-primary">{print.title}</h3>
+      <a
+        href={`/process/${print.number}`}
+        key={print.number}
+        className="block p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+      >
+        <div className="flex items-center justify-between mb-1">
+          <Badge variant="outline">Nr {print.number}</Badge>
+          <span className="text-xs text-muted-foreground">
+            {print.documentType}
+          </span>
         </div>
-      </Card>
+        <h3 className="text-sm text-primary line-clamp-2">{print.title}</h3>
+      </a>
     ))}
   </div>
 );
