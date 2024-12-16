@@ -1,12 +1,5 @@
-"use cache";
+import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
 import {
   Calendar,
@@ -22,6 +15,7 @@ import {
   RelatedPrintsSection,
   TopicPrintsSection,
   SubjectsSection,
+  CommentsCarouselSection,
 } from "@/components/sections";
 import {
   getPrint,
@@ -78,158 +72,109 @@ export default async function ProcessPage({
     }, {} as Record<string, Person[]>);
 
     return (
-      <div className="container container-fluid mx-auto px-4 py-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <Badge variant="outline" className="text-base px-3 py-1">
-            Nr {print.number}
-          </Badge>
-          {/* if print.processPrint[0] != processNUmber display information `ten druk należy do procesu (url to main process)  */}
-          {print.processPrint[0] !== processNumber && (
-            <a
-              href={`/process/${print.processPrint[0]}`}
-              className="text-base underline text-blue-600"
-            >
-              Ten druk należy do procesu {print.processPrint[0]}
-            </a>
-          )}
+      <Suspense fallback={<div>Loading process data...</div>}>
+        <div className="container container-fluid mx-auto px-4 py-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <Badge variant="outline" className="text-base px-3 py-1">
+              Nr {print.number}
+            </Badge>
+            {/* if print.processPrint[0] != processNUmber display information `ten druk należy do procesu (url to main process)  */}
+            {print.processPrint[0] !== processNumber && (
+              <a
+                href={`/process/${print.processPrint[0]}`}
+                className="text-base underline text-blue-600"
+              >
+                Ten druk należy do procesu {print.processPrint[0]}
+              </a>
+            )}
 
-          <div className="text-sm text-muted-foreground flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-primary" />
-            {new Date(print.documentDate).toLocaleDateString("pl-PL")}
+            <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-primary" />
+              {new Date(print.documentDate).toLocaleDateString("pl-PL")}
+            </div>
           </div>
-        </div>
 
-        <h1 className="text-2xl font-bold text-primary">{print.title}</h1>
-        <Markdown className="prose dark:prose-invert max-w-none">
-          {print.summary}
-        </Markdown>
+          <h1 className="text-2xl font-bold text-primary">{print.title}</h1>
+          <Markdown className="prose dark:prose-invert max-w-none">
+            {print.summary}
+          </Markdown>
 
-        <Separator />
+          <Separator />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
-          {/* Main column */}
-          <div className="space-y-6">
-            {Object.keys(authorsByClub).length > 0 && (
-              <div className="border rounded-lg">
-                <div className="p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
+            {/* Main column */}
+            <div className="space-y-6">
+              {Object.keys(authorsByClub).length > 0 && (
+                <div className="border rounded-lg">
+                  <div className="p-4">
+                    <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
+                      <Users className="h-4 w-4 text-primary" />
+                      Autorzy
+                    </h2>
+                    <AuthorsSection authorsByClub={authorsByClub} />
+                  </div>
+                </div>
+              )}
+
+              {stages.length > 0 && (
+                <div className="border rounded-lg">
+                  <div className="p-4">
+                    <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Przebieg procesu
+                    </h2>
+                    <ProcessStagesSection stages={stages} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Side column */}
+            <div className="space-y-4">
+              {/* Topics */}
+              {topics.length > 0 && (
+                <div className="border rounded-lg p-4">
                   <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                    <Users className="h-4 w-4 text-primary" />
-                    Autorzy
+                    <FileText className="h-4 w-4 text-primary" />
+                    Tematy
                   </h2>
-                  <AuthorsSection authorsByClub={authorsByClub} />
+                  <TopicsSection topics={topics} />
                 </div>
-              </div>
-            )}
+              )}
 
-            {stages.length > 0 && (
-              <div className="border rounded-lg">
-                <div className="p-4">
+              {/* Related Prints */}
+              {relatedPrints.length > 0 && (
+                <div className="border rounded-lg p-4">
                   <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                    <GitBranch className="h-4 w-4 text-primary" />
-                    Przebieg procesu
+                    <ChevronRight className="h-4 w-4 text-primary" />
+                    Powiązane druki ({relatedPrints.length})
                   </h2>
-                  <ProcessStagesSection stages={stages} />
+                  <div className="max-h-[300px] overflow-y-auto pr-2">
+                    <RelatedPrintsSection prints={relatedPrints} />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {/* Similar Prints */}
+              {simmilarPrints.length > 0 && (
+                <div className="border rounded-lg p-4">
+                  <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
+                    <ChevronRight className="h-4 w-4 text-primary" />
+                    Podobne druki ({simmilarPrints.length})
+                  </h2>
+                  <div className="max-h-[300px] overflow-y-auto pr-2">
+                    <RelatedPrintsSection prints={simmilarPrints} />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Side column */}
-          <div className="space-y-4">
-            {/* Topics */}
-            {topics.length > 0 && (
-              <div className="border rounded-lg p-4">
-                <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                  <FileText className="h-4 w-4 text-primary" />
-                  Tematy
-                </h2>
-                <TopicsSection topics={topics} />
-              </div>
-            )}
-
-            {/* Related Prints */}
-            {relatedPrints.length > 0 && (
-              <div className="border rounded-lg p-4">
-                <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                  <ChevronRight className="h-4 w-4 text-primary" />
-                  Powiązane druki ({relatedPrints.length})
-                </h2>
-                <div className="max-h-[300px] overflow-y-auto pr-2">
-                  <RelatedPrintsSection prints={relatedPrints} />
-                </div>
-              </div>
-            )}
-
-            {/* Similar Prints */}
-            {simmilarPrints.length > 0 && (
-              <div className="border rounded-lg p-4">
-                <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                  <ChevronRight className="h-4 w-4 text-primary" />
-                  Podobne druki ({simmilarPrints.length})
-                </h2>
-                <div className="max-h-[300px] overflow-y-auto pr-2">
-                  <RelatedPrintsSection prints={simmilarPrints} />
-                </div>
-              </div>
-            )}
-          </div>
+          <CommentsCarouselSection comments={comments} />
+          <TopicPrintsSection prints={topicPrints} />
+          <SubjectsSection subjects={subjects} />
         </div>
-
-        {/* Comments Carousel */}
-        {comments.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold text-primary mb-4 flex items-center gap-2">
-              Opinie i komentarze ({comments.length})
-            </h2>
-            <Carousel
-              opts={{
-                align: "start",
-              }}
-              className="w-full"
-            >
-              <CarouselContent>
-                {comments.map((comment, index) => (
-                  <CarouselItem
-                    key={`${comment.author}-${comment.organization}-${index}`}
-                    className="md:basis-1/2 lg:basis-1/3"
-                  >
-                    <div className="border rounded-lg p-4 h-full">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-primary">
-                          {comment.author}
-                        </span>
-                        <Badge
-                          variant={
-                            comment.sentiment === "Pozytywny"
-                              ? "default"
-                              : comment.sentiment === "Negatywny"
-                              ? "destructive"
-                              : "secondary"
-                          }
-                        >
-                          {comment.sentiment}
-                        </Badge>
-                      </div>
-                      {comment.organization && (
-                        <span className="text-xs text-muted-foreground block mb-2">
-                          ({comment.organization})
-                        </span>
-                      )}
-                      <Markdown className="prose dark:prose-invert text-sm">
-                        {comment.summary}
-                      </Markdown>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-          </div>
-        )}
-        <TopicPrintsSection prints={topicPrints} />
-        <SubjectsSection subjects={subjects} />
-      </div>
+      </Suspense>
     );
   } catch (error) {
     console.error("Error:", error);

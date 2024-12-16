@@ -1,12 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Print, Person, Topic,  ProcessStage } from "@/lib/types";
+import { Print, Person, Topic, ProcessStage, Comment } from "@/lib/types";
 import { ChevronRight, User, ChevronDown, FileText, Users } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Markdown from "react-markdown";
 
 export const AuthorsSection = ({
   authorsByClub,
@@ -103,7 +111,6 @@ export const RelatedPrintsSection = ({ prints }: { prints: Print[] }) => (
   </div>
 );
 
-
 export const ProcessStagesSection = ({
   stages,
 }: {
@@ -186,3 +193,59 @@ export const SubjectsSection = ({ subjects }: { subjects: Person[] }) => (
     </div>
   </div>
 );
+
+// Add new CommentsCarouselSection component
+export const CommentsCarouselSection = ({
+  comments,
+}: {
+  comments: Comment[];
+}) => {
+  if (comments.length === 0) return null;
+
+  return (
+    <div className="mt-8">
+      <h2 className="text-lg font-semibold text-primary mb-4 flex items-center gap-2">
+        Opinie i komentarze ({comments.length})
+      </h2>
+      <Carousel opts={{ align: "start" }} className="w-full">
+        <CarouselContent>
+          {comments.map((comment, index) => (
+            <CarouselItem
+              key={`${index}`}
+              className="md:basis-1/2 lg:basis-1/3"
+            >
+              <div className="border rounded-lg p-4 h-full">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium text-primary">
+                    {comment.author}
+                  </span>
+                  <Badge
+                    variant={
+                      comment.sentiment === "Pozytywny"
+                        ? "default"
+                        : comment.sentiment === "Negatywny"
+                        ? "destructive"
+                        : "secondary"
+                    }
+                  >
+                    {comment.sentiment}
+                  </Badge>
+                </div>
+                {comment.organization && (
+                  <span className="text-xs text-muted-foreground block mb-2">
+                    ({comment.organization})
+                  </span>
+                )}
+                <Markdown className="prose dark:prose-invert text-sm">
+                  {comment.summary}
+                </Markdown>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+    </div>
+  );
+};

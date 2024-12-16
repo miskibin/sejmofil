@@ -87,7 +87,6 @@ export const getTopicsForPrint = async (number: string): Promise<Topic[]> => {
 export const getPrintsRelatedToTopic = async (
   topic_name: string
 ): Promise<Print[]> => {
-  "use cache";
   const query = `
         MATCH (p:Print )-[:REFERS_TO]->(topic:Topic {name: $topic_name})
         RETURN p {
@@ -110,7 +109,6 @@ export const getSimmilarPrints = async (
   printNumber: string,
   maxVectorDistance: number = 0.5
 ): Promise<Print[]> => {
-  "use cache";
   const query = `
         MATCH (n:Print {number: $printNumber})
         WITH n
@@ -141,7 +139,6 @@ export const getSimmilarPrints = async (
 };
 
 export const getAllTopics = async (): Promise<Topic[]> => {
-  "use cache";
   const query = `
         MATCH (topic:Topic)
         RETURN topic.name AS name, topic.description AS description
