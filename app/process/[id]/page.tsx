@@ -39,7 +39,7 @@ import Markdown from "react-markdown";
 export default async function ProcessPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   try {
     const { id: processNumber } = await params;
