@@ -1,5 +1,3 @@
-import { Driver, Session } from "neo4j-driver";
-
 export type PrintAuthor = {
   firstLastName: string;
   club?: string;
@@ -27,12 +25,13 @@ export type Comment = {
   organization: string;
 };
 export type Print = {
+  print: unknown;
   attachments: string[];
   changeDate: string;
   deliveryDate: string;
   documentDate: string;
   number: string;
-  processPrint: number[];
+  processPrint: string[];
   summary: string;
   term: number;
   title: string;

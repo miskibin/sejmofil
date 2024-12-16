@@ -1,13 +1,6 @@
 "use server";
 import neo4j, { Driver, Session } from "neo4j-driver";
-import {
-  PrintAuthor,
-  ProcessStage,
-  Process,
-  Comment,
-  Print,
-  Topic,
-} from "./types";
+import { PrintAuthor, ProcessStage, Comment, Print, Topic } from "./types";
 
 const DB_URI = process.env.DB_URI || "bolt+s://neo.msulawiak.pl:7687";
 const DB_USER = process.env.DB_USER || "neo4j";
@@ -19,7 +12,7 @@ const driver: Driver = neo4j.driver(
 );
 const runQuery = async <T>(
   query: string,
-  params: Record<string, any> = {}
+  params: Record<string, unknown> = {}
 ): Promise<T[]> => {
   const session: Session = driver.session();
   try {
@@ -58,6 +51,28 @@ export const getTopicsForPrint = async (number: string): Promise<Topic[]> => {
   return result;
 };
 
+export const getPrintsRelatedToTopic = async (
+  topic_name: string
+): Promise<Print[]> => {
+  const query = `
+        MATCH (p:Print )-[:REFERS_TO]->(topic:Topic {name: $topic_name})
+        RETURN p {
+            .number,
+            .title,
+            .term,
+            .documentType,
+            .changeDate,
+            .processPrint,
+            .deliveryDate,
+            .documentDate,
+            .summary,
+            .attachments
+          } as print
+    `;
+  const result = await runQuery<Print>(query, { topic_name });
+  return result.map((record) => record.print);
+};
+
 export const getPrint = async (number: string): Promise<Print> => {
   const query = `
     MATCH (p:Print {number: $number})
@@ -69,6 +84,7 @@ export const getPrint = async (number: string): Promise<Print> => {
       .changeDate,
       .deliveryDate,
       .documentDate,
+      .processPrint,
       .summary,
       .attachments
     } as print
@@ -84,7 +100,7 @@ export const getPrintAuthors = async (
     MATCH (person:Person)-[:AUTHORED]->(p:Print {number: $number})
     RETURN person.firstLastName AS firstLastName, person.club AS club
 `;
-  let data = await runQuery<PrintAuthor>(query, { number });
+  const data = await runQuery<PrintAuthor>(query, { number });
   console.log(data);
   return data;
 };
@@ -95,8 +111,7 @@ export const getPrintComments = async (number: string): Promise<Comment[]> => {
     OPTIONAL MATCH (person)-[:REPRESENTS]->(org:Organization)
     RETURN person.firstLastName AS firstLastName, org.name AS organization, r.sentiment AS sentiment, r.summary AS summary
 `;
-  let data = await runQuery<Comment>(query, { number });
-  console.log(data);
+  const data = await runQuery<Comment>(query, { number });
   return data;
 };
 

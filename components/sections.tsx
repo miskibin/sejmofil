@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Print, PrintAuthor, Topic, Comment, ProcessStage } from "@/lib/types";
-import { ChevronRight, User, Building2 } from "lucide-react";
+import { ChevronRight, User } from "lucide-react";
 
 export const AuthorsSection = ({
   authorsByClub,

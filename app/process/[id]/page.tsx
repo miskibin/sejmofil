@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -28,6 +27,7 @@ import {
   getRelatedPrints,
   getTopicsForPrint,
   getAllProcessStages,
+  getPrintsRelatedToTopic,
 } from "@/lib/queries";
 import { PrintAuthor } from "@/lib/types";
 
@@ -47,7 +47,12 @@ export default async function ProcessPage({
         getRelatedPrints(processNumber),
         getTopicsForPrint(processNumber),
       ]);
+    // filter print, and relatedPrints from the list
+    const simmilarPrints = await getPrintsRelatedToTopic(topics[0].name).then(
+      (prints) => prints.filter((p) => p.processPrint?.[0] !== processNumber)
+    );
 
+    console.log(simmilarPrints);
     if (!print) throw new Error("Print not found");
 
     // Group authors by club
@@ -59,85 +64,98 @@ export default async function ProcessPage({
     }, {} as Record<string, PrintAuthor[]>);
 
     return (
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="container mx-auto px-4 py-6 space-y-4">
+        <div className="flex items-center justify-between">
           <Badge variant="outline" className="text-base px-3 py-1">
             Nr {print.number}
           </Badge>
+          {/* if print.processPrint[0] != processNUmber display information `ten druk należy do procesu (url to main process)  */}
+          {print.processPrint[0] !== processNumber && (
+            <a
+              href={`/process/${print.processPrint[0]}`}
+              className="text-base underline text-blue-600"
+            >
+              Ten druk należy do procesu {print.processPrint[0]}
+            </a>
+          )}
+
           <div className="text-sm text-muted-foreground flex items-center gap-2">
             <Calendar className="h-4 w-4 text-primary" />
             {new Date(print.documentDate).toLocaleDateString("pl-PL")}
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold text-primary mb-4">{print.title}</h1>
+        <h1 className="text-2xl font-bold text-primary">{print.title}</h1>
 
-        <p className="text-muted-foreground mb-6">{print.summary}</p>
+        <p className="text-muted-foreground">{print.summary}</p>
 
-        <Separator className="my-4" />
+        <Separator />
 
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
           {/* Main column */}
           <div className="space-y-6">
             {Object.keys(authorsByClub).length > 0 && (
-              <Card className="shadow-sm">
-                <CardHeader className="p-4 pb-0">
-                  <CardTitle className="flex items-center gap-2 text-base">
+              <div className="border rounded-lg">
+                <div className="p-4">
+                  <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
                     <Users className="h-4 w-4 text-primary" />
                     Autorzy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-2">
+                  </h2>
                   <AuthorsSection authorsByClub={authorsByClub} />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
 
             {stages.length > 0 && (
-              <Card className="shadow-sm">
-                <CardHeader className="p-4 pb-0">
-                  <CardTitle className="flex items-center gap-2 text-base">
+              <div className="border rounded-lg">
+                <div className="p-4">
+                  <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
                     <GitBranch className="h-4 w-4 text-primary" />
                     Przebieg procesu
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-2">
+                  </h2>
                   <ProcessStagesSection stages={stages} />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </div>
 
           {/* Side column */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Topics */}
             {topics.length > 0 && (
-              <Card className="shadow-sm">
-                <CardHeader className="p-4 pb-0">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <FileText className="h-4 w-4 text-primary" />
-                    Tematy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-2">
-                  <TopicsSection topics={topics} />
-                </CardContent>
-              </Card>
+              <div className="border rounded-lg p-4">
+                <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
+                  <FileText className="h-4 w-4 text-primary" />
+                  Tematy
+                </h2>
+                <TopicsSection topics={topics} />
+              </div>
             )}
 
             {/* Related Prints */}
             {relatedPrints.length > 0 && (
-              <Card className="shadow-sm">
-                <CardHeader className="p-4 pb-0">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <ChevronRight className="h-4 w-4 text-primary" />
-                    Powiązane druki
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-2">
+              <div className="border rounded-lg p-4">
+                <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
+                  <ChevronRight className="h-4 w-4 text-primary" />
+                  Powiązane druki ({relatedPrints.length})
+                </h2>
+                <div className="max-h-[300px] overflow-y-auto pr-2">
                   <RelatedPrintsSection prints={relatedPrints} />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+            )}
+
+            {/* Similar Prints */}
+            {simmilarPrints.length > 0 && (
+              <div className="border rounded-lg p-4">
+                <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
+                  <ChevronRight className="h-4 w-4 text-primary" />
+                  Podobne druki ({simmilarPrints.length})
+                </h2>
+                <div className="max-h-[300px] overflow-y-auto pr-2">
+                  <RelatedPrintsSection prints={simmilarPrints} />
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -160,7 +178,7 @@ export default async function ProcessPage({
                     key={`${comment.author}-${comment.organization}-${index}`}
                     className="md:basis-1/2 lg:basis-1/3"
                   >
-                    <Card className="p-4 h-full">
+                    <div className="border rounded-lg p-4 h-full">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium text-primary">
                           {comment.author}
@@ -183,7 +201,7 @@ export default async function ProcessPage({
                         </span>
                       )}
                       <p className="text-sm">{comment.summary}</p>
-                    </Card>
+                    </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
