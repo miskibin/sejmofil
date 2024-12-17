@@ -43,3 +43,10 @@ export type Topic = {
   name: string;
   description: string;
 };
+
+export type PrintListItem = {
+  title: string;
+  number: string;
+  topicName: string;
+  topicDescription: string;
+};

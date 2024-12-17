@@ -1,6 +1,13 @@
 "use server";
 import neo4j, { Driver, Session } from "neo4j-driver";
-import { Person, ProcessStage, Comment, Print, Topic } from "./types";
+import {
+  Person,
+  ProcessStage,
+  Comment,
+  Print,
+  Topic,
+  PrintListItem,
+} from "./types";
 
 const DB_URI = process.env.DB_URI || "bolt+s://neo.msulawiak.pl:7687";
 const DB_USER = process.env.DB_USER || "neo4j";
@@ -138,12 +145,13 @@ export const getSimmilarPrints = async (
   return result.map((record) => record.print);
 };
 
-export const getAllTopics = async (): Promise<Topic[]> => {
+export const getAllPrints = async (): Promise<PrintListItem[]> => {
   const query = `
-        MATCH (topic:Topic)
-        RETURN topic.name AS name, topic.description AS description
-    `;
-  return await runQuery<Topic>(query);
+        MATCH (print:Print)-[:REFERS_TO]->(topic:Topic)
+        RETURN print.number AS number, print.title AS title, topic.name AS topicName,
+        topic.description AS topicDescription
+        `;
+  return await runQuery<PrintListItem>(query);
 };
 
 export const getPrint = async (number: string): Promise<Print> => {

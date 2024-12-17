@@ -2,25 +2,21 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import debounce from "lodash/debounce";
-import { Topic, Print } from "@/lib/types";
+import { Topic, PrintListItem } from "@/lib/types";
 
 type Props = {
-  topics: Topic[];
-  prints: Print[];
-  topicsMap: Record<string, string[]>;
+  prints: PrintListItem[];
 };
 
-export default function ProcessSearchClient({
-  topics,
-  prints,
-  topicsMap,
-}: Props) {
+export default function ProcessSearchClient({ prints }: Props) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+
   type SearchResult = {
-    print: Print;
+    print: PrintListItem;
     matchedTopics: Topic[];
   };
+
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   const performSearch = useMemo(
@@ -37,21 +33,24 @@ export default function ProcessSearchClient({
             const titleMatch = searchTerms.some((term) =>
               print.title.toLowerCase().includes(term)
             );
-            const topicMatch = topicsMap[print.number]?.some((topicName) =>
-              searchTerms.some((term) => topicName.toLowerCase().includes(term))
+            const topicMatch = searchTerms.some((term) =>
+              print.topicName.toLowerCase().includes(term)
             );
             return titleMatch || topicMatch;
           })
           .map((print) => ({
             print,
-            matchedTopics: topics.filter((topic) =>
-              topicsMap[print.number]?.includes(topic.name)
-            ),
+            matchedTopics: [
+              {
+                name: print.topicName,
+                description: print.topicDescription,
+              },
+            ],
           }));
 
         setSearchResults(results);
       }, 300),
-    [prints, topics, topicsMap]
+    [prints]
   );
 
   useEffect(() => {
