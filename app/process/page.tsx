@@ -1,3 +1,4 @@
+"use client";
 import { Suspense, useEffect, useState } from "react";
 import { getAllTopics, getPrintsRelatedToTopic } from "@/lib/queries";
 import ProcessSearchClient from "./processSearch";
