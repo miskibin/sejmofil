@@ -190,7 +190,8 @@ export const getPrintComments = async (number: string): Promise<Comment[]> => {
     MATCH (person:Person)-[r:COMMENTS]->(p:Print {number: $number})
     OPTIONAL MATCH (person)-[:REPRESENTS]->(org:Organization)
     WITH DISTINCT r.summary AS summary, person, org, r
-    RETURN person.firstLastName AS firstLastName, org.name AS organization, r.sentiment AS sentiment, summary
+    WITH summary, collect(DISTINCT person.firstLastName)[0] AS firstLastName, collect(DISTINCT org.name)[0] AS organization, collect(DISTINCT r.sentiment)[0] AS sentiment
+    RETURN firstLastName, organization, sentiment, summary
 `;
   const data = await runQuery<Comment>(query, { number });
   return data;

@@ -138,7 +138,10 @@ export const ProcessStagesSection = ({
           {Array.isArray(stage.childStages) && stage.childStages.length > 0 && (
             <div className="ml-4 text-sm text-muted-foreground space-y-1">
               {stage.childStages.map((child) => (
-                <div key={child.stageName} className="flex items-center gap-2">
+                <div
+                  key={`${child.stageName}-${index}`}
+                  className="flex items-center gap-2"
+                >
                   <ChevronRight className="h-4 w-4 text-primary" />
                   <span>{child.stageName}</span>
                 </div>
