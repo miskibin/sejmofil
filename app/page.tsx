@@ -51,18 +51,18 @@ export default function Home() {
               category="Statystyki"
             />
           </div>
-          <div className="col-span-3 row-span-10">
+          <div className="col-span-3 row-span-3">
             <PoliticianQuotes />
           </div>
           {/* Left bottom */}
           {/* Middle bottom */}
-          <div className="col-span-5 row-span-6">
+          <div className="col-span-5 row-span-2">
             <RecentVotes />
           </div>
           <div className="col-span-4 row-span-1">
             <UpcomingElections />
           </div>
-          <div className="col-span-4 row-span-3">
+          <div className="col-span-4 row-span-2">
             <CommissionSessions />
           </div>
         </div>

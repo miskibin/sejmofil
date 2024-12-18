@@ -8,12 +8,12 @@ interface StatCardProps {
 
 export default function StatCard({ title, value, category }: StatCardProps) {
   return (
-    <Card className="w-full h-full">
+    <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <span className="text-sm text-[#8B1538]">{category}</span>
-        <CardTitle className="text-2xl">{title}</CardTitle>
+        <CardTitle className="text-sm text-[#8B1538]">{category}</CardTitle>
+        <h2 className="text-2xl font-semibold">{title}</h2>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
         <p className="text-4xl font-bold">{value}</p>
       </CardContent>
     </Card>

@@ -51,9 +51,10 @@ export default function SessionCalendar() {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle>Kalendarz Obrad</CardTitle>
+        <CardTitle className="text-sm text-[#8B1538]">Informacje</CardTitle>
+        <h2 className="text-2xl font-semibold">Kalendarz obrad </h2>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-between">
+      <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
         <div className="grid grid-cols-7 gap-2">
           {weekDays.map((day) => (
             <div

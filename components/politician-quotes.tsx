@@ -44,23 +44,15 @@ export default function PoliticianQuotes() {
       quote: "Me encanta discutir con otros políticos",
       image: "/placeholder.svg?height=48&width=48",
     },
-    {
-      author: "Leo Varadkar",
-      quote: "I enjoy finding common ground with different",
-      image: "/placeholder.svg?height=48&width=48",
-    },
   ];
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <span className="text-sm text-[#8B1538]">Ciekawostki</span>
-          <CardTitle>Cytaty</CardTitle>
-        </div>
-        <span className="text-sm bg-gray-100 px-2 py-1 rounded">20 Nov</span>
+    <Card className="w-full h-full flex flex-col">
+      <CardHeader>
+        <CardTitle className="text-sm text-[#8B1538]">Ciekawostki</CardTitle>
+        <h2 className="text-2xl font-semibold">Cytaty</h2>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
         {quotes.map((quote, index) => (
           <div key={index} className="flex items-center gap-4">
             <Image
