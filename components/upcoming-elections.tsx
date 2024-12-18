@@ -28,7 +28,7 @@ export default function UpcomingElections() {
         <CardTitle className="text-sm text-[#8B1538]">wybory</CardTitle>
         <h2 className="text-2xl font-semibold">Nadchodzące wybory</h2>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
+      <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-6">
         <div className="space-y-4">
           {elections.map((election, index) => (
             <div key={index} className="flex justify-between items-center">
