@@ -255,7 +255,7 @@ export const CommentsCarouselSection = ({
 }) => {
   if (comments.length === 0) return null;
   return (
-    <Card className="w-full mt-8">
+    <Card className="w-full mt-8 shadow-none border-none">
       <CardHeader>
         <CardTitle className="text-sm text-[#8B1538]">Opinie</CardTitle>
         <h2 className="text-2xl font-semibold">
