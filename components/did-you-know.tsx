@@ -24,6 +24,11 @@ export default function DidYouKnow() {
       count: 192,
       image: "https://api.sejm.gov.pl/sejm/term10/MP/143/photo",
     },
+    {
+      name: "Andrzej Motyka",
+      count: 192,
+      image: "https://api.sejm.gov.pl/sejm/term10/MP/143/photo",
+    },
   ];
 
   return (
