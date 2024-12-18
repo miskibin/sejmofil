@@ -1,14 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import {
-  Calendar,
-  Users,
-  GitBranch,
-  FileText,
-  ChevronRight,
-} from "lucide-react";
+import { Calendar } from "lucide-react";
 import {
   AuthorsSection,
   ProcessStagesSection,
@@ -31,6 +24,7 @@ import {
 } from "@/lib/queries";
 import { Person, Print, ProcessStage, Topic, Comment } from "@/lib/types";
 import Markdown from "react-markdown";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ProcessPageData {
   comments: Comment[];
@@ -114,112 +108,79 @@ export default function ProcessPage({
   if (error) return <div>Error loading process data: {error.message}</div>;
   if (!data) return <div>Loading process data...</div>;
 
-  const {
-    print,
-    stages,
-    authorsByClub,
-    comments,
-    relatedPrints,
-    topics,
-    subjects,
-    simmilarPrints,
-    topicPrints,
-  } = data;
-
   return (
-    <div className="container container-fluid mx-auto px-4 py-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <Badge variant="outline" className="text-base px-3 py-1">
-          Nr {print.number}
-        </Badge>
-        {print.processPrint[0] !== print.number && (
-          <a
-            href={`/process/${print.processPrint[0]}`}
-            className="text-base underline text-blue-600"
-          >
-            Ten druk należy do procesu {print.processPrint[0]}
-          </a>
-        )}
-        <div className="text-sm text-muted-foreground flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-primary" />
-          {new Date(print.documentDate).toLocaleDateString("pl-PL")}
+    <div className="container mx-auto p-8">
+      <Card className="mb-8">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <Badge variant="outline" className="text-base px-3 py-1">
+              Nr {data?.print.number}
+            </Badge>
+            {data?.print.processPrint[0] !== data?.print.number && (
+              <a
+                href={`/process/${data?.print.processPrint[0]}`}
+                className="text-sm text-[#8B1538]"
+              >
+                Ten druk należy do procesu {data?.print.processPrint[0]}
+              </a>
+            )}
+            <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              {data?.print &&
+                new Date(data.print.documentDate).toLocaleDateString("pl-PL")}
+            </div>
+          </div>
+          <h1 className="text-2xl font-semibold mt-4">{data?.print.title}</h1>
+          <Markdown className="prose dark:prose-invert max-w-none mt-4">
+            {data?.print.summary}
+          </Markdown>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-6">
+        {/* Main Content Section */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* Left Column */}
+          <div className="col-span-8 space-y-6">
+            {Object.keys(data?.authorsByClub || {}).length > 0 && (
+              <AuthorsSection authorsByClub={data?.authorsByClub || {}} />
+            )}
+
+            {data?.stages.length > 0 && (
+              <ProcessStagesSection stages={data?.stages || []} />
+            )}
+
+            {data?.comments.length > 0 && (
+              <CommentsCarouselSection comments={data?.comments || []} />
+            )}
+          </div>
+
+          {/* Right Column */}
+          <div className="col-span-4 space-y-6">
+            {data?.topics.length > 0 && (
+              <TopicsSection topics={data?.topics || []} />
+            )}
+
+            {data?.relatedPrints.length > 0 && (
+              <RelatedPrintsSection prints={data?.relatedPrints || []} />
+            )}
+
+            {data?.simmilarPrints.length > 0 && (
+              <RelatedPrintsSection prints={data.simmilarPrints} />
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Section */}
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-8">
+            <TopicPrintsSection prints={data?.topicPrints || []} />
+          </div>
+          <div className="col-span-4">
+            <SubjectsSection subjects={data?.subjects || []} />
+          </div>
         </div>
       </div>
-
-      <h1 className="text-2xl font-bold text-primary">{print.title}</h1>
-      <Markdown className="prose dark:prose-invert max-w-none">
-        {print.summary}
-      </Markdown>
-
-      <Separator />
-
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
-        <div className="space-y-6">
-          {Object.keys(authorsByClub).length > 0 && (
-            <div className="border rounded-lg">
-              <div className="p-4">
-                <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                  <Users className="h-4 w-4 text-primary" />
-                  Autorzy
-                </h2>
-                <AuthorsSection authorsByClub={authorsByClub} />
-              </div>
-            </div>
-          )}
-
-          {stages.length > 0 && (
-            <div className="border rounded-lg">
-              <div className="p-4">
-                <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                  <GitBranch className="h-4 w-4 text-primary" />
-                  Przebieg procesu
-                </h2>
-                <ProcessStagesSection stages={stages} />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          {topics.length > 0 && (
-            <div className="border rounded-lg p-4">
-              <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                <FileText className="h-4 w-4 text-primary" />
-                Tematy
-              </h2>
-              <TopicsSection topics={topics} />
-            </div>
-          )}
-
-          {relatedPrints.length > 0 && (
-            <div className="border rounded-lg p-4">
-              <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                <ChevronRight className="h-4 w-4 text-primary" />
-                Powiązane druki ({relatedPrints.length})
-              </h2>
-              <div className="max-h-[300px] overflow-y-auto pr-2">
-                <RelatedPrintsSection prints={relatedPrints} />
-              </div>
-            </div>
-          )}
-
-          {simmilarPrints.length > 0 && (
-            <div className="border rounded-lg p-4">
-              <h2 className="flex items-center gap-2 text-base font-semibold mb-3">
-                <ChevronRight className="h-4 w-4 text-primary" />
-                Podobne druki ({simmilarPrints.length})
-              </h2>
-              <div className="max-h-[300px] overflow-y-auto pr-2">
-                <RelatedPrintsSection prints={simmilarPrints} />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <CommentsCarouselSection comments={comments} />
-      <TopicPrintsSection prints={topicPrints} />
-      <SubjectsSection subjects={subjects} />
     </div>
   );
 }
