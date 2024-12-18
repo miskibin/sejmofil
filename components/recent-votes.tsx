@@ -44,7 +44,7 @@ export default function RecentVotes() {
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
         {votes.map((vote, index) => (
-          <div key={index} className="flex gap-3">
+          <div key={index} className="flex gap-3 py-2">
             <div
               className={`w-1 self-stretch rounded ${
                 vote.status === "positive" ? "bg-green-500" : "bg-red-500"
