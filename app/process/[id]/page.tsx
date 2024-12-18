@@ -25,6 +25,7 @@ import {
 import { Person, Print, ProcessStage, Topic, Comment } from "@/lib/types";
 import Markdown from "react-markdown";
 import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
 
 interface ProcessPageData {
   comments: Comment[];
@@ -109,13 +110,15 @@ export default function ProcessPage({
   if (!data) return <div>Loading process data...</div>;
 
   return (
-    <div className="container mx-auto p-8">
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <Badge variant="outline" className="text-base px-3 py-1">
-              Nr {data?.print.number}
-            </Badge>
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <Card className="mb-4 sm:mb-8">
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <Link href={`/process/${data?.print.number}`}>
+              <Badge variant="outline" className="text-base px-3 py-1 w-fit hover:bg-accent cursor-pointer transition-colors">
+                Nr {data?.print.number}
+              </Badge>
+            </Link>
             {data?.print.processPrint[0] !== data?.print.number && (
               <a
                 href={`/process/${data?.print.processPrint[0]}`}
@@ -137,13 +140,15 @@ export default function ProcessPage({
         </CardContent>
       </Card>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Main Content Section */}
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           {/* Left Column */}
-          <div className="col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-4 sm:space-y-6">
             {Object.keys(data?.authorsByClub || {}).length > 0 && (
-              <AuthorsSection authorsByClub={data?.authorsByClub || {}} />
+              <Link href="/authors" className="block hover:opacity-75 transition-opacity">
+                <AuthorsSection authorsByClub={data?.authorsByClub || {}} />
+              </Link>
             )}
 
             {data?.stages.length > 0 && (
@@ -156,9 +161,11 @@ export default function ProcessPage({
           </div>
 
           {/* Right Column */}
-          <div className="col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-4 sm:space-y-6">
             {data?.topics.length > 0 && (
-              <TopicsSection topics={data?.topics || []} />
+              <Link href="/topics" className="block hover:opacity-75 transition-opacity">
+                <TopicsSection topics={data?.topics || []} />
+              </Link>
             )}
 
             {data?.relatedPrints.length > 0 && (
@@ -172,11 +179,11 @@ export default function ProcessPage({
         </div>
 
         {/* Bottom Section */}
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+          <div className="lg:col-span-8">
             <TopicPrintsSection prints={data?.topicPrints || []} />
           </div>
-          <div className="col-span-4">
+          <div className="lg:col-span-4">
             <SubjectsSection subjects={data?.subjects || []} />
           </div>
         </div>
