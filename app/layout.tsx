@@ -24,6 +24,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pl">
+      <head>
+        <script
+          async
+          src="https://umami.msulawiak.pl/script.js"
+          data-website-id="5b5c27b4-9296-472d-9f68-b205f7706e0b"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
