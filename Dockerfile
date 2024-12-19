@@ -1,41 +1,37 @@
-# Stage 1: Building the application
+# Stage 1: Build the application
 FROM node:20-alpine AS builder
 
+# Set the working directory
 WORKDIR /app
 
-# Use build arguments
-ARG DB_URI
-ARG DB_USER
-ARG NEO4J_PASSWORD
+# Copy package.json and package-lock.json to install dependencies
+COPY package*.json ./
 
 # Install dependencies
-COPY package*.json ./
 RUN npm ci
 
-# Copy source code
+# Copy the rest of the source code
 COPY . .
 
-# Set environment variables for build
-ENV DB_URI=${DB_URI}
-ENV DB_USER=${DB_USER}
-ENV NEO4J_PASSWORD=${NEO4J_PASSWORD}
-
-# Build the application
+# Build the Next.js application in standalone mode
 RUN npm run build
 
-# Stage 2: Production image
+# Stage 2: Run the standalone production application
 FROM node:20-alpine AS runner
 
+# Set the working directory
 WORKDIR /app
 
+# Set environment to production
 ENV NODE_ENV=production
 
-# Copy necessary files from builder
-COPY --from=builder /app/public ./public
+# Copy only the standalone build from the builder stage
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
+# Expose the port that the app will run on
 EXPOSE 3000
 
-# Start the application
+# Command to run the standalone app
 CMD ["node", "server.js"]
