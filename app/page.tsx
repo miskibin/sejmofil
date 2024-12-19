@@ -20,18 +20,18 @@ export default function Home() {
 
         <div className="grid grid-cols-1 sm:grid-cols-6 lg:grid-cols-12 gap-4">
           {/* First row */}
-          <div className="sm:col-span-3 lg:col-span-3 lg:row-span-2">
+          <div className="sm:col-span-3 lg:col-span-3 lg:row-span-2" data-umami-event="did-you-know-view">
             <DidYouKnow />
           </div>
-          <div className="sm:col-span-3 lg:col-span-4 lg:row-span-2">
+          <div className="sm:col-span-3 lg:col-span-4 lg:row-span-2" data-umami-event="calendar-view">
             <SessionCalendar />
           </div>
-          <div className="sm:col-span-6 lg:col-span-5 lg:row-span-2">
+          <div className="sm:col-span-6 lg:col-span-5 lg:row-span-2" data-umami-event="hot-topics-view">
             <HotTopics />
           </div>
 
           {/* Stats row */}
-          <div className="sm:col-span-2 lg:col-span-3">
+          <div className="sm:col-span-2 lg:col-span-3" data-umami-event="all-votes-stat">
             <StatCard
               title="Wszystkie Głosowania"
               value={1002}
@@ -54,10 +54,10 @@ export default function Home() {
           </div>
 
           {/* Bottom section */}
-          <div className="sm:col-span-3 lg:col-span-3 lg:row-span-3">
+          <div className="sm:col-span-3 lg:col-span-3 lg:row-span-3" data-umami-event="quotes-view">
             <PoliticianQuotes />
           </div>
-          <div className="sm:col-span-3 lg:col-span-5 lg:row-span-2">
+          <div className="sm:col-span-3 lg:col-span-5 lg:row-span-2" data-umami-event="recent-votes-view">
             <RecentVotes />
           </div>
           <div className="sm:col-span-3 lg:col-span-4 row-span-auto">
