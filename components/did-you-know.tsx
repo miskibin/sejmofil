@@ -41,7 +41,7 @@ export default function DidYouKnow() {
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
         {politicians.map((politician, index) => (
-          <div key={index} className="flex items-center justify-between">
+          <div key={index} className="flex items-center justify-between py-2">
             <div className="space-y-1">
               <p className="text-sm text-[#8B1538]">{politician.name}</p>
               <div className="flex items-baseline space-x-1">
