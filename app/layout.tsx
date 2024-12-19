@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "sejmofil",
-  description: "Bo posłów trzeba p...rześwietlać",
+  description: "Bo posłów trzeba pi...lnować!",
 };
 
 export default function RootLayout({
