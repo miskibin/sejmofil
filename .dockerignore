@@ -3,6 +3,9 @@ node_modules
 .git
 .env
 .env.*
+.env*
+!.env.example
+secrets/
 README.md
 .gitignore
 .dockerignore

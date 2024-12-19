@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        - DB_URI=${DB_URI}
+        - DB_USER=${DB_USER}
+        - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_URI=${DB_URI}
+      - DB_USER=${DB_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - NODE_ENV=production
