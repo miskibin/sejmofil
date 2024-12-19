@@ -3,6 +3,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Use build arguments
+ARG DB_URI
+ARG DB_USER
+ARG NEO4J_PASSWORD
+
 # Install dependencies
 COPY package*.json ./
 RUN npm ci
@@ -10,10 +15,10 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Set environment variables
-ENV DB_URI="bolt+s://neo.msulawiak.pl:7687"
-ENV DB_USER="neo4j"
-ENV NEO4J_PASSWORD="677PSbixydyryBVUf3JgsZnpppzpy3C5ytNw"
+# Set environment variables for build
+ENV DB_URI=${DB_URI}
+ENV DB_USER=${DB_USER}
+ENV NEO4J_PASSWORD=${NEO4J_PASSWORD}
 
 # Build the application
 RUN npm run build
@@ -29,12 +34,6 @@ ENV NODE_ENV=production
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-
-# Set environment variables for production
-ENV DB_URI="bolt+s://neo.msulawiak.pl:7687"
-ENV DB_USER="neo4j"
-ENV NEO4J_PASSWORD="677PSbixydyryBVUf3JgsZnpppzpy3C5ytNw"
-ENV PORT=3000
 
 EXPOSE 3000
 
