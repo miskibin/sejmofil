@@ -1,227 +1,233 @@
-"use cache";
-import neo4j, { Driver, Session } from "neo4j-driver";
+"use server";
+import neo4j, { Driver } from "neo4j-driver";
 import {
   Person,
-  ProcessStage,
-  Comment,
   Print,
   Topic,
   PrintListItem,
+  Comment,
+  ProcessStage,
 } from "./types";
 
-const DB_URI = process.env.DB_URI || "";
-const DB_USER = process.env.DB_USER || "";
-const DB_PASSWORD = process.env.NEO4J_PASSWORD || "";
-console.log(DB_URI);
 const driver: Driver = neo4j.driver(
-  DB_URI,
-  neo4j.auth.basic(DB_USER, DB_PASSWORD)
+  process.env.DB_URI || "",
+  neo4j.auth.basic(process.env.DB_USER || "", process.env.NEO4J_PASSWORD || "")
 );
 
-const serializeData = (data: object): object | null => {
-  if (!data) return null;
-  if (Array.isArray(data)) return data.map(serializeData);
-  if (typeof data === "object") {
-    const serialized: { [key: string]: unknown } = {};
-    for (const [key, value] of Object.entries(data)) {
-      if (
-        value &&
-        typeof value === "object" &&
-        "low" in value &&
-        "high" in value
-      ) {
-        // Handle Neo4j Integer
-        serialized[key] = value.low;
-      } else if (value instanceof Date) {
-        // Handle Date objects
-        serialized[key] = value.toISOString();
-      } else if (value && typeof value === "object") {
-        // Recursively serialize nested objects
-        serialized[key] = serializeData(value);
-      } else {
-        serialized[key] = value;
-      }
-    }
-    return serialized;
+// Serialization helper for Neo4j integers and dates
+function serializeNeo4jResult(data: unknown): unknown {
+  if (data === null || data === undefined) {
+    return null;
   }
-  return data;
-};
 
-const runQuery = async <T>(
+  if (neo4j.isInt(data)) {
+    return data.toNumber();
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(serializeNeo4jResult);
+  }
+
+  if (data instanceof Date) {
+    return data.toISOString();
+  }
+
+  if (typeof data === "object") {
+    return Object.fromEntries(
+      Object.entries(data).map(([key, value]) => [
+        key,
+        serializeNeo4jResult(value),
+      ])
+    );
+  }
+
+  return data;
+}
+
+// Base query function with caching and serialization
+async function runQuery<T>(
   query: string,
   params: Record<string, unknown> = {}
-): Promise<T[]> => {
+): Promise<T[]> {
   "use cache";
-  const session: Session = driver.session();
+  const session = driver.session();
   try {
     const result = await session.run(query, params);
     return result.records.map(
-      (record) => serializeData(record.toObject()) as T
+      (record) => serializeNeo4jResult(record.toObject()) as T
     );
   } finally {
     await session.close();
   }
-};
+}
 
-export const getRelatedPrints = async (number: string): Promise<Print[]> => {
+export async function getRelatedPrints(number: string): Promise<Print[]> {
   "use cache";
   const query = `
-        MATCH (related:Print)-[:REFERENCES]->(p:Print {number: $number})
-        RETURN related {
-            .number,
-            .title,
-            .term,
-            .documentType,
-            .changeDate,
-            .deliveryDate,
-            .documentDate,
-            .summary,
-            .attachments
-            } as print
-        
-        `;
+    MATCH (related:Print)-[:REFERENCES]->(p:Print {number: $number})
+    RETURN related {
+      number: related.number,
+      title: related.title,
+      term: related.term,
+      documentType: related.documentType,
+      changeDate: related.changeDate,
+      deliveryDate: related.deliveryDate,
+      documentDate: related.documentDate,
+      summary: related.summary,
+      attachments: related.attachments,
+      processPrint: related.processPrint
+    } as print
+  `;
   const result = await runQuery<{ print: Print }>(query, { number });
   return result.map((record) => record.print);
-};
+}
 
-export const getTopicsForPrint = async (number: string): Promise<Topic[]> => {
+export async function getTopicsForPrint(number: string): Promise<Topic[]> {
   "use cache";
   const query = `
-        MATCH (print:Print {number: $number})-[:REFERS_TO]->(topic:Topic)
-        RETURN topic.name AS name, topic.description AS description
-    `;
-  const result = await runQuery<Topic>(query, { number });
-  return result;
-};
+    MATCH (print:Print {number: $number})-[:REFERS_TO]->(topic:Topic)
+    RETURN topic.name AS name, topic.description AS description
+  `;
+  return runQuery<Topic>(query, { number });
+}
 
-export const getPrintsRelatedToTopic = async (
+export async function getPrintsRelatedToTopic(
   topic_name: string
-): Promise<Print[]> => {
+): Promise<Print[]> {
   "use cache";
   const query = `
-        MATCH (p:Print )-[:REFERS_TO]->(topic:Topic {name: $topic_name})
-        RETURN p {
-            .number,
-            .title,
-            .term,
-            .documentType,
-            .changeDate,
-            .processPrint,
-            .deliveryDate,
-            .documentDate,
-            .summary,
-            .attachments
-          } as print
-    `;
+    MATCH (p:Print)-[:REFERS_TO]->(topic:Topic {name: $topic_name})
+    RETURN p {
+      number: p.number,
+      title: p.title,
+      term: p.term,
+      documentType: p.documentType,
+      changeDate: p.changeDate,
+      deliveryDate: p.deliveryDate,
+      documentDate: p.documentDate,
+      summary: p.summary,
+      attachments: p.attachments,
+      processPrint: p.processPrint
+    } as print
+  `;
   const result = await runQuery<{ print: Print }>(query, { topic_name });
   return result.map((record) => record.print);
-};
-export const getSimmilarPrints = async (
+}
+
+export async function getSimmilarPrints(
   printNumber: string,
   maxVectorDistance: number = 0.5
-): Promise<Print[]> => {
+): Promise<Print[]> {
+  "use cache";
   const query = `
-        MATCH (n:Print {number: $printNumber})
-        WITH n
-        MATCH (p:Print)
-        WHERE p <> n
-        WITH p, gds.similarity.cosine(n.embedding, p.embedding) as similarity
-        WHERE similarity <= $maxVectorDistance
-        RETURN p {
-            .number,
-            .title,
-            .term,
-            .documentType,
-            .changeDate,
-            .processPrint,
-            .deliveryDate,
-            .documentDate,
-            .summary,
-            .attachments
-          } as print
-        ORDER BY similarity DESC
-        LIMIT 3
-    `;
+    MATCH (n:Print {number: $printNumber})
+    WITH n
+    MATCH (p:Print)
+    WHERE p <> n
+    WITH p, gds.similarity.cosine(n.embedding, p.embedding) as similarity
+    WHERE similarity <= $maxVectorDistance
+    RETURN p {
+      number: p.number,
+      title: p.title,
+      term: p.term,
+      documentType: p.documentType,
+      changeDate: p.changeDate,
+      deliveryDate: p.deliveryDate,
+      documentDate: p.documentDate,
+      summary: p.summary,
+      attachments: p.attachments,
+      processPrint: p.processPrint
+    } as print
+    ORDER BY similarity DESC
+    LIMIT 3
+  `;
   const result = await runQuery<{ print: Print }>(query, {
     printNumber,
     maxVectorDistance,
   });
   return result.map((record) => record.print);
-};
+}
 
-export const getAllPrints = async (): Promise<PrintListItem[]> => {
+export async function getAllPrints(): Promise<PrintListItem[]> {
   "use cache";
   const query = `
-        MATCH (print:Print)-[:REFERS_TO]->(topic:Topic)
-        RETURN print.number AS number, print.title AS title, topic.name AS topicName,
-        topic.description AS topicDescription
-        `;
-  return await runQuery<PrintListItem>(query);
-};
+    MATCH (print:Print)-[:REFERS_TO]->(topic:Topic)
+    RETURN print.number AS number, 
+           print.title AS title,
+           topic.name AS topicName, 
+           topic.description AS topicDescription
+  `;
+  return runQuery<PrintListItem>(query);
+}
 
-export const getPrint = async (number: string): Promise<Print> => {
+export async function getPrint(number: string): Promise<Print | null> {
   "use cache";
   const query = `
     MATCH (p:Print {number: $number})
     RETURN p {
-      .number,
-      .title,
-      .term,
-      .documentType,
-      .changeDate,
-      .deliveryDate,
-      .documentDate,
-      .processPrint,
-      .summary,
-      .attachments
+      number: p.number,
+      title: p.title,
+      term: p.term,
+      documentType: p.documentType,
+      changeDate: p.changeDate,
+      deliveryDate: p.deliveryDate,
+      documentDate: p.documentDate,
+      summary: p.summary,
+      attachments: p.attachments,
+      processPrint: p.processPrint
     } as print
   `;
   const result = await runQuery<{ print: Print }>(query, { number });
-  return result[0]?.print;
-};
+  return result[0]?.print || null;
+}
 
-export const getPrintAuthors = async (number: string): Promise<Person[]> => {
+export async function getPrintAuthors(number: string): Promise<Person[]> {
+  "use cache";
   const query = `
     MATCH (person:Person)-[:AUTHORED]->(p:Print {number: $number})
     RETURN person.firstLastName AS firstLastName, person.club AS club
-`;
-  const data = await runQuery<Person>(query, { number });
-  console.log(data);
-  return data;
-};
-export const getPrintSubjects = async (number: string): Promise<Person[]> => {
+  `;
+  return runQuery<Person>(query, { number });
+}
+
+export async function getPrintSubjects(number: string): Promise<Person[]> {
+  "use cache";
   const query = `
     MATCH (person:Person)-[:SUBJECT]->(p:Print {number: $number})
-    RETURN person.firstLastName AS firstLastName, person
-`;
-  const data = await runQuery<Person>(query, { number });
-  console.log(data);
-  return data;
-};
+    RETURN person.firstLastName AS firstLastName, person.club AS club
+  `;
+  return runQuery<Person>(query, { number });
+}
 
-export const getPrintComments = async (number: string): Promise<Comment[]> => {
+export async function getPrintComments(number: string): Promise<Comment[]> {
+  "use cache";
   const query = `
     MATCH (person:Person)-[r:COMMENTS]->(p:Print {number: $number})
     OPTIONAL MATCH (person)-[:REPRESENTS]->(org:Organization)
     WITH DISTINCT r.summary AS summary, person, org, r
-    WITH summary, collect(DISTINCT person.firstLastName)[0] AS firstLastName, collect(DISTINCT org.name)[0] AS organization, collect(DISTINCT r.sentiment)[0] AS sentiment
+    WITH summary, 
+         collect(DISTINCT person.firstLastName)[0] AS firstLastName,
+         collect(DISTINCT org.name)[0] AS organization,
+         collect(DISTINCT r.sentiment)[0] AS sentiment
     RETURN firstLastName, organization, sentiment, summary
-`;
-  const data = await runQuery<Comment>(query, { number });
-  return data;
-};
+  `;
+  return runQuery<Comment>(query, { number });
+}
 
-export const getAllProcessStages = async (
+export async function getAllProcessStages(
   processNumber: string
-): Promise<ProcessStage[]> => {
+): Promise<ProcessStage[]> {
+  "use cache";
   const query = `
-        MATCH (p:Process {number: $processNumber})-[:HAS]->(stage:Stage)
-        OPTIONAL MATCH (stage)-[:HAS_CHILD]->(childStage:Stage)
-        RETURN stage.stageName AS stageName, stage.date AS date, collect(childStage) AS childStages
-    `;
-  return await runQuery<ProcessStage>(query, { processNumber });
-};
+    MATCH (p:Process {number: $processNumber})-[:HAS]->(stage:Stage)
+    OPTIONAL MATCH (stage)-[:HAS_CHILD]->(childStage:Stage)
+    RETURN stage.stageName AS stageName,
+           stage.date AS date,
+           collect(childStage {.*}) AS childStages
+  `;
+  return runQuery<ProcessStage>(query, { processNumber });
+}
 
-export const closeDriver = async (): Promise<void> => {
+export async function closeDriver(): Promise<void> {
   await driver.close();
-};
+}
