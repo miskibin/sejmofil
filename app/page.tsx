@@ -6,8 +6,11 @@ import PoliticianQuotes from "@/components/politician-quotes";
 import DidYouKnow from "@/components/did-you-know";
 import SessionCalendar from "@/components/calendar";
 import HotTopics from "@/components/hot-topics";
+import { getTotalProceedingDays } from "@/lib/queries";
 
-export default function Home() {
+export default async function Home() {
+  const totalDays = await getTotalProceedingDays();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -20,18 +23,30 @@ export default function Home() {
 
         <div className="grid grid-cols-1 sm:grid-cols-6 lg:grid-cols-12 gap-4">
           {/* First row */}
-          <div className="sm:col-span-3 lg:col-span-3 lg:row-span-2" data-umami-event="did-you-know-view">
+          <div
+            className="sm:col-span-3 lg:col-span-3 lg:row-span-2"
+            data-umami-event="did-you-know-view"
+          >
             <DidYouKnow />
           </div>
-          <div className="sm:col-span-3 lg:col-span-4 lg:row-span-2" data-umami-event="calendar-view">
+          <div
+            className="sm:col-span-3 lg:col-span-4 lg:row-span-2"
+            data-umami-event="calendar-view"
+          >
             <SessionCalendar />
           </div>
-          <div className="sm:col-span-6 lg:col-span-5 lg:row-span-2" data-umami-event="hot-topics-view">
+          <div
+            className="sm:col-span-6 lg:col-span-5 lg:row-span-2"
+            data-umami-event="hot-topics-view"
+          >
             <HotTopics />
           </div>
 
           {/* Stats row */}
-          <div className="sm:col-span-2 lg:col-span-3" data-umami-event="all-votes-stat">
+          <div
+            className="sm:col-span-2 lg:col-span-3"
+            data-umami-event="all-votes-stat"
+          >
             <StatCard
               title="Wszystkie Głosowania"
               value={1002}
@@ -40,8 +55,8 @@ export default function Home() {
           </div>
           <div className="sm:col-span-2 lg:col-span-3">
             <StatCard
-              title="Wszystkie Projekty"
-              value={215}
+              title="Dni pracy sejmu"
+              value={totalDays}
               category="Statystyki"
             />
           </div>
@@ -54,10 +69,16 @@ export default function Home() {
           </div>
 
           {/* Bottom section */}
-          <div className="sm:col-span-3 lg:col-span-3 lg:row-span-3" data-umami-event="quotes-view">
+          <div
+            className="sm:col-span-3 lg:col-span-3 lg:row-span-3"
+            data-umami-event="quotes-view"
+          >
             <PoliticianQuotes />
           </div>
-          <div className="sm:col-span-3 lg:col-span-5 lg:row-span-2" data-umami-event="recent-votes-view">
+          <div
+            className="sm:col-span-3 lg:col-span-5 lg:row-span-2"
+            data-umami-event="recent-votes-view"
+          >
             <RecentVotes />
           </div>
           <div className="sm:col-span-3 lg:col-span-4 row-span-auto">
