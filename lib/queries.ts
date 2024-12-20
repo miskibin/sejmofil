@@ -1,4 +1,4 @@
-"use server";
+"use cache";
 import neo4j, { Driver, Session } from "neo4j-driver";
 import {
   Person,
