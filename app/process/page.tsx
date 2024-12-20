@@ -6,6 +6,31 @@ import { getAllPrints } from "@/lib/queries";
 import { PrintListItem } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+const CachedSearchResults = async ({
+  query,
+  prints,
+}: {
+  query: string;
+  prints: PrintListItem[];
+}) => {
+  if (!query.trim()) {
+    return [];
+  }
+
+  const searchTerms = query.toLowerCase().split(" ");
+  return prints
+    .filter((print) => {
+      const titleMatch = searchTerms.some((term) =>
+        print.title.toLowerCase().includes(term)
+      );
+      const topicMatch = searchTerms.some((term) =>
+        print.topicName.toLowerCase().includes(term)
+      );
+      return titleMatch || topicMatch;
+    })
+    .slice(0, 4);
+};
+
 export default function ProcessSearchPage() {
   const router = useRouter();
   const [prints, setPrints] = useState<PrintListItem[]>([]);
@@ -22,25 +47,8 @@ export default function ProcessSearchPage() {
 
   const performSearch = useMemo(
     () =>
-      debounce((query: string) => {
-        if (!query.trim()) {
-          setSearchResults([]);
-          return;
-        }
-
-        const searchTerms = query.toLowerCase().split(" ");
-        const results = prints
-          .filter((print) => {
-            const titleMatch = searchTerms.some((term) =>
-              print.title.toLowerCase().includes(term)
-            );
-            const topicMatch = searchTerms.some((term) =>
-              print.topicName.toLowerCase().includes(term)
-            );
-            return titleMatch || topicMatch;
-          })
-          .slice(0, 4); // Limit results to 4
-
+      debounce(async (query: string) => {
+        const results = await CachedSearchResults({ query, prints });
         setSearchResults(results);
       }, 50),
     [prints]
