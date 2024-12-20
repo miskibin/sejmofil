@@ -1,3 +1,4 @@
+"use cache";
 import StatCard from "@/components/stat-card";
 import RecentVotes from "@/components/recent-votes";
 import UpcomingElections from "@/components/upcoming-elections";
@@ -55,7 +56,7 @@ export default async function Home() {
           </div>
           <div className="sm:col-span-2 lg:col-span-3">
             <StatCard
-              title="Dni pracy sejmu"
+              title="Dni posiedzeń sejmu"
               value={totalDays}
               category="Statystyki"
             />

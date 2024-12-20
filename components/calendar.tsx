@@ -7,7 +7,7 @@ interface CalendarDay {
 }
 
 export default function SessionCalendar() {
-  const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const weekDays = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sb", "Nd"];
 
   const calendar: CalendarDay[][] = [
     [
