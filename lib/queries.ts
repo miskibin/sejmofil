@@ -51,6 +51,7 @@ const runQuery = async <T>(
   query: string,
   params: Record<string, unknown> = {}
 ): Promise<T[]> => {
+  "use cache";
   const session: Session = driver.session();
   try {
     const result = await session.run(query, params);
@@ -63,6 +64,7 @@ const runQuery = async <T>(
 };
 
 export const getRelatedPrints = async (number: string): Promise<Print[]> => {
+  "use cache";
   const query = `
         MATCH (related:Print)-[:REFERENCES]->(p:Print {number: $number})
         RETURN related {
@@ -83,6 +85,7 @@ export const getRelatedPrints = async (number: string): Promise<Print[]> => {
 };
 
 export const getTopicsForPrint = async (number: string): Promise<Topic[]> => {
+  "use cache";
   const query = `
         MATCH (print:Print {number: $number})-[:REFERS_TO]->(topic:Topic)
         RETURN topic.name AS name, topic.description AS description
@@ -94,6 +97,7 @@ export const getTopicsForPrint = async (number: string): Promise<Topic[]> => {
 export const getPrintsRelatedToTopic = async (
   topic_name: string
 ): Promise<Print[]> => {
+  "use cache";
   const query = `
         MATCH (p:Print )-[:REFERS_TO]->(topic:Topic {name: $topic_name})
         RETURN p {
@@ -146,6 +150,7 @@ export const getSimmilarPrints = async (
 };
 
 export const getAllPrints = async (): Promise<PrintListItem[]> => {
+  "use cache";
   const query = `
         MATCH (print:Print)-[:REFERS_TO]->(topic:Topic)
         RETURN print.number AS number, print.title AS title, topic.name AS topicName,
@@ -155,6 +160,7 @@ export const getAllPrints = async (): Promise<PrintListItem[]> => {
 };
 
 export const getPrint = async (number: string): Promise<Print> => {
+  "use cache";
   const query = `
     MATCH (p:Print {number: $number})
     RETURN p {
