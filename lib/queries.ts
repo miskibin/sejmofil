@@ -9,9 +9,9 @@ import {
   PrintListItem,
 } from "./types";
 
-const DB_URI = process.env.DB_URI || "bolt+s://neo.msulawiak.pl:7687";
-const DB_USER = process.env.DB_USER || "neo4j";
-const DB_PASSWORD = process.env.NEO4J_PASSWORD || "default_password";
+const DB_URI = process.env.DB_URI || "";
+const DB_USER = process.env.DB_USER || "";
+const DB_PASSWORD = process.env.NEO4J_PASSWORD || "";
 console.log(DB_URI);
 const driver: Driver = neo4j.driver(
   DB_URI,
