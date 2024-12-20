@@ -228,6 +228,20 @@ export async function getAllProcessStages(
   return runQuery<ProcessStage>(query, { processNumber });
 }
 
+export async function getTotalProceedingDays(): Promise<number> {
+  "use cache";
+  const query = `
+    MATCH (p:Proceeding)
+    WITH p, date() as today
+    UNWIND p.proceeding_dates as dateStr
+    WITH date(dateStr) as proceedingDate, today
+    WHERE proceedingDate <= today
+    RETURN count(proceedingDate) as totalDays
+  `;
+  const result = await runQuery<{ totalDays: number }>(query);
+  return result[0]?.totalDays || 0;
+}
+
 export async function closeDriver(): Promise<void> {
   await driver.close();
 }
