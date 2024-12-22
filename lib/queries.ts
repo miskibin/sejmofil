@@ -9,11 +9,6 @@ import {
   ProcessStage,
 } from "./types";
 
-const driver: Driver = neo4j.driver(
-  process.env.DB_URI || "",
-  neo4j.auth.basic(process.env.DB_USER || "", process.env.NEO4J_PASSWORD || "")
-);
-
 // Serialization helper for Neo4j integers and dates
 function serializeNeo4jResult(data: unknown): unknown {
   if (data === null || data === undefined) {
@@ -49,8 +44,11 @@ async function runQuery<T>(
   query: string,
   params: Record<string, unknown> = {}
 ): Promise<T[]> {
-  
-  const session = driver.session({database: "neo4j"});
+  const driver: Driver = neo4j.driver(
+    process.env.DB_URI || "",
+    neo4j.auth.basic(process.env.DB_USER || "", process.env.NEO4J_PASSWORD || "")
+  );
+  const session = driver.session({ database: "neo4j" });
   try {
     const result = await session.run(query, params);
     return result.records.map(
@@ -58,6 +56,7 @@ async function runQuery<T>(
     );
   } finally {
     await session.close();
+    await driver.close();
   }
 }
 
@@ -240,8 +239,4 @@ export async function getTotalProceedingDays(): Promise<number> {
   `;
   const result = await runQuery<{ totalDays: number }>(query);
   return result[0]?.totalDays || 0;
-}
-
-export async function closeDriver(): Promise<void> {
-  await driver.close();
 }
