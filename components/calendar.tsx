@@ -51,7 +51,7 @@ export default function SessionCalendar() {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle className="text-sm text-[#8B1538]">Informacje</CardTitle>
+        <CardTitle className="text-sm text-primary">Informacje</CardTitle>
         <h2 className="text-2xl font-semibold">Kalendarz obrad </h2>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
@@ -70,7 +70,7 @@ export default function SessionCalendar() {
               className={`aspect-square p-2 rounded flex items-center justify-center ${
                 day?.isHighlighted
                   ? day.color === "secondary"
-                    ? "bg-[#8B1538] text-white"
+                    ? "bg-primary text-white"
                     : "bg-[#2D3748] text-white"
                   : "bg-gray-100"
               }`}

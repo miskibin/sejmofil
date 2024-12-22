@@ -62,7 +62,7 @@ export default function ProcessSearchPage() {
     <div className="container mx-auto p-8">
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-sm text-[#8B1538]">Wyszukiwarka</CardTitle>
+          <CardTitle className="text-sm text-primary">Wyszukiwarka</CardTitle>
           <h2 className="text-2xl font-semibold">Proces legislacyjny</h2>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -72,7 +72,7 @@ export default function ProcessSearchPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Wyszukaj po tytule lub temacie..."
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1538]/50"
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
 
@@ -95,11 +95,11 @@ export default function ProcessSearchPage() {
                       {print.title}
                     </p>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      <span className="px-2 py-1 text-xs rounded-full  text-[#8B1538] font-medium">
+                      <span className="px-2 py-1 text-xs rounded-full  text-primary font-medium">
                         {print.topicName}
                       </span>
                     </div>
-                    <p className="text-xs font-medium text-[#8B1538]/70">
+                    <p className="text-xs font-medium text-primary/70">
                       Druk {print.number}
                     </p>
                   </div>

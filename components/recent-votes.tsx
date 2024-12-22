@@ -39,7 +39,7 @@ export default function RecentVotes() {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle className="text-sm text-[#8B1538]">🧂 Newsy</CardTitle>
+        <CardTitle className="text-sm text-primary">🧂 Newsy</CardTitle>
         <h2 className="text-2xl font-semibold">Ostatnie głosowania</h2>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">

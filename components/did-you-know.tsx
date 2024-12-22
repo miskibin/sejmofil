@@ -34,7 +34,7 @@ export default function DidYouKnow() {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle className="text-sm text-[#8B1538]">
+        <CardTitle className="text-sm text-primary">
           Plebiscyt - Polityków
         </CardTitle>
         <h2 className="text-2xl font-semibold">Czy wiesz, że?</h2>
@@ -43,7 +43,7 @@ export default function DidYouKnow() {
         {politicians.map((politician, index) => (
           <div key={index} className="flex items-center justify-between py-2">
             <div className="space-y-1">
-              <p className="text-sm text-[#8B1538]">{politician.name}</p>
+              <p className="text-sm text-primary">{politician.name}</p>
               <div className="flex items-baseline space-x-1">
                 <span className="text-md font-semibold">Przerwał</span>
                 <span className="text-md font-bold">

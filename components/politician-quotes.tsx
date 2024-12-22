@@ -49,7 +49,7 @@ export default function PoliticianQuotes() {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle className="text-sm text-[#8B1538]">Ciekawostki</CardTitle>
+        <CardTitle className="text-sm text-primary">Ciekawostki</CardTitle>
         <h2 className="text-2xl font-semibold">Cytaty</h2>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
@@ -63,7 +63,7 @@ export default function PoliticianQuotes() {
               className="rounded-md"
             />
             <div className="space-y-1 flex-1">
-              <p className="text-sm text-[#8B1538]">{quote.author}</p>
+              <p className="text-sm text-primary">{quote.author}</p>
               <p className="text-sm font-medium">{quote.quote}</p>
             </div>
           </div>

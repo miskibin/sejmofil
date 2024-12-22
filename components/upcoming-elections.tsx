@@ -30,13 +30,13 @@ export default function UpcomingElections() {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle className="text-sm text-[#8B1538]">wybory</CardTitle>
+        <CardTitle className="text-sm text-primary">wybory</CardTitle>
         <h2 className="text-2xl font-semibold">Nadchodzące wybory</h2>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between">
         <div className="relative space-y-6">
           {/* Vertical line */}
-          <div className="absolute left-[6px] top-3 bottom-3 w-[2px] bg-[#8B1538]" />
+          <div className="absolute left-[6px] top-3 bottom-3 w-[2px] bg-primary" />
 
           {elections.map((election, index) => (
             <div
@@ -47,8 +47,8 @@ export default function UpcomingElections() {
               <div
                 className={`absolute left-0 w-3.5 h-3.5 rounded-full border-2 ${
                   election.active
-                    ? "bg-[#8B1538] border-[#8B1538]"
-                    : "bg-white border-[#8B1538]"
+                    ? "bg-primary border-primary"
+                    : "bg-white border-primary"
                 }`}
               />
 
