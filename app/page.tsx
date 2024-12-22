@@ -1,4 +1,4 @@
-"use cache";
+// "use cache";
 import StatCard from "@/components/stat-card";
 import RecentVotes from "@/components/recent-votes";
 import UpcomingElections from "@/components/upcoming-elections";
