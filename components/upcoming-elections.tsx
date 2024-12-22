@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 interface Election {
   type: string;
   date: string;
+  active?: boolean;
 }
 
 export default function UpcomingElections() {
@@ -10,8 +11,12 @@ export default function UpcomingElections() {
     {
       type: "Prezydenckie",
       date: "14 Maja 2024",
+      active: true,
     },
-
+    {
+      type: "Samorządowe",
+      date: "około 2027 roku",
+    },
     {
       type: "Europejskie",
       date: "około 2028 roku",
@@ -28,14 +33,29 @@ export default function UpcomingElections() {
         <CardTitle className="text-sm text-[#8B1538]">wybory</CardTitle>
         <h2 className="text-2xl font-semibold">Nadchodzące wybory</h2>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-6">
-        <div className="space-y-4">
+      <CardContent className="flex-1 flex flex-col justify-between">
+        <div className="relative space-y-6">
+          {/* Vertical line */}
+          <div className="absolute left-[6px] top-3 bottom-3 w-[2px] bg-[#8B1538]" />
+
           {elections.map((election, index) => (
-            <div key={index} className="flex justify-between items-center">
-              <span className="font-medium">{election.type}</span>
-              <span className="text-sm text-muted-foreground">
-                {election.date}
+            <div
+              key={index}
+              className="flex justify-between items-center relative pl-8"
+            >
+              {/* Timeline dot */}
+              <div
+                className={`absolute left-0 w-3.5 h-3.5 rounded-full border-2 ${
+                  election.active
+                    ? "bg-[#8B1538] border-[#8B1538]"
+                    : "bg-white border-[#8B1538]"
+                }`}
+              />
+
+              <span className="  font-medium">
+                {election.type}
               </span>
+              <span className="">{election.date}</span>
             </div>
           ))}
         </div>

@@ -1,3 +1,4 @@
+"use cache";
 import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
@@ -157,11 +158,13 @@ async function ProcessPageContent({ id }: { id: string }) {
 export default async function ProcessPage({
   params,
 }: {
-  params: { id: string };
+  params: { id: string } | Promise<{ id: string }>;
 }) {
+  const resolvedParams = await params;
   return (
-    <Suspense fallback={<div>Loading process data...</div>}>
-      <ProcessPageContent id={params.id} />
-    </Suspense>
+    // <Suspense fallback={<div>Loading process data...</div>}>
+    <ProcessPageContent id={resolvedParams.id} />
+    // </Suspense>
   );
 }
+
