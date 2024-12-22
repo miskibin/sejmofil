@@ -26,20 +26,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-// Define proper TypeScript interface for the page props
+// Update the PageProps interface to match Next.js 15 types
 interface PageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
 export default async function Page({ params }: PageProps) {
   try {
     // Await params before using them
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
-    
+    const { id } = await params;
+
     // Validate id parameter
     if (!id) {
       notFound();
@@ -70,21 +67,25 @@ export default async function Page({ params }: PageProps) {
     }
 
     // Get related topic prints - only if topics exist
-    const topicPrints = topics.length > 0
-      ? (await getPrintsRelatedToTopic(topics[0].name)).filter(
-          (p) => p.processPrint?.[0] !== id
-        )
-      : [];
+    const topicPrints =
+      topics.length > 0
+        ? (await getPrintsRelatedToTopic(topics[0].name)).filter(
+            (p) => p.processPrint?.[0] !== id
+          )
+        : [];
 
     // Group authors by club using type-safe reducer
-    const authorsByClub = authorsData.reduce<Record<string, Person[]>>((acc, author) => {
-      const club = author.club || "Brak klubu";
-      if (!acc[club]) {
-        acc[club] = [];
-      }
-      acc[club].push(author);
-      return acc;
-    }, {});
+    const authorsByClub = authorsData.reduce<Record<string, Person[]>>(
+      (acc, author) => {
+        const club = author.club || "Brak klubu";
+        if (!acc[club]) {
+          acc[club] = [];
+        }
+        acc[club].push(author);
+        return acc;
+      },
+      {}
+    );
 
     return (
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
