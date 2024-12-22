@@ -1,4 +1,3 @@
-"use cache";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import {
