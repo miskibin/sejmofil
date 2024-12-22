@@ -1,5 +1,4 @@
 "use cache";
-import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import {
