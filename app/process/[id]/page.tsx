@@ -94,9 +94,7 @@ async function AuthorsContent({ id }: { id: string }) {
   if (Object.keys(authorsByClub).length === 0) return null;
 
   return (
-    <Link href="/authors" className="block hover:opacity-75 transition-opacity">
       <AuthorsSection authorsByClub={authorsByClub} />
-    </Link>
   );
 }
 
@@ -122,12 +120,8 @@ async function TopicsWithRelatedContent({ id }: { id: string }) {
   return (
     <>
       {topics.length > 0 && (
-        <Link
-          href="/topics"
-          className="block hover:opacity-75 transition-opacity"
-        >
+
           <TopicsSection topics={topics} />
-        </Link>
       )}
       {relatedPrints.length > 0 && (
         <RelatedPrintsSection prints={relatedPrints} />
