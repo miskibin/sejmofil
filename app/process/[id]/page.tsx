@@ -60,7 +60,7 @@ async function PrintDetails({ id }: { id: string }) {
           {print.processPrint[0] !== print.number && (
             <Link
               href={`/process/${print.processPrint[0]}`}
-              className="text-sm text-[#8B1538]"
+              className="text-sm text-primary"
             >
               Ten druk należy do procesu {print.processPrint[0]}
             </Link>

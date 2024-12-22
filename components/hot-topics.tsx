@@ -61,7 +61,7 @@ export default function HotTopics() {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle className="text-sm text-[#8B1538]">Newsy</CardTitle>
+        <CardTitle className="text-sm text-primary">Newsy</CardTitle>
         <h2 className="text-2xl font-semibold">Gorące tematy</h2>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
@@ -69,7 +69,7 @@ export default function HotTopics() {
           .map((item) => (
             <div key={item.id} className="space-y-1">
               <div className="flex gap-3">
-                <span className="text-xl font-bold text-[#8B1538]">
+                <span className="text-xl font-bold text-primary">
                   {item.id}
                 </span>
                 <h3 className="text-lg font-medium">{item.title}</h3>

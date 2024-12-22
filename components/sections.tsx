@@ -25,7 +25,7 @@ export const AuthorsSection = ({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-sm text-[#8B1538]">Autorzy</CardTitle>
+        <CardTitle className="text-sm text-primary">Autorzy</CardTitle>
         <h2 className="text-2xl font-semibold">Według klubów</h2>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -85,7 +85,7 @@ export const AuthorsSection = ({
 export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
   <Card className="w-full">
     <CardHeader>
-      <CardTitle className="text-sm text-[#8B1538]">Tematy</CardTitle>
+      <CardTitle className="text-sm text-primary">Tematy</CardTitle>
       <h2 className="text-2xl font-semibold">Zagadnienia</h2>
     </CardHeader>
     <CardContent>
@@ -93,9 +93,9 @@ export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
         {topics.map((topic) => (
           <div
             key={topic.name}
-            className="flex flex-col gap-2 border-[#8B1538]/10 rounded-md p-3 bg-[#8B1538]/5"
+            className="flex flex-col gap-2 border-primary/10 rounded-md p-3 bg-primary/5"
           >
-            <span className="font-medium text-[#8B1538]">{topic.name}</span>
+            <span className="font-medium text-primary">{topic.name}</span>
             {topic.description.startsWith("{")
               ? JSON.parse(topic.description)[topic.name]
               : topic.description}
@@ -109,7 +109,7 @@ export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
 export const RelatedPrintsSection = ({ prints }: { prints: Print[] }) => (
   <Card className="w-full">
     <CardHeader>
-      <CardTitle className="text-sm text-[#8B1538]">Druki</CardTitle>
+      <CardTitle className="text-sm text-primary">Druki</CardTitle>
       <h2 className="text-2xl font-semibold">Powiązane dokumenty</h2>
     </CardHeader>
     <CardContent className="space-y-2">
@@ -117,7 +117,7 @@ export const RelatedPrintsSection = ({ prints }: { prints: Print[] }) => (
         <a
           href={`/process/${print.number}`}
           key={print.number}
-          className="block p-3 border rounded-lg hover:bg-[#8B1538]/5 transition-colors"
+          className="block p-3 border rounded-lg hover:bg-primary/5 transition-colors"
         >
           <div className="flex items-center justify-between mb-1">
             <Badge variant="outline">Nr {print.number}</Badge>
@@ -139,7 +139,7 @@ export const ProcessStagesSection = ({
 }) => (
   <Card className="w-full">
     <CardHeader>
-      <CardTitle className="text-sm text-[#8B1538]">Przebieg</CardTitle>
+      <CardTitle className="text-sm text-primary">Przebieg</CardTitle>
       <h2 className="text-2xl font-semibold">Etapy procesu</h2>
     </CardHeader>
     <CardContent>
@@ -158,7 +158,7 @@ export const ProcessStagesSection = ({
               )}
             </div>
             <div className="flex-1">
-              <div className="font-medium text-lg text-primary">
+              <div className="font-medium text-lg ">
                 {stage.stageName}
               </div>
               <div className="text-sm text-muted-foreground mb-2">
@@ -190,7 +190,7 @@ export const ProcessStagesSection = ({
 export const TopicPrintsSection = ({ prints }: { prints: Print[] }) => (
   <Card className="w-full">
     <CardHeader>
-      <CardTitle className="text-sm text-[#8B1538]">Dokumenty</CardTitle>
+      <CardTitle className="text-sm text-primary">Dokumenty</CardTitle>
       <h2 className="text-2xl font-semibold">Lista podobnych druków</h2>
     </CardHeader>
     <CardContent>
@@ -226,7 +226,7 @@ export const TopicPrintsSection = ({ prints }: { prints: Print[] }) => (
 export const SubjectsSection = ({ subjects }: { subjects: Person[] }) => (
   <Card className="w-full">
     <CardHeader>
-      <CardTitle className="text-sm text-[#8B1538]">Podmioty</CardTitle>
+      <CardTitle className="text-sm text-primary">Podmioty</CardTitle>
       <h2 className="text-2xl font-semibold">Lista podmiotów</h2>
     </CardHeader>
     <CardContent>
@@ -257,7 +257,7 @@ export const CommentsCarouselSection = ({
   return (
     <Card className="w-full mt-8 shadow-none border-none">
       <CardHeader>
-        <CardTitle className="text-sm text-[#8B1538]">Opinie</CardTitle>
+        <CardTitle className="text-sm text-primary">Opinie</CardTitle>
         <h2 className="text-2xl font-semibold">
           Komentarze i opinie ({comments.length})
         </h2>
