@@ -49,8 +49,8 @@ async function runQuery<T>(
   query: string,
   params: Record<string, unknown> = {}
 ): Promise<T[]> {
-  "use cache";
-  const session = driver.session();
+  
+  const session = driver.session({database: "neo4j"});
   try {
     const result = await session.run(query, params);
     return result.records.map(
@@ -62,7 +62,7 @@ async function runQuery<T>(
 }
 
 export async function getRelatedPrints(number: string): Promise<Print[]> {
-  "use cache";
+  
   const query = `
     MATCH (related:Print)-[:REFERENCES]->(p:Print {number: $number})
     RETURN related {
@@ -83,7 +83,7 @@ export async function getRelatedPrints(number: string): Promise<Print[]> {
 }
 
 export async function getTopicsForPrint(number: string): Promise<Topic[]> {
-  "use cache";
+  
   const query = `
     MATCH (print:Print {number: $number})-[:REFERS_TO]->(topic:Topic)
     RETURN topic.name AS name, topic.description AS description
@@ -94,7 +94,7 @@ export async function getTopicsForPrint(number: string): Promise<Topic[]> {
 export async function getPrintsRelatedToTopic(
   topic_name: string
 ): Promise<Print[]> {
-  "use cache";
+  
   const query = `
     MATCH (p:Print)-[:REFERS_TO]->(topic:Topic {name: $topic_name})
     RETURN p {
@@ -118,7 +118,7 @@ export async function getSimmilarPrints(
   printNumber: string,
   maxVectorDistance: number = 0.5
 ): Promise<Print[]> {
-  "use cache";
+  
   const query = `
     MATCH (n:Print {number: $printNumber})
     WITH n
@@ -149,7 +149,7 @@ export async function getSimmilarPrints(
 }
 
 export async function getAllPrints(): Promise<PrintListItem[]> {
-  "use cache";
+  
   const query = `
     MATCH (print:Print)-[:REFERS_TO]->(topic:Topic)
     RETURN print.number AS number, 
@@ -161,7 +161,7 @@ export async function getAllPrints(): Promise<PrintListItem[]> {
 }
 
 export async function getPrint(number: string): Promise<Print | null> {
-  "use cache";
+  
   const query = `
     MATCH (p:Print {number: $number})
     RETURN p {
@@ -182,7 +182,7 @@ export async function getPrint(number: string): Promise<Print | null> {
 }
 
 export async function getPrintAuthors(number: string): Promise<Person[]> {
-  "use cache";
+  
   const query = `
     MATCH (person:Person)-[:AUTHORED]->(p:Print {number: $number})
     RETURN person.firstLastName AS firstLastName, person.club AS club
@@ -191,7 +191,7 @@ export async function getPrintAuthors(number: string): Promise<Person[]> {
 }
 
 export async function getPrintSubjects(number: string): Promise<Person[]> {
-  "use cache";
+  
   const query = `
     MATCH (person:Person)-[:SUBJECT]->(p:Print {number: $number})
     RETURN person.firstLastName AS firstLastName, person.club AS club
@@ -200,7 +200,7 @@ export async function getPrintSubjects(number: string): Promise<Person[]> {
 }
 
 export async function getPrintComments(number: string): Promise<Comment[]> {
-  "use cache";
+  
   const query = `
     MATCH (person:Person)-[r:COMMENTS]->(p:Print {number: $number})
     OPTIONAL MATCH (person)-[:REPRESENTS]->(org:Organization)
@@ -217,7 +217,7 @@ export async function getPrintComments(number: string): Promise<Comment[]> {
 export async function getAllProcessStages(
   processNumber: string
 ): Promise<ProcessStage[]> {
-  "use cache";
+  
   const query = `
     MATCH (p:Process {number: $processNumber})-[:HAS]->(stage:Stage)
     OPTIONAL MATCH (stage)-[:HAS_CHILD]->(childStage:Stage)
@@ -229,7 +229,7 @@ export async function getAllProcessStages(
 }
 
 export async function getTotalProceedingDays(): Promise<number> {
-  "use cache";
+  
   const query = `
     MATCH (p:Proceeding)
     WITH p, date() as today
