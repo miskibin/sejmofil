@@ -30,20 +30,27 @@ import { notFound } from "next/navigation";
 // Update the PageProps interface to match Next.js 15 types
 type Params = Promise<{ id: string }>;
 
-// Add loading components at the top
-function LoadingSection() {
-  return <div className="animate-pulse h-32 bg-muted rounded-lg" />;
+function LoadingPage() {
+  return (
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="space-y-6">
+        <div className="animate-pulse h-48 bg-muted rounded-lg" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 space-y-6">
+            <div className="animate-pulse h-32 bg-muted rounded-lg" />
+            <div className="animate-pulse h-32 bg-muted rounded-lg" />
+          </div>
+          <div className="lg:col-span-4 space-y-6">
+            <div className="animate-pulse h-32 bg-muted rounded-lg" />
+            <div className="animate-pulse h-32 bg-muted rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default async function ProcessDetail(props: { params: Params }) {
-  const params = await props.params;
-  const id = params.id;
-
-  // Validate id parameter
-  if (!id) {
-    notFound();
-  }
-
+async function ProcessContent({ id }: { id: string }) {
   const [
     print,
     stages,
@@ -91,104 +98,104 @@ export default async function ProcessDetail(props: { params: Params }) {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-      <Suspense fallback={<LoadingSection />}>
-        <Card className="mb-4 sm:mb-8">
-          <CardContent className="pt-4 sm:pt-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <Link href={`/process/${print.number}`}>
-                <Badge
-                  variant="outline"
-                  className="text-base px-3 py-1 w-fit hover:bg-accent cursor-pointer transition-colors"
-                >
-                  Nr {print.number}
-                </Badge>
+      <Card className="mb-4 sm:mb-8">
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <Link href={`/process/${print.number}`}>
+              <Badge
+                variant="outline"
+                className="text-base px-3 py-1 w-fit hover:bg-accent cursor-pointer transition-colors"
+              >
+                Nr {print.number}
+              </Badge>
+            </Link>
+            {print.processPrint[0] !== print.number && (
+              <Link
+                href={`/process/${print.processPrint[0]}`}
+                className="text-sm text-[#8B1538]"
+              >
+                Ten druk należy do procesu {print.processPrint[0]}
               </Link>
-              {print.processPrint[0] !== print.number && (
-                <Link
-                  href={`/process/${print.processPrint[0]}`}
-                  className="text-sm text-[#8B1538]"
-                >
-                  Ten druk należy do procesu {print.processPrint[0]}
-                </Link>
-              )}
-              <div className="text-sm text-muted-foreground flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                {new Date(print.documentDate).toLocaleDateString("pl-PL")}
-              </div>
+            )}
+            <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              {new Date(print.documentDate).toLocaleDateString("pl-PL")}
             </div>
-            <h1 className="text-2xl font-semibold mt-4">{print.title}</h1>
-            <Markdown className="prose dark:prose-invert max-w-none mt-4">
-              {print.summary}
-            </Markdown>
-          </CardContent>
-        </Card>
-      </Suspense>
+          </div>
+          <h1 className="text-2xl font-semibold mt-4">{print.title}</h1>
+          <Markdown className="prose dark:prose-invert max-w-none mt-4">
+            {print.summary}
+          </Markdown>
+        </CardContent>
+      </Card>
 
       <div className="space-y-4 sm:space-y-6">
         {/* Main Content Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           {/* Left Column */}
           <div className="lg:col-span-8 space-y-4 sm:space-y-6">
-            <Suspense fallback={<LoadingSection />}>
-              {Object.keys(authorsByClub).length > 0 && (
-                <Link
-                  href="/authors"
-                  className="block hover:opacity-75 transition-opacity"
-                >
-                  <AuthorsSection authorsByClub={authorsByClub} />
-                </Link>
-              )}
-            </Suspense>
+            {Object.keys(authorsByClub).length > 0 && (
+              <Link
+                href="/authors"
+                className="block hover:opacity-75 transition-opacity"
+              >
+                <AuthorsSection authorsByClub={authorsByClub} />
+              </Link>
+            )}
 
-            <Suspense fallback={<LoadingSection />}>
-              {stages.length > 0 && <ProcessStagesSection stages={stages} />}
-            </Suspense>
+            {stages.length > 0 && <ProcessStagesSection stages={stages} />}
 
-            <Suspense fallback={<LoadingSection />}>
-              {comments.length > 0 && (
-                <CommentsCarouselSection comments={comments} />
-              )}
-            </Suspense>
+            {comments.length > 0 && (
+              <CommentsCarouselSection comments={comments} />
+            )}
           </div>
 
           {/* Right Column */}
           <div className="lg:col-span-4 space-y-4 sm:space-y-6">
-            <Suspense fallback={<LoadingSection />}>
-              {topics.length > 0 && (
-                <Link
-                  href="/topics"
-                  className="block hover:opacity-75 transition-opacity"
-                >
-                  <TopicsSection topics={topics} />
-                </Link>
-              )}
-            </Suspense>
+            {topics.length > 0 && (
+              <Link
+                href="/topics"
+                className="block hover:opacity-75 transition-opacity"
+              >
+                <TopicsSection topics={topics} />
+              </Link>
+            )}
 
-            <Suspense fallback={<LoadingSection />}>
-              {relatedPrints.length > 0 && (
-                <RelatedPrintsSection prints={relatedPrints} />
-              )}
-              {simmilarPrints.length > 0 && (
-                <RelatedPrintsSection prints={simmilarPrints} />
-              )}
-            </Suspense>
+            {relatedPrints.length > 0 && (
+              <RelatedPrintsSection prints={relatedPrints} />
+            )}
+
+            {simmilarPrints.length > 0 && (
+              <RelatedPrintsSection prints={simmilarPrints} />
+            )}
           </div>
         </div>
 
         {/* Bottom Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           <div className="lg:col-span-8">
-            <Suspense fallback={<LoadingSection />}>
-              <TopicPrintsSection prints={topicPrints} />
-            </Suspense>
+            <TopicPrintsSection prints={topicPrints} />
           </div>
           <div className="lg:col-span-4">
-            <Suspense fallback={<LoadingSection />}>
-              <SubjectsSection subjects={subjects} />
-            </Suspense>
+            <SubjectsSection subjects={subjects} />
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default async function ProcessDetail(props: { params: Params }) {
+  const params = await props.params;
+  const id = params.id;
+
+  if (!id) {
+    notFound();
+  }
+
+  return (
+    <Suspense fallback={<LoadingPage />}>
+      <ProcessContent id={id} />
+    </Suspense>
   );
 }
