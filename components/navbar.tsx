@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Newspaper, Search } from "lucide-react";
+import { Newspaper, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
