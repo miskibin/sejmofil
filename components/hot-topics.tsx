@@ -75,7 +75,7 @@ export default function HotTopics() {
                 <h3 className="text-lg font-medium">{item.title}</h3>
               </div>
               <div className="text-sm text-muted-foreground">
-                {item.date}, {item.category}
+                {item.date}
               </div>
             </div>
           ))
