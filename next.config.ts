@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     domains: ["api.sejm.gov.pl"],
   },
   experimental: {
-    dynamicIO: true,
+    // dynamicIO: true,
   },
 };
 
