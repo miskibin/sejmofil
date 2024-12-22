@@ -38,7 +38,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="px-4 py-3 flex items-center justify-center border-b-[1px] border-ring">
+    <nav className="px-4 py-3 flex items-center justify-center border-b-[1px] border-gray-200">
       {/* Logo */}
       <Link href="/" className="flex-shrink-0">
         <Image src="/logo.png" alt="Sejmofil" width={40} height={40} />
