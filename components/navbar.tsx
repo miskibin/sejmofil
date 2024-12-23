@@ -49,7 +49,7 @@ export default function Navbar() {
         <Link href="/poslowie" className="transition-colors">
           Posłowie
         </Link>
-        <Link href="/procesy" className="transition-colors">
+        <Link href="/process" className="transition-colors">
           Procesy Sejmowe
         </Link>
         <Link href="/posiedzenia" className="transition-colors">
@@ -82,7 +82,7 @@ export default function Navbar() {
 
       {/* Right Side Actions */}
       <div className="flex items-center space-x-4 ml-auto">
-          <Newspaper className="h-6 w-6 text-gray-500" />
+        <Newspaper className="h-6 w-6 text-gray-500" />
         <Button className="bg-primary hover:bg-[#7A1230] transition-colors">
           O Projekcie
         </Button>
