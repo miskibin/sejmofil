@@ -93,9 +93,7 @@ async function AuthorsContent({ id }: { id: string }) {
 
   if (Object.keys(authorsByClub).length === 0) return null;
 
-  return (
-      <AuthorsSection authorsByClub={authorsByClub} />
-  );
+  return <AuthorsSection authorsByClub={authorsByClub} />;
 }
 
 async function StagesContent({ id }: { id: string }) {
@@ -119,10 +117,7 @@ async function TopicsWithRelatedContent({ id }: { id: string }) {
 
   return (
     <>
-      {topics.length > 0 && (
-
-          <TopicsSection topics={topics} />
-      )}
+      {topics.length > 0 && <TopicsSection topics={topics} />}
       {relatedPrints.length > 0 && (
         <RelatedPrintsSection prints={relatedPrints} />
       )}
