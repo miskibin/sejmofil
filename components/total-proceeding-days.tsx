@@ -12,6 +12,10 @@ export default function TotalProceedingDays() {
   }, []);
 
   return (
-    <StatCard title="Dni posiedzeń sejmu" value={days} category="Statystyki" />
+    <StatCard
+      title="Dni posiedzeń sejmu"
+      value={days}
+      category="Od początku kadencji"
+    />
   );
 }
