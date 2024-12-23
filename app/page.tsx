@@ -1,4 +1,3 @@
-// "use cache";
 import StatCard from "@/components/stat-card";
 import RecentVotes from "@/components/recent-votes";
 import UpcomingElections from "@/components/upcoming-elections";
@@ -7,11 +6,9 @@ import PoliticianQuotes from "@/components/politician-quotes";
 import DidYouKnow from "@/components/did-you-know";
 import SessionCalendar from "@/components/calendar";
 import HotTopics from "@/components/hot-topics";
-import { getTotalProceedingDays } from "@/lib/queries";
+import TotalProceedingDays from "@/components/components_total-proceeding-days";
 
-export default async function Home() {
-  const totalDays = await getTotalProceedingDays();
-
+export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -55,11 +52,7 @@ export default async function Home() {
             />
           </div>
           <div className="sm:col-span-2 lg:col-span-3">
-            <StatCard
-              title="Dni posiedzeń sejmu"
-              value={totalDays}
-              category="Statystyki"
-            />
+            <TotalProceedingDays />
           </div>
           <div className="sm:col-span-2 lg:col-span-3">
             <StatCard
