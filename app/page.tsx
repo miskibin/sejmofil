@@ -6,7 +6,7 @@ import PoliticianQuotes from "@/components/politician-quotes";
 import DidYouKnow from "@/components/did-you-know";
 import SessionCalendar from "@/components/calendar";
 import HotTopics from "@/components/hot-topics";
-import TotalProceedingDays from "@/components/components_total-proceeding-days";
+import TotalProceedingDays from "@/components/total-proceeding-days";
 
 export default function Home() {
   return (
