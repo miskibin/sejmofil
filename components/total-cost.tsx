@@ -15,7 +15,7 @@ const SejmCostCounter = () => {
     return yearlyBudget * yearFraction;
   };
 
-  const formatCost = (cost: string | number | bigint) => {
+  const formatCost = (cost: number | bigint) => {
     return new Intl.NumberFormat("pl-PL", {
       style: "currency",
       currency: "PLN",
