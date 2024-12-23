@@ -7,6 +7,7 @@ import DidYouKnow from "@/components/did-you-know";
 import SessionCalendar from "@/components/calendar";
 import HotTopics from "@/components/hot-topics";
 import TotalProceedingDays from "@/components/total-proceeding-days";
+import SejmCostCounter from "@/components/total-cost";
 
 export default function Home() {
   return (
@@ -45,11 +46,7 @@ export default function Home() {
             className="sm:col-span-2 lg:col-span-3"
             data-umami-event="all-votes-stat"
           >
-            <StatCard
-              title="Wszystkie Głosowania"
-              value={1002}
-              category="Statystyki"
-            />
+            <SejmCostCounter />
           </div>
           <div className="sm:col-span-2 lg:col-span-3">
             <TotalProceedingDays />
