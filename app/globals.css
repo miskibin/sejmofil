@@ -100,3 +100,12 @@
 .animate-marquee {
   animation: marquee 60s linear infinite;
 }
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.animate-fade-out {
+  animation: fadeOut 1s ease-out forwards;
+}
