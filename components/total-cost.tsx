@@ -34,8 +34,8 @@ const SejmCostCounter = () => {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle className="text-sm text-primary">Koszty pracy</CardTitle>
-        <h2 className="text-2xl font-semibold">Sejmu w 2025</h2>
+        <CardTitle className="text-sm text-primary">W roku 2025</CardTitle>
+        <h2 className="text-2xl font-semibold">Koszty pracy sejmu</h2>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
         <p className="text-3xl font-bold transition-all duration-300 ease-out">
