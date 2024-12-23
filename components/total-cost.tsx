@@ -1,26 +1,43 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// ...existing code...
+
 const SejmCostCounter = () => {
-  const yearlyBudget = 849600000; // 849.6 million PLN
+  const dailyBudget = 849600000 / 365; // Convert yearly budget to daily
   const [cost, setCost] = useState(0);
 
   useEffect(() => {
-    const startOfYear = new Date("2025-01-01T00:00:00");
     const calcCost = () => {
       const now = new Date();
-      const msInYear = 1000 * 60 * 60 * 24 * 365;
-      const elapsedTime = now.getTime() - startOfYear.getTime();
-      const yearFraction = elapsedTime / msInYear;
-      return yearlyBudget * yearFraction;
+      const startOfDay = new Date(now);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const msInDay = 1000 * 60 * 60 * 24;
+      const elapsedTime = now.getTime() - startOfDay.getTime();
+      const dayFraction = elapsedTime / msInDay;
+      
+      return dailyBudget * dayFraction;
     };
 
     const updateCost = () => setCost(calcCost());
-    updateCost();
+    updateCost(); // Initial calculation
 
-    const interval = setInterval(updateCost, 60);
-    return () => clearInterval(interval);
+    // Update every second
+    const interval = setInterval(updateCost, 100);
+
+    // Check for midnight reset
+    const checkMidnight = () => {
+      const now = new Date();
+      if (now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
+        setCost(0);
+      }
+    };
+    const midnightCheck = setInterval(checkMidnight, 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(midnightCheck);
+    };
   }, []);
 
   const formatCost = (val: number) =>
@@ -33,7 +50,7 @@ const SejmCostCounter = () => {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader>
-        <CardTitle className="text-sm text-primary">W roku 2025</CardTitle>
+        <CardTitle className="text-sm text-primary">Dzisiaj</CardTitle>
         <h2 className="text-2xl font-semibold">Koszty pracy sejmu</h2>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
@@ -44,4 +61,5 @@ const SejmCostCounter = () => {
     </Card>
   );
 };
+
 export default SejmCostCounter;

@@ -44,8 +44,9 @@ export default function Navbar() {
     return () => clearInterval(interval);
   }, []);
   return (
-    <nav className="px-4 py-3 flex items-center justify-between border-b-[1px] border-gray-200">
-      <div className="flex items-center gap-2">
+    <nav className="px-4 py-3 grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b-[1px] border-gray-200">
+      {/* Left section with logo and links */}
+      <div className="flex items-center gap-6">
         {/* Mobile Menu */}
         <Sheet>
           <SheetTrigger asChild className="md:hidden">
@@ -81,18 +82,18 @@ export default function Navbar() {
             className="w-8 h-8 md:w-10 md:h-10"
           />
         </Link>
+
+        {/* Desktop Navigation Links */}
+        <div className="hidden md:flex items-center space-x-6">
+          <Link href="/poslowie">Posłowie</Link>
+          <Link href="/process">Procesy Sejmowe</Link>
+          <Link href="/posiedzenia">Posiedzenia</Link>
+        </div>
       </div>
 
-      {/* Desktop Navigation Links */}
-      <div className="hidden md:flex items-center space-x-6">
-        <Link href="/poslowie">Posłowie</Link>
-        <Link href="/process">Procesy Sejmowe</Link>
-        <Link href="/posiedzenia">Posiedzenia</Link>
-      </div>
-
-      {/* Search Bar - Desktop */}
-      <div className="hidden md:flex flex-1 max-w-xl mx-6">
-        <div className="relative w-full">
+      {/* Center section with search */}
+      <div className="w-full max-w-lg mx-auto">
+        <div className="relative w-full hidden md:block">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
             type="search"
@@ -109,30 +110,30 @@ export default function Navbar() {
             </div>
           )}
         </div>
+
+        {/* Mobile Search */}
+        <Sheet open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+          <SheetTrigger asChild className="md:hidden">
+            <Button variant="ghost" size="icon">
+              <Search className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="top" className="w-full">
+            <div className="relative w-full pt-4">
+              <Input
+                type="search"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-full border-0 focus-visible:ring-1 focus-visible:ring-primary bg-gray-100"
+                placeholder="Szukaj..."
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
-      {/* Mobile Search */}
-      <Sheet open={isSearchOpen} onOpenChange={setIsSearchOpen}>
-        <SheetTrigger asChild className="md:hidden">
-          <Button variant="ghost" size="icon">
-            <Search className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="top" className="w-full">
-          <div className="relative w-full pt-4">
-            <Input
-              type="search"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-full border-0 focus-visible:ring-1 focus-visible:ring-primary bg-gray-100"
-              placeholder="Szukaj..."
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      {/* Right Side Actions */}
-      <div className="flex items-center gap-2 md:gap-4">
+      {/* Right section with actions */}
+      <div className="flex items-center justify-end gap-2 md:gap-4">
         <Newspaper className="hidden md:block h-6 w-6 text-gray-500" />
         <Button className="hidden md:block bg-primary hover:bg-[#7A1230] transition-colors">
           O Projekcie
