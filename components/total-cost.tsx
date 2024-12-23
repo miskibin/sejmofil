@@ -24,7 +24,7 @@ const SejmCostCounter = () => {
   };
 
   // Force re-render every frame for real-time updates
-  const [_, forceUpdate] = useState(0);
+  const [, forceUpdate] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => forceUpdate((prev) => prev + 1), 60); // ~60 fps
