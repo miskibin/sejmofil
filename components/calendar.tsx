@@ -1,51 +1,57 @@
 import { CardWrapper } from "@/components/ui/card-wrapper";
+import { getProceedingDates } from "@/lib/queries";
+import CalendarDayTile from "./calendar-day";
 
 interface CalendarDay {
   date: number | null;
-  isHighlighted?: boolean;
-  color?: "primary" | "secondary";
+  isProceeding?: boolean;
+  proceedingNumber?: string;
+  isToday?: boolean;
 }
 
-export default function SessionCalendar() {
+export default async function SessionCalendar() {
   const weekDays = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sb", "Nd"];
+  const proceedings = await getProceedingDates();
+  const today = new Date();
+  
+  // Calculate the middle of our 4-week view (2 weeks before, 2 weeks after)
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - 14);
+  
+  // Adjust to start from Monday
+  const startDay = startDate.getDay();
+  const diff = startDate.getDate() - startDay + (startDay === 0 ? -6 : 1);
+  startDate.setDate(diff);
+  
+  const calendarDays: CalendarDay[][] = [];
+  let currentWeek: CalendarDay[] = [];
+  
+  // Generate exactly 4 weeks (28 days)
+  for (let i = 0; i < 28; i++) {
+    const currentDate = new Date(startDate);
+    currentDate.setDate(startDate.getDate() + i);
+    const dateStr = currentDate.toISOString().split('T')[0];
+    
+    const proceedingForDay = proceedings.find(p => 
+      p.proceeding_dates.includes(dateStr)
+    );
 
-  const calendar: CalendarDay[][] = [
-    [
-      { date: null },
-      { date: null },
-      { date: 3, isHighlighted: true, color: "primary" },
-      { date: null },
-      { date: 5, isHighlighted: true, color: "secondary" },
-      { date: null },
-      { date: null },
-    ],
-    [
-      { date: null },
-      { date: null },
-      { date: null },
-      { date: 11, isHighlighted: true, color: "secondary" },
-      { date: null },
-      { date: null },
-      { date: null },
-    ],
-    [
-      { date: null },
-      { date: null },
-      { date: null },
-      { date: null },
-      { date: null },
-      { date: null },
-      { date: null },
-    ],
-    [
-      { date: null },
-      { date: 24, isHighlighted: true, color: "secondary" },
-      { date: null },
-      { date: null },
-      { date: null },
-      { date: null },
-    ],
-  ];
+    const isToday = currentDate.getDate() === today.getDate() &&
+                    currentDate.getMonth() === today.getMonth() &&
+                    currentDate.getFullYear() === today.getFullYear();
+
+    currentWeek.push({
+      date: currentDate.getDate(),
+      isProceeding: !!proceedingForDay,
+      proceedingNumber: proceedingForDay?.proceeding_number,
+      isToday
+    });
+
+    if (currentWeek.length === 7) {
+      calendarDays.push(currentWeek);
+      currentWeek = [];
+    }
+  }
 
   return (
     <CardWrapper
@@ -63,19 +69,11 @@ export default function SessionCalendar() {
             {day}
           </div>
         ))}
-        {calendar.flat().map((day, index) => (
-          <div
+        {calendarDays.flat().map((day, index) => (
+          <CalendarDayTile
             key={index}
-            className={`aspect-square p-3 rounded flex items-center justify-center ${
-              day?.isHighlighted
-                ? day.color === "secondary"
-                  ? "bg-primary text-white"
-                  : "bg-[#2D3748] text-white"
-                : "bg-gray-200"
-            }`}
-          >
-            {day?.date || ""}
-          </div>
+            {...day}
+          />
         ))}
       </div>
     </CardWrapper>

@@ -8,14 +8,26 @@ import SessionCalendar from "@/components/calendar";
 import HotTopics from "@/components/hot-topics";
 import TotalProceedingDays from "@/components/total-proceeding-days";
 import SejmCostCounter from "@/components/total-cost";
+import { getProceedingDates } from "@/lib/queries";
+import { getNextProceedingDate, getTimeUntilNextProceeding } from "@/lib/utils";
 
-export default function Home() {
+export default async function Home() {
+  const proceedings = await getProceedingDates();
+  const nextDate = getNextProceedingDate(proceedings);
+  const timeUntil = getTimeUntilNextProceeding(nextDate);
+
   return (
     <main className="container mx-auto max-w-7xl 2xl:max-w-screen-2xl p-4 sm:p-6 lg:p-12">
       <div className="mb-4 sm:mb-8 mt-8">
         <h1 className="text-2xl font-semibold">
-          Do następnych Obrad zostało{" "}
-          <span className="text-primary">12:31:00</span>
+          {nextDate ? (
+            <>
+              Do następnych Obrad zostało{" "}
+              <span className="text-primary">{timeUntil}</span>
+            </>
+          ) : (
+            <span>Brak zaplanowanych obrad</span>
+          )}
         </h1>
       </div>
 
