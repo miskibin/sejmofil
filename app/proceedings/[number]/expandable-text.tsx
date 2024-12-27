@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Markdown from "react-markdown";
 
 export const ExpandableText = ({ text }: { text: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -13,7 +14,15 @@ export const ExpandableText = ({ text }: { text: string }) => {
 
   return (
     <div>
-      <p className={!isExpanded ? "line-clamp-4" : undefined}>{text}</p>
+      {/* <p className={!isExpanded ? "line-clamp-4" : undefined}> */}
+      <Markdown
+        className={`prose dark:prose-invert max-w-none mt-4 ${
+          !isExpanded ? "line-clamp-4" : ""
+        }`}
+      >
+        {text}
+      </Markdown>
+      {/* </p> */}
       <Button
         variant="ghost"
         size="sm"
