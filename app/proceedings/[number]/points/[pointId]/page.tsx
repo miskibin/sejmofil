@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { MessageSquare } from "lucide-react";
 import { ExpandableText } from "../../expandable-text";
+import { notFound } from "next/navigation";
 
 async function getPointDetails(
   proceedingNumber: string,
@@ -56,9 +57,10 @@ async function getPointDetails(
 export default async function PointPage({
   params,
 }: {
-  params: { number: string; pointId: string };
+  params: Promise<{ number: string; pointId: string }>;
 }) {
   const { number, pointId } = await params;
+  if (!number || !pointId) notFound();
   const { point, statements, statementsAI } = await getPointDetails(
     number,
     pointId
