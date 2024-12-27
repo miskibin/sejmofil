@@ -22,29 +22,74 @@ const searchTexts = [
   "Immunitet poselski",
 ];
 
+const navLinks = [
+  { href: "/poslowie", text: "Posłowie" },
+  { href: "/process", text: "Procesy Sejmowe" },
+  { href: "/proceedings", text: "Posiedzenia" },
+];
+
 export default function Navbar() {
   const [currentText, setCurrentText] = useState(searchTexts[0]);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
     let currentIndex = 0;
 
     const interval = setInterval(() => {
       setIsTransitioning(true);
 
-      // Wait for fade out
       setTimeout(() => {
         currentIndex = (currentIndex + 1) % searchTexts.length;
         setCurrentText(searchTexts[currentIndex]);
         setIsTransitioning(false);
-      }, 400); // Half of the transition duration
+      }, 400);
     }, 4000);
 
-    return () => clearInterval(interval);
-  }, []);
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 0;
+      if (isScrolled !== scrolled) {
+        setScrolled(isScrolled);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [scrolled]);
+
+  const SearchInput = ({ className = "", ...props }) => (
+    <div className={`relative w-full ${className}`}>
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+      <Input
+        type="search"
+        value={searchValue}
+        onChange={(e) => setSearchValue(e.target.value)}
+        className="w-full pl-10 pr-4 py-2 rounded-full border-0 focus-visible:ring-1 focus-visible:ring-primary bg-gray-100"
+        {...props}
+      />
+      {searchValue === "" && (
+        <div
+          className="absolute inset-0 pointer-events-none pl-10 flex items-center text-gray-500 transition-opacity duration-800"
+          style={{ opacity: isTransitioning ? 0 : 1 }}
+        >
+          {currentText}
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <nav className="px-4 py-3 grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b-[1px] border-gray-200">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? "bg-white shadow-md" : "bg-transparent"
+      } px-4 py-3 grid grid-cols-[auto_1fr_auto] items-center gap-4 `}
+    >
       {/* Left section with logo and links */}
       <div className="flex items-center gap-6">
         {/* Mobile Menu */}
@@ -59,15 +104,11 @@ export default function Navbar() {
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-4 mt-4">
-              <Link href="/poslowie" className="text-lg">
-                Posłowie
-              </Link>
-              <Link href="/process" className="text-lg">
-                Procesy Sejmowe
-              </Link>
-              <Link href="/proceedings" className="text-lg">
-                Posiedzenia
-              </Link>
+              {navLinks.map((link) => (
+                <Link key={link.href} href={link.href} className="text-lg">
+                  {link.text}
+                </Link>
+              ))}
             </div>
           </SheetContent>
         </Sheet>
@@ -85,31 +126,17 @@ export default function Navbar() {
 
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center space-x-6">
-          <Link href="/poslowie">Posłowie</Link>
-          <Link href="/process">Procesy Sejmowe</Link>
-          <Link href="/proceedings">Posiedzenia</Link>
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              {link.text}
+            </Link>
+          ))}
         </div>
       </div>
 
       {/* Center section with search */}
       <div className="w-full max-w-lg mx-auto">
-        <div className="relative w-full hidden md:block">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            type="search"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-full border-0 focus-visible:ring-1 focus-visible:ring-primary bg-gray-100"
-          />
-          {searchValue === "" && (
-            <div
-              className="absolute inset-0 pointer-events-none pl-10 flex items-center text-gray-500 transition-opacity duration-800"
-              style={{ opacity: isTransitioning ? 0 : 1 }}
-            >
-              {currentText}
-            </div>
-          )}
-        </div>
+        <SearchInput className="hidden md:block" />
 
         {/* Mobile Search */}
         <Sheet open={isSearchOpen} onOpenChange={setIsSearchOpen}>
@@ -119,15 +146,7 @@ export default function Navbar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="top" className="w-full">
-            <div className="relative w-full pt-4">
-              <Input
-                type="search"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-full border-0 focus-visible:ring-1 focus-visible:ring-primary bg-gray-100"
-                placeholder="Szukaj..."
-              />
-            </div>
+            <SearchInput className="pt-4" placeholder="Szukaj..." />
           </SheetContent>
         </Sheet>
       </div>
