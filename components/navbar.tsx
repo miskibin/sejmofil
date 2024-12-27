@@ -87,7 +87,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center space-x-6">
           <Link href="/poslowie">Posłowie</Link>
           <Link href="/process">Procesy Sejmowe</Link>
-          <Link href="/posiedzenia">Posiedzenia</Link>
+          <Link href="/proceedings">Posiedzenia</Link>
         </div>
       </div>
 
