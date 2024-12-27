@@ -65,7 +65,7 @@ export default function Navbar() {
               <Link href="/process" className="text-lg">
                 Procesy Sejmowe
               </Link>
-              <Link href="/posiedzenia" className="text-lg">
+              <Link href="/proceedings" className="text-lg">
                 Posiedzenia
               </Link>
             </div>
