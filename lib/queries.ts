@@ -7,6 +7,7 @@ import {
   PrintListItem,
   Comment,
   ProcessStage,
+  ProceedingDates,
 } from "./types";
 
 // Serialization helper for Neo4j integers and dates
@@ -162,6 +163,18 @@ export async function getAllPrints(): Promise<PrintListItem[]> {
   return runQuery<PrintListItem>(query);
 }
 
+export async function getProceedingDates(): Promise<ProceedingDates[]> {
+  const query = `
+    MATCH (p:Proceeding)
+    UNWIND p.proceeding_dates AS date
+    RETURN p.proceeding_number AS proceeding_number, 
+           collect(date) AS proceeding_dates
+    ORDER BY proceeding_number;
+  `;
+
+  const result = await runQuery<ProceedingDates>(query);
+  return result;
+}
 export async function getPrint(number: string): Promise<Print | null> {
   const query = `
     MATCH (p:Print {number: $number})

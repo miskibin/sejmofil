@@ -12,10 +12,10 @@ import SejmCostCounter from "@/components/total-cost";
 export default function Home() {
   return (
     <main className="container mx-auto max-w-7xl 2xl:max-w-screen-2xl p-4 sm:p-6 lg:p-12">
-      <div className="mb-4 sm:mb-8">
-        <h1 className="text-lg sm:text-xl font-semibold text-gray-700">
+      <div className="mb-4 sm:mb-8 mt-8">
+        <h1 className="text-2xl font-semibold">
           Do następnych Obrad zostało{" "}
-          <span className="text-gray-400">12:31:00</span>
+          <span className="text-primary">12:31:00</span>
         </h1>
       </div>
 
