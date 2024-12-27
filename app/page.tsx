@@ -11,6 +11,7 @@ import SejmCostCounter from "@/components/total-cost";
 import { getProceedingDates } from "@/lib/queries";
 import { getNextProceedingDate, getTimeUntilNextProceeding } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
 export default async function Home() {
   const proceedings = await getProceedingDates();
   const nextDate = getNextProceedingDate(proceedings);
