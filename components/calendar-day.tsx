@@ -20,7 +20,7 @@ export default function CalendarDayTile({ date, isProceeding, proceedingNumber, 
   return (
     <div
       onClick={handleClick}
-      className={`aspect-square p-3 rounded flex items-center justify-center ${
+      className={`aspect-square p-1 sm:p-3 rounded flex items-center justify-center ${
         isToday
           ? "bg-[#2D3748] text-white"
           : isProceeding
