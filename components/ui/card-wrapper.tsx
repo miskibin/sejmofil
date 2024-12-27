@@ -28,22 +28,18 @@ export function CardWrapper({
           <CardTitle className="text-sm text-primary">{title}</CardTitle>
           <h2 className="text-2xl font-semibold">{subtitle}</h2>
         </div>
-        {headerIcon && (
-          <div className="p-2 rounded-lg">
-            {headerIcon}
-          </div>
-        )}
+        {headerIcon && <div className="p-2 rounded-lg">{headerIcon}</div>}
       </CardHeader>
-      
-      <hr className="border-t border-[1px] mx-8 mb-6" />
-      
-      <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
+
+      <hr className="border-t border-[1px] mx-4 sm:mx-8 mb-6" />
+
+      <CardContent className="flex-1 flex flex-col justify-between px-2 sm:px-3 xl:px-4">
         {children}
-        
+
         {showGradient && (
           <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white via-white to-transparent" />
         )}
-        
+
         {(showSource || showDate) && (
           <div className="relative flex items-center justify-between pt-4 text-sm text-muted-foreground z-10">
             {showSource && (
