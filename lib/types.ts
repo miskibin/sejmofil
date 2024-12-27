@@ -43,7 +43,10 @@ export type Topic = {
   name: string;
   description: string;
 };
-
+export interface ProceedingDates {
+  proceeding_number: string;
+  proceeding_dates: string[];
+}
 export type PrintListItem = {
   title: string;
   number: string;

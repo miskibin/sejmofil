@@ -1,4 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardWrapper } from "@/components/ui/card-wrapper";
+import { Check, Vote } from "lucide-react";
 
 interface Vote {
   title: string;
@@ -37,30 +38,35 @@ export default function RecentVotes() {
   ];
 
   return (
-    <Card className="w-full h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-sm text-primary">🧂 Newsy</CardTitle>
-        <h2 className="text-2xl font-semibold">Ostatnie głosowania</h2>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
+    <CardWrapper
+      title="Newsy"
+      subtitle="Ostatnie głosowania"
+    >
+      <div className="space-y-5 py-4">
         {votes.map((vote, index) => (
-          <div key={index} className="flex gap-3 py-2">
-            <div
-              className={`w-1 self-stretch rounded ${
-                vote.status === "positive" ? "bg-green-500" : "bg-red-500"
+          <div key={index} className="space-y-1">
+            <div className="flex gap-3 items-start">
+              <div
+              className={`min-w-9 min-h-9 w-9 h-9 rounded-lg flex items-center justify-center ${
+                vote.status === "positive"
+                ? "bg-[hsl(var(--success))] text-white"
+                : "bg-primary text-white"
               }`}
-            />
-            <div className="space-y-1 flex-1">
-              <p className="text-sm font-medium">{vote.title}</p>
-              <p className="text-sm text-muted-foreground">{vote.amendment}</p>
+              >
+              {vote.status === "positive" ? (
+                <Check className="w-6 h-6" />
+              ) : (
+                <Check className="w-6 h-8" />
+              )}
+              </div>
+              <div className="space-y-1 flex-1">
+                <p className="text-xl  font-normal leading-tight">{vote.title}</p>
+                <p className="text-sm text-muted-foreground">{vote.amendment}</p>
+              </div>
             </div>
           </div>
         ))}
-        <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
-          <span>Zobacz więcej</span>
-          <span>20/12/2024</span>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </CardWrapper>
   );
 }

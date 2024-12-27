@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { CardWrapper } from "@/components/ui/card-wrapper";
 import { Watch } from "lucide-react";
 
 const SejmCostCounter = () => {
@@ -45,7 +44,7 @@ const SejmCostCounter = () => {
     return date.getHours() === 0 &&
       date.getMinutes() === 0 &&
       date.getSeconds() === 0
-      ? "Dzisiaj"
+      ? "Od początku dnia"
       : `od ${date.getHours()}:${String(date.getMinutes()).padStart(
           2,
           "0"
@@ -53,29 +52,22 @@ const SejmCostCounter = () => {
   };
 
   return (
-    <Card className="w-full h-full flex flex-col">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-sm text-primary">
-            {formatTimeString(startTime)}
-          </CardTitle>
-          <h2 className="text-2xl font-semibold">Koszty pracy sejmu</h2>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleReset}
-          className="h-8 w-8"
-        >
-          <Watch className="h-4 w-4" />
-        </Button>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-between md:px-3 xl:px-4">
-        <p className="text-3xl font-bold transition-all duration-300 ease-out">
-          {formatCost(cost)}
-        </p>
-      </CardContent>
-    </Card>
+    <CardWrapper
+      title={formatTimeString(startTime)}
+      subtitle="Koszty pracy sejmu"
+      headerIcon={
+        <button onClick={handleReset} className="hover:opacity-80 transition-opacity">
+          <Watch className="h-5 w-5 text-primary" />
+        </button>
+      }
+      showSource={true}
+      showDate={false}
+      showGradient={false}
+    >
+      <p className="text-3xl font-bold transition-all duration-300 ease-out">
+        {formatCost(cost)}
+      </p>
+    </CardWrapper>
   );
 };
 
