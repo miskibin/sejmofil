@@ -6,6 +6,7 @@ import { Proceeding } from "@/lib/types";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 async function getProceeding(number: string) {
   const supabase = await createClient();
@@ -29,15 +30,14 @@ async function getProceeding(number: string) {
   if (error) throw new Error("Failed to fetch proceeding");
   return proceeding as Proceeding;
 }
-
 export default async function ProceedingPage({
   params,
 }: {
-  params: { number: string };
+  params: Promise<{ number: string }>;
 }) {
-  const number = (await params).number;
+  const { number } = await params;
   const proceeding = await getProceeding(number);
-
+  if (!number) notFound();
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Proceeding Header */}

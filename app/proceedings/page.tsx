@@ -10,12 +10,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-async function ProceedingsPage({
-  searchParams,
-}: {
-  searchParams: { page?: string };
-}) {
-  const currentPage = Number(searchParams.page) || 1;
+async function ProceedingsPage({}) {
+  const currentPage = 1;
   const { data: proceedings, count } = await getProceedings(currentPage, 10);
   const totalPages = Math.ceil(count / 10);
 
