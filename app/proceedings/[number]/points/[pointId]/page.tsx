@@ -7,7 +7,6 @@ import { pl } from "date-fns/locale";
 import { MessageSquare } from "lucide-react";
 import { ExpandableText } from "../../expandable-text";
 import { notFound } from "next/navigation";
-
 async function getPointDetails(
   proceedingNumber: string,
   pointOrder: string
