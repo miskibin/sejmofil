@@ -8,7 +8,6 @@ on:
 jobs:
   trigger-workflow:
     runs-on: ubuntu-latest
-
     steps:
       - name: Trigger Build via Repository Dispatch
         run: |
@@ -17,3 +16,31 @@ jobs:
             -H "Authorization: token ${{ secrets.TRIGGER_TOKEN }}" \
             ${{ secrets.TRIGGER_URL }} \
             -d '{"event_type": "tag-push-trigger", "client_payload": {"tag": "${{ github.ref_name }}"}}'
+
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get previous tag
+        id: previoustag
+        run: |
+          echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))" >> $GITHUB_OUTPUT
+      
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          echo "### Changes since ${{ steps.previoustag.outputs.tag }}" > CHANGES.md
+          git log ${{ steps.previoustag.outputs.tag }}..HEAD --pretty=format:'* %s' >> CHANGES.md
+      
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ github.ref_name }} \
+            --title "Release ${{ github.ref_name }}" \
+            --notes-file CHANGES.md
