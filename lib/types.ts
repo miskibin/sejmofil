@@ -5,6 +5,30 @@ export type Person = {
   lastName?: string;
 };
 
+export interface Envoy {
+  accusativeName: string;
+  active: boolean;
+  biography: string;
+  birthDate: string;
+  birthLocation: string;
+  club: string;
+  districtName: string;
+  districtNum: number;
+  educationLevel: string;
+  email: string;
+  firstName: string;
+  id: string;
+  isFemale: boolean;
+  lastName: string;
+  numberOfVotes: number;
+  profession: string;
+  role: string;
+  secondName: string | null;
+  voivodeship: string;
+}
+
+
+
 export type ProcessStage = {
   childStages: boolean;
   stageName: string;
@@ -27,7 +51,6 @@ export type Comment = {
   organization: string;
 };
 export type Print = {
-  print: unknown;
   attachments: string[];
   changeDate: string;
   deliveryDate: string;
@@ -38,6 +61,12 @@ export type Print = {
   term: number;
   title: string;
   documentType?: string;
+};
+export type PrintShort = {
+  deliveryDate: string;
+  number: string;
+  summary: string;
+  title: string;
 };
 export type Topic = {
   name: string;
