@@ -1,5 +1,5 @@
 import StatCard from "@/components/stat-card";
-import RecentVotes from "@/components/recent-votes";
+import RecentPoints from "@/components/recent-points";
 import UpcomingElections from "@/components/upcoming-elections";
 import CommissionSessions from "@/components/commission-sessions";
 import PoliticianQuotes from "@/components/politician-quotes";
@@ -18,7 +18,7 @@ export default async function Home() {
   const timeUntil = getTimeUntilNextProceeding(nextDate);
 
   return (
-    <main className="container mx-auto max-w-7xl 2xl:max-w-screen-2xl p-4 sm:p-6 lg:p-12">
+    <main className="container mx-auto max-w-7xl 2xl:max-w-[1400px] p-4 sm:p-6 lg:p-12">
       <div className="mb-4 sm:mb-8 mt-8">
         <h1 className="text-2xl font-semibold">
           {nextDate ? (
@@ -82,7 +82,7 @@ export default async function Home() {
           className="sm:col-span-3 lg:col-span-5 lg:row-span-2"
           data-umami-event="recent-votes-view"
         >
-          <RecentVotes />
+          <RecentPoints />
         </div>
         <div className="sm:col-span-3 lg:col-span-4 row-span-auto">
           <UpcomingElections />
