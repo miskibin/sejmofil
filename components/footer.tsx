@@ -24,7 +24,7 @@ const navLinks = [
 ];
 
 export async function Footer() {
-  const version = await getLatestVersion();
+  const { version, url } = await getLatestVersion();
   
   return (
     <footer className="py-8 sm:py-16 px-4 md:px-8 bg-gray-50">
@@ -93,9 +93,13 @@ export async function Footer() {
             <div className="flex items-center gap-4">
               <p>© Wszelkie prawa zastrzeżone {new Date().getFullYear()}</p>
               <span className="hidden sm:inline">•</span>
-              <span className="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
+              <Link 
+                href={url}
+                target="_blank"
+                className="font-mono bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-xs transition-colors"
+              >
                 {version}
-              </span>
+              </Link>
             </div>
             <Link href="/privacy" className="hover:text-primary transition-colors">
               Polityka Prywatności

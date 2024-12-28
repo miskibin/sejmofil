@@ -57,6 +57,8 @@ export default async function SessionCalendar() {
   return (
     <CardWrapper
       title="Kalendarz obrad"
+      sourceDescription="Oficjalne api sejmu RP"
+      sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
       subtitle={`${
         new Intl.DateTimeFormat("pl-PL", {
           year: "numeric",
