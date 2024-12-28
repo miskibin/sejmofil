@@ -4,14 +4,17 @@ import {
   FaHandHoldingHeart,
   FaArrowRight,
   FaDiscord,
-  FaTiktok
+  FaTiktok,
+  FaGithub
 } from "react-icons/fa";
+import { getLatestVersion } from "@/lib/github";
 
 const socialLinks = [
-  { name: "instagram", url: "https://instagram.com", icon: <FaDiscord className="h-5 w-5 text-blue-700" /> },
+  { name: "discord", url: "https://instagram.com", icon: <FaDiscord className="h-5 w-5 text-blue-700" /> },
   { name: "youtube", url: "https://youtube.com", icon: <FaYoutube className="h-5 w-5 text-red-600" /> },
   { name: "twitter", url: "https://twitter.com", icon: <FaTiktok className="h-5 w-5 text-gray-800" /> },
   { name: "patronite", url: "https://patronite.pl", icon: <FaHandHoldingHeart className="h-5 w-5 text-primary" /> },
+  { name: "github", url: "https://github.com/miskibin/sejmofront", icon: <FaGithub className="h-5 w-5 text-gray-800" /> },
 ];
 
 const navLinks = [
@@ -20,7 +23,9 @@ const navLinks = [
   { name: "Posiedzenia sejmu", url: "/posiedzenia" },
 ];
 
-export function Footer() {
+export async function Footer() {
+  const version = await getLatestVersion();
+  
   return (
     <footer className="py-8 sm:py-16 px-4 md:px-8 bg-gray-50">
       <div className="max-w-7xl mx-auto">
@@ -85,7 +90,13 @@ export function Footer() {
         {/* Footer Bottom */}
         <div className="mt-8 sm:mt-16 pt-4 sm:pt-8 border-t border-gray-200">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-600">
-            <p>© Wszelkie prawa zastrzeżone {new Date().getFullYear()}</p>
+            <div className="flex items-center gap-4">
+              <p>© Wszelkie prawa zastrzeżone {new Date().getFullYear()}</p>
+              <span className="hidden sm:inline">•</span>
+              <span className="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
+                {version}
+              </span>
+            </div>
             <Link href="/privacy" className="hover:text-primary transition-colors">
               Polityka Prywatności
             </Link>
