@@ -13,38 +13,39 @@ export default async function SessionCalendar() {
   const weekDays = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sb", "Nd"];
   const proceedings = await getProceedingDates();
   const today = new Date();
-  
+
   // Calculate the middle of our 4-week view (2 weeks before, 2 weeks after)
   const startDate = new Date(today);
   startDate.setDate(today.getDate() - 14);
-  
+
   // Adjust to start from Monday
   const startDay = startDate.getDay();
   const diff = startDate.getDate() - startDay + (startDay === 0 ? -6 : 1);
   startDate.setDate(diff);
-  
+
   const calendarDays: CalendarDay[][] = [];
   let currentWeek: CalendarDay[] = [];
-  
+
   // Generate exactly 4 weeks (28 days)
   for (let i = 0; i < 28; i++) {
     const currentDate = new Date(startDate);
     currentDate.setDate(startDate.getDate() + i);
-    const dateStr = currentDate.toISOString().split('T')[0];
-    
-    const proceedingForDay = proceedings.find(p => 
+    const dateStr = currentDate.toISOString().split("T")[0];
+
+    const proceedingForDay = proceedings.find((p) =>
       p.proceeding_dates.includes(dateStr)
     );
 
-    const isToday = currentDate.getDate() === today.getDate() &&
-                    currentDate.getMonth() === today.getMonth() &&
-                    currentDate.getFullYear() === today.getFullYear();
+    const isToday =
+      currentDate.getDate() === today.getDate() &&
+      currentDate.getMonth() === today.getMonth() &&
+      currentDate.getFullYear() === today.getFullYear();
 
     currentWeek.push({
       date: currentDate.getDate(),
       isProceeding: !!proceedingForDay,
       proceedingNumber: proceedingForDay?.proceeding_number,
-      isToday
+      isToday,
     });
 
     if (currentWeek.length === 7) {
@@ -55,8 +56,24 @@ export default async function SessionCalendar() {
 
   return (
     <CardWrapper
-      title="Plebiscyt"
-      subtitle="Kalendarz obrad"
+      title="Kalendarz obrad"
+      subtitle={`${
+        new Intl.DateTimeFormat("pl-PL", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+          .format(today)
+          .charAt(0)
+          .toUpperCase() +
+        new Intl.DateTimeFormat("pl-PL", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+          .format(today)
+          .slice(1)
+      }`}
       showGradient={false}
       showDate={false}
     >
@@ -70,10 +87,7 @@ export default async function SessionCalendar() {
           </div>
         ))}
         {calendarDays.flat().map((day, index) => (
-          <CalendarDayTile
-            key={index}
-            {...day}
-          />
+          <CalendarDayTile key={index} {...day} />
         ))}
       </div>
     </CardWrapper>
