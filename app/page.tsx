@@ -66,7 +66,7 @@ export default async function Home() {
         <div className="sm:col-span-2 lg:col-span-3">
           <StatCard
             title="Koszty pracy senatu"
-            value={"268 714 000 zł"}
+            value={"268M PLN"}
             category="w 2025"
             sourceDescription="Ustawa budżetowa na rok 2025. Strona 45"
             sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/685/687-ustawa%20i%20za%C5%82%C4%85czniki%20do%20ustawy.pdf`]}
