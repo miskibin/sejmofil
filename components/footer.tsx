@@ -10,10 +10,10 @@ import {
 import { getLatestVersion } from "@/lib/github";
 
 const socialLinks = [
-  { name: "discord", url: "https://instagram.com", icon: <FaDiscord className="h-5 w-5 text-blue-700" /> },
-  { name: "youtube", url: "https://youtube.com", icon: <FaYoutube className="h-5 w-5 text-red-600" /> },
-  { name: "twitter", url: "https://twitter.com", icon: <FaTiktok className="h-5 w-5 text-gray-800" /> },
-  { name: "patronite", url: "https://patronite.pl", icon: <FaHandHoldingHeart className="h-5 w-5 text-primary" /> },
+  { name: "discord", url: "https://discord.com/invite/zH2J3z5Wbf", icon: <FaDiscord className="h-5 w-5 text-blue-700" /> },
+  { name: "youtube", url: "https://www.youtube.com/@sejm-stats", icon: <FaYoutube className="h-5 w-5 text-red-600" /> },
+  { name: "titkok", url: "https://tiktok.com", icon: <FaTiktok className="h-5 w-5 text-gray-800" /> },
+
   { name: "github", url: "https://github.com/miskibin/sejmofront", icon: <FaGithub className="h-5 w-5 text-gray-800" /> },
 ];
 
@@ -36,7 +36,8 @@ export async function Footer() {
               <div className="text-primary text-2xl sm:text-3xl font-bold">Sejmofil</div>
             </Link>
             <p className="text-sm sm:text-base max-w-xs text-gray-600">
-              Ustawa o bezpieczeństwie danych w sieciach społecznościowych
+                Oddolna inicjaitywa na rzecz przejrzystości i dostępności danych sejmowych.
+
             </p>
             <Link 
               href="/patronite" 
@@ -51,7 +52,7 @@ export async function Footer() {
           {/* Mission Section - Hidden on mobile */}
           <div className="hidden md:block space-y-4">
             <h3 className="text-primary font-semibold">Nasza Misja</h3>
-            <p className="text-sm text-gray-600">Znajduję wspólny grunt z różnymi</p>
+            <p className="text-sm text-gray-600">TBD</p>
           </div>
 
           {/* Navigation Links */}
@@ -71,19 +72,21 @@ export async function Footer() {
           {/* Social Links */}
           <div className="space-y-4">
             <h3 className="text-primary font-semibold">Śledź nas</h3>
-            <div className="flex flex-wrap gap-4">
+            <ul className="space-y-2">
               {socialLinks.map(({ name, url, icon }) => (
-                <Link
-                  key={url}
-                  href={url}
-                  target="_blank"
-                  className="text-gray-600 hover:text-primary transition-colors"
-                  title={name}
-                >
-                  {icon}
-                </Link>
+                <li key={url}>
+                  <Link
+                    href={url}
+                    target="_blank"
+                    className="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors"
+                    title={name}
+                  >
+                    {icon}
+                    <span className="text-sm">{name}</span>
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
 
