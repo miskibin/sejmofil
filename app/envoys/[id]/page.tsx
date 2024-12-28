@@ -12,7 +12,7 @@ import {
 } from "@/lib/queries";
 import { notFound } from "next/navigation";
 
-
+export const dynamic = "force-dynamic";
 
 interface InfoRowProps {
   label: string;
