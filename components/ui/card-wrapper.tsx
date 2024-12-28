@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronRight } from "lucide-react";
+import { SourcePopover } from "./source-popover";
 
 interface CardWrapperProps {
   title: string;
@@ -10,6 +10,9 @@ interface CardWrapperProps {
   showDate?: boolean;
   showGradient?: boolean;
   children: ReactNode;
+  sourceUrls?: string[];
+  sourceDescription?: string;
+  aiPrompt?: string;
 }
 
 export function CardWrapper({
@@ -20,6 +23,9 @@ export function CardWrapper({
   showDate = true,
   showGradient = true,
   children,
+  sourceUrls,
+  sourceDescription,
+  aiPrompt,
 }: CardWrapperProps) {
   return (
     <Card className="w-full h-full flex flex-col relative overflow-hidden">
@@ -43,10 +49,11 @@ export function CardWrapper({
         {(showSource || showDate) && (
           <div className="relative flex items-center justify-between pt-4 text-sm text-muted-foreground z-10">
             {showSource && (
-              <button className="border rounded-full p-1 px-3 flex items-center space-x-1 transition-colors">
-                <span>źródło</span>
-                <ChevronRight className="h-4 w-4" />
-              </button>
+              <SourcePopover
+                urls={sourceUrls}
+                description={sourceDescription}
+                aiPrompt={aiPrompt}
+              />
             )}
             {showDate && (
               <div className="border rounded-full p-1 px-3">

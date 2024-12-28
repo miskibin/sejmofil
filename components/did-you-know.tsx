@@ -34,6 +34,9 @@ export default function PlebiscytCard() {
   return (
     <CardWrapper
       title="Plebiscyt"
+      sourceDescription="Informacje wynikają z analizy AI oficjalnych danych sejmowych"
+      sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
+      aiPrompt="Give me a list of politicians who interrupted the most."
       subtitle="Czy wiesz, że?"
       headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
     >

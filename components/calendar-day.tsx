@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useRouter } from "next/navigation";
 
 interface CalendarDayProps {
@@ -8,7 +8,12 @@ interface CalendarDayProps {
   isToday?: boolean;
 }
 
-export default function CalendarDayTile({ date, isProceeding, proceedingNumber, isToday }: CalendarDayProps) {
+export default function CalendarDayTile({
+  date,
+  isProceeding,
+  proceedingNumber,
+  isToday,
+}: CalendarDayProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -18,17 +23,26 @@ export default function CalendarDayTile({ date, isProceeding, proceedingNumber, 
   };
 
   return (
-    <div
-      onClick={handleClick}
-      className={`aspect-square p-1 sm:p-3 rounded flex items-center justify-center ${
-        isToday
-          ? "bg-[#2D3748] text-white"
-          : isProceeding
-            ? "bg-primary text-white cursor-pointer hover:opacity-90"
-            : "bg-gray-200"
-      }`}
-    >
-      {(isProceeding || isToday) ? date : ''}
-    </div>
+
+      <div
+        onClick={handleClick}
+        className={`relative aspect-square p-1 py-1 sm:px-2 rounded-lg flex items-start justify-start ${
+          isProceeding
+            ? "bg-primary cursor-pointer hover:opacity-90"
+            : isToday
+            ? "bg-[#2D3748]"
+            : "bg-gray-100"
+        }`}
+      >
+        {(isProceeding || isToday) && (
+          <span
+            className={`${
+              isProceeding || isToday ? "text-white" : "text-gray-700"
+            } font-semibold z-10`}
+          >
+            {date}
+          </span>
+        )}
+      </div>
   );
 }
