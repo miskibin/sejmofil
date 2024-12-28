@@ -15,6 +15,10 @@ export default function TotalProceedingDays() {
     <StatCard
       title="Dni posiedzeń sejmu"
       value={days}
+      sourceDescription="Oficjalne api sejmu RP"
+      sourceUrls={[
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`,
+      ]}
       category="Od początku kadencji"
     />
   );

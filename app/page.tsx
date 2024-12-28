@@ -11,7 +11,7 @@ import SejmCostCounter from "@/components/total-cost";
 import { getProceedingDates } from "@/lib/queries";
 import { getNextProceedingDate, getTimeUntilNextProceeding } from "@/lib/utils";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export default async function Home() {
   const proceedings = await getProceedingDates();
   const nextDate = getNextProceedingDate(proceedings);
@@ -65,9 +65,11 @@ export default async function Home() {
         </div>
         <div className="sm:col-span-2 lg:col-span-3">
           <StatCard
-            title="Oczekujące Projekty"
-            value={47}
-            category="Statystyki"
+            title="Koszty pracy senatu"
+            value={"268 714 000"}
+            category="w 2025"
+            sourceDescription="Ustawa budżetowa na rok 2025. Strona 45"
+            sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/685/687-ustawa%20i%20za%C5%82%C4%85czniki%20do%20ustawy.pdf`]}
           />
         </div>
 
