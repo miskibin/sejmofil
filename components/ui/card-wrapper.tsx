@@ -1,6 +1,8 @@
+// CardWrapper.tsx
 import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SourcePopover } from "./source-popover";
+import { cn } from "@/lib/utils";
 
 interface CardWrapperProps {
   title: string;
@@ -13,6 +15,7 @@ interface CardWrapperProps {
   sourceUrls?: string[];
   sourceDescription?: string;
   aiPrompt?: string;
+  className?: string;
 }
 
 export function CardWrapper({
@@ -26,28 +29,31 @@ export function CardWrapper({
   sourceUrls,
   sourceDescription,
   aiPrompt,
+  className,
 }: CardWrapperProps) {
   return (
-    <Card className="w-full h-full flex flex-col relative overflow-hidden">
-      <CardHeader className="py-4 flex flex-row justify-between items-start">
-        <div>
-          <CardTitle className="text-sm text-primary">{title}</CardTitle>
-          <h2 className="text-2xl font-semibold">{subtitle}</h2>
+    <Card className={cn("w-full", className)}>
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-sm text-primary">{title}</CardTitle>
+            <h2 className="text-2xl font-semibold">{subtitle}</h2>
+          </div>
+          {headerIcon && <div className="p-2 rounded-lg">{headerIcon}</div>}
         </div>
-        {headerIcon && <div className="p-2 rounded-lg">{headerIcon}</div>}
       </CardHeader>
 
-      <hr className="border-t border-[1px] mx-4 sm:mx-8 mb-6" />
+      <hr className="mx-6 mb-4" />
 
-      <CardContent className="flex-1 flex flex-col justify-between px-2 sm:px-3 xl:px-4">
-        {children}
+      <CardContent className="relative">
+        <div className="space-y-4">{children}</div>
 
         {showGradient && (
-          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white via-white to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white via-white to-transparent pointer-events-none" />
         )}
 
         {(showSource || showDate) && (
-          <div className="relative flex items-center justify-between pt-4 text-sm text-muted-foreground z-10">
+          <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
             {showSource && (
               <SourcePopover
                 urls={sourceUrls}
@@ -56,7 +62,7 @@ export function CardWrapper({
               />
             )}
             {showDate && (
-              <div className="border rounded-full p-1 px-3">
+              <div className="border rounded-full px-3 py-1">
                 <span>20/12/2024</span>
               </div>
             )}

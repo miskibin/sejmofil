@@ -8,6 +8,8 @@ import {
   Comment,
   ProcessStage,
   ProceedingDates,
+  PrintShort,
+  Envoy,
 } from "./types";
 
 // Serialization helper for Neo4j integers and dates
@@ -40,23 +42,25 @@ function serializeNeo4jResult(data: unknown): unknown {
   return data;
 }
 
-// Base query function with caching and serialization
+// Create driver once
+const driver: Driver = neo4j.driver(
+  process.env.DB_URI || "",
+  neo4j.auth.basic(
+    process.env.DB_USER || "",
+    process.env.NEO4J_PASSWORD || ""
+  ),
+  {
+    maxConnectionLifetime: 30000,
+    maxConnectionPoolSize: 50,
+    connectionTimeout: 30000,
+  }
+);
+
+// Base query function with serialization
 async function runQuery<T>(
   query: string,
   params: Record<string, unknown> = {}
 ): Promise<T[]> {
-  const driver: Driver = neo4j.driver(
-    process.env.DB_URI || "",
-    neo4j.auth.basic(
-      process.env.DB_USER || "",
-      process.env.NEO4J_PASSWORD || ""
-    ),
-    {
-      maxConnectionLifetime: 30000, // Timeout settings
-      maxConnectionPoolSize: 50,
-      connectionTimeout: 30000,
-    }
-  );
   const session = driver.session({ database: "neo4j" });
   try {
     const result = await session.run(query, params);
@@ -65,7 +69,6 @@ async function runQuery<T>(
     );
   } finally {
     await session.close();
-    await driver.close();
   }
 }
 
@@ -249,4 +252,75 @@ export async function getTotalProceedingDays(): Promise<number> {
   `;
   const result = await runQuery<{ totalDays: number }>(query);
   return result[0]?.totalDays || 0;
+}
+
+export interface EnvoyCommittee {
+  name: string;
+  role: string;
+}
+
+export async function getEnvoyInfo(id: number): Promise<Envoy> {
+  const query = `
+    MATCH (p:Person {id: toInteger($id)})
+    RETURN p {.*} as envoy
+  `;
+  const result = await runQuery<{ envoy: Envoy }>(query, { id });
+  return result[0].envoy;
+}
+
+export async function getEnvoyCommittees(
+  id: number
+): Promise<EnvoyCommittee[]> {
+  const query = `
+    MATCH (p:Person {id: toInteger($id)})-[r:JEST_CZŁONKIEM]->(c:Committee)
+    RETURN c.name as name, r.function as role
+  `;
+  return runQuery<EnvoyCommittee>(query, { id });
+}
+
+export async function getEnvoySpeeches(id: number): Promise<number> {
+  const query = `
+    MATCH (p:Person {id: toInteger($id)})-[:SAID]->()
+    RETURN count(*) as count
+  `;
+  const result = await runQuery<{ count: number }>(query, { id });
+  return result[0]?.count || 0;
+}
+
+export async function getEnvoyPrints(
+  id: number,
+  limit: number = 5
+): Promise<PrintShort[]> {
+  const query = `
+MATCH (p:Person {id: toInteger($id)})-[:AUTHORED]->(print:Print)
+RETURN print {
+  number: print.number,
+  title: print.title,
+  deliveryDate: print.deliveryDate,
+  summary: print.summary
+} as print
+ORDER BY print.documentDate DESC
+LIMIT 5
+  `;
+  const result = await runQuery<{ print: PrintShort }>(query, { id, limit });
+  return result.map((record) => record.print);
+}
+
+export async function getEnvoySubjectPrints(
+  id: number,
+  limit: number = 5
+): Promise<PrintShort[]> {
+  const query = `
+    MATCH (p:Person {id: toInteger($id)})-[:SUBJECT]->(print:Print)
+    RETURN print {
+      number: print.number,
+      title: print.title,
+      deliveryDate: print.deliveryDate,
+      summary: print.summary
+    } as print
+    ORDER BY print.documentDate DESC
+    LIMIT 5
+  `;
+  const result = await runQuery<{ print: PrintShort }>(query, { id, limit });
+  return result.map((record) => record.print);
 }

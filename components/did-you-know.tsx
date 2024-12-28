@@ -56,6 +56,7 @@ export default function PlebiscytCard() {
   return (
     <CardWrapper
       title="Rekordziści 10 kadencji"
+      className="h-full"
       sourceDescription="Informacje wynikają z analizy AI oficjalnych danych sejmowych"
       sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
       aiPrompt="Give me interesting statistics about politicians."

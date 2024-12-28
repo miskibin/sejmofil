@@ -83,7 +83,7 @@ const SejmGame = () => {
   const formatCost = (val: number) =>
     new Intl.NumberFormat("pl-PL", {
       style: "currency",
-      currency: "PLN",
+      currency: "zł",
       maximumFractionDigits: 0,
     }).format(val);
 

@@ -34,6 +34,7 @@ export default function HotTopics() {
   return (
     <CardWrapper
       title="Newsy"
+      className="h-full"
       sourceDescription="Dane z oficjalnego api sejmu RP przetworzone przez AI"
       sourceUrls={[
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/prints`,

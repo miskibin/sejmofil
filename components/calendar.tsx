@@ -57,6 +57,7 @@ export default async function SessionCalendar() {
   return (
     <CardWrapper
       title="Kalendarz obrad"
+      className="h-full"
       sourceDescription="Oficjalne api sejmu RP"
       sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
       subtitle={`${
