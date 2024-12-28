@@ -34,6 +34,19 @@ export default function HotTopics() {
   return (
     <CardWrapper
       title="Newsy"
+      sourceDescription="Dane z oficjalnego api sejmu RP przetworzone przez AI"
+      sourceUrls={[
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/prints`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/processes`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/votings`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`,
+      ]}
+      aiPrompt="Basing on the print topics and summaries create catchy header in polish for the news portal
+      in format
+      {{ interesting news header 1: [printNumber1, printNumber2 ...]
+      interesting news header 2: [...]
+      ...
+      }}"
       subtitle="Gorące tematy"
       headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
     >

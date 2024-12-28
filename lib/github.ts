@@ -1,24 +1,33 @@
 type GitHubRelease = {
   tag_name: string;
+  html_url: string;
 };
 
-let cachedVersion: string | null = null;
+let cachedRelease: GitHubRelease | null = null;
 
-export async function getLatestVersion(): Promise<string> {
-  if (cachedVersion) return cachedVersion;
+export async function getLatestVersion(): Promise<{ version: string; url: string }> {
+  if (cachedRelease) {
+    return {
+      version: cachedRelease.tag_name,
+      url: cachedRelease.html_url
+    };
+  }
 
   try {
     const response = await fetch(
       'https://api.github.com/repos/miskibin/sejmofront/releases/latest',
-      { next: { revalidate: 3600 } } // Cache for 1 hour
+      { next: { revalidate: 3600 } }
     );
     
-    if (!response.ok) return 'v0.0.0';
+    if (!response.ok) return { version: 'v0.0.0', url: 'https://github.com/miskibin/sejmofront/releases' };
     
     const data: GitHubRelease = await response.json();
-    cachedVersion = data.tag_name;
-    return cachedVersion;
-  } catch (error) {
-    return 'v0.0.0';
+    cachedRelease = data;
+    return {
+      version: data.tag_name,
+      url: data.html_url
+    };
+  } catch {
+    return { version: 'v0.0.0', url: 'https://github.com/miskibin/sejmofront/releases' };
   }
 }
