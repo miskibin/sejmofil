@@ -10,12 +10,9 @@ import {
   getEnvoyPrints,
   getEnvoySubjectPrints,
 } from "@/lib/queries";
+import { notFound } from "next/navigation";
 
-interface PageProps {
-  params: {
-    id: number;
-  };
-}
+
 
 interface InfoRowProps {
   label: string;
@@ -29,8 +26,13 @@ const InfoRow = ({ label, value }: InfoRowProps) => (
   </div>
 );
 
-export default async function EnvoyPage({ params }: PageProps) {
-  const { id } = params;
+export default async function EnvoyDetail({
+  params,
+}: {
+  params: Promise<{ id: number }>;
+}) {
+  const { id } = await params;
+  if (!id) notFound();
 
   const [info, committees, speechCount, prints, subjectPrints] =
     await Promise.all([
@@ -64,7 +66,7 @@ export default async function EnvoyPage({ params }: PageProps) {
             >
               <div className="flex flex-col items-center space-y-6">
                 <Image
-                  src={`/images/envoys/${info.id}.jpg`}
+                  src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/MP/${info.id}/photo`}
                   alt={`${info.firstName} ${info.lastName}`}
                   width={240}
                   height={240}
@@ -119,16 +121,16 @@ export default async function EnvoyPage({ params }: PageProps) {
             {/* Biography */}
             {info.biography && (
               <div className="space-y-6">
-              <CardWrapper
-                title="Biografia"
-                subtitle="Informacje dodatkowe"
-                showDate={false}
-                showGradient={false}
-              >
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {info.biography}
-                </p>
-              </CardWrapper>
+                <CardWrapper
+                  title="Biografia"
+                  subtitle="Informacje dodatkowe"
+                  showDate={false}
+                  showGradient={false}
+                >
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {info.biography}
+                  </p>
+                </CardWrapper>
               </div>
             )}
 
