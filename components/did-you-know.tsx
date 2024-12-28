@@ -1,31 +1,53 @@
+import { CardWrapper } from "@/components/ui/card-wrapper";
 import { Sparkles } from "lucide-react";
 import Image from "next/image";
-import { CardWrapper } from "@/components/ui/card-wrapper";
+interface Statistic {
+  type: "interruptions" | "speeches" | "manipulation" | "comments";
+  value: number;
+  displayText: string;
+}
 
 interface Politician {
   name: string;
-  count: number;
+  mainStat: Statistic;
   image: string;
 }
+
 const politicians: Politician[] = [
   {
     name: "Donald Tusk",
-    count: 200,
+    mainStat: {
+      type: "speeches",
+      value: 250,
+      displayText: "Przemawiał 250 razy",
+    },
     image: "https://api.sejm.gov.pl/sejm/term10/MP/123/photo",
   },
   {
     name: "Andrzej Motyka",
-    count: 192,
+    mainStat: {
+      type: "manipulation",
+      value: 90,
+      displayText: "Kłamał 90 razy",
+    },
     image: "https://api.sejm.gov.pl/sejm/term10/MP/113/photo",
   },
   {
-    name: "Andrzej Motyka",
-    count: 192,
+    name: "Sławomir Mentzen",
+    mainStat: {
+      type: "comments",
+      value: 4,
+      displayText: "Wypowiedział się 4 razy",
+    },
     image: "https://api.sejm.gov.pl/sejm/term10/MP/143/photo",
   },
   {
-    name: "Andrzej Motyka",
-    count: 192,
+    name: "Mateusz Morawiecki",
+    mainStat: {
+      type: "interruptions",
+      value: 250,
+      displayText: "Przerwał 250 razy",
+    },
     image: "https://api.sejm.gov.pl/sejm/term10/MP/143/photo",
   },
 ];
@@ -33,10 +55,10 @@ const politicians: Politician[] = [
 export default function PlebiscytCard() {
   return (
     <CardWrapper
-      title="Plebiscyt"
+      title="Rekordziści 10 kadencji"
       sourceDescription="Informacje wynikają z analizy AI oficjalnych danych sejmowych"
       sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
-      aiPrompt="Give me a list of politicians who interrupted the most."
+      aiPrompt="Give me interesting statistics about politicians."
       subtitle="Czy wiesz, że?"
       headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
     >
@@ -48,8 +70,7 @@ export default function PlebiscytCard() {
                 {politician.name}
               </p>
               <div className="flex flex-row text-xl font-normal leading-tight">
-                <span className="">Przerwał </span>
-                <span className="ms-2">{politician.count} razy</span>
+                <span>{politician.mainStat.displayText}</span>
               </div>
             </div>
             <Image

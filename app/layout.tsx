@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {  Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 
 const inter = Inter({
@@ -33,6 +34,8 @@ export default function RootLayout({
       >
         <Navbar />
         <div className="min-h-screen mt-8 bg-gray-50">{children}</div>
+        <hr className="my-8 mx-4" />
+        <Footer />
       </body>
     </html>
   );
