@@ -15,6 +15,7 @@ import { EnvoyShort } from "@/lib/types";
 function EnvoysList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClub, setSelectedClub] = useState("all");
+  const [activityFilter, setActivityFilter] = useState<'active' | 'inactive' | 'all'>('active');
   const [envoys, setEnvoys] = useState<EnvoyShort[]>([]);
 
   useEffect(() => {
@@ -31,7 +32,12 @@ function EnvoysList() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesClub = selectedClub === "all" || envoy.club === selectedClub;
-    return matchesSearch && matchesClub;
+    const matchesActivity = 
+      activityFilter === 'all' || 
+      (activityFilter === 'active' && envoy.active) || 
+      (activityFilter === 'inactive' && !envoy.active);
+    
+    return matchesSearch && matchesClub && matchesActivity;
   });
 
   const clubs = [...new Set(envoys.map((e) => e.club).filter(Boolean))];
@@ -43,6 +49,7 @@ function EnvoysList() {
           clubs={clubs}
           onSearchChange={setSearchTerm}
           onClubChange={setSelectedClub}
+          onActivityChange={setActivityFilter}
         />
       </div>
 
@@ -77,7 +84,6 @@ function EnvoysList() {
                       fill
                       className="rounded-lg object-cover"
                       loading="lazy"
-                     
                     />
                   </div>
                   <div>
@@ -107,11 +113,11 @@ function EnvoysList() {
 
 export default function EnvoysPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
       <h1 className="text-3xl font-bold mb-8">Posłowie</h1>
       <Suspense fallback={<div>Loading...</div>}>
         <EnvoysList />
       </Suspense>
-    </div>
+    </>
   );
 }

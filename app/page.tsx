@@ -18,7 +18,7 @@ export default async function Home() {
   const timeUntil = getTimeUntilNextProceeding(nextDate);
 
   return (
-    <main className="container mx-auto max-w-7xl 2xl:max-w-[1400px] p-4 sm:p-6 lg:p-12">
+    <>
       <div className="mb-4 sm:mb-8 mt-8">
         <h1 className="text-2xl font-semibold">
           {nextDate ? (
@@ -93,6 +93,6 @@ export default async function Home() {
           <CommissionSessions />
         </div>
       </div>
-    </main>
+    </>
   );
 }
