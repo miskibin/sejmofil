@@ -10,6 +10,7 @@ import {
   ProceedingDates,
   PrintShort,
   Envoy,
+  EnvoyShort,
 } from "./types";
 
 // Serialization helper for Neo4j integers and dates
@@ -276,6 +277,23 @@ export async function getEnvoyInfo(id: number): Promise<Envoy> {
   `;
   const result = await runQuery<{ envoy: Envoy }>(query, { id });
   return result[0].envoy;
+}
+export async function getAllEnvoys(): Promise<EnvoyShort[]> {
+  const query = `
+    MATCH (p:Person)
+    WHERE p.club IS NOT NULL
+    RETURN p {
+      active: p.active,
+      club: p.club,
+      firstName: p.firstName,
+      id: p.id,
+      lastName: p.lastName,
+      numberOfVotes: p.numberOfVotes,
+      profession: p.profession
+    } as envoy
+  `;
+  const result = await runQuery<{ envoy: EnvoyShort }>(query);
+  return result.map(record => record.envoy);
 }
 
 export async function getEnvoyCommittees(
