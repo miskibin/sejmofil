@@ -13,9 +13,15 @@ interface EnvoysListFiltersProps {
   clubs: string[];
   onSearchChange: (value: string) => void;
   onClubChange: (value: string) => void;
+  onActivityChange: (value: 'active' | 'inactive' | 'all') => void;
 }
 
-export function EnvoysListFilters({ clubs, onSearchChange, onClubChange }: EnvoysListFiltersProps) {
+export function EnvoysListFilters({ 
+  clubs, 
+  onSearchChange, 
+  onClubChange,
+  onActivityChange 
+}: EnvoysListFiltersProps) {
   return (
     <div className="flex flex-col md:flex-row gap-4">
       <Input
@@ -34,6 +40,16 @@ export function EnvoysListFilters({ clubs, onSearchChange, onClubChange }: Envoy
               {club}
             </SelectItem>
           ))}
+        </SelectContent>
+      </Select>
+      <Select defaultValue="active" onValueChange={onActivityChange}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="active">Tylko aktywni</SelectItem>
+          <SelectItem value="inactive">Tylko nieaktywni</SelectItem>
+          <SelectItem value="all">Wszyscy</SelectItem>
         </SelectContent>
       </Select>
     </div>

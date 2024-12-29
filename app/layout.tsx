@@ -33,9 +33,14 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
       >
         <Navbar />
+    <main className="container mx-auto max-w-7xl 2xl:max-w-[1400px] p-4 sm:p-6 lg:p-12">
+
         <div className="min-h-screen mt-8 bg-gray-50">{children}</div>
+        </main>
         <hr className="my-8 mx-4" />
+
         <Footer />
+
       </body>
     </html>
   );
