@@ -27,7 +27,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
 
 // Loading components for Suspense fallbacks
 const LoadingCard = () => (
