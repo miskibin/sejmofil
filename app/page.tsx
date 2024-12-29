@@ -19,7 +19,7 @@ export default async function Home() {
 
   return (
     <>
-      <div className="mb-4 sm:mb-8 mt-8">
+      <div className="mb-4 sm:mb-8 mt-16">
         <h1 className="text-2xl font-semibold">
           {nextDate ? (
             <>
