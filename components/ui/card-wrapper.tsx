@@ -22,7 +22,6 @@ export function CardWrapper({
   title,
   subtitle,
   headerIcon,
-  showSource = true,
   showDate = true,
   showGradient = true,
   children,
@@ -32,7 +31,7 @@ export function CardWrapper({
   className,
 }: CardWrapperProps) {
   return (
-    <Card className={cn("w-full", className)}>
+    <Card className={cn("w-full flex flex-col", className)}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
@@ -45,16 +44,18 @@ export function CardWrapper({
 
       <hr className="mx-6 mb-4" />
 
-      <CardContent className="relative">
-        <div className="space-y-4">{children}</div>
+      <CardContent className="flex-1 flex flex-col min-h-[100px]">
+        <div className="relative flex-1">
+          <div className="space-y-4">{children}</div>
 
-        {showGradient && (
-          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white via-white to-transparent pointer-events-none" />
-        )}
+          {showGradient && (
+            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white via-white to-transparent pointer-events-none" />
+          )}
+        </div>
 
-        {(showSource || showDate) && (
+        {(sourceDescription || sourceUrls || showDate) && (
           <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
-            {showSource && (
+            {(sourceDescription || sourceUrls) && (
               <SourcePopover
                 urls={sourceUrls}
                 description={sourceDescription}
