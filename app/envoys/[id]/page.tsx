@@ -13,8 +13,6 @@ import {
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const revalidate = 0;
 interface InfoRowProps {
   label: string;
   value: string | number;
