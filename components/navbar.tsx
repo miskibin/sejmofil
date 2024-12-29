@@ -23,7 +23,7 @@ const searchTexts = [
 ];
 
 const navLinks = [
-  { href: "/poslowie", text: "Posłowie" },
+  { href: "/envoys", text: "Posłowie" },
   { href: "/process", text: "Procesy Sejmowe" },
   { href: "/proceedings", text: "Posiedzenia" },
 ];
