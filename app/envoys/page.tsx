@@ -15,7 +15,9 @@ import { EnvoyShort } from "@/lib/types";
 function EnvoysList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClub, setSelectedClub] = useState("all");
-  const [activityFilter, setActivityFilter] = useState<'active' | 'inactive' | 'all'>('active');
+  const [activityFilter, setActivityFilter] = useState<
+    "active" | "inactive" | "all"
+  >("active");
   const [envoys, setEnvoys] = useState<EnvoyShort[]>([]);
 
   useEffect(() => {
@@ -32,11 +34,11 @@ function EnvoysList() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesClub = selectedClub === "all" || envoy.club === selectedClub;
-    const matchesActivity = 
-      activityFilter === 'all' || 
-      (activityFilter === 'active' && envoy.active) || 
-      (activityFilter === 'inactive' && !envoy.active);
-    
+    const matchesActivity =
+      activityFilter === "all" ||
+      (activityFilter === "active" && envoy.active) ||
+      (activityFilter === "inactive" && !envoy.active);
+
     return matchesSearch && matchesClub && matchesActivity;
   });
 
@@ -79,7 +81,10 @@ function EnvoysList() {
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-20 relative flex-shrink-0">
                     <Image
-                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/MP/${envoy.id}/photo`}
+                      src={`${
+                        process.env.NEXT_PUBLIC_API_BASE_URL ||
+                        "https://api.sejm.gov.pl/sejm/term10"
+                      }/MP/${envoy.id}/photo`}
                       alt={fullName}
                       fill
                       className="rounded-lg object-cover"
