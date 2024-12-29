@@ -67,8 +67,8 @@ export default async function EnvoyDetail({
                 <Image
                   src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/MP/${info.id}/photo`}
                   alt={`${info.firstName} ${info.lastName}`}
-                  width={240}
-                  height={240}
+                  width={60}
+                  height={60}
                   className="rounded-lg shadow-md"
                   priority
                 />
