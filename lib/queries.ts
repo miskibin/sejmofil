@@ -41,27 +41,38 @@ function serializeNeo4jResult(data: unknown): unknown {
 
   return data;
 }
+let driver: Driver | null = null;
+function getDriver() {
+  if (driver) return driver;
 
-// Create driver once
-const driver: Driver = neo4j.driver(
-  process.env.DB_URI || "",
-  neo4j.auth.basic(
-    process.env.DB_USER || "",
-    process.env.NEO4J_PASSWORD || ""
-  ),
-  {
-    maxConnectionLifetime: 30000,
-    maxConnectionPoolSize: 50,
-    connectionTimeout: 30000,
+  if (
+    !process.env.DB_URI ||
+    !process.env.DB_USER ||
+    !process.env.NEO4J_PASSWORD
+  ) {
+    throw new Error("Database credentials not provided");
   }
-);
+
+  driver = neo4j.driver(
+    process.env.DB_URI,
+    neo4j.auth.basic(process.env.DB_USER, process.env.NEO4J_PASSWORD),
+    {
+      maxConnectionLifetime: 30000,
+      maxConnectionPoolSize: 50,
+      connectionTimeout: 30000,
+    }
+  );
+
+  return driver;
+}
 
 // Base query function with serialization
 async function runQuery<T>(
   query: string,
   params: Record<string, unknown> = {}
 ): Promise<T[]> {
-  const session = driver.session({ database: "neo4j" });
+  // Only get the driver when we actually need to run a query
+  const session = getDriver().session({ database: "neo4j" });
   try {
     const result = await session.run(query, params);
     return result.records.map(
@@ -71,7 +82,6 @@ async function runQuery<T>(
     await session.close();
   }
 }
-
 export async function getRelatedPrints(number: string): Promise<Print[]> {
   const query = `
     MATCH (related:Print)-[:REFERENCES]->(p:Print {number: $number})
