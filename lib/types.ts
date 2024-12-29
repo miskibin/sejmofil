@@ -5,6 +5,18 @@ export type Person = {
   lastName?: string;
 };
 
+export interface EnvoyShort {
+  active: boolean;
+  club: string;
+  firstName: string;
+  id: string;
+  lastName: string;
+  numberOfVotes: number;
+  profession: string;
+}
+
+
+
 export interface Envoy {
   accusativeName: string;
   active: boolean;
