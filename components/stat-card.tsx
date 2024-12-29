@@ -25,7 +25,7 @@ export default function StatCard({
       sourceUrls={sourceUrls}
       showGradient={false}
     >
-      <p className="text-4xl font-bold">{value}</p>
+      <p className="text-3xl font-bold">{value}</p>
     </CardWrapper>
   );
 }
