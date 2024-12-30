@@ -32,7 +32,7 @@ export function CardWrapper({
 }: CardWrapperProps) {
   return (
     <Card className={cn("w-full flex flex-col", className)}>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 lg:px-4 2xl:px-6">
         <div className="flex justify-between items-start">
           <div>
             <CardTitle className="text-sm text-primary">{title}</CardTitle>

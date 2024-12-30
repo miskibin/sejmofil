@@ -4,8 +4,8 @@ interface StatCardProps {
   title: string;
   value: number | string;
   category: string;
-  sourceDescription: string;
-  sourceUrls: string[];
+  sourceDescription?: string;
+  sourceUrls?: string[];
 }
 
 export default function StatCard({

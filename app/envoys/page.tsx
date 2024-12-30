@@ -87,6 +87,7 @@ function EnvoysList() {
                       }/MP/${envoy.id}/photo`}
                       alt={fullName}
                       fill
+                      sizes="60px"
                       className="rounded-lg object-cover"
                       loading="lazy"
                     />
