@@ -18,14 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { X } from "lucide-react";
 
 type ActivityStatus = "active" | "inactive" | "all";
 type ProfessionCount = { name: string; count: number };
@@ -52,6 +45,7 @@ export function EnvoysListFilters({
   selectedProfessions,
 }: EnvoysListFiltersProps) {
   const [currentDistrict, setCurrentDistrict] = useState<string | null>(null);
+  const [professionFilter, setProfessionFilter] = useState("");
 
   const handlePostalCode = (value: string) => {
     const cleanValue = value.replace(/[^0-9]/g, "");
@@ -75,6 +69,10 @@ export function EnvoysListFilters({
         : [...selectedProfessions, profName]
     );
   };
+
+  const filteredProfessions = professions.filter(prof =>
+    prof.name.toLowerCase().includes(professionFilter.toLowerCase())
+  );
 
   return (
     <div className="p-3 mb-8">
@@ -149,33 +147,42 @@ export function EnvoysListFilters({
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-0" align="start">
-            <Command>
-              <CommandInput placeholder="Szukaj zawodu..." />
-              <CommandList>
-                <CommandEmpty>Nie znaleziono zawodów</CommandEmpty>
-                <CommandGroup>
-                  {professions.map((prof) => (
-                    <CommandItem
-                      key={prof.name}
-                      onSelect={() => toggleProfession(prof.name)}
-                    >
-                      <div
-                        className={`mr-2 flex h-4 min-w-4 items-center justify-center rounded-sm border border-primary hover:border-white ${
+          <PopoverContent className="w-64 p-2" align="start">
+            <div className="flex flex-col gap-2">
+              <Input
+                placeholder="Szukaj zawodu..."
+                value={professionFilter}
+                onChange={(e) => setProfessionFilter(e.target.value)}
+                className="mb-2"
+              />
+              <div className="max-h-[300px] overflow-y-auto">
+                {filteredProfessions.length === 0 ? (
+                  <p className="text-sm text-center py-4 text-muted-foreground">
+                    Nie znaleziono zawodów
+                  </p>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    {filteredProfessions.map((prof) => (
+                      <button
+                        key={prof.name}
+                        onClick={() => toggleProfession(prof.name)}
+                        className="flex items-center gap-2 px-2 py-1.5 hover:bg-primary/20 rounded-sm text-sm"
+                      >
+                        <div className={`flex h-4 w-4 items-center justify-center rounded-sm border border-primary ${
                           selectedProfessions.includes(prof.name)
                             ? "bg-primary text-primary-foreground"
                             : "opacity-50"
-                        }`}
-                      >
-                        {selectedProfessions.includes(prof.name) && "✓"}
-                      </div>
-                      {prof.name}
-                      <span className="ml-auto">({prof.count})</span>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
+                        }`}>
+                          {selectedProfessions.includes(prof.name) && "✓"}
+                        </div>
+                        <span className="flex-grow text-left">{prof.name}</span>
+                        <span className="text-muted-foreground">({prof.count})</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </PopoverContent>
         </Popover>
 
@@ -185,10 +192,10 @@ export function EnvoysListFilters({
               <Badge
                 key={prof}
                 variant="default"
-                className="cursor-pointer"
+                className="cursor-pointer p-2"
                 onClick={() => toggleProfession(prof)}
               >
-                {prof} ×
+                {prof} <X size={16} className="ml-1" />
               </Badge>
             ))}
           </div>
