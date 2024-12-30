@@ -57,26 +57,24 @@ export async function getSimmilarPrints(
   maxVectorDistance: number = 0.5
 ): Promise<Print[]> {
   const query = `
-      MATCH (n:Print {number: $printNumber})
-      WITH n
-      MATCH (p:Print)
-      WHERE p <> n
-      WITH p, gds.similarity.cosine(n.embedding, p.embedding) as similarity
-      WHERE similarity <= $maxVectorDistance
-      RETURN p {
-        number: p.number,
-        title: p.title,
-        term: p.term,
-        documentType: p.documentType,
-        changeDate: p.changeDate,
-        deliveryDate: p.deliveryDate,
-        documentDate: p.documentDate,
-        summary: p.summary,
-        attachments: p.attachments,
-        processPrint: p.processPrint
-      } as print
-      ORDER BY similarity DESC
-      LIMIT 3
+        MATCH (n:Print {number: $printNumber})
+        WITH n
+        CALL db.index.vector.queryNodes('printEmbeddingIndex', 3, n.embedding) 
+        YIELD node, score
+        WHERE node <> n AND score <= $maxVectorDistance
+        RETURN node {
+            number: node.number,
+            title: node.title,
+            term: node.term,
+            documentType: node.documentType,
+            changeDate: node.changeDate,
+            deliveryDate: node.deliveryDate,
+            documentDate: node.documentDate,
+            summary: node.summary,
+            attachments: node.attachments,
+            processPrint: node.processPrint
+        } as print
+        ORDER BY score ASC
     `;
   const result = await runQuery<{ print: Print }>(query, {
     printNumber,
