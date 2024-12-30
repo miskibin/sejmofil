@@ -1,5 +1,5 @@
 import { createClient } from "@/app/supabase/server";
-import { ProceedingPoint } from "./types";
+import { ProceedingPoint } from "./types/proceeding";
 
 export async function getProceedings(
   page: number = 1,
