@@ -1,6 +1,6 @@
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { getProceedingDates } from "@/lib/queries";
 import CalendarDayTile from "./calendar-day";
+import { getProceedingDates } from "@/lib/queries/proceeding";
 
 interface CalendarDay {
   date: number | null;

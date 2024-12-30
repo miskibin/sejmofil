@@ -82,7 +82,7 @@ export function EnvoysListFilters({
       </Select>
       <div className="flex flex-row gap-2 items-center">
         <Input
-          placeholder="pierwsze 2 cyfry kodu pocztowego"
+          placeholder="2 cyfry kodu pocztowego"
           className="w-[240px]"
           onChange={handlePostalCodeChange}
           maxLength={6}

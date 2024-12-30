@@ -2,8 +2,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import debounce from "lodash/debounce";
-import { getAllPrints } from "@/lib/queries";
-import { PrintListItem } from "@/lib/types";
+import { getAllPrints } from "@/lib/queries/print";
+import { PrintListItem } from "@/lib/types/print";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const CachedSearchResults = async ({

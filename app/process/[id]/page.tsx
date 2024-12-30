@@ -12,20 +12,19 @@ import {
 } from "@/components/sections";
 import {
   getPrint,
-  getPrintAuthors,
   getPrintComments,
   getRelatedPrints,
   getTopicsForPrint,
-  getAllProcessStages,
   getPrintsRelatedToTopic,
-  getPrintSubjects,
   getSimmilarPrints,
-} from "@/lib/queries";
-import { Person } from "@/lib/types";
+} from "@/lib/queries/print";
+import { Person } from "@/lib/types/person";
 import Markdown from "react-markdown";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getPrintAuthors, getPrintSubjects } from "@/lib/queries/person";
+import { getAllProcessStages } from "@/lib/queries/process";
 
 export const dynamic = "force-dynamic";
 // Loading components for Suspense fallbacks
