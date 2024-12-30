@@ -15,6 +15,7 @@ import { EnvoyShort } from "@/lib/types";
 function EnvoysList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClub, setSelectedClub] = useState("all");
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [activityFilter, setActivityFilter] = useState<
     "active" | "inactive" | "all"
   >("active");
@@ -38,8 +39,10 @@ function EnvoysList() {
       activityFilter === "all" ||
       (activityFilter === "active" && envoy.active) ||
       (activityFilter === "inactive" && !envoy.active);
+    const matchesDistrict =
+      !selectedDistrict || envoy.districtName === selectedDistrict;
 
-    return matchesSearch && matchesClub && matchesActivity;
+    return matchesSearch && matchesClub && matchesActivity && matchesDistrict;
   });
 
   const clubs = [...new Set(envoys.map((e) => e.club).filter(Boolean))];
@@ -52,6 +55,7 @@ function EnvoysList() {
           onSearchChange={setSearchTerm}
           onClubChange={setSelectedClub}
           onActivityChange={setActivityFilter}
+          onDistrictChange={setSelectedDistrict}
         />
       </div>
 
