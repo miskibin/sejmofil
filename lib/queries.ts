@@ -287,13 +287,14 @@ export async function getAllEnvoys(): Promise<EnvoyShort[]> {
       club: p.club,
       firstName: p.firstName,
       id: p.id,
+      districtName: p.districtName,
       lastName: p.lastName,
       numberOfVotes: p.numberOfVotes,
       profession: p.profession
     } as envoy
   `;
   const result = await runQuery<{ envoy: EnvoyShort }>(query);
-  return result.map(record => record.envoy);
+  return result.map((record) => record.envoy);
 }
 
 export async function getEnvoyCommittees(

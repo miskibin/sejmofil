@@ -10,12 +10,11 @@ export interface EnvoyShort {
   club: string;
   firstName: string;
   id: string;
+  districtName: string;
   lastName: string;
   numberOfVotes: number;
   profession: string;
 }
-
-
 
 export interface Envoy {
   accusativeName: string;
@@ -38,8 +37,6 @@ export interface Envoy {
   secondName: string | null;
   voivodeship: string;
 }
-
-
 
 export type ProcessStage = {
   childStages: boolean;
