@@ -5,10 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Ban } from "lucide-react"; // Import the icon for inactive envoys
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { getAllEnvoys } from "@/lib/queries";
 import { EnvoysListFilters } from "@/components/envoys-list-filters";
 import { cn } from "@/lib/utils";
-import { EnvoyShort } from "@/lib/types";
+import { getAllEnvoys } from "@/lib/queries/person";
+import { EnvoyShort } from "@/lib/types/person";
 
 // export const revalidate = 3600;
 

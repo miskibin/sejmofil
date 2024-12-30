@@ -7,10 +7,9 @@ import {
   getEnvoyInfo,
   getEnvoyCommittees,
   getEnvoySpeeches,
-  getEnvoyPrints,
-  getEnvoySubjectPrints,
-} from "@/lib/queries";
+} from "@/lib/queries/person";
 import { notFound } from "next/navigation";
+import { getEnvoyPrints, getEnvoySubjectPrints } from "@/lib/queries/print";
 
 export const dynamic = "force-dynamic";
 interface InfoRowProps {

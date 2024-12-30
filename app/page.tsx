@@ -8,7 +8,7 @@ import SessionCalendar from "@/components/calendar";
 import HotTopics from "@/components/hot-topics";
 import TotalProceedingDays from "@/components/total-proceeding-days";
 import SejmCostCounter from "@/components/total-cost";
-import { getProceedingDates } from "@/lib/queries";
+import { getProceedingDates } from "@/lib/queries/proceeding";
 import { getNextProceedingDate, getTimeUntilNextProceeding } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
