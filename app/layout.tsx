@@ -30,12 +30,12 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} antialiased`}
+        className={`${inter.variable} antialiased bg-neutral-50`}
       >
         <Navbar />
-    <main className="container mx-auto max-w-7xl 2xl:max-w-[1400px] p-4 sm:p-6 lg:p-12">
+    <main className="container mx-auto max-w-7xl 2xl:max-w-[1400px] p-4 sm:p-6 lg:p-12  ">
 
-        <div className="min-h-screen mt-8 bg-gray-50">{children}</div>
+        <div className="min-h-screen mt-8">{children}</div>
         </main>
         <hr className="my-8 mx-4" />
 

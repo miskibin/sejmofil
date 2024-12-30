@@ -86,8 +86,8 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-white shadow-md" : "bg-transparent"
+      className={`fixed top-0 left-0 right-0 z-50   transition-all duration-300 ${
+        scrolled ? "bg-background/95 shadow-md backdrop-blur" : "bg-transparent "
       } px-4 py-3 grid grid-cols-[auto_1fr_auto] items-center gap-4 `}
     >
       {/* Left section with logo and links */}
