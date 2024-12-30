@@ -1,20 +1,36 @@
 import Link from "next/link";
-import { 
-  FaYoutube, 
+import {
+  FaYoutube,
   FaHandHoldingHeart,
   FaArrowRight,
   FaDiscord,
   FaTiktok,
-  FaGithub
+  FaGithub,
 } from "react-icons/fa";
 import { getLatestVersion } from "@/lib/github";
 
 const socialLinks = [
-  { name: "discord", url: "https://discord.com/invite/zH2J3z5Wbf", icon: <FaDiscord className="h-5 w-5 text-blue-700" /> },
-  { name: "youtube", url: "https://www.youtube.com/@sejm-stats", icon: <FaYoutube className="h-5 w-5 text-red-600" /> },
-  { name: "titkok", url: "https://tiktok.com", icon: <FaTiktok className="h-5 w-5 text-gray-800" /> },
+  {
+    name: "discord",
+    url: "https://discord.com/invite/zH2J3z5Wbf",
+    icon: <FaDiscord className="h-5 w-5 text-blue-700" />,
+  },
+  {
+    name: "youtube",
+    url: "https://www.youtube.com/@sejm-stats",
+    icon: <FaYoutube className="h-5 w-5 text-red-600" />,
+  },
+  {
+    name: "titkok",
+    url: "https://tiktok.com",
+    icon: <FaTiktok className="h-5 w-5 text-gray-800" />,
+  },
 
-  { name: "github", url: "https://github.com/miskibin/sejmofront", icon: <FaGithub className="h-5 w-5 text-gray-800" /> },
+  {
+    name: "github",
+    url: "https://github.com/miskibin/sejmofront",
+    icon: <FaGithub className="h-5 w-5 text-gray-800" />,
+  },
 ];
 
 const navLinks = [
@@ -25,7 +41,7 @@ const navLinks = [
 
 export async function Footer() {
   const { version, url } = await getLatestVersion();
-  
+
   return (
     <footer className="py-8 sm:py-16 px-4 md:px-8 bg-gray-50">
       <div className="max-w-7xl mx-auto">
@@ -33,14 +49,16 @@ export async function Footer() {
           {/* Logo and About Section */}
           <div className="col-span-2 sm:col-span-2 md:col-span-1 space-y-4">
             <Link href="/" className="inline-block">
-              <div className="text-primary text-2xl sm:text-3xl font-bold">Sejmofil</div>
+              <div className="text-primary text-2xl sm:text-3xl font-bold">
+                Sejmofil
+              </div>
             </Link>
             <p className="text-sm sm:text-base max-w-xs text-gray-600">
-                Oddolna inicjaitywa na rzecz przejrzystości i dostępności danych sejmowych.
-
+              Oddolna inicjaitywa na rzecz przejrzystości i dostępności danych
+              sejmowych.
             </p>
-            <Link 
-              href="/patronite" 
+            <Link
+              href="https://patronite.pl/sejm-stats"
               className="inline-flex items-center gap-2 text-primary hover:opacity-80 transition-opacity text-sm sm:text-base"
             >
               <FaHandHoldingHeart className="h-5 w-5" />
@@ -61,7 +79,10 @@ export async function Footer() {
             <ul className="space-y-2">
               {navLinks.map(({ name, url }) => (
                 <li key={url}>
-                  <Link href={url} className="text-sm text-gray-600 hover:text-primary transition-colors">
+                  <Link
+                    href={url}
+                    className="text-sm text-gray-600 hover:text-primary transition-colors"
+                  >
                     {name}
                   </Link>
                 </li>
@@ -96,7 +117,7 @@ export async function Footer() {
             <div className="flex items-center gap-4">
               <p>© Wszelkie prawa zastrzeżone {new Date().getFullYear()}</p>
               <span className="hidden sm:inline">•</span>
-              <Link 
+              <Link
                 href={url}
                 target="_blank"
                 className="font-mono bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-xs transition-colors"
@@ -104,7 +125,10 @@ export async function Footer() {
                 {version}
               </Link>
             </div>
-            <Link href="/privacy" className="hover:text-primary transition-colors">
+            <Link
+              href="/privacy"
+              className="hover:text-primary transition-colors"
+            >
               Polityka Prywatności
             </Link>
           </div>
