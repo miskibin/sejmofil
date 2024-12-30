@@ -2,7 +2,7 @@ import { createClient } from "@/app/supabase/server";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Calendar, Info, ListOrdered } from "lucide-react";
-import { Proceeding } from "@/lib/types";
+import { Proceeding } from "@/lib/types/proceeding";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";

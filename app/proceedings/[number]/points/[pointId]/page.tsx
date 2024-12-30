@@ -1,5 +1,5 @@
 import { createClient } from "@/app/supabase/server";
-import { ProceedingPointDetails } from "@/lib/types";
+import { ProceedingPointDetails } from "@/lib/types/proceeding";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";

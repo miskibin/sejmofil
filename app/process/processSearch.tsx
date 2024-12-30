@@ -2,8 +2,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import debounce from "lodash/debounce";
-import { Topic, PrintListItem } from "@/lib/types";
-
+import {  PrintListItem } from "@/lib/types/print";
+import { Topic } from "@/lib/types/process";
 type Props = {
   prints: PrintListItem[];
 };
