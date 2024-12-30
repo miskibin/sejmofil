@@ -4,6 +4,22 @@ FROM node:20-alpine AS builder
 # Set the working directory
 WORKDIR /app
 
+# Declare build arguments for all environment variables
+ARG DB_URI
+ARG DB_USER
+ARG NEO4J_PASSWORD
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_API_BASE_URL
+
+# Set environment variables for the build process
+ENV DB_URI=${DB_URI} \
+    DB_USER=${DB_USER} \
+    NEO4J_PASSWORD=${NEO4J_PASSWORD} \
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY} \
+    NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL} \
+    NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+
 # Copy package.json and package-lock.json to install dependencies
 COPY package*.json ./
 
@@ -22,8 +38,22 @@ FROM node:20-alpine AS runner
 # Set the working directory
 WORKDIR /app
 
-# Set environment to production
-ENV NODE_ENV=production
+# Declare build arguments again to set runtime environment variables
+ARG DB_URI
+ARG DB_USER
+ARG NEO4J_PASSWORD
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_API_BASE_URL
+
+# Set environment variables for runtime
+ENV NODE_ENV=production \
+    DB_URI=${DB_URI} \
+    DB_USER=${DB_USER} \
+    NEO4J_PASSWORD=${NEO4J_PASSWORD} \
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY} \
+    NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL} \
+    NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 
 # Copy only the standalone build from the builder stage
 COPY --from=builder /app/.next/standalone ./
