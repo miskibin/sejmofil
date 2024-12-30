@@ -78,7 +78,7 @@ function EnvoysList() {
                 }
                 className={cn(
                   "hover:shadow-lg transition-shadow duration-200",
-                  Number(envoy.numberOfVotes) > 500000 &&
+                  Number(envoy.numberOfVotes) > 100000 &&
                     "border-primary border-2"
                 )}
               >
