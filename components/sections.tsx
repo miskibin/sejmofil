@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Print, Person, Topic, ProcessStage, Comment } from "@/lib/types";
+import { Topic, ProcessStage } from "@/lib/types/process";
+
 import { ChevronRight, User, ChevronDown, FileText, Users } from "lucide-react";
 import {
   Collapsible,
@@ -16,7 +17,9 @@ import {
 } from "@/components/ui/carousel";
 import Markdown from "react-markdown";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { Person } from "@/lib/types/person";
+import { Print } from "@/lib/types/print";
+import { Comment } from "@/lib/types/print";
 export const AuthorsSection = ({
   authorsByClub,
 }: {
@@ -158,9 +161,7 @@ export const ProcessStagesSection = ({
               )}
             </div>
             <div className="flex-1">
-              <div className="font-medium text-lg ">
-                {stage.stageName}
-              </div>
+              <div className="font-medium text-lg ">{stage.stageName}</div>
               <div className="text-sm text-muted-foreground mb-2">
                 {stage.date}
               </div>

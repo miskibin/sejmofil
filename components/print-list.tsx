@@ -1,4 +1,4 @@
-import { PrintShort } from "@/lib/types";
+import { PrintShort } from "@/lib/types/print";
 import Link from "next/link";
 
 interface PrintListProps {
