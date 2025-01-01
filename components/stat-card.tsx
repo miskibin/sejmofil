@@ -23,6 +23,7 @@ export default function StatCard({
       showSource={true}
       sourceDescription={sourceDescription}
       sourceUrls={sourceUrls}
+      variant="inverted"
       showGradient={false}
     >
       <p className="text-3xl font-bold">{value}</p>

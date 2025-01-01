@@ -55,6 +55,7 @@ const SejmCostCounter = () => {
     <CardWrapper
       title={formatTimeString(startTime)}
       subtitle="Koszty pracy sejmu"
+      variant="inverted"
       sourceDescription="Ustawa budżetowa. Strona 45"
       sourceUrls={[
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/685/687-ustawa%20i%20za%C5%82%C4%85czniki%20do%20ustawy.pdf`,
