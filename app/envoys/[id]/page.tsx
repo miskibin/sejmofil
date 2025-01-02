@@ -13,6 +13,9 @@ import { getEnvoyPrints, getEnvoySubjectPrints } from "@/lib/queries/print";
 import { getStatementCombinedDetails } from "@/lib/supabase/queries";
 import { SpeakerRatingChart } from "./speaker-rating";
 import { truncateText } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
+import { FaWikipediaW } from "react-icons/fa";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 interface InfoRowProps {
@@ -93,6 +96,7 @@ export default async function EnvoyDetail({
             subtitle="Ostatnie wypowiedzi"
             showDate={false}
             showGradient={false}
+            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
             sourceDescription="Analiza wypowiedzi z ostatnich 30 dni"
             sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
             aiPrompt="Twoj prompt"
@@ -108,6 +112,26 @@ export default async function EnvoyDetail({
 
         {/* Main Content Section */}
         <div className="lg:col-span-8 space-y-6">
+          {/* Biography */}
+          {info.biography && (
+            <div className="space-y-6">
+              <CardWrapper
+                title="Biografia"
+                subtitle="Biografia"
+                headerIcon={
+                  <Link href={info.biographyUrl || "https://pl.wikipedia.org/"} target="_blank">
+                    <FaWikipediaW className="h-5 w-5 text-primary" />
+                  </Link>
+                }
+                showDate={false}
+                showGradient={false}
+              >
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {truncateText(info.biography, 800)}
+                </p>
+              </CardWrapper>
+            </div>
+          )}
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatCard
@@ -126,22 +150,6 @@ export default async function EnvoyDetail({
               category="Członkostwo"
             />
           </div>
-
-          {/* Biography */}
-          {info.biography && (
-            <div className="space-y-6">
-              <CardWrapper
-                title="Biografia"
-                subtitle="Informacje dodatkowe"
-                showDate={false}
-                showGradient={false}
-              >
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {truncateText(info.biography, 800)}
-                </p>
-              </CardWrapper>
-            </div>
-          )}
 
           {/* Committees */}
           <CardWrapper

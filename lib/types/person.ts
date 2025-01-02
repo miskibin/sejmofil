@@ -24,6 +24,7 @@ export interface Envoy extends EnvoyShort {
   accusativeName: string;
   firstLastName: string;
   biography: string;
+  biographyUrl?: string;
   birthDate: string;
   birthLocation: string;
   districtNum: number;

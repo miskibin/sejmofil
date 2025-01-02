@@ -24,7 +24,7 @@ export function SourcePopover({
     <Popover>
       <PopoverTrigger asChild>
         <button className={cn(  
-          "text-goreground",
+          "text-primary",
           variant === "inverted" && "text-primary-foreground"
         )}>
           <HelpCircle className="h-5 w-5" />

@@ -24,11 +24,14 @@
     --input: 222 14% 28%; /* #3C3F50 20% */
     --ring: 340 92% 24%; /* #76052E */
     --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    
+    /* Updated chart colors to match design system */
+    --chart-1: 340 92% 24%; /* #76052E - primary */
+    --chart-2: 222 14% 28%; /* #3C3F50 - secondary */
+    --chart-3: 339 65% 40%; /* #A52E5C - lighter primary */
+    --chart-4: 222 22% 45%; /* #5D6375 - lighter secondary */
+    --chart-5: 340 75% 33%; /* #8F1845 - mid primary */
+    
     /* Success color from Figma */
     --success: 142 49% 60%; /* #64CF6B */
     --success-foreground: 0 0% 100%;
