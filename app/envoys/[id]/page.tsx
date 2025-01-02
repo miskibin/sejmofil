@@ -10,6 +10,9 @@ import {
 } from "@/lib/queries/person";
 import { notFound } from "next/navigation";
 import { getEnvoyPrints, getEnvoySubjectPrints } from "@/lib/queries/print";
+import { getStatementCombinedDetails } from "@/lib/supabase/queries";
+import { SpeakerRatingChart } from "./speaker-rating";
+import { truncateText } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 interface InfoRowProps {
@@ -40,6 +43,9 @@ export default async function EnvoyDetail({
       getEnvoyPrints(id),
       getEnvoySubjectPrints(id),
     ]);
+  const statementsCombined = await getStatementCombinedDetails(
+    info.firstLastName
+  );
 
   return (
     <>
@@ -52,7 +58,7 @@ export default async function EnvoyDetail({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Profile Section */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4 flex flex-col gap-y-6">
           <CardWrapper
             title="Profil"
             subtitle="Podstawowe informacje"
@@ -81,6 +87,22 @@ export default async function EnvoyDetail({
                 <InfoRow label="Zawód" value={info.profession} />
               </div>
             </div>
+          </CardWrapper>
+          <CardWrapper
+            title="Analiza AI"
+            subtitle="Ostatnie wypowiedzi"
+            showDate={false}
+            showGradient={false}
+            sourceDescription="Analiza wypowiedzi z ostatnich 30 dni"
+            sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
+            aiPrompt="Twoj prompt"
+            className="!pl-0 !ml-0"
+          >
+            <SpeakerRatingChart
+              speakerRatings={statementsCombined.map(
+                (statement) => statement.statement_ai.speaker_rating
+              )}
+            />
           </CardWrapper>
         </div>
 
@@ -115,7 +137,7 @@ export default async function EnvoyDetail({
                 showGradient={false}
               >
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {info.biography}
+                  {truncateText(info.biography, 800)}
                 </p>
               </CardWrapper>
             </div>
@@ -164,6 +186,45 @@ export default async function EnvoyDetail({
               <PrintList prints={subjectPrints} />
             </CardWrapper>
           </div>
+
+          {statementsCombined.length > 0 && (
+            <CardWrapper
+              title="Analiza AI"
+              subtitle="Ostatnie wypowiedzi"
+              showDate={false}
+              showGradient={false}
+            >
+              {/* Last 5 citations with official point */}
+              <div className="mt-4 space-y-2">
+                <h3 className="font-medium">Ostatnie wzmianki</h3>
+                {statementsCombined
+                  .slice(0, 5)
+                  .map(({ official_point, statement_ai }, idx) => (
+                    <div key={idx} className="p-2 bg-gray-50 rounded-md">
+                      <span className="block text-sm font-semibold">
+                        {official_point}
+                      </span>
+                      {statement_ai.citations &&
+                        statement_ai.citations[idx] && (
+                          <span className="block text-sm">
+                            {statement_ai.citations[idx]}
+                          </span>
+                        )}
+                    </div>
+                  ))}
+              </div>
+
+              {/* Last 5 statements with summary */}
+              <div className="mt-4 space-y-2">
+                <h3 className="font-medium">Skróty wypowiedzi</h3>
+                {statementsCombined.slice(0, 5).map(({ statement_ai }, idx) => (
+                  <div key={idx} className="p-2 bg-gray-50 rounded-md">
+                    <p className="text-sm">{statement_ai.summary_tldr}</p>
+                  </div>
+                ))}
+              </div>
+            </CardWrapper>
+          )}
         </div>
       </div>
     </>

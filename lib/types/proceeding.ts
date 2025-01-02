@@ -15,3 +15,10 @@ export interface Proceeding {
   id: number;
   points: ProceedingPointAI[];
 }
+
+export interface ProceedingDay {
+  id: number;
+  proceeding_id: number;
+  day_no: number;
+  date: Date;
+}
