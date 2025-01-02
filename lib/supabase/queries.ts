@@ -44,7 +44,7 @@ export async function getStatementCombinedDetails(
         )
       `
     )
-    .eq("speaker_name", name);
+    .eq("speaker_name", name).not("number_source", "eq", 0);
 
   if (!data) return [];
   console.log(data);

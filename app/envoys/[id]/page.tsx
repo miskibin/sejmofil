@@ -16,6 +16,7 @@ import { Sparkles } from "lucide-react";
 import { FaWikipediaW } from "react-icons/fa";
 import Link from "next/link";
 import { ProfileCard } from "./profile-card";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
@@ -132,23 +133,32 @@ export default async function EnvoyDetail({
             showDate={false}
             showGradient={false}
           >
-            <div className="space-y-3">
-              {committees.map((committee, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-gray-50 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
-                >
-                  <span className="font-medium text-gray-900">
-                    {committee.name}
-                  </span>
-                  {committee.role && (
-                    <span className="text-sm text-muted-foreground bg-primary/20 px-2 py-1 rounded-md">
-                      {committee.role}
+            {committees.length > 0 ? (
+              <div className="space-y-3">
+                {committees.map((committee, index) => (
+                  <div
+                    key={index}
+                    className="p-4 bg-gray-50 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
+                  >
+                    <span className="font-medium text-gray-900">
+                      {committee.name}
                     </span>
-                  )}
+                    {committee.role && (
+                      <span className="text-sm text-muted-foreground bg-primary/20 px-2 py-1 rounded-md">
+                        {committee.role}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+                <div className="text-center pb-6">
+                <div className="flex justify-center mb-4">
+                  <Image src="/empty.svg" width={333} height={333} alt="No committees" />
                 </div>
-              ))}
-            </div>
+                <p className="text-gray-500">Brak członkostwa w komisjach</p>
+                </div>
+            )}
           </CardWrapper>
 
           {/* Documents */}
