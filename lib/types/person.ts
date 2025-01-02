@@ -22,6 +22,7 @@ export interface EnvoyShort {
 
 export interface Envoy extends EnvoyShort {
   accusativeName: string;
+  firstLastName: string;
   biography: string;
   birthDate: string;
   birthLocation: string;

@@ -19,6 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { truncateText } from "@/lib/utils";
 
 // export const revalidate = 3600;
 
@@ -112,9 +113,6 @@ function EnvoysList() {
         return 0;
     }
   });
-
-  const truncateText = (text: string, maxLength: number) =>
-    text.length > maxLength ? text.slice(0, maxLength - 1) + "…" : text;
 
   const clubs = [...new Set(envoys.map((e) => e.club).filter(Boolean))];
 
