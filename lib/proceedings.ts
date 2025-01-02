@@ -1,34 +1,30 @@
 import { createClient } from "@/app/supabase/server";
-import { ProceedingPoint } from "./types/proceeding";
+import { ProceedingPointAI } from "./types/proceeding";
 
-export async function getProceedings(
-  page: number = 1,
-  limit: number = 10
-): Promise<{
-  data: ProceedingPoint[];
+export async function getLatestProceedings(limit: number = 10): Promise<{
+  data: ProceedingPointAI[];
   count: number;
 }> {
   const supabase = await createClient();
-  const start = (page - 1) * limit;
 
   const [{ data, error: dataError }, { count, error: countError }] =
     await Promise.all([
       supabase
-        .from("proceeding_points_ai")
+        .from("proceeding_point_ai")
         .select()
-        .range(start, start + limit - 1)
-        .order("proceeding_date", { ascending: false }),
+        .order("proceeding_day_id", { ascending: false })
+        .limit(limit),
       supabase
-        .from("proceeding_points_ai")
+        .from("proceeding_point_ai")
         .select("*", { count: "exact", head: true }),
     ]);
 
   if (dataError || countError) {
-    throw new Error("Failed to fetch proceedings");
+    throw new Error("Failed to fetch latest proceedings");
   }
 
   return {
-    data: data as ProceedingPoint[],
+    data: data as ProceedingPointAI[],
     count: count || 0,
   };
 }

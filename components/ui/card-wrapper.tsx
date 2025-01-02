@@ -84,7 +84,7 @@ export function CardWrapper({
         {(sourceDescription || sourceUrls || showDate) && (
           <div
             className={cn(
-              "mt-4 flex items-center justify-between text-sm",
+              "mt-0 flex items-center justify-between text-sm",
               isInverted
                 ? "text-primary-foreground/80"
                 : "text-muted-foreground"
