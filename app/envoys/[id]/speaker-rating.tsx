@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, ReferenceLine } from "recharts";
 
 import {
   ChartContainer,
@@ -47,18 +47,26 @@ export function SpeakerRatingChart({
     { name: "Emocje", value: averageRatings.emotions },
     { name: "Manipulacja", value: averageRatings.manipulation },
   ];
+  const valueToRating = (value: number) => {
+    if (value <= 1) return "Brak";
+    if (value <= 2) return "Typowo";
+    if (value <= 3) return "Dobra";
+    if (value <= 4) return "Bardzo wysoka";
+    return "Maks";
+  };
 
   return (
     <ChartContainer
       config={{
         value: {
-          label: "Rating",
+          label: "ocena",
           color: "hsl(var(--chart-1))",
         },
       }}
       className="min-h-128 min-w-full p-0 m-0"
     >
       <BarChart
+        accessibilityLayer
         data={data}
         width={500}
         height={300}
@@ -69,10 +77,41 @@ export function SpeakerRatingChart({
           bottom: 5,
         }}
       >
-        <XAxis dataKey="name" />
-        <YAxis />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <Bar dataKey="value" fill="var(--color-value)" radius={[4, 4, 0, 0]} />
+        <XAxis
+          dataKey="name"
+          tickLine={false}
+          tickMargin={10}
+          axisLine={false}
+        />
+        <YAxis
+          dataKey="value"
+          tickLine={false}
+          axisLine={false}
+          domain={[0, 5]}
+          tickFormatter={valueToRating}
+        />
+        <ReferenceLine
+          y={2}
+          stroke="#666"
+          strokeDasharray="3 3"
+          label={{
+            value: "",
+            position: "left",
+            fill: "#666",
+            fontSize: 12,
+          }}
+        />
+        <Bar
+          dataKey="value"
+          fill="var(--color-value)"
+          radius={[4, 4, 0, 0]}
+          max={5}
+        />
+        <ChartTooltip
+          content={<ChartTooltipContent />}
+          cursor={false}
+          defaultIndex={1}
+        />
       </BarChart>
     </ChartContainer>
   );
