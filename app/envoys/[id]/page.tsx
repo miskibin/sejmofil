@@ -2,7 +2,6 @@
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import StatCard from "@/components/stat-card";
 import { PrintList } from "@/components/print-list";
-import Image from "next/image";
 import {
   getEnvoyInfo,
   getEnvoyCommittees,
@@ -16,19 +15,9 @@ import { truncateText } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 import { FaWikipediaW } from "react-icons/fa";
 import Link from "next/link";
+import { ProfileCard } from "./profile-card";
 
 export const dynamic = "force-dynamic";
-interface InfoRowProps {
-  label: string;
-  value: string | number;
-}
-
-const InfoRow = ({ label, value }: InfoRowProps) => (
-  <div className="w-full py-2">
-    <span className="text-sm text-muted-foreground">{label}</span>
-    <div className="font-medium mt-1">{value}</div>
-  </div>
-);
 
 export default async function EnvoyDetail({
   params,
@@ -49,48 +38,14 @@ export default async function EnvoyDetail({
   const statementsCombined = await getStatementCombinedDetails(
     info.firstLastName
   );
-
+  console.log(statementsCombined);
   return (
     <>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          {`${info.firstName} ${info.lastName}`}
-        </h1>
-        <p className="text-lg text-muted-foreground">{info.club}</p>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Profile Section */}
         <div className="lg:col-span-4 flex flex-col gap-y-6">
-          <CardWrapper
-            title="Profil"
-            subtitle="Podstawowe informacje"
-            showSource={false}
-            showDate={false}
-            showGradient={false}
-          >
-            <div className="flex flex-col items-center space-y-6">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/MP/${info.id}/photo`}
-                alt={`${info.firstName} ${info.lastName}`}
-                width={60}
-                height={60}
-                className="rounded-lg shadow-md"
-                priority
-              />
-              <div className="w-full space-y-4">
-                <InfoRow
-                  label="Okręg"
-                  value={`${info.districtName} (nr ${info.districtNum})`}
-                />
-                <InfoRow label="Województwo" value={info.voivodeship} />
-                <InfoRow label="Data urodzenia" value={info.birthDate} />
-                <InfoRow label="Miejsce urodzenia" value={info.birthLocation} />
-                <InfoRow label="Wykształcenie" value={info.educationLevel} />
-                <InfoRow label="Zawód" value={info.profession} />
-              </div>
-            </div>
-          </CardWrapper>
+          <ProfileCard {...info} />
+
+          {/* Rest of the cards */}
           <CardWrapper
             title="Analiza AI"
             subtitle="Ostatnie wypowiedzi"
@@ -108,6 +63,22 @@ export default async function EnvoyDetail({
               )}
             />
           </CardWrapper>
+          <CardWrapper
+            title="Współatorstwo"
+            subtitle="Druki sejmowe"
+            showDate={false}
+            showGradient={false}
+          >
+            <PrintList prints={prints} />
+          </CardWrapper>
+          <CardWrapper
+            title="Druki"
+            subtitle="Wzmianki"
+            showDate={false}
+            showGradient={false}
+          >
+            <PrintList prints={subjectPrints} />
+          </CardWrapper>
         </div>
 
         {/* Main Content Section */}
@@ -116,10 +87,13 @@ export default async function EnvoyDetail({
           {info.biography && (
             <div className="space-y-6">
               <CardWrapper
-                title="Biografia"
+                title="O osobie"
                 subtitle="Biografia"
                 headerIcon={
-                  <Link href={info.biographyUrl || "https://pl.wikipedia.org/"} target="_blank">
+                  <Link
+                    href={info.biographyUrl || "https://pl.wikipedia.org/"}
+                    target="_blank"
+                  >
                     <FaWikipediaW className="h-5 w-5 text-primary" />
                   </Link>
                 }
@@ -153,8 +127,8 @@ export default async function EnvoyDetail({
 
           {/* Committees */}
           <CardWrapper
-            title="Komisje"
-            subtitle="Członkostwo"
+            title="Członkostwo"
+            subtitle="Komisje parlamentarne"
             showDate={false}
             showGradient={false}
           >
@@ -167,72 +141,66 @@ export default async function EnvoyDetail({
                   <span className="font-medium text-gray-900">
                     {committee.name}
                   </span>
-                  <span className="text-sm px-3 py-1 bg-primary/10 text-primary rounded-full">
-                    {committee.role}
-                  </span>
+                  {committee.role && (
+                    <span className="text-sm text-muted-foreground bg-primary/20 px-2 py-1 rounded-md">
+                      {committee.role}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
           </CardWrapper>
 
           {/* Documents */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
             <CardWrapper
-              title="Druki"
-              subtitle="Autorstwo"
+              title="Analiza wypowiedzi"
+              subtitle="Podsumowanie i cytaty"
               showDate={false}
+              headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
               showGradient={false}
             >
-              <PrintList prints={prints} />
-            </CardWrapper>
-            <CardWrapper
-              title="Druki"
-              subtitle="Wzmianki"
-              showDate={false}
-              showGradient={false}
-            >
-              <PrintList prints={subjectPrints} />
-            </CardWrapper>
-          </div>
+              <div className="space-y-4">
+                {statementsCombined.slice(0, 5).map((statement, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    {/* Topic */}
+                    <h3 className="text-sm font-semibold text-gray-800 mb-3">
+                      {statement.official_topic}
+                    </h3>
 
-          {statementsCombined.length > 0 && (
-            <CardWrapper
-              title="Analiza AI"
-              subtitle="Ostatnie wypowiedzi"
-              showDate={false}
-              showGradient={false}
-            >
-              {/* Last 5 citations with official point */}
-              <div className="mt-4 space-y-2">
-                <h3 className="font-medium">Ostatnie wzmianki</h3>
-                {statementsCombined
-                  .slice(0, 5)
-                  .map(({ official_point, statement_ai }, idx) => (
-                    <div key={idx} className="p-2 bg-gray-50 rounded-md">
-                      <span className="block text-sm font-semibold">
-                        {official_point}
-                      </span>
-                      {statement_ai.citations &&
-                        statement_ai.citations[idx] && (
-                          <span className="block text-sm">
-                            {statement_ai.citations[idx]}
-                          </span>
-                        )}
+                    {/* Summary */}
+                    <div className="mb-3">
+                      <p className="text-sm text-gray-700">
+                        {statement.statement_ai.summary_tldr}
+                      </p>
                     </div>
-                  ))}
-              </div>
 
-              {/* Last 5 statements with summary */}
-              <div className="mt-4 space-y-2">
-                <h3 className="font-medium">Skróty wypowiedzi</h3>
-                {statementsCombined.slice(0, 5).map(({ statement_ai }, idx) => (
-                  <div key={idx} className="p-2 bg-gray-50 rounded-md">
-                    <p className="text-sm">{statement_ai.summary_tldr}</p>
+                    {/* Citations */}
+                    {statement.statement_ai.citations?.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-medium text-gray-500">
+                          Cytaty:
+                        </h4>
+                        {statement.statement_ai.citations.map(
+                          (citation, citationIdx) => (
+                            <p
+                              key={citationIdx}
+                              className="text-sm italic text-gray-600 border-l-2 border-primary/30 pl-3"
+                            >
+                              {citation}
+                            </p>
+                          )
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </CardWrapper>
-          )}
+          </div>
         </div>
       </div>
     </>

@@ -53,17 +53,14 @@ export function EnvoyCard({ envoy, displayValue }: EnvoyCardProps) {
               />
             </div>
             <div className="min-w-0">
-              <p className="text-sm text-muted-foreground">
+              <div className="mb-1">
                 {envoy.role &&
                   envoy.role !== "Poseł" &&
                   envoy.role != "envoy" && (
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Badge
-                            variant="secondary"
-                            className="my-0  truncate"
-                          >
+                          <Badge variant="secondary" className="inline-block truncate">
                             {truncateText(envoy.role, 20)}
                           </Badge>
                         </TooltipTrigger>
@@ -73,7 +70,7 @@ export function EnvoyCard({ envoy, displayValue }: EnvoyCardProps) {
                       </Tooltip>
                     </TooltipProvider>
                   )}
-              </p>
+              </div>
               <p className="text-sm text-muted-foreground truncate">
                 {envoy.profession || "Brak danych"}
               </p>
