@@ -161,7 +161,6 @@ export default async function EnvoyDetail({
             <CardWrapper
               title="Analiza wypowiedzi"
               subtitle="Podsumowanie i cytaty"
-              ={false}
               headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
               showGradient={false}
             >
