@@ -1,5 +1,11 @@
 import { runQuery } from "../db/client";
-import { Envoy, EnvoyCommittee, EnvoyShort, Person } from "../types/person";
+import {
+  Envoy,
+  EnvoyCommittee,
+  EnvoyShort,
+  Person,
+  RecordHolder,
+} from "../types/person";
 
 export async function getPrintAuthors(number: string): Promise<Person[]> {
   const query = `
@@ -94,4 +100,31 @@ export async function getPersonInterruptionsCount(): Promise<
     ORDER BY numberOfInterruptions DESC
   `;
   return runQuery<PersonInterruptions>(query);
+}
+export async function getPersonWithMostInterruptions(): Promise<RecordHolder> {
+  const query = `
+    MATCH (p:Person)-[r:INTERRUPTS]->(s)
+    WHERE p.role IS NOT NULL
+    WITH p, count(r) as numberOfInterruptions
+    RETURN p.firstLastName as name, numberOfInterruptions as count, p.id as id
+    ORDER BY numberOfInterruptions DESC
+    LIMIT 1
+  `;
+  const result = await runQuery<RecordHolder>(query);
+  return result[0];
+}
+
+export async function getPersonWithMostStatements(
+  invert = false
+): Promise<RecordHolder> {
+  const query = `
+    MATCH (p:Person)-[r:SAID]->(s)
+    WHERE p.role IS NOT NULL
+    WITH p, count(r) as numberOfStatements
+    RETURN p.firstLastName as name, numberOfStatements as count, p.id as id
+    ORDER BY numberOfStatements ${invert ? "ASC" : "DESC"}
+    LIMIT 1
+  `;
+  const result = await runQuery<RecordHolder>(query);
+  return result[0];
 }

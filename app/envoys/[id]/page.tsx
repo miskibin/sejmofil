@@ -50,7 +50,6 @@ export default async function EnvoyDetail({
           <CardWrapper
             title="Analiza AI"
             subtitle="Ostatnie wypowiedzi"
-            showDate={false}
             showGradient={false}
             headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
             sourceDescription="Analiza wypowiedzi z ostatnich 30 dni"
@@ -67,7 +66,6 @@ export default async function EnvoyDetail({
           <CardWrapper
             title="Współatorstwo"
             subtitle="Druki sejmowe"
-            showDate={false}
             showGradient={false}
           >
             <PrintList prints={prints} />
@@ -75,7 +73,6 @@ export default async function EnvoyDetail({
           <CardWrapper
             title="Druki"
             subtitle="Wzmianki"
-            showDate={false}
             showGradient={false}
           >
             <PrintList prints={subjectPrints} />
@@ -98,7 +95,6 @@ export default async function EnvoyDetail({
                     <FaWikipediaW className="h-5 w-5 text-primary" />
                   </Link>
                 }
-                showDate={false}
                 showGradient={false}
               >
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
@@ -130,7 +126,6 @@ export default async function EnvoyDetail({
           <CardWrapper
             title="Członkostwo"
             subtitle="Komisje parlamentarne"
-            showDate={false}
             showGradient={false}
           >
             {committees.length > 0 ? (
@@ -166,7 +161,7 @@ export default async function EnvoyDetail({
             <CardWrapper
               title="Analiza wypowiedzi"
               subtitle="Podsumowanie i cytaty"
-              showDate={false}
+              ={false}
               headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
               showGradient={false}
             >

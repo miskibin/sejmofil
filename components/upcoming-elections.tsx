@@ -28,7 +28,6 @@ export default function UpcomingElections() {
     <CardWrapper 
       title="wybory"
       subtitle="Nadchodzące wybory"
-      showDate={false}
       showGradient={false}
     >
       <div className="relative space-y-8">

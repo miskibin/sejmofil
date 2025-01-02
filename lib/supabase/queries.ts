@@ -44,9 +44,11 @@ export async function getStatementCombinedDetails(
         )
       `
     )
-    .eq("speaker_name", name).not("number_source", "eq", 0);
+    .eq("speaker_name", name)
+    .not("number_source", "eq", 0);
 
   if (!data) return [];
   console.log(data);
   return data as unknown as StatementCombined[];
 }
+

@@ -9,7 +9,6 @@ export default function NotFound() {
       <CardWrapper
         title="Błąd 404"
         subtitle="Strona nie została znaleziona"
-        showDate={false}
         showSource={false}
         showGradient={false}
         className="max-w-lg"

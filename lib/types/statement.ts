@@ -11,22 +11,6 @@ export interface Statement {
   official_prints: string[];
   voting_numbers: string[];
 }
-export interface StatementCombined {
-  id: number;
-  number_sequence: number;
-  official_topic: string;
-  statement_ai: {
-    citations: string[];
-    summary_tldr: string;
-    speaker_rating: {
-      facts: number;
-      logic: number;
-      emotions: number;
-      manipulation: number;
-      summary: string;
-    };
-  };
-}
 
 export interface StatementAI {
   id: number;
@@ -51,4 +35,20 @@ export interface StatementAI {
   };
   topic: string;
   citations: string[];
+}
+export interface StatementCombined {
+  id: number;
+  number_sequence: number;
+  official_topic: string;
+  statement_ai: {
+    citations: string[];
+    summary_tldr: string;
+    speaker_rating: {
+      facts: number;
+      logic: number;
+      emotions: number;
+      manipulation: number;
+      summary: string;
+    };
+  };
 }

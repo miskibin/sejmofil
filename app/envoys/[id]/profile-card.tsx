@@ -26,7 +26,6 @@ export function ProfileCard(envoy: Envoy) {
       title={envoy.club}
       subtitle={`${envoy.firstName} ${envoy.lastName}`}
       showSource={false}
-      showDate={false}
       showGradient={false}
     >
       <div className="flex flex-col gap-4">

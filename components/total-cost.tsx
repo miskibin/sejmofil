@@ -69,7 +69,6 @@ const SejmCostCounter = () => {
         </button>
       }
       showSource={true}
-      showDate={false}
       showGradient={false}
     >
       <p className="text-3xl font-bold transition-all duration-300 ease-out">
