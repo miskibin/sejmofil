@@ -37,6 +37,7 @@ export async function getAllEnvoys(): Promise<EnvoyShort[]> {
       districtName: p.districtName,
       lastName: p.lastName,
       numberOfVotes: p.numberOfVotes,
+      role: p.role,
       profession: p.profession
     } as envoy
   `;
@@ -75,8 +76,8 @@ interface PersonInterruptions extends Record<string, unknown> {
 export async function getPersonStatementCounts(): Promise<PersonStatements[]> {
   const query = `
     MATCH (p:Person)-[r:SAID]->(s)
-    WHERE p.role = 'Poseł'
-    WITH p.id as id, count(r) as numberOfStatements
+    WHERE p.role IS NOT NULL
+    WITH p.id as id, count(r) as numberOfStatements\
     RETURN id, numberOfStatements
     ORDER BY numberOfStatements DESC
   `;
@@ -87,7 +88,7 @@ export async function getPersonInterruptionsCount(): Promise<
 > {
   const query = `
     MATCH (p:Person)-[r:INTERRUPTS]->(s)
-    WHERE p.role = 'Poseł'
+    WHERE p.role IS NOT NULL
     WITH p.id as id, count(r) as numberOfInterruptions
     RETURN id, numberOfInterruptions
     ORDER BY numberOfInterruptions DESC

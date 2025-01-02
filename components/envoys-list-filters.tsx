@@ -22,6 +22,9 @@ import { X } from "lucide-react";
 
 type ActivityStatus = "active" | "inactive" | "all";
 type ProfessionCount = { name: string; count: number };
+type SortField = "votes" | "statements" | "interruptions" | "none";
+type SortDirection = "asc" | "desc";
+type SortOption = `${SortField}_${SortDirection}`;
 
 interface EnvoysListFiltersProps {
   clubs: string[];
@@ -32,6 +35,7 @@ interface EnvoysListFiltersProps {
   onDistrictChange: (value: string | null) => void;
   onProfessionsChange: (value: string[]) => void;
   selectedProfessions: string[];
+  onSortChange: (field: SortField, direction: SortDirection) => void;
 }
 
 export function EnvoysListFilters({
@@ -43,6 +47,7 @@ export function EnvoysListFilters({
   onDistrictChange,
   onProfessionsChange,
   selectedProfessions,
+  onSortChange,
 }: EnvoysListFiltersProps) {
   const [currentDistrict, setCurrentDistrict] = useState<string | null>(null);
   const [professionFilter, setProfessionFilter] = useState("");
@@ -73,6 +78,11 @@ export function EnvoysListFilters({
   const filteredProfessions = professions.filter((prof) =>
     prof.name.toLowerCase().includes(professionFilter.toLowerCase())
   );
+
+  const handleSortChange = (value: SortOption) => {
+    const [field, direction] = value.split("_") as [SortField, SortDirection];
+    onSortChange(field, direction);
+  };
 
   return (
     <div className="p-3 mb-8">
@@ -189,6 +199,25 @@ export function EnvoysListFilters({
             </div>
           </PopoverContent>
         </Popover>
+
+        <Select defaultValue="none_desc" onValueChange={handleSortChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sortuj według" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none_desc">Domyślnie</SelectItem>
+            <SelectItem value="votes_desc">Liczba głosów ↓</SelectItem>
+            <SelectItem value="votes_asc">Liczba głosów ↑</SelectItem>
+            <SelectItem value="statements_desc">Liczba wypowiedzi ↓</SelectItem>
+            <SelectItem value="statements_asc">Liczba wypowiedzi ↑</SelectItem>
+            <SelectItem value="interruptions_desc">
+              Liczba przerywań ↓
+            </SelectItem>
+            <SelectItem value="interruptions_asc">
+              Liczba przerywań ↑
+            </SelectItem>
+          </SelectContent>
+        </Select>
 
         {selectedProfessions.length > 0 && (
           <div className="flex flex-wrap gap-1">
