@@ -46,7 +46,7 @@ export function CardWrapper({
           <div>
             <CardTitle
               className={cn(
-                "text-sm font-normal",
+                "text-sm font-semibold",
                 isInverted ? "text-primary-foreground" : "text-primary"
               )}
             >
