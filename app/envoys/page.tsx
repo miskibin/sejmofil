@@ -22,9 +22,9 @@ function EnvoysList() {
   const [envoys, setEnvoys] = useState<EnvoyShort[]>([]);
   const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
   const [sortField, setSortField] = useState<
-    "none" | "votes" | "statements" | "interruptions"
-  >("none");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+    "votes" | "statements" | "interruptions"
+  >("votes");
+  const sortDirection = "desc";
   const [statementCounts, setStatementCounts] = useState<
     Record<string, number>
   >({});
@@ -129,9 +129,8 @@ function EnvoysList() {
         onDistrictChange={setSelectedDistrict}
         onProfessionsChange={setSelectedProfessions}
         selectedProfessions={selectedProfessions}
-        onSortChange={(field, direction) => {
+        onSortChange={(field) => {
           setSortField(field);
-          setSortDirection(direction);
         }}
       />
 
