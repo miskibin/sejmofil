@@ -62,3 +62,35 @@ export async function getEnvoySpeeches(id: number): Promise<number> {
   const result = await runQuery<{ count: number }>(query, { id });
   return result[0]?.count || 0;
 }
+
+interface PersonStatements extends Record<string, unknown> {
+  id: string;
+  numberOfStatements: number;
+}
+interface PersonInterruptions extends Record<string, unknown> {
+  id: string;
+  numberOfInterruptions: number;
+}
+
+export async function getPersonStatementCounts(): Promise<PersonStatements[]> {
+  const query = `
+    MATCH (p:Person)-[r:SAID]->(s)
+    WHERE p.role = 'Poseł'
+    WITH p.id as id, count(r) as numberOfStatements
+    RETURN id, numberOfStatements
+    ORDER BY numberOfStatements DESC
+  `;
+  return runQuery<PersonStatements>(query);
+}
+export async function getPersonInterruptionsCount(): Promise<
+  PersonInterruptions[]
+> {
+  const query = `
+    MATCH (p:Person)-[r:INTERRUPTS]->(s)
+    WHERE p.role = 'Poseł'
+    WITH p.id as id, count(r) as numberOfInterruptions
+    RETURN id, numberOfInterruptions
+    ORDER BY numberOfInterruptions DESC
+  `;
+  return runQuery<PersonInterruptions>(query);
+}
