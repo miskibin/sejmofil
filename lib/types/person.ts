@@ -5,14 +5,15 @@ export type Person = {
   lastName?: string;
 };
 export interface EnvoyCommittee {
-    name: string;
-    role: string;
-  }
+  name: string;
+  role: string;
+}
 export interface EnvoyShort {
   active: boolean;
   club: string;
   firstName: string;
   id: string;
+  role: string;
   districtName: string;
   lastName: string;
   numberOfVotes: number;
