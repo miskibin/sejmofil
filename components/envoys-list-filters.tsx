@@ -51,18 +51,15 @@ export function EnvoysListFilters({
   const [professionFilter, setProfessionFilter] = useState("");
 
   const handlePostalCode = (value: string) => {
-    const cleanValue = value.replace(/[^0-9]/g, "");
-    const formattedValue =
-      cleanValue.length > 2
-        ? `${cleanValue.slice(0, 2)}-${cleanValue.slice(2)}`
-        : cleanValue;
-
+    let clean = value.replace(/[^0-9]/g, "").slice(0, 6);
+    if (clean.length > 2) clean = clean.slice(0, 2) + "-" + clean.slice(2);
     const district =
-      cleanValue.length >= 2 ? getDistrictFromPostalCode(cleanValue) : null;
+      clean.replace("-", "").length >= 2
+        ? getDistrictFromPostalCode(clean.replace("-", ""))
+        : null;
     setCurrentDistrict(district);
     onDistrictChange(district);
-
-    return formattedValue.slice(0, 6);
+    return clean;
   };
 
   const toggleProfession = (profName: string) => {
@@ -76,10 +73,6 @@ export function EnvoysListFilters({
   const filteredProfessions = professions.filter((prof) =>
     prof.name.toLowerCase().includes(professionFilter.toLowerCase())
   );
-
-  const handleSortChange = (value: SortField) => {
-    onSortChange(value);
-  };
 
   return (
     <div className="p-3 mb-8">
@@ -137,6 +130,20 @@ export function EnvoysListFilters({
             <Badge variant="secondary">okręg: {currentDistrict}</Badge>
           )}
         </div>
+
+        <Select
+          defaultValue="votes"
+          onValueChange={(val) => onSortChange(val as SortField)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sortuj według" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="votes">Liczba głosów</SelectItem>
+            <SelectItem value="statements">Liczba wypowiedzi</SelectItem>
+            <SelectItem value="interruptions">Liczba przerywań</SelectItem>
+          </SelectContent>
+        </Select>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="h-9 border-dashed">
@@ -196,18 +203,6 @@ export function EnvoysListFilters({
             </div>
           </PopoverContent>
         </Popover>
-
-        <Select defaultValue="votes" onValueChange={handleSortChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sortuj według" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="votes">Liczba głosów</SelectItem>
-            <SelectItem value="statements">Liczba wypowiedzi</SelectItem>
-            <SelectItem value="interruptions">Liczba przerywań</SelectItem>
-          </SelectContent>
-        </Select>
-
         {selectedProfessions.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {selectedProfessions.map((prof) => (
