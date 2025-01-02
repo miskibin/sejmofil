@@ -22,9 +22,7 @@ import { X } from "lucide-react";
 
 type ActivityStatus = "active" | "inactive" | "all";
 type ProfessionCount = { name: string; count: number };
-type SortField = "votes" | "statements" | "interruptions" | "none";
-type SortDirection = "asc" | "desc";
-type SortOption = `${SortField}_${SortDirection}`;
+type SortField = "votes" | "statements" | "interruptions";
 
 interface EnvoysListFiltersProps {
   clubs: string[];
@@ -35,7 +33,7 @@ interface EnvoysListFiltersProps {
   onDistrictChange: (value: string | null) => void;
   onProfessionsChange: (value: string[]) => void;
   selectedProfessions: string[];
-  onSortChange: (field: SortField, direction: SortDirection) => void;
+  onSortChange: (field: SortField) => void;
 }
 
 export function EnvoysListFilters({
@@ -79,9 +77,8 @@ export function EnvoysListFilters({
     prof.name.toLowerCase().includes(professionFilter.toLowerCase())
   );
 
-  const handleSortChange = (value: SortOption) => {
-    const [field, direction] = value.split("_") as [SortField, SortDirection];
-    onSortChange(field, direction);
+  const handleSortChange = (value: SortField) => {
+    onSortChange(value);
   };
 
   return (
@@ -200,22 +197,14 @@ export function EnvoysListFilters({
           </PopoverContent>
         </Popover>
 
-        <Select defaultValue="none_desc" onValueChange={handleSortChange}>
+        <Select defaultValue="votes" onValueChange={handleSortChange}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sortuj według" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none_desc">Domyślnie</SelectItem>
-            <SelectItem value="votes_desc">Liczba głosów ↓</SelectItem>
-            <SelectItem value="votes_asc">Liczba głosów ↑</SelectItem>
-            <SelectItem value="statements_desc">Liczba wypowiedzi ↓</SelectItem>
-            <SelectItem value="statements_asc">Liczba wypowiedzi ↑</SelectItem>
-            <SelectItem value="interruptions_desc">
-              Liczba przerywań ↓
-            </SelectItem>
-            <SelectItem value="interruptions_asc">
-              Liczba przerywań ↑
-            </SelectItem>
+            <SelectItem value="votes">Liczba głosów</SelectItem>
+            <SelectItem value="statements">Liczba wypowiedzi</SelectItem>
+            <SelectItem value="interruptions">Liczba przerywań</SelectItem>
           </SelectContent>
         </Select>
 

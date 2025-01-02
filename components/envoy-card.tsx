@@ -19,10 +19,7 @@ interface EnvoyCardProps {
 
 export function EnvoyCard({ envoy, displayValue }: EnvoyCardProps) {
   const fullName = `${envoy.firstName} ${envoy.lastName}`;
-  const truncatedName = truncateText(
-    fullName,
-    envoy.role == "Poseł" || envoy.role == "envoy" ? 20 : 17
-  );
+  const truncatedName = truncateText(fullName, 18);
 
   return (
     <Link href={`/envoys/${envoy.id}`}>
@@ -60,8 +57,11 @@ export function EnvoyCard({ envoy, displayValue }: EnvoyCardProps) {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Badge variant="secondary" className="inline-block truncate">
-                            {truncateText(envoy.role, 20)}
+                          <Badge
+                            variant="secondary"
+                            className="inline-block truncate"
+                          >
+                            {truncateText(envoy.role, 28)}
                           </Badge>
                         </TooltipTrigger>
                         <TooltipContent>
