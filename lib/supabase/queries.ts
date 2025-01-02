@@ -36,7 +36,7 @@ export async function getStatementCombinedDetails(
       `
         id,
         number_sequence,
-        official_point,
+        official_topic,
         statement_ai (
           summary_tldr,
           citations,

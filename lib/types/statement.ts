@@ -14,7 +14,7 @@ export interface Statement {
 export interface StatementCombined {
   id: number;
   number_sequence: number;
-  official_point: string;
+  official_topic: string;
   statement_ai: {
     citations: string[];
     summary_tldr: string;
