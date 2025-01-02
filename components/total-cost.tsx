@@ -65,7 +65,7 @@ const SejmCostCounter = () => {
           onClick={handleReset}
           className="hover:opacity-80 transition-opacity"
         >
-          <Watch className="h-5 w-5 text-primary" />
+          <Watch className="h-5 w-5 " />
         </button>
       }
       showSource={true}
