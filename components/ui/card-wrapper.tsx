@@ -2,13 +2,15 @@ import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SourcePopover } from "./source-popover";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 interface CardWrapperProps {
   title: string;
   subtitle: string;
   headerIcon?: ReactNode;
   showSource?: boolean;
-  showDate?: boolean;
+  showMoreLink?: string; // replaced showDate
   showGradient?: boolean;
   children: ReactNode;
   sourceUrls?: string[];
@@ -22,8 +24,8 @@ export function CardWrapper({
   title,
   subtitle,
   headerIcon,
-  showDate = true,
   showGradient = true,
+  showMoreLink,
   children,
   sourceUrls,
   sourceDescription,
@@ -81,7 +83,7 @@ export function CardWrapper({
           )}
         </div>
 
-        {(sourceDescription || sourceUrls || showDate) && (
+        {(sourceDescription || sourceUrls || showMoreLink) && (
           <div
             className={cn(
               "mt-0 flex items-center justify-between text-sm",
@@ -90,15 +92,17 @@ export function CardWrapper({
                 : "text-muted-foreground"
             )}
           >
-            {showDate ? (
-              <div
+            {showMoreLink ? (
+                <Link
+                href={showMoreLink}
+                prefetch={true}
                 className={cn(
-                  "border rounded-full px-3 py-1",
+                  "border rounded-full px-2 py-1 hover:bg-primary/5 cursor-pointer transition-colors flex items-center",
                   isInverted && "border-primary-foreground/20"
                 )}
-              >
-                <span>20/12/2024</span>
-              </div>
+                >
+                Więcej <ArrowRight className="h-4 w-4 ml-1 inline" />
+                </Link>
             ) : (
               <div></div>
             )}

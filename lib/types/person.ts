@@ -35,3 +35,9 @@ export interface Envoy extends EnvoyShort {
   secondName: string | null;
   voivodeship: string;
 }
+
+export interface RecordHolder {
+  name: string;
+  count: number;
+  id: string;
+}

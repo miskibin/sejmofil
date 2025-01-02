@@ -27,7 +27,7 @@ function getDriver() {
   return driver;
 }
 
-export async function runQuery<T extends Record<string, unknown>>(
+export async function runQuery<T>(
   query: string,
   params: Record<string, unknown> = {}
 ): Promise<T[]> {

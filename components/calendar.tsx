@@ -78,7 +78,6 @@ export default async function SessionCalendar() {
           .slice(1)
       }`}
       showGradient={false}
-      showDate={false}
     >
       <div className="grid grid-cols-7 gap-2">
         {weekDays.map((day) => (

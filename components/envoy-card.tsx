@@ -27,7 +27,6 @@ export function EnvoyCard({ envoy, displayValue }: EnvoyCardProps) {
         title={envoy.club || ""}
         subtitle={truncatedName}
         showSource={false}
-        showDate={false}
         showGradient={false}
         headerIcon={
           <>{!envoy.active && <Ban className="text-destructive" />}</>

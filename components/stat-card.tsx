@@ -19,7 +19,6 @@ export default function StatCard({
     <CardWrapper
       title={category}
       subtitle={title}
-      showDate={false}
       showSource={true}
       sourceDescription={sourceDescription}
       sourceUrls={sourceUrls}
