@@ -16,7 +16,7 @@ export default async function SessionCalendar() {
 
   // Calculate the middle of our 4-week view (2 weeks before, 2 weeks after)
   const startDate = new Date(today);
-  startDate.setDate(today.getDate() - 14);
+  startDate.setDate(today.getDate() - 21);
 
   // Adjust to start from Monday
   const startDay = startDate.getDay();
@@ -27,7 +27,7 @@ export default async function SessionCalendar() {
   let currentWeek: CalendarDay[] = [];
 
   // Generate exactly 4 weeks (28 days)
-  for (let i = 0; i < 28; i++) {
+  for (let i = 0; i < 35; i++) {
     const currentDate = new Date(startDate);
     currentDate.setDate(startDate.getDate() + i);
     const dateStr = currentDate.toISOString().split("T")[0];
