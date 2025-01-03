@@ -1,4 +1,4 @@
-import { createClient } from "@/app/supabase/server";
+import { createClient } from "@/supabase/server";
 import { ProceedingPointAI } from "./types/proceeding";
 
 export async function getLatestProceedings(limit: number = 10): Promise<{

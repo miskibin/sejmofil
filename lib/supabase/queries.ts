@@ -1,4 +1,4 @@
-import { createClient } from "@/app/supabase/server";
+import { createClient } from "@/supabase/server";
 import { StatementCombined } from "../types/statement";
 
 export async function getEnvoyStatementDetails(name: string) {
@@ -51,4 +51,3 @@ export async function getStatementCombinedDetails(
   console.log(data);
   return data as unknown as StatementCombined[];
 }
-
