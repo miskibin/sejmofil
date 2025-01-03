@@ -53,7 +53,6 @@ const sections = [
     image: "/team.svg",
     afterContent: (
       <div className="mt-12 p-0 sm:p-6 bg-slate-50 rounded-xl">
-        <h3 className="text-xl font-semibold mb-8 text-center">Nasz zespół</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {teamMembers.map((member, idx) => (
             <div
@@ -274,40 +273,32 @@ export default function AboutPage() {
               {section.afterContent && (
                 <div className="mt-8 sm:mt-12">
                   {section.id === "zespol" ? (
-                    <div className="bg-slate-50 rounded-xl">
-                      <h3 className="text-xl font-semibold p-4 text-center">
-                        Nasz zespół
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-                        {teamMembers.map((member, idx) => (
-                          <div
-                            key={idx}
-                            className="flex flex-col items-center space-y-4 p-4 bg-white rounded-lg shadow-sm"
-                          >
-                            <Avatar className="w-24 h-24">
-                              <AvatarImage
-                                src={member.image}
-                                alt={member.name}
-                              />
-                              <AvatarFallback>{member.name[0]}</AvatarFallback>
-                            </Avatar>
-                            <h3 className="font-semibold text-lg">
-                              {member.name}
-                            </h3>
-                            <div className="flex flex-wrap gap-2 justify-center">
-                              {member.badges.map((badge) => (
-                                <Badge
-                                  key={badge}
-                                  variant="secondary"
-                                  className="text-xs"
-                                >
-                                  {badge}
-                                </Badge>
-                              ))}
-                            </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                      {teamMembers.map((member, idx) => (
+                        <div
+                          key={idx}
+                          className="flex flex-col items-center space-y-4 p-4 bg-white rounded-lg shadow-sm"
+                        >
+                          <Avatar className="w-24 h-24">
+                            <AvatarImage src={member.image} alt={member.name} />
+                            <AvatarFallback>{member.name[0]}</AvatarFallback>
+                          </Avatar>
+                          <h3 className="font-semibold text-lg">
+                            {member.name}
+                          </h3>
+                          <div className="flex flex-wrap gap-2 justify-center">
+                            {member.badges.map((badge) => (
+                              <Badge
+                                key={badge}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {badge}
+                              </Badge>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     section.afterContent
