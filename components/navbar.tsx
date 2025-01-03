@@ -87,7 +87,9 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50   transition-all duration-300 ${
-        scrolled ? "bg-background/95 shadow-md backdrop-blur" : "bg-transparent "
+        scrolled
+          ? "bg-background/95 shadow-md backdrop-blur"
+          : "bg-transparent "
       } px-4 py-3 grid grid-cols-[auto_1fr_auto] items-center gap-4 `}
     >
       {/* Left section with logo and links */}
@@ -154,9 +156,11 @@ export default function Navbar() {
       {/* Right section with actions */}
       <div className="flex items-center justify-end gap-2 md:gap-4">
         <Newspaper className="hidden md:block h-6 w-6 text-gray-500" />
-        <Button className="hidden md:block bg-primary hover:bg-[#7A1230] transition-colors">
-          O Projekcie
-        </Button>
+        <Link href="/about" prefetch={true}>
+          <Button className="hidden md:block bg-primary hover:bg-[#7A1230] transition-colors">
+            O Projekcie
+          </Button>
+        </Link>
         <Avatar className="w-8 h-8 md:w-10 md:h-10">
           <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>
