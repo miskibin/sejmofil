@@ -1,8 +1,9 @@
 import Image from "next/image";
-import { Users, Target, Search, Sparkles } from "lucide-react";
+import { Users, Target, Search, Sparkles, HeartHandshake } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CardWrapper } from "@/components/ui/card-wrapper";
+import Script from "next/script";
 
 const teamMembers = [
   {
@@ -130,6 +131,53 @@ const sections = [
             </ol>
           </div>
         </CardWrapper>
+      </div>
+    ),
+  },
+  {
+    id: "pomoc",
+    title: "Jak mogę pomóc",
+    icon: <HeartHandshake className="w-5 h-5" />,
+    imageLeft: true,
+    content: `
+    Projekt Sejmofil to inicjatywa **non-profit**, która wymaga od nas znacznych nakładów finansowych i setek godzin pracy za darmo. **Każda forma pomocy jest dla nas niezwykle motywująca**.
+
+    **Wsparcie finansowe**
+    Przy pomocy AI przeanalizowaliśmy ponad 300 000 stron dokumentów sejmowych. Każdy kolejny dzień posiedzeń to koszt od 10 do 40 zł, a do tego dochodzą koszty utrzymania infrastruktury. Wesprzyj nas na [Patronite](https://patronite.pl/your-page)!
+
+    **Dołącz do zespołu**
+    Napisz do nas na [Discordzie](https://discord.gg/your-invite) jeśli masz pomysł na **nowe funkcje** strony, doświadczenie w **marketingu**, **technologiach webowych**, lub dysponujesz **wiedzą polityczną**.
+`,
+    image: "/help.svg",
+    afterContent: (
+      <div className="mt-12 p-6 bg-slate-50 rounded-xl space-y-6">
+        {/* Coffee Button */}
+        <div className="flex justify-center">
+          <Script
+            type="text/javascript"
+            src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
+            data-name="bmc-button"
+            data-slug="sejmstats"
+            data-color="#76052a"
+            data-emoji="☕"
+            data-font="Lato"
+            data-text="Buy me a coffee"
+            data-outline-color="#ffffff"
+            data-font-color="#ffffff"
+            data-coffee-color="#FFDD00"
+          ></Script>
+        </div>
+
+        {/* Patronite Widget */}
+        <div className="flex justify-center">
+          <iframe
+            src="https://patronite.pl/widget/sejm-stats/904247/small/light/colorful?description=Dzi%C4%99kuj%C4%99%20za%20Twoje%20wsparcie!"
+            width="360"
+            height="330"
+            scrolling="no"
+            className="border rounded-md shadow-md"
+          ></iframe>
+        </div>
       </div>
     ),
   },
