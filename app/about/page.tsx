@@ -1,5 +1,12 @@
 import Image from "next/image";
-import { Users, Target, Search, Sparkles, HeartHandshake } from "lucide-react";
+import {
+  Users,
+  Target,
+  Search,
+  Sparkles,
+  HeartHandshake,
+  History,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CardWrapper } from "@/components/ui/card-wrapper";
@@ -30,23 +37,34 @@ const sections = [
     icon: <Target className="w-5 h-5" />,
     imageLeft: false,
     content: `
-      Sejmofil to druga iteracja projektu [sejm-stats.pl](https://sejm-stats.pl), który zacząłem pisać jako projekt do portfolio. 
-      Projekt zyskał nieoczekiwaną popularność, a nawet wsparcie dużych kanałów, takich jak [Good Times Bad Times](https://www.youtube.com/@GoodTimesBadTimesPL). W tym momencie stał się czymś więcej niż tylko hobby.
+      Sejmofil to projekt **non-profit**, którego celem jest wspieranie demokracji w Polsce poprzez zwiększanie transparentności pracy Sejmu. Zespół wierzy, że **dostęp do rzetelnych i obiektywnych informacji** jest fundamentem świadomego społeczeństwa obywatelskiego.
 
-      Zacząłem traktować to jako misję, która **nie ma na celu wsparcia jakiejkolwiek partii politycznej**, a **wsparcie samej demokracji** w Polsce. *Wierzę, że obywatele, którzy mają dostęp do rzetelnych informacji, wybiorą mądrze.* 
-      Cały kod projektu jest [dostępny na GitHubie](https://github.com/your-repo).
+      Projekt **nie wspiera żadnej partii politycznej**, koncentrując się na dostarczaniu obiektywnych danych i analiz. *Kiedy obywatele mają dostęp do rzetelnych informacji, mogą podejmować świadome decyzje.*
+
+      Cały kod projektu jest [dostępny na GitHubie](https://github.com/your-repo), a metodologia analizy jest w pełni transparentna.
     `,
     image: "/goals.svg",
+  },
+  {
+    id: "poczatki",
+    title: "Początki projektu",
+    icon: <History className="w-5 h-5" />,
+    imageLeft: true,
+    content: `
+      Wszystko zaczęło się od projektu [sejm-stats.pl](https://sejm-stats.pl), który szybko zyskał nieoczekiwaną popularność i wsparcie dużych kanałów, takich jak [Good Times Bad Times](https://www.youtube.com/@GoodTimesBadTimesPL).
+
+      Po roku ciągłych usprawnień, udało nam się zidentyfikować obszary wymagające zmian i rozpoczęliśmy pracę nad Sejmofilem - projektem wykorzystującym najnowocześniejsze technologie do analizy pracy Sejmu.
+    `,
+    image: "/history.svg",
   },
   {
     id: "zespol",
     title: "Zespół",
     icon: <Users className="w-5 h-5" />,
-    imageLeft: true,
+    imageLeft: false,
     content: `
-      W trakcie rozwoju sejm-stats odezwały się do mnie osoby, które podobnie jak ja uwierzyły w tę misję i miały potrzebne umiejętności. Po roku ciągłych usprawnień projektu udało nam się zidentyfikować wszystkie mankamenty oryginalnego projektu i rozpoczęliśmy pracę nad Sejmofilem.
-
-      Ze względu na znacznie lepsze zaplecze techniczne mogliśmy zadać sobie pytanie **Co chcemy pokazać obywatelom?** - zamiast **Co umiemy zrobić?**. W ten sposób powstał projekt, który opiera się na najszerszej istniejącej analizie danych z polskiego Sejmu.
+      Z czasem uformował nam się stały zespół.  Złożony z osób, które połączyła wspólna pasja do technologii i polityki.
+      Dzięki połączeniu różnych perspektyw i umiejętności, zespół stworzył system oparty na najszerszej istniejącej analizie danych parlamentarnych w Polsce, wykorzystując sztuczną inteligencję do obiektywnej oceny pracy Sejmu.
       
       Dołącz do nas na [Discordzie](https://discord.gg/your-invite) lub wesprzyj projekt na [Patronite](https://patronite.pl/your-page)!
     `,
@@ -81,7 +99,7 @@ const sections = [
     id: "metodologia",
     title: "Gwarancja obiektywizmu",
     icon: <Search className="w-5 h-5" />,
-    imageLeft: false,
+    imageLeft: true,
     content: `
       Głównym założeniem projektu jest to, że **dane nie są analizowane przez ludzi, którzy mają własne poglądy, odczucia i subiektywne opinie**, ale przez algorytmy SI, które są precyzyjnie instruowane, jak mają oceniać poszczególne teksty.
 
@@ -137,7 +155,7 @@ const sections = [
     id: "pomoc",
     title: "Jak mogę pomóc",
     icon: <HeartHandshake className="w-5 h-5" />,
-    imageLeft: true,
+    imageLeft: false,
     content: `
     Projekt Sejmofil to inicjatywa **non-profit**, która wymaga od nas znacznych nakładów finansowych i setek godzin pracy za darmo. **Każda forma pomocy jest dla nas niezwykle motywująca**.
 
