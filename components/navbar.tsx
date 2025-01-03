@@ -111,6 +111,9 @@ export default function Navbar() {
                   {link.text}
                 </Link>
               ))}
+              <Link href="/about" className="text-lg">
+                O Projekcie
+              </Link>
             </div>
           </SheetContent>
         </Sheet>

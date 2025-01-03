@@ -51,7 +51,7 @@ const sections = [
     `,
     image: "/team.svg",
     afterContent: (
-      <div className="mt-12 p-6 bg-slate-50 rounded-xl">
+      <div className="mt-12 p-0 sm:p-6 bg-slate-50 rounded-xl">
         <h3 className="text-xl font-semibold mb-8 text-center">Nasz zespół</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {teamMembers.map((member, idx) => (
@@ -93,7 +93,7 @@ const sections = [
     `,
     image: "/explore.svg",
     afterContent: (
-      <div className="mt-4 p-6">
+      <div className="mt-4 p-0 md:p-6">
         <CardWrapper
           title="Prompt AI"
           subtitle="Analiza manipulacji"
@@ -137,20 +137,37 @@ const sections = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-[calc(100vh-4rem)] py-12 px-4 max-w-6xl mx-auto">
-      <div className="flex gap-12">
-        {/* Table of Contents - Fixed position */}
-        <nav className="hidden lg:block w-48 h-fit sticky top-20 p-4 border-r">
+    <div className="min-h-screen">
+      {/* Mobile ToC */}
+      <nav className="lg:hidden mb-8">
+        <h2 className="font-semibold mb-2">Nawigacja</h2>
+        <div className="flex flex-wrap gap-2">
+          {sections.map((section) => (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              className="flex items-center gap-1 text-sm bg-slate-50 px-3 py-1.5 rounded-full text-muted-foreground hover:text-primary transition-colors"
+            >
+              {section.icon}
+              <span>{section.title}</span>
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <div className="flex gap-8">
+        {/* Desktop ToC */}
+        <nav className="hidden lg:block w-48 h-fit sticky top-20">
           <h2 className="font-semibold mb-4">Spis treści</h2>
-          <ul className="space-y-2">
+          <ul className="space-y-2 border-l">
             {sections.map((section) => (
               <li key={section.id}>
                 <a
                   href={`#${section.id}`}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors p-1 rounded text-sm"
+                  className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors pl-4 py-1 -ml-px border-l hover:border-primary"
                 >
                   {section.icon}
-                  {section.title}
+                  <span className="text-sm">{section.title}</span>
                 </a>
               </li>
             ))}
@@ -158,24 +175,22 @@ export default function AboutPage() {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1 space-y-32">
-          <h1 className="text-4xl font-bold mb-16">O Projekcie</h1>
+        <main className="flex-1 space-y-24">
+          <h1 className="text-3xl md:text-4xl font-bold">O Projekcie</h1>
 
           {sections.map((section) => (
-            <section
-              key={section.id}
-              id={section.id}
-              className="scroll-mt-20 relative pb-16"
-            >
+            <section key={section.id} id={section.id} className="scroll-mt-20">
               <div
                 className={`flex flex-col ${
                   section.imageLeft ? "lg:flex-row" : "lg:flex-row-reverse"
-                } gap-12 items-center`}
+                } gap-8 lg:gap-12 items-start`}
               >
-                <div className="lg:w-2/3">
+                <div className="w-full lg:w-2/3">
                   <div className="flex items-center gap-2 mb-4">
                     {section.icon}
-                    <h2 className="text-2xl font-bold">{section.title}</h2>
+                    <h2 className="text-xl md:text-2xl font-bold">
+                      {section.title}
+                    </h2>
                   </div>
                   <div className="prose prose-gray max-w-none">
                     {section.content.split("\n").map((paragraph, idx) => (
@@ -196,18 +211,63 @@ export default function AboutPage() {
                     ))}
                   </div>
                 </div>
-                <div className="lg:w-1/2">
+                <div className="w-full lg:w-1/2 flex justify-center lg:justify-start">
                   <Image
                     src={section.image}
                     alt={section.title}
                     width={400}
                     height={400}
-                    className="w-full h-auto"
+                    className="w-full max-w-[300px] lg:max-w-none h-auto"
                   />
                 </div>
               </div>
-              {section.afterContent}
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+
+              {/* Team and AI Prompt sections */}
+              {section.afterContent && (
+                <div className="mt-8 sm:mt-12">
+                  {section.id === "zespol" ? (
+                    <div className="bg-slate-50 rounded-xl">
+                      <h3 className="text-xl font-semibold p-4 text-center">
+                        Nasz zespół
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                        {teamMembers.map((member, idx) => (
+                          <div
+                            key={idx}
+                            className="flex flex-col items-center space-y-4 p-4 bg-white rounded-lg shadow-sm"
+                          >
+                            <Avatar className="w-24 h-24">
+                              <AvatarImage
+                                src={member.image}
+                                alt={member.name}
+                              />
+                              <AvatarFallback>{member.name[0]}</AvatarFallback>
+                            </Avatar>
+                            <h3 className="font-semibold text-lg">
+                              {member.name}
+                            </h3>
+                            <div className="flex flex-wrap gap-2 justify-center">
+                              {member.badges.map((badge) => (
+                                <Badge
+                                  key={badge}
+                                  variant="secondary"
+                                  className="text-xs"
+                                >
+                                  {badge}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    section.afterContent
+                  )}
+                </div>
+              )}
+
+              <div className="mt-12 border-b border-gray-100" />
             </section>
           ))}
         </main>
