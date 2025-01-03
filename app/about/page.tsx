@@ -202,133 +202,112 @@ const sections = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen">
-      {/* Mobile ToC */}
-      <nav className="lg:hidden mb-8">
-        <h2 className="font-semibold mb-2">Nawigacja</h2>
-        <div className="flex flex-wrap gap-2">
+    <div className="flex gap-8">
+      {/* Desktop ToC */}
+      <nav className="hidden lg:block w-48 h-fit sticky top-20">
+        <h2 className="font-semibold mb-4">Spis treści</h2>
+        <ul className="space-y-2 border-l">
           {sections.map((section) => (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              className="flex items-center gap-1 text-sm bg-slate-50 px-3 py-1.5 rounded-full text-muted-foreground hover:text-primary transition-colors"
-            >
-              {section.icon}
-              <span>{section.title}</span>
-            </a>
+            <li key={section.id}>
+              <a
+                href={`#${section.id}`}
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors pl-4 py-1 -ml-px border-l hover:border-primary"
+              >
+                {section.icon}
+                <span className="text-sm">{section.title}</span>
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </nav>
 
-      <div className="flex gap-8">
-        {/* Desktop ToC */}
-        <nav className="hidden lg:block w-48 h-fit sticky top-20">
-          <h2 className="font-semibold mb-4">Spis treści</h2>
-          <ul className="space-y-2 border-l">
-            {sections.map((section) => (
-              <li key={section.id}>
-                <a
-                  href={`#${section.id}`}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors pl-4 py-1 -ml-px border-l hover:border-primary"
-                >
+      {/* Main Content */}
+      <main className="flex-1 space-y-24">
+        <h1 className="text-3xl md:text-4xl font-bold">O Projekcie</h1>
+
+        {sections.map((section) => (
+          <section key={section.id} id={section.id} className="scroll-mt-20">
+            <div
+              className={`flex flex-col ${
+                section.imageLeft ? "lg:flex-row" : "lg:flex-row-reverse"
+              } gap-8 lg:gap-12 items-start`}
+            >
+              <div className="w-full lg:w-2/3">
+                <div className="flex items-center gap-2 mb-4">
                   {section.icon}
-                  <span className="text-sm">{section.title}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Main Content */}
-        <main className="flex-1 space-y-24">
-          <h1 className="text-3xl md:text-4xl font-bold">O Projekcie</h1>
-
-          {sections.map((section) => (
-            <section key={section.id} id={section.id} className="scroll-mt-20">
-              <div
-                className={`flex flex-col ${
-                  section.imageLeft ? "lg:flex-row" : "lg:flex-row-reverse"
-                } gap-8 lg:gap-12 items-start`}
-              >
-                <div className="w-full lg:w-2/3">
-                  <div className="flex items-center gap-2 mb-4">
-                    {section.icon}
-                    <h2 className="text-xl md:text-2xl font-bold">
-                      {section.title}
-                    </h2>
-                  </div>
-                  <div className="prose prose-gray max-w-none">
-                    {section.content.split("\n").map((paragraph, idx) => (
-                      <p
-                        key={idx}
-                        className="text-gray-600 leading-relaxed"
-                        dangerouslySetInnerHTML={{
-                          __html: paragraph
-                            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-                            .replace(/\*(.*?)\*/g, "<em>$1</em>")
-                            .replace(
-                              /\[(.*?)\]\((.*?)\)/g,
-                              '<a href="$2" class="text-primary hover:underline">$1</a>'
-                            )
-                            .replace(/•/g, "<br>•"),
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <h2 className="text-xl md:text-2xl font-bold">
+                    {section.title}
+                  </h2>
                 </div>
-                <div className="w-full lg:w-1/2 flex justify-center lg:justify-start">
-                  <Image
-                    src={section.image}
-                    alt={section.title}
-                    width={400}
-                    height={400}
-                    className="w-full max-w-[300px] lg:max-w-none h-auto"
-                  />
+                <div className="prose prose-gray max-w-none">
+                  {section.content.split("\n").map((paragraph, idx) => (
+                    <p
+                      key={idx}
+                      className="text-gray-600 leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: paragraph
+                          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                          .replace(/\*(.*?)\*/g, "<em>$1</em>")
+                          .replace(
+                            /\[(.*?)\]\((.*?)\)/g,
+                            '<a href="$2" class="text-primary hover:underline">$1</a>'
+                          )
+                          .replace(/•/g, "<br>•"),
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
+              <div className="w-full lg:w-1/2 flex justify-center lg:justify-start">
+                <Image
+                  src={section.image}
+                  alt={section.title}
+                  width={400}
+                  height={400}
+                  className="w-full max-w-[300px] lg:max-w-none h-auto"
+                />
+              </div>
+            </div>
 
-              {/* Team and AI Prompt sections */}
-              {section.afterContent && (
-                <div className="mt-8 sm:mt-12">
-                  {section.id === "zespol" ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-                      {teamMembers.map((member, idx) => (
-                        <div
-                          key={idx}
-                          className="flex flex-col items-center space-y-4 p-4 bg-white rounded-lg shadow-sm"
-                        >
-                          <Avatar className="w-24 h-24">
-                            <AvatarImage src={member.image} alt={member.name} />
-                            <AvatarFallback>{member.name[0]}</AvatarFallback>
-                          </Avatar>
-                          <h3 className="font-semibold text-lg">
-                            {member.name}
-                          </h3>
-                          <div className="flex flex-wrap gap-2 justify-center">
-                            {member.badges.map((badge) => (
-                              <Badge
-                                key={badge}
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {badge}
-                              </Badge>
-                            ))}
-                          </div>
+            {/* Team and AI Prompt sections */}
+            {section.afterContent && (
+              <div className="mt-8 sm:mt-12">
+                {section.id === "zespol" ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                    {teamMembers.map((member, idx) => (
+                      <div
+                        key={idx}
+                        className="flex flex-col items-center space-y-4 p-4 bg-white rounded-lg shadow-sm"
+                      >
+                        <Avatar className="w-24 h-24">
+                          <AvatarImage src={member.image} alt={member.name} />
+                          <AvatarFallback>{member.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <h3 className="font-semibold text-lg">{member.name}</h3>
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {member.badges.map((badge) => (
+                            <Badge
+                              key={badge}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {badge}
+                            </Badge>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    section.afterContent
-                  )}
-                </div>
-              )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  section.afterContent
+                )}
+              </div>
+            )}
 
-              <div className="mt-12 border-b border-gray-100" />
-            </section>
-          ))}
-        </main>
-      </div>
+            <div className="mt-12 border-b border-gray-100" />
+          </section>
+        ))}
+      </main>
     </div>
   );
 }
