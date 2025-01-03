@@ -167,7 +167,7 @@ const sections = [
 `,
     image: "/help.svg",
     afterContent: (
-      <div className="mt-12 p-6 bg-slate-50 rounded-xl space-y-6">
+      <div className="mt-12  bg-slate-50 space-y-6">
         {/* Coffee Button */}
         <div className="flex justify-center">
           <Script
@@ -189,10 +189,7 @@ const sections = [
         <div className="flex justify-center">
           <iframe
             src="https://patronite.pl/widget/sejm-stats/904247/small/light/colorful?description=Dzi%C4%99kuj%C4%99%20za%20Twoje%20wsparcie!"
-            width="360"
-            height="330"
-            scrolling="no"
-            className="border rounded-md shadow-md"
+            className="border rounded-md shadow-md w-96 max-w-fit h-96"
           ></iframe>
         </div>
       </div>
