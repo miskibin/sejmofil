@@ -8,20 +8,30 @@ import { TopicAttitudeChart } from "./topic-attitude-chart";
 import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/stat-card";
 import { getPrintsByNumbers } from "@/lib/queries/print";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({}: {
+  params: Promise<{ id: number }>;
+}): Promise<Metadata> {
+  return {
+    title: `Punkt obrad | Sejmofil`,
+    description: `Analiza punktu obrad w Sejmie.`,
+  };
+}
 
 export default async function PointDetail({
   params,
   searchParams,
 }: {
   params: Promise<{ id: number }>;
-  searchParams?: { showAll?: string };
+  searchParams?: Promise<{ showAll?: string }>;
 }) {
   const { id } = await params;
   if (!id) notFound();
 
-  const showAll = searchParams?.showAll === "true";
+  const showAll = (await searchParams)?.showAll === "true";
   const point = await getPointDetails(id, showAll);
   const [category, title] = point.topic.split(" | ");
 
@@ -233,31 +243,32 @@ export default async function PointDetail({
                   key={statement.id}
                   className="p-3 sm:p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-3"
                 >
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                     <h3 className="font-semibold text-primary">
                       {statement.speaker_name}
                     </h3>
                     {statement.statement_ai?.speaker_rating && (
-                        <div className="flex flex-wrap gap-1 sm:gap-2">
-                        {['manipulation', 'facts', 'logic', 'emotions'].map((key) => (
-                          statement.statement_ai.speaker_rating[key] && (
-                          <Badge
-                            key={key}
-                            variant="secondary"
-                            className="text-xs"
-                            title={key}
-                          >
-                            {key === 'manipulation' && 'Manipulacja'}
-                            {key === 'facts' && 'Fakty'}
-                            {key === 'logic' && 'Logika'}
-                            {key === 'emotions' && 'Emocje'}
-                            : {statement.statement_ai.speaker_rating[key]} / 5
-                          </Badge>
-                          )
-                        ))}
-                        </div>
+                      <div className="flex flex-wrap gap-1 sm:gap-2">
+                        {["manipulation", "facts", "logic", "emotions"].map(
+                          (key) =>
+                            statement.statement_ai.speaker_rating[key] && (
+                              <Badge
+                                key={key}
+                                variant="secondary"
+                                className="text-xs"
+                                title={key}
+                              >
+                                {key === "manipulation" && "Manipulacja"}
+                                {key === "facts" && "Fakty"}
+                                {key === "logic" && "Logika"}
+                                {key === "emotions" && "Emocje"}:{" "}
+                                {statement.statement_ai.speaker_rating[key]} / 5
+                              </Badge>
+                            )
+                        )}
+                      </div>
                     )}
-                    </div>
+                  </div>
 
                   {statement.statement_ai?.summary_tldr && (
                     <p className="text-sm text-gray-600">
