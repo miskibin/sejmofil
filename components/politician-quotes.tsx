@@ -1,73 +1,50 @@
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import Image from "next/image";
 import { Sparkles } from "lucide-react";
+import { getLatestCitizations } from "@/lib/supabase/queries";
+import { getIdsFromNames } from "@/lib/queries/person";
+import Link from "next/link";
 
-interface Quote {
-  author: string;
-  quote: string;
-  image: string;
-}
-
-const quotes: Quote[] = [
-  {
-    author: "Donald Tusk",
-    quote: "Będę kradł ile mogę dla demokracji",
-    image: "https://api.sejm.gov.pl/sejm/term10/MP/123/photo",
-  },
-  {
-    author: "Andrzej Duda",
-    quote: "Lubię podpisywać ustawy",
-    image: "/placeholder.svg?height=48&width=48",
-  },
-  {
-    author: "Angela Merkel",
-    quote: "Ich liebe es, in der Politik zu sein",
-    image: "/placeholder.svg?height=48&width=48",
-  },
-  {
-    author: "Emmanuel Macron",
-    quote: "J'adore travailler avec d'autres pays",
-    image: "/placeholder.svg?height=48&width=48",
-  },
-  {
-    author: "Klaus Iohannis",
-    quote: "Îmi place să colaborez cu ceilalți lideri",
-    image: "/placeholder.svg?height=48&width=48",
-  },
-  {
-    author: "Giuseppe Conte",
-    quote: "Mi piace lavorare con gli altri politici",
-    image: "/placeholder.svg?height=48&width=48",
-  },
-  {
-    author: "Pedro Sánchez",
-    quote: "Me encanta discutir con otros políticos",
-    image: "/placeholder.svg?height=48&width=48",
-  },
-];
-
-export default function PoliticianQuotes() {
+export default async function PoliticianQuotes() {
+  const citations = await getLatestCitizations();
+  const envoys = await getIdsFromNames(
+    citations.map((citation) => citation.speaker_name)
+  );
+  const combined = citations.map((citation, index) => ({
+    ...citation,
+    envoy_id: envoys[index],
+  }));
   return (
     <CardWrapper
       title="Ciekawostki"
       subtitle="Cytaty"
+      showGradient={true}
       headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
     >
       <div className="space-y-4">
-        {quotes.map((quote, index) => (
-          <div key={index} className="flex items-center gap-4">
+        {combined.map((quote, index) => (
+          <Link
+            href={`/envoys/${quote.envoy_id}`}
+            prefetch={true}
+            key={quote.envoy_id + index}
+            className="flex items-center gap-4"
+          >
             <Image
-              src={`https://api.sejm.gov.pl/sejm/term10/MP/${index + 2}/photo`}
-              alt={quote.author}
+              src={`https://api.sejm.gov.pl/sejm/term10/MP/${quote.envoy_id}/photo`}
+              alt={quote.speaker_name}
               width={48}
               height={48}
               className="rounded-md"
             />
             <div className="space-y-1 flex-1">
-              <p className="text-sm font-semibold text-primary">{quote.author}</p>
-              <p className="text-xl font-normal leading-tight">{quote.quote}</p>
+              <p className="text-sm font-semibold text-primary">
+                {quote.speaker_name}
+              </p>
+              <p className="text-sm italic font-normal leading-tight">
+                {quote.citation}
+              </p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </CardWrapper>

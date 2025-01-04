@@ -104,7 +104,7 @@ export async function getPersonInterruptionsCount(): Promise<
 export async function getPersonWithMostInterruptions(): Promise<RecordHolder> {
   const query = `
     MATCH (p:Person)-[r:INTERRUPTS]->(s)
-    WHERE p.role IS NOT NULL
+    WHERE p.role IS NOT NULL AND p.active 
     WITH p, count(r) as numberOfInterruptions
     RETURN p.firstLastName as name, numberOfInterruptions as count, p.id as id
     ORDER BY numberOfInterruptions DESC
@@ -127,4 +127,13 @@ export async function getPersonWithMostStatements(
   `;
   const result = await runQuery<RecordHolder>(query);
   return result[0];
+}
+export async function getIdsFromNames(names: string[]): Promise<number[]> {
+  const query = `
+    MATCH (p:Person)
+    WHERE p.firstLastName IN $names
+    RETURN p.id as id
+  `;
+  const result = await runQuery<{ id: string }>(query, { names });
+  return result.map((record) => parseInt(record.id, 10));
 }

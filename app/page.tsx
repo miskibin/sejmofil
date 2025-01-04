@@ -16,7 +16,6 @@ export default async function Home() {
   const proceedings = await getProceedingDates();
   const nextDate = getNextProceedingDate(proceedings);
   const timeUntil = getTimeUntilNextProceeding(nextDate);
-
   return (
     <>
       <div className="mb-4 sm:mb-8 mt-16">

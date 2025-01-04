@@ -39,7 +39,6 @@ export default async function EnvoyDetail({
   const statementsCombined = await getStatementCombinedDetails(
     info.firstLastName
   );
-  console.log(statementsCombined);
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
