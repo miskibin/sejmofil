@@ -8,27 +8,27 @@ import {
   FaGithub,
 } from "react-icons/fa";
 import { getLatestVersion } from "@/lib/github";
+import { SOCIAL_LINKS, SUPPORT_LINKS } from "@/lib/config/links";
 
 const socialLinks = [
   {
     name: "discord",
-    url: "https://discord.com/invite/zH2J3z5Wbf",
+    url: SOCIAL_LINKS.DISCORD,
     icon: <FaDiscord className="h-5 w-5 text-blue-700" />,
   },
   {
     name: "youtube",
-    url: "https://www.youtube.com/@sejm-stats",
+    url: SOCIAL_LINKS.YOUTUBE,
     icon: <FaYoutube className="h-5 w-5 text-red-600" />,
   },
   {
-    name: "titkok",
-    url: "https://tiktok.com",
+    name: "tiktok",
+    url: SOCIAL_LINKS.TIKTOK,
     icon: <FaTiktok className="h-5 w-5 text-gray-800" />,
   },
-
   {
     name: "github",
-    url: "https://github.com/miskibin/sejmofront",
+    url: SOCIAL_LINKS.GITHUB,
     icon: <FaGithub className="h-5 w-5 text-gray-800" />,
   },
 ];
@@ -58,7 +58,7 @@ export async function Footer() {
               sejmowych.
             </p>
             <Link
-              href="https://patronite.pl/sejm-stats"
+              href={SUPPORT_LINKS.PATRONITE}
               className="inline-flex items-center gap-2 text-primary hover:opacity-80 transition-opacity text-sm sm:text-base"
             >
               <FaHandHoldingHeart className="h-5 w-5" />

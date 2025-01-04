@@ -48,6 +48,67 @@ export async function getStatementCombinedDetails(
     .not("number_source", "eq", 0);
 
   if (!data) return [];
-  console.log(data);
   return data as unknown as StatementCombined[];
+}
+
+interface TopicCount {
+  topic: string;
+  count: number;
+}
+
+export async function getTopDiscussedTopics(): Promise<TopicCount[]> {
+  const supabase = createClient();
+  const { data } = await (await supabase)
+    .rpc("get_top_discussed_topics")
+    .limit(5); // Create this function in your database
+
+  return data || [];
+}
+
+interface CitationWithPerson {
+  speaker_name: string;
+  citation: string;
+  statement_id: number;
+}
+
+export async function getLatestCitizations(): Promise<CitationWithPerson[]> {
+  const supabase = createClient();
+
+  const { data } = await (
+    await supabase
+  )
+    .from("statement")
+    .select(
+      `
+      id,
+      speaker_name,
+      statement_ai!inner (
+        citations
+      )
+    `
+    )
+    .not("statement_ai.citations", "is", null)
+    .not("statement_ai.citations", "eq", "{}")
+    .order("id", { ascending: false })
+    .limit(5);
+  if (!data) return [];
+
+  // Process and flatten citations, keeping only unique speakers
+  const uniqueSpeakers = new Set<string>();
+  const citations: CitationWithPerson[] = [];
+
+  data.forEach((item) => {
+    if (uniqueSpeakers.has(item.speaker_name)) return;
+
+    const citation = (item.statement_ai as unknown as { citations: string[] }).citations[0];
+    if (!citation) return;
+
+    uniqueSpeakers.add(item.speaker_name);
+    citations.push({
+      speaker_name: item.speaker_name,
+      citation,
+      statement_id: item.id,
+    });
+  });
+  return citations.slice(0, 5); // Return only top 5 unique citations
 }

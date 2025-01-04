@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import Script from "next/script";
+import { SOCIAL_LINKS, SUPPORT_LINKS } from "@/lib/config/links";
 
 const teamMembers = [
   {
@@ -37,7 +38,7 @@ const sections = [
     icon: <Target className="w-5 h-5" />,
     imageLeft: false,
     content: `
-      Sejmofil to projekt **non-profit**, którego celem jest wspieranie demokracji w Polsce poprzez zwiększanie transparentności pracy Sejmu. Zespół wierzy, że **dostęp do rzetelnych i obiektywnych informacji** jest fundamentem świadomego społeczeństwa obywatelskiego.
+      Sejmofil to projekt **non-profit**, którego celem jest wspieranie demokracji w Polsce poprzez zwiększanie transparentności pracy Sejmu. Wierzymy, że **dostęp do rzetelnych i obiektywnych informacji** jest fundamentem świadomego społeczeństwa obywatelskiego.
 
       Projekt **nie wspiera żadnej partii politycznej**, koncentrując się na dostarczaniu obiektywnych danych i analiz. *Kiedy obywatele mają dostęp do rzetelnych informacji, mogą podejmować świadome decyzje.*
 
@@ -63,10 +64,10 @@ const sections = [
     icon: <Users className="w-5 h-5" />,
     imageLeft: false,
     content: `
-      Z czasem uformował nam się stały zespół.  Złożony z osób, które połączyła wspólna pasja do technologii i polityki.
-      Dzięki połączeniu różnych perspektyw i umiejętności, zespół stworzył system oparty na najszerszej istniejącej analizie danych parlamentarnych w Polsce, wykorzystując sztuczną inteligencję do obiektywnej oceny pracy Sejmu.
+      Z czasem uformował nam się stały zespół. Złożony z osób, które połączyła wspólna pasja do technologii i polityki.
+      Dzięki połączeniu różnych perspektyw i umiejętności, zespół stworzył system oparty na najszerszej istniejącej analizie danych parlamentarnych w Polsce.
       
-      Dołącz do nas na [Discordzie](https://discord.gg/your-invite) lub wesprzyj projekt na [Patronite](https://patronite.pl/your-page)!
+      Dołącz do nas na [Discordzie](${SOCIAL_LINKS.DISCORD}) lub wesprzyj projekt na [Patronite](${SUPPORT_LINKS.PATRONITE})!
     `,
     image: "/team.svg",
     afterContent: (
@@ -160,10 +161,10 @@ const sections = [
     Projekt Sejmofil to inicjatywa **non-profit**, która wymaga od nas znacznych nakładów finansowych i setek godzin pracy za darmo. **Każda forma pomocy jest dla nas niezwykle motywująca**.
 
     **Wsparcie finansowe**
-    Przy pomocy AI przeanalizowaliśmy ponad 300 000 stron dokumentów sejmowych. Każdy kolejny dzień posiedzeń to koszt od 10 do 40 zł, a do tego dochodzą koszty utrzymania infrastruktury. Wesprzyj nas na [Patronite](https://patronite.pl/your-page)!
+    Przy pomocy AI przeanalizowaliśmy ponad 300 000 stron dokumentów sejmowych. Każdy kolejny dzień posiedzeń to koszt od 10 do 40 zł, a do tego dochodzą koszty utrzymania infrastruktury. Wesprzyj nas na [Patronite](${SUPPORT_LINKS.PATRONITE})!
 
     **Dołącz do zespołu**
-    Napisz do nas na [Discordzie](https://discord.gg/your-invite) jeśli masz pomysł na **nowe funkcje** strony, doświadczenie w **marketingu**, **technologiach webowych**, lub dysponujesz **wiedzą polityczną**.
+    Napisz do nas na [Discordzie](${SOCIAL_LINKS.DISCORD}) jeśli masz pomysł na **nowe funkcje** strony, doświadczenie w **marketingu**, **technologiach webowych**, lub dysponujesz **wiedzą polityczną**.
 `,
     image: "/help.svg",
     afterContent: (

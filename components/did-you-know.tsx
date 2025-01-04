@@ -8,7 +8,7 @@ import {
 } from "@/lib/queries/person";
 
 export default async function PlebiscytCard() {
-  const mostInterruptions = await getPersonWithMostInterruptions();
+  const mostInterruptions = await getPersonWithMostInterruptions() || 0;
   const mostStatements = await getPersonWithMostStatements();
   const leastStatements = await getPersonWithMostStatements(true);
 
