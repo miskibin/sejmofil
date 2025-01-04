@@ -40,7 +40,7 @@ export default async function PointDetail({
       </CardWrapper>
 
       {/* Statements */}
-      {/* <CardWrapper
+      <CardWrapper
         title="Wypowiedzi"
         subtitle="Przebieg dyskusji"
         showGradient={false}
@@ -92,8 +92,8 @@ export default async function PointDetail({
               )}
             </div>
           ))}
-        </div> */}
-      {/* </CardWrapper> */}
+        </div>
+    </CardWrapper> 
     </div>
   );
 }

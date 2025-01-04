@@ -12,6 +12,12 @@ export interface Statement {
   voting_numbers: string[];
 }
 
+export interface StatementToPoint {
+  id: number;
+  statement_id: number;
+  proceeding_point_ai_id: number;
+}
+
 export interface StatementAI {
   id: number;
   statement_id: number;

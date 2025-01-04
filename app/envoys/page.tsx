@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
+import debounce from "lodash/debounce";
 import { EnvoysListFilters } from "@/components/envoys-list-filters";
 import { EnvoyCard } from "@/components/envoy-card";
 import {
@@ -9,6 +10,7 @@ import {
   getPersonInterruptionsCount,
 } from "@/lib/queries/person";
 import { EnvoyShort } from "@/lib/types/person";
+import { Skeleton } from "@/components/ui/skeleton"; // Add this import
 
 // export const revalidate = 3600;
 
@@ -31,33 +33,48 @@ function EnvoysList() {
   const [interruptionCounts, setInterruptionCounts] = useState<
     Record<string, number>
   >({});
+  const [isSearching, setIsSearching] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
+
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setIsSearching(true);
+      setSearchTerm(value);
+      setTimeout(() => setIsSearching(false), 200); // Add minimal delay for UX
+    }, 150), // Reduced debounce time for more immediate feedback
+    []
+  );
 
   useEffect(() => {
     (async () => {
-      const [allEnvoys, statements, interruptions] = await Promise.all([
-        getAllEnvoys(),
-        getPersonStatementCounts(),
-        getPersonInterruptionsCount(),
-      ]);
-      setEnvoys(allEnvoys);
-      setStatementCounts(
-        statements.reduce(
-          (acc, { id, numberOfStatements }) => ({
-            ...acc,
-            [id]: numberOfStatements,
-          }),
-          {}
-        )
-      );
-      setInterruptionCounts(
-        interruptions.reduce(
-          (acc, { id, numberOfInterruptions }) => ({
-            ...acc,
-            [id]: numberOfInterruptions,
-          }),
-          {}
-        )
-      );
+      try {
+        const [allEnvoys, statements, interruptions] = await Promise.all([
+          getAllEnvoys(),
+          getPersonStatementCounts(),
+          getPersonInterruptionsCount(),
+        ]);
+        setEnvoys(allEnvoys);
+        setStatementCounts(
+          statements.reduce(
+            (acc, { id, numberOfStatements }) => ({
+              ...acc,
+              [id]: numberOfStatements,
+            }),
+            {}
+          )
+        );
+        setInterruptionCounts(
+          interruptions.reduce(
+            (acc, { id, numberOfInterruptions }) => ({
+              ...acc,
+              [id]: numberOfInterruptions,
+            }),
+            {}
+          )
+        );
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
 
@@ -123,7 +140,7 @@ function EnvoysList() {
       <EnvoysListFilters
         clubs={clubs}
         professions={getProfessionCounts(envoys)}
-        onSearchChange={setSearchTerm}
+        onSearchChange={debouncedSearch}
         onClubChange={setSelectedClub}
         onActivityChange={setActivityFilter}
         onDistrictChange={setSelectedDistrict}
@@ -135,28 +152,43 @@ function EnvoysList() {
       />
 
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {sortedEnvoys.map((envoy) => {
-          const displayValue = (() => {
-            switch (sortField) {
-              case "votes":
-                return `Głosy: ${envoy.numberOfVotes || "Brak danych"}`;
-              case "statements":
-                return `Wypowiedzi: ${statementCounts[envoy.id] || 0}`;
-              case "interruptions":
-                return `Przerywania: ${interruptionCounts[envoy.id] || 0}`;
-              default:
-                return `Głosy: ${envoy.numberOfVotes || "Brak danych"}`;
-            }
-          })();
+        {isLoading ? (
+          // Loading skeleton
+          Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="space-y-3 p-4 border rounded-lg">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-4 w-1/4" />
+            </div>
+          ))
+        ) : isSearching ? (
+          <div className="col-span-full text-center py-4">Wyszukiwanie...</div>
+        ) : sortedEnvoys.length === 0 ? (
+          <div className="col-span-full text-center py-4">Brak wyników</div>
+        ) : (
+          sortedEnvoys.map((envoy) => {
+            const displayValue = (() => {
+              switch (sortField) {
+                case "votes":
+                  return `Głosy: ${envoy.numberOfVotes || "Brak danych"}`;
+                case "statements":
+                  return `Wypowiedzi: ${statementCounts[envoy.id] || 0}`;
+                case "interruptions":
+                  return `Przerywania: ${interruptionCounts[envoy.id] || 0}`;
+                default:
+                  return `Głosy: ${envoy.numberOfVotes || "Brak danych"}`;
+              }
+            })();
 
-          return (
-            <EnvoyCard
-              key={envoy.id}
-              envoy={envoy}
-              displayValue={displayValue}
-            />
-          );
-        })}
+            return (
+              <EnvoyCard
+                key={envoy.id}
+                envoy={envoy}
+                displayValue={displayValue}
+              />
+            );
+          })
+        )}
       </div>
     </>
   );
