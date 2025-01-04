@@ -2,7 +2,7 @@ import { CardWrapper } from "@/components/ui/card-wrapper";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import Image from "next/image";
 export default function NotFound() {
   return (
     <main className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8 min-h-[80vh] flex items-center justify-center">
@@ -12,9 +12,10 @@ export default function NotFound() {
         showSource={false}
         showGradient={false}
         className="max-w-lg"
-        headerIcon={<AlertCircle className="h-6 w-6 text-destructive" />}
+        headerIcon={<AlertCircle className="h-6 w-6 text-primary" />}
       >
         <div className="flex flex-col items-center text-center space-y-6">
+        <Image src="/empty.svg" alt="404" className="m-4" width={300} height={300} />
           <p className="text-muted-foreground">
             Przepraszamy, ale strona której szukasz nie istnieje lub została
             przeniesiona.
