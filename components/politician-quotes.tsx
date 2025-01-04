@@ -27,23 +27,22 @@ export default async function PoliticianQuotes() {
             href={`/envoys/${quote.envoy_id}`}
             prefetch={true}
             key={quote.envoy_id + index}
-            className="flex items-center gap-4"
           >
-            <Image
-              src={`https://api.sejm.gov.pl/sejm/term10/MP/${quote.envoy_id}/photo`}
-              alt={quote.speaker_name}
-              width={48}
-              height={48}
-              className="rounded-md"
-            />
-            <div className="space-y-1 flex-1">
+            <div className="flex items-center gap-4 pt-4">
+              <Image
+          src={`https://api.sejm.gov.pl/sejm/term10/MP/${quote.envoy_id}/photo`}
+          alt={quote.speaker_name}
+          width={48}
+          height={48}
+          className="rounded-md"
+              />
               <p className="text-sm font-semibold text-primary">
-                {quote.speaker_name}
-              </p>
-              <p className="text-sm italic font-normal leading-tight">
-                {quote.citation}
+          {quote.speaker_name}
               </p>
             </div>
+            <p className="italic">
+              {quote.citation}
+            </p>
           </Link>
         ))}
       </div>

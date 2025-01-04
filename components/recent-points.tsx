@@ -6,7 +6,7 @@ export default async function RecentPoints() {
   const topics = await getTopDiscussedTopics();
   
   return (
-    <CardWrapper title="Najczęściej omawiane" subtitle="Tematy">
+    <CardWrapper title="Ostatnio omawiane" subtitle="Tematy">
       <div className="space-y-5 py-4">
         {topics.map((topic, index) => {
           const [category, title] = topic.topic.split(" | ");
@@ -18,7 +18,7 @@ export default async function RecentPoints() {
                   <Check className="w-6 h-6" />
                 </div>
                 <div className="space-y-1 flex-1">
-                  <p className="text-xl font-normal leading-tight">
+                  <p className="font-medium">
                     {title}
                   </p>
                   <p className="text-sm text-muted-foreground">

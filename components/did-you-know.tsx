@@ -73,7 +73,7 @@ export default async function PlebiscytCard() {
               <p className="text-sm font-semibold text-primary">
                 {politician.name}
               </p>
-              <div className="flex flex-row text-xl font-normal leading-tight">
+              <div className="flex flex-row font-medium">
                 <span>{politician.mainStat.displayText}</span>
               </div>
             </div>

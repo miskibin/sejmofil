@@ -90,7 +90,7 @@ export async function getLatestCitizations(): Promise<CitationWithPerson[]> {
     .not("statement_ai.citations", "is", null)
     .not("statement_ai.citations", "eq", "{}")
     .order("id", { ascending: false })
-    .limit(5);
+    .limit(4);
   if (!data) return [];
 
   // Process and flatten citations, keeping only unique speakers
@@ -110,5 +110,5 @@ export async function getLatestCitizations(): Promise<CitationWithPerson[]> {
       statement_id: item.id,
     });
   });
-  return citations.slice(0, 5); // Return only top 5 unique citations
+  return citations.slice(0, 4); // Return only top 5 unique citations
 }

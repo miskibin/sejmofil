@@ -18,13 +18,15 @@ import Link from "next/link";
 import { ProfileCard } from "./profile-card";
 import Image from "next/image";
 import { Metadata } from "next";
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: {
-  params: { id: number };
+  params: Promise<{ id: number }>;
 }): Promise<Metadata> {
-  const envoy = await getEnvoyInfo(params.id);
+  const { id } = await params;
+  const envoy = await getEnvoyInfo(id);
 
   return {
     title: `${envoy.firstLastName} | Sejmofil`,
@@ -33,8 +35,6 @@ export async function generateMetadata({
     }. ${envoy.club ? `Klub parlamentarny: ${envoy.club}.` : ""}`,
   };
 }
-
-export const dynamic = "force-dynamic";
 
 export default async function EnvoyDetail({
   params,
