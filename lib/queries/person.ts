@@ -145,3 +145,12 @@ export async function getIdsFromNames(names: string[]): Promise<number[]> {
   // Map original names array to preserve order
   return names.map(name => nameToId[name]);
 }
+
+export async function getClubsByNames(names: string[]): Promise<Array<{ name: string, club: string }>> {
+  const query = `
+    MATCH (p:Person)
+    WHERE p.firstLastName IN $names
+    RETURN p.firstLastName as name, p.club as club
+  `;
+  return runQuery<{ name: string; club: string }>(query, { names });
+}

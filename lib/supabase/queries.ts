@@ -128,6 +128,7 @@ interface PointWithStatements {
     statement_ai: {
       summary_tldr: string;
       citations: string[];
+      topic_attitude: Record<string, number>;
       speaker_rating: Record<string, number>;
     };
   }[];
@@ -157,6 +158,7 @@ export async function getPointDetails(
           statement_ai (
             summary_tldr,
             citations,
+            topic_attitude,
             speaker_rating
           )
         )
