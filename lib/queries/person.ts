@@ -132,8 +132,16 @@ export async function getIdsFromNames(names: string[]): Promise<number[]> {
   const query = `
     MATCH (p:Person)
     WHERE p.firstLastName IN $names
-    RETURN p.id as id
+    RETURN p.firstLastName as name, p.id as id
   `;
-  const result = await runQuery<{ id: string }>(query, { names });
-  return result.map((record) => parseInt(record.id, 10));
+  const result = await runQuery<{ name: string; id: string }>(query, { names });
+  
+  // Create a map of name to id
+  const nameToId = result.reduce((acc, { name, id }) => {
+    acc[name] = parseInt(id, 10);
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Map original names array to preserve order
+  return names.map(name => nameToId[name]);
 }
