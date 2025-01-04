@@ -17,6 +17,22 @@ import { FaWikipediaW } from "react-icons/fa";
 import Link from "next/link";
 import { ProfileCard } from "./profile-card";
 import Image from "next/image";
+import { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: number };
+}): Promise<Metadata> {
+  const envoy = await getEnvoyInfo(params.id);
+
+  return {
+    title: `${envoy.firstLastName} | Sejmofil`,
+    description: `Profil, aktywność i analiza wypowiedzi posła ${
+      envoy.firstLastName
+    }. ${envoy.club ? `Klub parlamentarny: ${envoy.club}.` : ""}`,
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -69,11 +85,7 @@ export default async function EnvoyDetail({
           >
             <PrintList prints={prints} />
           </CardWrapper>
-          <CardWrapper
-            title="Druki"
-            subtitle="Wzmianki"
-            showGradient={false}
-          >
+          <CardWrapper title="Druki" subtitle="Wzmianki" showGradient={false}>
             <PrintList prints={subjectPrints} />
           </CardWrapper>
         </div>
@@ -146,12 +158,17 @@ export default async function EnvoyDetail({
                 ))}
               </div>
             ) : (
-                <div className="text-center pb-6">
+              <div className="text-center pb-6">
                 <div className="flex justify-center mb-4">
-                  <Image src="/empty.svg" width={333} height={333} alt="No committees" />
+                  <Image
+                    src="/empty.svg"
+                    width={333}
+                    height={333}
+                    alt="No committees"
+                  />
                 </div>
                 <p className="text-gray-500">Brak członkostwa w komisjach</p>
-                </div>
+              </div>
             )}
           </CardWrapper>
 
