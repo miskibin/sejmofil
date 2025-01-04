@@ -36,7 +36,7 @@ export interface StatementAI {
     manipulation: number;
   };
   topic_attitude: {
-    score: number;
+    score: number; // 1 to 5
     explanation: string;
   };
   topic: string;

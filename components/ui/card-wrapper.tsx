@@ -24,7 +24,7 @@ export function CardWrapper({
   title,
   subtitle,
   headerIcon,
-  showGradient = true,
+  showGradient = false,
   showMoreLink,
   children,
   sourceUrls,
