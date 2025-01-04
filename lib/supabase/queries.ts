@@ -121,10 +121,12 @@ interface PointWithStatements {
   official_topic: string;
   summary_main: string;
   summary_tldr: string;
+  print_numbers: number[];
   statements: {
     id: number;
     speaker_name: string;
     text: string;
+    number_source: number;
     statement_ai: {
       summary_tldr: string;
       citations: string[];
@@ -135,7 +137,8 @@ interface PointWithStatements {
 }
 
 export async function getPointDetails(
-  id: number
+  id: number,
+  showAllStatements = false
 ): Promise<PointWithStatements> {
   const supabase = createClient();
   const { data } = await (
@@ -150,11 +153,13 @@ export async function getPointDetails(
       official_topic,
       summary_main,
       summary_tldr,
+      print_numbers,
       statements:statement_to_point!proceeding_point_ai_id(
         statement:statement_id(
           id,
           speaker_name,
           text,
+          number_source,
           statement_ai (
             summary_tldr,
             citations,
@@ -170,8 +175,13 @@ export async function getPointDetails(
   const transformedData = {
     ...data,
     statements:
-      data?.statements.map((item: { statement: unknown }) => item.statement) ||
-      [],
+      data?.statements
+        .map((item: { statement: unknown }) => item.statement)
+        .filter((statement) =>
+          showAllStatements
+            ? true
+            : (statement as { number_source: number }).number_source !== 0
+        ) || [],
   };
 
   return transformedData as PointWithStatements;

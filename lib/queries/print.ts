@@ -165,3 +165,19 @@ export async function getEnvoySubjectPrints(
   const result = await runQuery<{ print: PrintShort }>(query, { id, limit });
   return result.map((record) => record.print);
 }
+
+export async function getPrintsByNumbers(numbers: string[]): Promise<PrintShort[]> {
+  const query = `
+    MATCH (print:Print)
+    WHERE print.number IN $numbers
+    RETURN print {
+      number: print.number,
+      title: print.title,
+      deliveryDate: print.deliveryDate,
+      summary: print.summary
+    } as print
+    ORDER BY print.documentDate DESC
+  `;
+  const result = await runQuery<{ print: PrintShort }>(query, { numbers });
+  return result.map((record) => record.print);
+}
