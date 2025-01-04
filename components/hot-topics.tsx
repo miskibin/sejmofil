@@ -29,6 +29,12 @@ export default function HotTopics() {
       date: "04 Dec 2024",
       category: "Obrady",
     },
+    {
+      id: "04",
+      title: "Burzliwa debata wokół aborcji: nowe projekty ustaw ",
+      date: "04 Dec 2024",
+      category: "Obrady",
+    },
   ];
 
   return (
@@ -58,7 +64,7 @@ export default function HotTopics() {
               <span className="font-semibold text-white flex items-center justify-center bg-primary min-w-10 min-h-10 w-10 h-10 text-center rounded-lg">
                 {item.id}
               </span>
-              <h3 className="text-xl">{item.title}</h3>
+              <h3 className="font-medium">{item.title}</h3>
             </div>
             <div className="text-sm text-muted-foreground pl-8">
               {item.date}
