@@ -119,7 +119,7 @@ export async function getPersonWithMostStatements(
 ): Promise<RecordHolder> {
   const query = `
     MATCH (p:Person)-[r:SAID]->(s)
-    WHERE p.role IS NOT NULL
+    WHERE p.role IS NOT NULL AND s.statement_number <> "0"
     WITH p, count(r) as numberOfStatements
     RETURN p.firstLastName as name, numberOfStatements as count, p.id as id
     ORDER BY numberOfStatements ${invert ? "ASC" : "DESC"}
