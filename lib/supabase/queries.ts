@@ -114,7 +114,6 @@ export async function getLatestCitizations(): Promise<CitationWithPerson[]> {
   });
   return citations.slice(0, 4); // Return only top 5 unique citations
 }
-
 interface PointWithStatements {
   id: number;
   topic: string;
@@ -122,23 +121,22 @@ interface PointWithStatements {
   official_topic: string;
   summary_main: string;
   summary_tldr: string;
-  // statements: {
-  //   id: number;
-  //   speaker_name: string;
-  //   text: string;
-  //   statement_ai: {
-  //     summary_tldr: string;
-  //     citations: string[];
-  //     speaker_rating: Record<string, number>;
-  //   };
-  // }[];
+  statements: {
+    id: number;
+    speaker_name: string;
+    text: string;
+    statement_ai: {
+      summary_tldr: string;
+      citations: string[];
+      speaker_rating: Record<string, number>;
+    };
+  }[];
 }
 
 export async function getPointDetails(
   id: number
 ): Promise<PointWithStatements> {
   const supabase = createClient();
-
   const { data } = await (
     await supabase
   )
@@ -150,21 +148,29 @@ export async function getPointDetails(
       official_point,
       official_topic,
       summary_main,
-      summary_tldr
-      `
-      // statements:statement(
-      //   id,
-      //   speaker_name,
-      //   text,
-      //   statement_ai (
-      //     summary_tldr,
-      //     citations,
-      //     speaker_rating
-      //   )
-      // )
+      summary_tldr,
+      statements:statement_to_point!proceeding_point_ai_id(
+        statement:statement_id(
+          id,
+          speaker_name,
+          text,
+          statement_ai (
+            summary_tldr,
+            citations,
+            speaker_rating
+          )
+        )
+      )
+    `
     )
     .eq("id", id)
     .single();
+  const transformedData = {
+    ...data,
+    statements:
+      data?.statements.map((item: { statement: unknown }) => item.statement) ||
+      [],
+  };
 
-  return data as unknown as PointWithStatements;
+  return transformedData as PointWithStatements;
 }

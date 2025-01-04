@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { X } from "lucide-react";
+import { X, Filter } from "lucide-react";
 
 type ActivityStatus = "active" | "inactive" | "all";
 type ProfessionCount = { name: string; count: number };
@@ -49,6 +49,7 @@ export function EnvoysListFilters({
 }: EnvoysListFiltersProps) {
   const [currentDistrict, setCurrentDistrict] = useState<string | null>(null);
   const [professionFilter, setProfessionFilter] = useState("");
+  const [isFiltersVisible, setIsFiltersVisible] = useState(false);
 
   const handlePostalCode = (value: string) => {
     let clean = value.replace(/[^0-9]/g, "").slice(0, 6);
@@ -74,150 +75,182 @@ export function EnvoysListFilters({
     prof.name.toLowerCase().includes(professionFilter.toLowerCase())
   );
 
+  const filterButtonConfigs = [
+    {
+      type: "select",
+      props: {
+        placeholder: "Klub poselski",
+        onChange: onClubChange,
+        options: [
+          { value: "all", label: "Wszystkie kluby" },
+          ...clubs.map((club) => ({ value: club, label: club })),
+        ],
+      },
+    },
+    {
+      type: "select",
+      props: {
+        placeholder: "Status",
+        defaultValue: "active",
+        onChange: onActivityChange,
+        options: [
+          { value: "active", label: "Tylko aktywni" },
+          { value: "inactive", label: "Tylko nieaktywni" },
+          { value: "all", label: "Wszyscy" },
+        ],
+      },
+    },
+    {
+      type: "select",
+      props: {
+        placeholder: "Sortuj według",
+        defaultValue: "votes",
+        onChange: onSortChange,
+        options: [
+          { value: "votes", label: "Liczba głosów" },
+          { value: "statements", label: "Liczba wypowiedzi" },
+          { value: "interruptions", label: "Liczba przerywań" },
+        ],
+      },
+    },
+  ];
+
   return (
-    <div className="p-3 mb-8">
-      <div className="flex items-center gap-4 flex-wrap">
+    <div className="space-y-4 p-3 mb-8">
+      <div className="flex gap-2 items-center">
         <Input
           placeholder="Szukaj posła..."
-          className="w-48"
+          className="flex-1 md:flex-none md:w-48"
           onChange={(e) => onSearchChange(e.target.value)}
         />
-
-        <Select onValueChange={onClubChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Klub poselski" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Wszystkie kluby</SelectItem>
-            {clubs.map((club) => (
-              <SelectItem key={club} value={club}>
-                {club}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          defaultValue="active"
-          onValueChange={(value: ActivityStatus) => onActivityChange(value)}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsFiltersVisible(!isFiltersVisible)}
+          className="flex items-center gap-2"
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            {["active", "inactive", "all"].map((status) => (
-              <SelectItem key={status} value={status}>
-                {status === "active"
-                  ? "Tylko aktywni"
-                  : status === "inactive"
-                  ? "Tylko nieaktywni"
-                  : "Wszyscy"}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div className="flex items-center gap-2">
-          <Input
-            placeholder="2 cyfry kodu pocztowego"
-            className="w-56"
-            onChange={(e) =>
-              (e.target.value = handlePostalCode(e.target.value))
-            }
-            maxLength={6}
-          />
-          {currentDistrict && (
-            <Badge variant="secondary">okręg: {currentDistrict}</Badge>
-          )}
-        </div>
-
-        <Select
-          defaultValue="votes"
-          onValueChange={(val) => onSortChange(val as SortField)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sortuj według" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="votes">Liczba głosów</SelectItem>
-            <SelectItem value="statements">Liczba wypowiedzi</SelectItem>
-            <SelectItem value="interruptions">Liczba przerywań</SelectItem>
-          </SelectContent>
-        </Select>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="h-9 border-dashed">
-              Zawody
-              {selectedProfessions.length > 0 && (
-                <>
-                  <Separator orientation="vertical" className="mx-2 h-4" />
-                  <Badge
-                    variant="secondary"
-                    className="rounded-sm px-1 font-normal"
-                  >
-                    {selectedProfessions.length}
-                  </Badge>
-                </>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-64 p-2" align="start">
-            <div className="flex flex-col gap-2">
-              <Input
-                placeholder="Szukaj zawodu..."
-                value={professionFilter}
-                onChange={(e) => setProfessionFilter(e.target.value)}
-                className="mb-2"
-              />
-              <div className="max-h-[300px] overflow-y-auto">
-                {filteredProfessions.length === 0 ? (
-                  <p className="text-sm text-center py-4 text-muted-foreground">
-                    Nie znaleziono zawodów
-                  </p>
-                ) : (
-                  <div className="flex flex-col gap-1">
-                    {filteredProfessions.map((prof) => (
-                      <button
-                        key={prof.name}
-                        onClick={() => toggleProfession(prof.name)}
-                        className="flex items-center gap-2 px-2 py-1.5 hover:bg-primary/20 rounded-sm text-sm"
-                      >
-                        <div
-                          className={`flex h-4 w-4 items-center justify-center rounded-sm border border-primary ${
-                            selectedProfessions.includes(prof.name)
-                              ? "bg-primary text-primary-foreground"
-                              : "opacity-50"
-                          }`}
-                        >
-                          {selectedProfessions.includes(prof.name) && "✓"}
-                        </div>
-                        <span className="flex-grow text-left">{prof.name}</span>
-                        <span className="text-muted-foreground">
-                          ({prof.count})
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-        {selectedProfessions.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {selectedProfessions.map((prof) => (
-              <Badge
-                key={prof}
-                variant="default"
-                className="cursor-pointer p-2"
-                onClick={() => toggleProfession(prof)}
-              >
-                {prof} <X size={16} className="ml-1" />
-              </Badge>
-            ))}
-          </div>
-        )}
+          <Filter className={isFiltersVisible ? "text-primary" : ""} />
+          <span className="hidden md:inline">Filtry</span>
+        </Button>
       </div>
+
+      {isFiltersVisible && (
+        <div className="flex flex-col md:flex-row flex-wrap gap-2">
+          {filterButtonConfigs.map((config, idx) => (
+            <Select key={idx} onValueChange={config.props.onChange}>
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder={config.props.placeholder} />
+              </SelectTrigger>
+              <SelectContent>
+                {config.props.options.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ))}
+
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <Input
+              placeholder="Kod pocztowy"
+              onChange={(e) =>
+                (e.target.value = handlePostalCode(e.target.value))
+              }
+              maxLength={6}
+              className="w-full md:w-[180px]"
+            />
+            {currentDistrict && (
+              <Badge variant="secondary" className="whitespace-nowrap">
+                okręg: {currentDistrict}
+              </Badge>
+            )}
+          </div>
+
+          <div className="w-full md:w-auto">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 border-dashed"
+                >
+                  Zawody
+                  {selectedProfessions.length > 0 && (
+                    <>
+                      <Separator orientation="vertical" className="mx-2 h-4" />
+                      <Badge
+                        variant="secondary"
+                        className="rounded-sm px-1 font-normal"
+                      >
+                        {selectedProfessions.length}
+                      </Badge>
+                    </>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-2" align="start">
+                <div className="flex flex-col gap-2">
+                  <Input
+                    placeholder="Szukaj zawodu..."
+                    value={professionFilter}
+                    onChange={(e) => setProfessionFilter(e.target.value)}
+                    className="mb-2"
+                  />
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {filteredProfessions.length === 0 ? (
+                      <p className="text-sm text-center py-4 text-muted-foreground">
+                        Nie znaleziono zawodów
+                      </p>
+                    ) : (
+                      <div className="flex flex-col gap-1">
+                        {filteredProfessions.map((prof) => (
+                          <button
+                            key={prof.name}
+                            onClick={() => toggleProfession(prof.name)}
+                            className="flex items-center gap-2 px-2 py-1.5 hover:bg-primary/20 rounded-sm text-sm"
+                          >
+                            <div
+                              className={`flex h-4 w-4 items-center justify-center rounded-sm border border-primary ${
+                                selectedProfessions.includes(prof.name)
+                                  ? "bg-primary text-primary-foreground"
+                                  : "opacity-50"
+                              }`}
+                            >
+                              {selectedProfessions.includes(prof.name) && "✓"}
+                            </div>
+                            <span className="flex-grow text-left">
+                              {prof.name}
+                            </span>
+                            <span className="text-muted-foreground">
+                              ({prof.count})
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {selectedProfessions.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {selectedProfessions.map((prof) => (
+                  <Badge
+                    key={prof}
+                    variant="default"
+                    className="cursor-pointer p-2"
+                    onClick={() => toggleProfession(prof)}
+                  >
+                    {prof} <X size={16} className="ml-1" />
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
