@@ -34,42 +34,50 @@ export default async function PointDetail({
   const showAll = (await searchParams)?.showAll === "true";
   const point = await getPointDetails(id, showAll);
   const [category, title] = point.topic.split(" | ");
-
   // Get clubs for speakers
-  const speakerNames = [
-    ...new Set(point.statements.map((s) => s.speaker_name)),
-  ];
+  const speakerNames = [...new Set(point.statements.map((s) => s.speaker_name))];
   const speakerClubs = await getClubsByNames(speakerNames);
-
+  
   // Fetch prints if available
   const prints =
     point.print_numbers?.length > 0
       ? await getPrintsByNumbers(point.print_numbers.map(String))
       : [];
-
-  // Prepare data for topic attitude chart
-  const clubAttitudes = speakerClubs.reduce((acc, { club }) => {
-    if (!acc[club]) {
-      acc[club] = { total: 0, count: 0 };
+  
+  // Group statements by speaker to avoid repeated lookups
+  const statementsBySpeaker = new Map<string, typeof point.statements>();
+  point.statements.forEach((st) => {
+    if (!statementsBySpeaker.has(st.speaker_name)) {
+      statementsBySpeaker.set(st.speaker_name, []);
     }
-    const statements = point.statements.filter(
-      (s) =>
-        speakerClubs.find((sc) => sc.name === s.speaker_name)?.club === club
-    );
-    statements.forEach((s) => {
-      if (s.statement_ai?.topic_attitude) {
-        acc[club].total += s.statement_ai.topic_attitude.score;
-        acc[club].count += 1;
+    statementsBySpeaker.get(st.speaker_name)?.push(st);
+  });
+  
+  // Only process valid clubs
+  const clubAttitudes = speakerClubs
+    .filter((clubInfo) => clubInfo.club !== null) // skip if club is null
+    .reduce((acc, { name, club }) => {
+      if (!acc[club]) {
+        acc[club] = { total: 0, count: 0 };
       }
-    });
-    return acc;
-  }, {} as Record<string, { total: number; count: number }>);
-
+      const speakerStatements = statementsBySpeaker.get(name) || [];
+      speakerStatements.forEach((s) => {
+        if (s.statement_ai?.topic_attitude) {
+          acc[club].total += s.statement_ai.topic_attitude.score;
+          acc[club].count += 1;
+        }
+      });
+      return acc;
+    }, {} as Record<string, { total: number; count: number }>);
+  
+  // Prepare data for topic attitude chart
   const chartData = Object.entries(clubAttitudes).map(([club, data]) => ({
     club,
     attitude: data.total / data.count,
     count: data.count,
   }));
+  
+  console.log(speakerClubs);
 
   return (
     <div className="space-y-6">

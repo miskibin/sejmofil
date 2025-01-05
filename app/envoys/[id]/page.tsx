@@ -10,7 +10,7 @@ import {
 import { notFound } from "next/navigation";
 import { getEnvoyPrints, getEnvoySubjectPrints } from "@/lib/queries/print";
 import { getStatementCombinedDetails } from "@/lib/supabase/queries";
-import { SpeakerRatingChart } from "./speaker-rating";
+import { SpeakerRatingChart } from "./speaker-rating-chart";
 import { truncateText } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 import { FaWikipediaW } from "react-icons/fa";
