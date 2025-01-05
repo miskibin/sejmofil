@@ -184,6 +184,5 @@ export async function getPointDetails(
             : (statement as { number_source: number }).number_source !== 0
         ) || [],
   };
-  console.log(transformedData);
   return transformedData as PointWithStatements;
 }
