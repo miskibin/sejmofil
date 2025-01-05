@@ -1,5 +1,6 @@
 import { createClient } from "@/supabase/server";
 import { StatementCombined } from "../types/statement";
+import { SummaryMain } from "../types/proceeding";
 
 export async function getEnvoyStatementDetails(name: string) {
   const supabase = createClient();
@@ -119,7 +120,7 @@ interface PointWithStatements {
   topic: string;
   official_point: string;
   official_topic: string;
-  summary_main: string;
+  summary_main: SummaryMain;
   summary_tldr: string;
   print_numbers: number[];
   statements: {
@@ -135,7 +136,6 @@ interface PointWithStatements {
     };
   }[];
 }
-
 export async function getPointDetails(
   id: number,
   showAllStatements = false
@@ -174,6 +174,7 @@ export async function getPointDetails(
     .single();
   const transformedData = {
     ...data,
+    // summary_main: JSON.parse(data?.summary_main || "{}"),
     statements:
       data?.statements
         .map((item: { statement: unknown }) => item.statement)
@@ -183,6 +184,6 @@ export async function getPointDetails(
             : (statement as { number_source: number }).number_source !== 0
         ) || [],
   };
-
+  console.log(transformedData);
   return transformedData as PointWithStatements;
 }

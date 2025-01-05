@@ -92,9 +92,7 @@ export default async function PointDetail({
             headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
           >
             <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>
-                {point.summary_main.split(/\d\.\s/).filter(Boolean)[0]}
-              </ReactMarkdown>
+              <ReactMarkdown>{point.summary_main.main_topics}</ReactMarkdown>
             </div>
           </CardWrapper>
         </div>
@@ -127,15 +125,13 @@ export default async function PointDetail({
         {/* Secondary sections - Adjust spans for better flow */}
         <div className="col-span-full md:col-span-1 lg:col-span-4 lg:row-span-2">
           <CardWrapper
-            title="Główne Zagadnienia"
-            subtitle="Kluczowe tematy"
+            title="Otwarte kwestie"
+            subtitle="Nierozwiązane problemy"
             className="h-full"
             headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
           >
             <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>
-                {point.summary_main.split(/\d\.\s/).filter(Boolean)[3]}
-              </ReactMarkdown>
+              <ReactMarkdown>{point.summary_main.unresolved}</ReactMarkdown>
             </div>
           </CardWrapper>
         </div>
@@ -143,14 +139,12 @@ export default async function PointDetail({
         <div className="col-span-full md:col-span-1 lg:col-span-4 lg:row-span-2">
           <CardWrapper
             className="h-full"
-            title="Najważniejsze wnioski"
-            subtitle="Podjęte ustalenia"
+            title="Kwestie sporne"
+            subtitle="Nie rozwiązane problemy"
             headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
           >
             <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>
-                {point.summary_main.split(/\d\.\s/).filter(Boolean)[2]}
-              </ReactMarkdown>
+              <ReactMarkdown>{point.summary_main.unresolved}</ReactMarkdown>
             </div>
           </CardWrapper>
         </div>
@@ -171,9 +165,7 @@ export default async function PointDetail({
         <div className="col-span-full lg:col-span-6">
           <CardWrapper title="Kluczowe stanowiska" subtitle="Stanowiska klubów">
             <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>
-                {point.summary_main.split(/\d\.\s/).filter(Boolean)[1]}
-              </ReactMarkdown>
+              <ReactMarkdown>{point.summary_main.key_positions}</ReactMarkdown>
             </div>
           </CardWrapper>
         </div>
