@@ -1,8 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { getPointDetails } from "@/lib/supabase/queries";
-import { Sparkles, Check, XCircle, ExternalLink } from "lucide-react";
+import { Sparkles, Check, XCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { getClubAndIdsByNames } from "@/lib/queries/person";
@@ -14,6 +13,13 @@ import { Metadata } from "next";
 import { getVotingDetails } from "@/lib/api/sejm";
 import { VotingResultsChart } from "./voting-results-chart";
 import { FaRegFilePdf } from "react-icons/fa";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { DiscussionEntries } from "./discussion-entries";
 
 import {
   Carousel,
@@ -377,124 +383,25 @@ export default async function PointDetail({
           </CardWrapper>
         </div>
 
-        {/* Statements section */}
+        {/* Replace the entire Statements section with: */}
         <div className="col-span-full">
           <CardWrapper
             title="Wypowiedzi"
             subtitle={`Przebieg dyskusji (${point.statements.length})`}
           >
-            <div className="space-y-4 sm:space-y-6">
-              {point.statements.map((statement) => {
-                const speakerInfo = getSpeakerInfo(statement.speaker_name);
-                return (
-                  <div
-                    key={statement.id}
-                    className="p-3 sm:p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-3"
-                  >
-                    <div className="flex gap-4">
-                      <div className="w-12 h-16 relative flex-shrink-0">
-                        <Image
-                          src={
-                            speakerInfo?.id
-                              ? `${
-                                  process.env.NEXT_PUBLIC_API_BASE_URL ||
-                                  "https://api.sejm.gov.pl/sejm/term10"
-                                }/MP/${speakerInfo.id}/photo`
-                              : "/placeholder.svg"
-                          }
-                          alt={statement.speaker_name}
-                          fill
-                          sizes="40px"
-                          className="rounded-lg object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                          <h3 className="font-semibold text-primary">
-                            {speakerInfo?.id ? (
-                              <Link
-                                href={`/envoys/${speakerInfo.id}`}
-                                className="hover:underline"
-                              >
-                                {statement.speaker_name}
-                              </Link>
-                            ) : (
-                              statement.speaker_name
-                            )}
-                          </h3>
-                          {statement.statement_ai?.speaker_rating && (
-                            <div className="flex flex-wrap gap-1 sm:gap-2">
-                              {[
-                                "manipulation",
-                                "facts",
-                                "logic",
-                                "emotions",
-                              ].map(
-                                (key) =>
-                                  statement.statement_ai.speaker_rating[
-                                    key
-                                  ] && (
-                                    <Badge
-                                      key={key}
-                                      variant="secondary"
-                                      className="text-xs"
-                                      title={key}
-                                    >
-                                      {key === "manipulation" && "Manipulacja"}
-                                      {key === "facts" && "Fakty"}
-                                      {key === "logic" && "Logika"}
-                                      {key === "emotions" && "Emocje"}:{" "}
-                                      {
-                                        statement.statement_ai.speaker_rating[
-                                          key
-                                        ]
-                                      }{" "}
-                                      / 5
-                                    </Badge>
-                                  )
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {statement.statement_ai?.summary_tldr && (
-                          <div>
-                            <p className="text-sm text-gray-600">
-                              {statement.statement_ai.summary_tldr}
-                            </p>
-                          
-                          </div>
-                        )}
-
-                        {statement.statement_ai?.citations && (
-                          <div className="space-y-2">
-                            {statement.statement_ai.citations.map(
-                              (citation, idx) => (
-                                <blockquote
-                                  key={idx}
-                                  className="border-l-2 border-primary/30 pl-3 italic text-sm text-gray-600"
-                                >
-                                  {citation}
-                                </blockquote>
-                              )
-                            )}
-                              <Link
-                              className="text-sm text-primary hover:underline"
-                              href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/transcripts/${statement.number_source}`}
-                              target="_blank"
-                            >
-                              całość wypowiedzi <ExternalLink className="h-4 w-4 inline" />
-                            </Link>
-                          </div>
-                          
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="statements">
+                <AccordionTrigger>Pokaż wypowiedzi</AccordionTrigger>
+                <AccordionContent>
+                  <DiscussionEntries
+                    statements={point.statements}
+                    speakerInfo={getSpeakerInfo}
+                    proceedingNumber={point.proceeding_day.proceeding.number}
+                    proceedingDate={point.proceeding_day.date}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardWrapper>
         </div>
       </div>
