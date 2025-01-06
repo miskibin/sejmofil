@@ -154,3 +154,13 @@ export async function getClubsByNames(names: string[]): Promise<Array<{ name: st
   `;
   return runQuery<{ name: string; club: string }>(query, { names });
 }
+
+export async function getClubAndIdsByNames(names: string[]): Promise<Array<{ name: string, club: string, id: number }>> {
+  const query = `
+    MATCH (p:Person)
+    WHERE p.firstLastName IN $names
+    RETURN p.firstLastName as name, p.club as club, p.id as id
+  `;
+  const result = await runQuery<{ name: string; club: string; id: number }>(query, { names });
+  return result || [];
+}
