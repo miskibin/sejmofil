@@ -1,9 +1,11 @@
+import Image from "next/image";
+import Link from "next/link";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { getPointDetails } from "@/lib/supabase/queries";
-import { Sparkles, Check,  XCircle } from "lucide-react";
+import { Sparkles, Check, XCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { getClubsByNames } from "@/lib/queries/person";
+import { getClubAndIdsByNames } from "@/lib/queries/person";
 import { TopicAttitudeChart } from "./topic-attitude-chart";
 import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/stat-card";
@@ -12,6 +14,14 @@ import { Metadata } from "next";
 import { getVotingDetails } from "@/lib/api/sejm";
 import { VotingResultsChart } from "./voting-results-chart";
 import { FaRegFilePdf } from "react-icons/fa";
+
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +51,22 @@ export default async function PointDetail({
   const speakerNames = [
     ...new Set(point.statements.map((s) => s.speaker_name)),
   ];
-  const speakerClubs = await getClubsByNames(speakerNames);
+  const speakerClubs = await getClubAndIdsByNames(speakerNames);
+
+  // Helper function to determine voting result
+  const getVotingResult = (votingResult: (typeof votingResults)[0]) => {
+    if (!votingResult) return null;
+
+    const yesVotes = votingResult.votes.filter((v) => v.vote === "YES").length;
+    const noVotes = votingResult.votes.filter((v) => v.vote === "NO").length;
+
+    return {
+      passed: yesVotes > noVotes && votingResult.totalVoted > 230,
+      total: votingResult.totalVoted,
+      yes: yesVotes,
+      no: noVotes,
+    };
+  };
 
   // Fetch prints if available
   const prints =
@@ -78,11 +103,11 @@ export default async function PointDetail({
   // Prepare data for topic attitude chart
   const chartData = Object.entries(clubAttitudes).map(([club, data]) => ({
     club,
-    attitude: data.total / data.count,
+    attitude: data.total / data.count - 3,
     count: data.count,
   }));
 
-  console.log(speakerClubs);
+  console.log(clubAttitudes);
 
   // Fetch voting results if available
   const votingResults =
@@ -94,40 +119,31 @@ export default async function PointDetail({
         )
       : [];
 
-  // Process voting data for chart
-  const votingData =
-    votingResults.length > 0
-      ? Object.entries(
-          votingResults[0].votes.reduce((acc, vote) => {
-            if (!acc[vote.club]) {
-              acc[vote.club] = { club: vote.club, yes: 0, no: 0, abstain: 0 };
-            }
-            if (vote.vote === "YES") acc[vote.club].yes++;
-            if (vote.vote === "NO") acc[vote.club].no++;
-            if (vote.vote === "ABSTAIN") acc[vote.club].abstain++;
-            return acc;
-          }, {} as Record<string, { club: string; yes: number; no: number; abstain: number }>)
-        ).map(([, data]) => data)
-      : [];
+  // Process voting data for each voting result
+  const processVotingData = (votes: { club: string; vote: string }[]) =>
+    Object.entries(
+      votes.reduce((acc, vote) => {
+        if (!acc[vote.club]) {
+          acc[vote.club] = { club: vote.club, yes: 0, no: 0, abstain: 0 };
+        }
+        if (vote.vote === "YES") acc[vote.club].yes++;
+        if (vote.vote === "NO") acc[vote.club].no++;
+        if (vote.vote === "ABSTAIN") acc[vote.club].abstain++;
+        return acc;
+      }, {} as Record<string, { club: string; yes: number; no: number; abstain: number }>)
+    ).map(([, data]) => data);
 
-  // Helper function to determine voting result
-  const getVotingResult = (votingResult: (typeof votingResults)[0]) => {
-    if (!votingResult) return null;
+  // Process voting data for all votings
+  const votingData = votingResults.map((result) => ({
+    topic: result.topic,
+    data: processVotingData(result.votes),
+    result: getVotingResult(result),
+  }));
 
-    const yesVotes = votingResult.votes.filter((v) => v.vote === "YES").length;
-    const noVotes = votingResult.votes.filter((v) => v.vote === "NO").length;
-
-    return {
-      passed: yesVotes > noVotes && votingResult.totalVoted > 230,
-      total: votingResult.totalVoted,
-      yes: yesVotes,
-      no: noVotes,
-    };
+  // Add helper function to get speaker info
+  const getSpeakerInfo = (name: string) => {
+    return speakerClubs.find((s) => s.name === name);
   };
-
-  const votingResult = votingResults[0]
-    ? getVotingResult(votingResults[0])
-    : null;
 
   return (
     <div className="space-y-6">
@@ -239,34 +255,62 @@ export default async function PointDetail({
           </CardWrapper>
         </div>
 
-        {/* Voting and Print sections */}
+        {/* Voting section */}
         <div className="col-span-full lg:col-span-6">
           <CardWrapper
-            title="Głosowanie"
+            title="Głosowania"
+            className="h-full"
             subtitle={
               votingResults.length > 0
-                ? votingResults[0].topic
-                : "Brak głosowania"
-            }
-            headerIcon={
-              votingResult &&
-              (votingResult.passed ? (
-                <Check className="h-6 w-6 text-success" />
-              ) : (
-                <XCircle className="h-6 w-6 text-primary" />
-              ))
+                ? `Głosowań: ${votingResults.length}`
+                : "Brak głosowań"
             }
           >
             {votingResults.length > 0 ? (
-              <div className="space-y-4">
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Głosów: {votingResults[0].totalVoted}</span>
-                </div>
-                <VotingResultsChart data={votingData} />
+              <div>
+                <Carousel className="w-[90%] mx-auto">
+                  <CarouselContent>
+                    {votingData.map((voting, index) => (
+                      <CarouselItem key={index}>
+                        <div className="p-1">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                              {voting.result?.passed ? (
+                                <Check className="h-5 w-5 text-success" />
+                              ) : (
+                                <XCircle className="h-5 w-5 text-destructive" />
+                              )}
+                              <h3 className="font-medium text-sm">
+                                {voting.topic}
+                              </h3>
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Za: {voting.result?.yes} Przeciw:{" "}
+                              {voting.result?.no}
+                            </div>
+                          </div>
+                          <VotingResultsChart data={voting.data} />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <div className="flex justify-center gap-4 mt-4">
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </div>
+                </Carousel>
               </div>
             ) : (
-              <div className="h-40 flex items-center justify-center text-muted-foreground">
-                Brak danych o głosowaniu
+              <div className="text-center pb-6">
+                <div className="flex justify-center mb-4">
+                  <Image
+                    src="/street.svg"
+                    width={350}
+                    height={350}
+                    alt="No committees"
+                  />
+                </div>
+                <p className="text-gray-500">Brak głosowań</p>
               </div>
             )}
           </CardWrapper>
@@ -318,72 +362,127 @@ export default async function PointDetail({
                 ))}
               </div>
             ) : (
-              <div className="h-40 flex items-center justify-center text-muted-foreground">
-                Brak powiązanego druku
+              <div className="text-center pb-6">
+                <div className="flex justify-center mb-4">
+                  <Image
+                    src="/explore.svg"
+                    width={250}
+                    height={250}
+                    alt="No committees"
+                  />
+                </div>
+                <p className="text-gray-500">Brak druków</p>
               </div>
             )}
           </CardWrapper>
         </div>
 
-        {/* Statements section - Improve mobile layout */}
+        {/* Statements section */}
         <div className="col-span-full">
           <CardWrapper
             title="Wypowiedzi"
             subtitle={`Przebieg dyskusji (${point.statements.length})`}
           >
             <div className="space-y-4 sm:space-y-6">
-              {point.statements.map((statement) => (
-                <div
-                  key={statement.id}
-                  className="p-3 sm:p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-3"
-                >
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                    <h3 className="font-semibold text-primary">
-                      {statement.speaker_name}
-                    </h3>
-                    {statement.statement_ai?.speaker_rating && (
-                      <div className="flex flex-wrap gap-1 sm:gap-2">
-                        {["manipulation", "facts", "logic", "emotions"].map(
-                          (key) =>
-                            statement.statement_ai.speaker_rating[key] && (
-                              <Badge
-                                key={key}
-                                variant="secondary"
-                                className="text-xs"
-                                title={key}
+              {point.statements.map((statement) => {
+                const speakerInfo = getSpeakerInfo(statement.speaker_name);
+                return (
+                  <div
+                    key={statement.id}
+                    className="p-3 sm:p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-3"
+                  >
+                    <div className="flex gap-4">
+                        <div className="w-12 h-16 relative flex-shrink-0">
+                          <Image
+                            src={
+                              speakerInfo?.id
+                                ? `${
+                                    process.env.NEXT_PUBLIC_API_BASE_URL ||
+                                    "https://api.sejm.gov.pl/sejm/term10"
+                                  }/MP/${speakerInfo.id}/photo`
+                                : "/placeholder.svg"
+                            }
+                            alt={statement.speaker_name}
+                            fill
+                            sizes="40px"
+                            className="rounded-lg object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                          <h3 className="font-semibold text-primary">
+                            {speakerInfo?.id ? (
+                              <Link
+                                href={`/envoys/${speakerInfo.id}`}
+                                className="hover:underline"
                               >
-                                {key === "manipulation" && "Manipulacja"}
-                                {key === "facts" && "Fakty"}
-                                {key === "logic" && "Logika"}
-                                {key === "emotions" && "Emocje"}:{" "}
-                                {statement.statement_ai.speaker_rating[key]} / 5
-                              </Badge>
-                            )
+                                {statement.speaker_name}
+                              </Link>
+                            ) : (
+                              statement.speaker_name
+                            )}
+                          </h3>
+                          {statement.statement_ai?.speaker_rating && (
+                            <div className="flex flex-wrap gap-1 sm:gap-2">
+                              {[
+                                "manipulation",
+                                "facts",
+                                "logic",
+                                "emotions",
+                              ].map(
+                                (key) =>
+                                  statement.statement_ai.speaker_rating[
+                                    key
+                                  ] && (
+                                    <Badge
+                                      key={key}
+                                      variant="secondary"
+                                      className="text-xs"
+                                      title={key}
+                                    >
+                                      {key === "manipulation" && "Manipulacja"}
+                                      {key === "facts" && "Fakty"}
+                                      {key === "logic" && "Logika"}
+                                      {key === "emotions" && "Emocje"}:{" "}
+                                      {
+                                        statement.statement_ai.speaker_rating[
+                                          key
+                                        ]
+                                      }{" "}
+                                      / 5
+                                    </Badge>
+                                  )
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {statement.statement_ai?.summary_tldr && (
+                          <p className="text-sm text-gray-600">
+                            {statement.statement_ai.summary_tldr}
+                          </p>
+                        )}
+
+                        {statement.statement_ai?.citations && (
+                          <div className="space-y-2">
+                            {statement.statement_ai.citations.map(
+                              (citation, idx) => (
+                                <blockquote
+                                  key={idx}
+                                  className="border-l-2 border-primary/30 pl-3 italic text-sm text-gray-600"
+                                >
+                                  {citation}
+                                </blockquote>
+                              )
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
-
-                  {statement.statement_ai?.summary_tldr && (
-                    <p className="text-sm text-gray-600">
-                      {statement.statement_ai.summary_tldr}
-                    </p>
-                  )}
-
-                  {statement.statement_ai?.citations && (
-                    <div className="space-y-2">
-                      {statement.statement_ai.citations.map((citation, idx) => (
-                        <blockquote
-                          key={idx}
-                          className="border-l-2 border-primary/30 pl-3 italic text-sm text-gray-600"
-                        >
-                          {citation}
-                        </blockquote>
-                      ))}
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           </CardWrapper>
         </div>

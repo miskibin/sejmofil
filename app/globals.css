@@ -18,13 +18,13 @@
     --muted-foreground: 222 14% 28%;
     --accent: 222 14% 28%; /* #3C3F50 */
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive:340 92% 24%;
     --destructive-foreground: 0 0% 98%;
     --border: 220 13% 91%; /* #3C3F50 20% */
     --input: 222 14% 28%; /* #3C3F50 20% */
     --ring: 340 92% 24%; /* #76052E */
     --radius: 0.5rem;
-    
+    /* #004eaf BLUE */
     /* Updated chart colors to match design system */
     --chart-1: 340 92% 24%; /* #76052E - primary */
     --chart-2: 222 14% 28%; /* #3C3F50 - secondary */
@@ -33,7 +33,7 @@
     --chart-5: 340 75% 33%; /* #8F1845 - mid primary */
     
     /* Success color from Figma */
-    --success: 142 49% 60%; /* #64CF6B */
+    --success: 136 100% 19%; /* #006214 */
     --success-foreground: 0 0% 100%;
   }
 

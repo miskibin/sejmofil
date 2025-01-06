@@ -1,6 +1,13 @@
 "use client";
 
-import { Bar, BarChart, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import {
+  Bar,
+  BarChart,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { ChartContainer } from "@/components/ui/chart";
 
 interface VotingResultsChartProps {
@@ -15,7 +22,7 @@ interface VotingResultsChartProps {
 export function VotingResultsChart({ data }: VotingResultsChartProps) {
   return (
     <ChartContainer
-      className="min-h-[300px]"
+      className="h-[350px] w-full" // Adjusted height for carousel
       config={{
         value: {
           label: "Głosy",
@@ -23,35 +30,47 @@ export function VotingResultsChart({ data }: VotingResultsChartProps) {
         },
       }}
     >
-      <BarChart
-        data={data}
-        width={500}
-        height={300}
-        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-      >
-        <XAxis dataKey="club" />
-        <YAxis />
-        <Tooltip cursor={{ fill: "hsl(var(--chart-1))", opacity: 0.1 }} />
-        <Legend />
-        <Bar
-          dataKey="yes"
-          name="Za"
-          fill="hsl(var(--success))"
-          stackId="stack"
-        />
-        <Bar
-          dataKey="no"
-          name="Przeciw"
-          fill="hsl(var(--destructive))"
-          stackId="stack"
-        />
-        <Bar
-          dataKey="abstain"
-          name="Wstrzymanie się"
-          fill="hsl(var(--muted))"
-          stackId="stack"
-        />
-      </BarChart>
+      <ResponsiveContainer width="90%" height="100%">
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{
+            top: 5, // Reduced top margin
+            right: 30,
+            bottom: 5,
+          }}
+        >
+          <XAxis type="number" />
+          <YAxis
+            type="category"
+            dataKey="club"
+            width={80}
+            tickLine={false}
+            axisLine={false}
+          />
+          <Tooltip cursor={{ fill: "hsl(var(--chart-1))", opacity: 0.1 }} />
+          <Bar
+            dataKey="yes"
+            name="Za"
+            fill="hsl(var(--success))"
+            stackId="stack"
+            radius={[4, 4, 4, 4]}
+          />
+          <Bar
+            dataKey="no"
+            name="Przeciw"
+            fill="hsl(var(--destructive))"
+            stackId="stack"
+          />
+          <Bar
+            dataKey="abstain"
+            name="Wstrzymanie się"
+            fill="hsl(var(--muted))"
+            stackId="stack"
+            radius={[4, 4, 4, 4]}
+          />
+        </BarChart>
+      </ResponsiveContainer>
     </ChartContainer>
   );
 }
