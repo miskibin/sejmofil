@@ -174,6 +174,7 @@ export async function getPrintsByNumbers(numbers: string[]): Promise<PrintShort[
       number: print.number,
       title: print.title,
       deliveryDate: print.deliveryDate,
+      attachments: print.attachments, 
       summary: print.summary
     } as print
     ORDER BY print.documentDate DESC

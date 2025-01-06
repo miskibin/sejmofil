@@ -1,6 +1,6 @@
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { getPointDetails } from "@/lib/supabase/queries";
-import { Sparkles, Check, X } from "lucide-react";
+import { Sparkles, Check,  XCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { getClubsByNames } from "@/lib/queries/person";
@@ -11,6 +11,7 @@ import { getPrintsByNumbers } from "@/lib/queries/print";
 import { Metadata } from "next";
 import { getVotingDetails } from "@/lib/api/sejm";
 import { VotingResultsChart } from "./voting-results-chart";
+import { FaRegFilePdf } from "react-icons/fa";
 
 export const dynamic = "force-dynamic";
 
@@ -110,12 +111,12 @@ export default async function PointDetail({
       : [];
 
   // Helper function to determine voting result
-  const getVotingResult = (votingResult: typeof votingResults[0]) => {
+  const getVotingResult = (votingResult: (typeof votingResults)[0]) => {
     if (!votingResult) return null;
-    
-    const yesVotes = votingResult.votes.filter(v => v.vote === "YES").length;
-    const noVotes = votingResult.votes.filter(v => v.vote === "NO").length;
-    
+
+    const yesVotes = votingResult.votes.filter((v) => v.vote === "YES").length;
+    const noVotes = votingResult.votes.filter((v) => v.vote === "NO").length;
+
     return {
       passed: yesVotes > noVotes && votingResult.totalVoted > 230,
       total: votingResult.totalVoted,
@@ -124,7 +125,9 @@ export default async function PointDetail({
     };
   };
 
-  const votingResult = votingResults[0] ? getVotingResult(votingResults[0]) : null;
+  const votingResult = votingResults[0]
+    ? getVotingResult(votingResults[0])
+    : null;
 
   return (
     <div className="space-y-6">
@@ -138,7 +141,7 @@ export default async function PointDetail({
           Data: {point.proceeding_day.date}
         </Badge>
         <Badge className="text-xs sm:text-sm" variant="secondary">
-          Numer: {point.proceeding_day.proceeding.number}
+          Posiedzenie: {point.proceeding_day.proceeding.number}
         </Badge>
       </div>
 
@@ -186,7 +189,6 @@ export default async function PointDetail({
         {/* Secondary sections - Adjust spans for better flow */}
         <div className="col-span-full md:col-span-1 lg:col-span-4 lg:row-span-2">
           <CardWrapper
-
             title="Wnioski"
             subtitle="Podsumowanie"
             className="h-full"
@@ -225,7 +227,12 @@ export default async function PointDetail({
 
         {/* Key positions section */}
         <div className="col-span-full lg:col-span-6">
-          <CardWrapper title="Kluczowe stanowiska" subtitle="Stanowiska klubów">
+          <CardWrapper
+            title="Kluczowe stanowiska"
+            subtitle="Stanowiska klubów"
+            className="h-full"
+            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+          >
             <div className="prose prose-sm max-w-none">
               <ReactMarkdown>{point.summary_main.key_positions}</ReactMarkdown>
             </div>
@@ -242,19 +249,17 @@ export default async function PointDetail({
                 : "Brak głosowania"
             }
             headerIcon={
-              votingResult && (
-                votingResult.passed ? (
-                  <Check className="h-6 w-6 text-success" />
-                ) : (
-                  <X className="h-6 w-6 text-primary" />
-                )
-              )
+              votingResult &&
+              (votingResult.passed ? (
+                <Check className="h-6 w-6 text-success" />
+              ) : (
+                <XCircle className="h-6 w-6 text-primary" />
+              ))
             }
           >
             {votingResults.length > 0 ? (
               <div className="space-y-4">
                 <div className="flex justify-between text-sm text-muted-foreground">
-
                   <span>Głosów: {votingResults[0].totalVoted}</span>
                 </div>
                 <VotingResultsChart data={votingData} />
@@ -271,6 +276,7 @@ export default async function PointDetail({
         <div className="col-span-full lg:col-span-6">
           <CardWrapper
             title="Druki"
+            className="h-full"
             subtitle={
               prints.length > 0 ? "Omawiane druki" : "Brak powiązanych druków"
             }
@@ -282,22 +288,30 @@ export default async function PointDetail({
                     key={print.number}
                     className="p-3 sm:p-4 bg-gray-50 rounded-lg"
                   >
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
-                      <h3 className="font-medium text-primary text-sm sm:text-base">
-                        Druk nr {print.number}
-                      </h3>
-                      {print.deliveryDate && (
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(print.deliveryDate).toLocaleDateString(
-                            "pl-PL"
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    <h4 className="text-sm font-medium mb-2">{print.title}</h4>
-                    {print.summary && (
-                      <div className="prose prose-sm max-w-none text-xs sm:text-sm">
-                        <ReactMarkdown>{print.summary}</ReactMarkdown>
+                    <h4 className="text-sm font-medium mb-2 flex justify-between gap-2">
+                      <span>{print.title}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(print.deliveryDate).toLocaleDateString(
+                          "pl-PL"
+                        )}
+                      </span>
+                    </h4>
+                    {print.attachments.length > 0 && (
+                      <div className="space-y-2">
+                        {print.attachments.map((attachment) => (
+                          <a
+                            key={`${process.env.NEXT_PUBLIC_API_URL}/prints/${print.number}/${attachment}`}
+                            href={`${process.env.NEXT_PUBLIC_API_URL}/prints/${print.number}/${attachment}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-2 text-sm text-primary bg-white p-2 rounded-lg shadow-sm"
+                          >
+                            <span>
+                              <FaRegFilePdf className="h-6 w-6 inline mx-2" />
+                              {attachment}
+                            </span>
+                          </a>
+                        ))}
                       </div>
                     )}
                   </div>
