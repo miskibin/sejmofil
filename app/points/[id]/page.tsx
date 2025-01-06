@@ -1,6 +1,6 @@
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { getPointDetails } from "@/lib/supabase/queries";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Check, X } from "lucide-react";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { getClubsByNames } from "@/lib/queries/person";
@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/stat-card";
 import { getPrintsByNumbers } from "@/lib/queries/print";
 import { Metadata } from "next";
+import { getVotingDetails } from "@/lib/api/sejm";
+import { VotingResultsChart } from "./voting-results-chart";
 
 export const dynamic = "force-dynamic";
 
@@ -35,15 +37,17 @@ export default async function PointDetail({
   const point = await getPointDetails(id, showAll);
   const [category, title] = point.topic.split(" | ");
   // Get clubs for speakers
-  const speakerNames = [...new Set(point.statements.map((s) => s.speaker_name))];
+  const speakerNames = [
+    ...new Set(point.statements.map((s) => s.speaker_name)),
+  ];
   const speakerClubs = await getClubsByNames(speakerNames);
-  
+
   // Fetch prints if available
   const prints =
     point.print_numbers?.length > 0
       ? await getPrintsByNumbers(point.print_numbers.map(String))
       : [];
-  
+
   // Group statements by speaker to avoid repeated lookups
   const statementsBySpeaker = new Map<string, typeof point.statements>();
   point.statements.forEach((st) => {
@@ -52,7 +56,7 @@ export default async function PointDetail({
     }
     statementsBySpeaker.get(st.speaker_name)?.push(st);
   });
-  
+
   // Only process valid clubs
   const clubAttitudes = speakerClubs
     .filter((clubInfo) => clubInfo.club !== null) // skip if club is null
@@ -69,23 +73,72 @@ export default async function PointDetail({
       });
       return acc;
     }, {} as Record<string, { total: number; count: number }>);
-  
+
   // Prepare data for topic attitude chart
   const chartData = Object.entries(clubAttitudes).map(([club, data]) => ({
     club,
     attitude: data.total / data.count,
     count: data.count,
   }));
-  
+
   console.log(speakerClubs);
+
+  // Fetch voting results if available
+  const votingResults =
+    point.voting_numbers?.length > 0
+      ? await Promise.all(
+          point.voting_numbers.map((num) =>
+            getVotingDetails(point.proceeding_day.proceeding.number, num)
+          )
+        )
+      : [];
+
+  // Process voting data for chart
+  const votingData =
+    votingResults.length > 0
+      ? Object.entries(
+          votingResults[0].votes.reduce((acc, vote) => {
+            if (!acc[vote.club]) {
+              acc[vote.club] = { club: vote.club, yes: 0, no: 0, abstain: 0 };
+            }
+            if (vote.vote === "YES") acc[vote.club].yes++;
+            if (vote.vote === "NO") acc[vote.club].no++;
+            if (vote.vote === "ABSTAIN") acc[vote.club].abstain++;
+            return acc;
+          }, {} as Record<string, { club: string; yes: number; no: number; abstain: number }>)
+        ).map(([, data]) => data)
+      : [];
+
+  // Helper function to determine voting result
+  const getVotingResult = (votingResult: typeof votingResults[0]) => {
+    if (!votingResult) return null;
+    
+    const yesVotes = votingResult.votes.filter(v => v.vote === "YES").length;
+    const noVotes = votingResult.votes.filter(v => v.vote === "NO").length;
+    
+    return {
+      passed: yesVotes > noVotes && votingResult.totalVoted > 230,
+      total: votingResult.totalVoted,
+      yes: yesVotes,
+      no: noVotes,
+    };
+  };
+
+  const votingResult = votingResults[0] ? getVotingResult(votingResults[0]) : null;
 
   return (
     <div className="space-y-6">
       {/* Header section - Make it more responsive */}
-      <div className="space-y-2 sm:space-y-4">
+      <div className="space-y-2 sm:space-y-4 space-x-4">
         <h1 className="text-2xl sm:text-3xl font-bold break-words">{title}</h1>
-        <Badge className="text-xs sm:text-sm" color="primary">
+        <Badge className="text-xs sm:text-sm" variant="default">
           {category}
+        </Badge>
+        <Badge className="text-xs sm:text-sm" variant="secondary">
+          Data: {point.proceeding_day.date}
+        </Badge>
+        <Badge className="text-xs sm:text-sm" variant="secondary">
+          Numer: {point.proceeding_day.proceeding.number}
         </Badge>
       </div>
 
@@ -133,13 +186,14 @@ export default async function PointDetail({
         {/* Secondary sections - Adjust spans for better flow */}
         <div className="col-span-full md:col-span-1 lg:col-span-4 lg:row-span-2">
           <CardWrapper
-            title="Otwarte kwestie"
-            subtitle="Nierozwiązane problemy"
+
+            title="Wnioski"
+            subtitle="Podsumowanie"
             className="h-full"
             headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
           >
             <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>{point.summary_main.unresolved}</ReactMarkdown>
+              <ReactMarkdown>{point.summary_main.outtakes}</ReactMarkdown>
             </div>
           </CardWrapper>
         </div>
@@ -180,10 +234,36 @@ export default async function PointDetail({
 
         {/* Voting and Print sections */}
         <div className="col-span-full lg:col-span-6">
-          <CardWrapper title="Głosowanie" subtitle="Wyniki">
-            <div className="h-40 flex items-center justify-center text-muted-foreground">
-              Brak danych o głosowaniu
-            </div>
+          <CardWrapper
+            title="Głosowanie"
+            subtitle={
+              votingResults.length > 0
+                ? votingResults[0].topic
+                : "Brak głosowania"
+            }
+            headerIcon={
+              votingResult && (
+                votingResult.passed ? (
+                  <Check className="h-6 w-6 text-success" />
+                ) : (
+                  <X className="h-6 w-6 text-primary" />
+                )
+              )
+            }
+          >
+            {votingResults.length > 0 ? (
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm text-muted-foreground">
+
+                  <span>Głosów: {votingResults[0].totalVoted}</span>
+                </div>
+                <VotingResultsChart data={votingData} />
+              </div>
+            ) : (
+              <div className="h-40 flex items-center justify-center text-muted-foreground">
+                Brak danych o głosowaniu
+              </div>
+            )}
           </CardWrapper>
         </div>
 

@@ -122,7 +122,14 @@ interface PointWithStatements {
   official_topic: string;
   summary_main: SummaryMain;
   summary_tldr: string;
+  voting_numbers: number[];
   print_numbers: number[];
+  proceeding_day: {
+    date: string;
+    proceeding: {
+      number: number;
+    };
+  };
   statements: {
     id: number;
     speaker_name: string;
@@ -154,6 +161,13 @@ export async function getPointDetails(
       summary_main,
       summary_tldr,
       print_numbers,
+      voting_numbers,
+            proceeding_day (
+        date,
+        proceeding (
+          number
+        )
+      ),
       statements:statement_to_point!proceeding_point_ai_id(
         statement:statement_id(
           id,
@@ -184,5 +198,5 @@ export async function getPointDetails(
             : (statement as { number_source: number }).number_source !== 0
         ) || [],
   };
-  return transformedData as PointWithStatements;
+  return transformedData as unknown as PointWithStatements;
 }
