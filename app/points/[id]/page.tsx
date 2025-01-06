@@ -113,7 +113,6 @@ export default async function PointDetail({
     count: data.count,
   }));
 
-  console.log(clubAttitudes);
 
   // Fetch voting results if available
   const votingResults =

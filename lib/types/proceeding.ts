@@ -20,7 +20,9 @@ export interface SummaryMain {
 
 export interface Proceeding {
   id: number;
-  points: ProceedingPointAI[];
+  term: number;
+  title: string;
+  dates: string;
 }
 
 export interface ProceedingDay {

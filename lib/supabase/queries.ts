@@ -1,6 +1,7 @@
 import { createClient } from "@/supabase/server";
 import { StatementCombined } from "../types/statement";
 import { SummaryMain } from "../types/proceeding";
+import { constrainedMemory } from "process";
 
 export async function getEnvoyStatementDetails(name: string) {
   const supabase = createClient();
@@ -199,4 +200,173 @@ export async function getPointDetails(
         ) || [],
   };
   return transformedData as unknown as PointWithStatements;
+}
+
+interface ProceedingWithDays {
+  id: number;
+  number: number;
+  title: string;
+  dates: string[];
+  proceeding_day: Array<{
+    id: number;
+    date: string;
+    proceeding_point_ai: Array<{
+      id: number;
+      topic: string;
+      summary_tldr: string;
+    }>;
+  }>;
+}
+
+export async function getProceedings(): Promise<ProceedingWithDays[]> {
+  const supabase = createClient();
+  const { data } = await (
+    await supabase
+  )
+    .from("proceeding")
+    .select(`
+      id,
+      number,
+      title,
+      dates,
+      proceeding_day!inner (
+        id,
+        date,
+        proceeding_point_ai (
+          id,
+          topic,
+          summary_tldr
+        )
+      )
+    `)
+    .order('number', { ascending: false });
+
+  return data || [];
+}
+
+interface ProceedingWithDetails {
+  id: number;
+  number: number;
+  title: string;
+  dates: string[];
+  proceeding_day: Array<{
+    id: number;
+    date: string;
+    proceeding_point_ai: Array<{
+      id: number;
+      topic: string;
+      summary_tldr: string;
+      statements: Array<{
+        id: number;
+        speaker_name: string;
+        statement_ai?: {
+          speaker_rating?: Record<string, number>;
+        };
+      }>;
+    }>;
+  }>;
+}
+
+export async function getProceedingDetails(number: number): Promise<ProceedingWithDetails> {
+  const supabase = createClient();
+  const { data } = await (
+    await supabase
+  )
+    .from("proceeding")
+    .select(`
+      id,
+      number,
+      title,
+      dates,
+      proceeding_day!inner (
+        id,
+        date,
+        proceeding_point_ai (
+          id,
+          topic,
+          summary_tldr,
+          statements:statement_to_point!proceeding_point_ai_id (
+            statement:statement_id (
+              id,
+              speaker_name,
+              statement_ai (
+                speaker_rating
+              )
+            )
+          )
+        )
+      )
+    `)
+    .eq('number', number)
+    .single();
+
+  return data;
+}
+
+interface ProceedingDayDetails {
+  id: number;
+  date: string;
+  proceeding: {
+    id: number;
+    number: number;
+    title: string;
+  };
+  proceeding_point_ai: Array<{
+    id: number;
+    topic: string;
+    summary_tldr: string;
+    voting_numbers: number[];
+    print_numbers: number[];
+    statements: Array<{
+      statement: {
+        id: number;
+        speaker_name: string;
+        statement_ai?: {
+          speaker_rating?: Record<string, number>;
+          citations?: string[];
+          summary_tldr?: string;
+        };
+      };
+    }>;
+  }>;
+}
+
+export async function getProceedingDayDetails(number: number, date: string): Promise<ProceedingDayDetails> {
+  const supabase = createClient();
+  const { data } = await (
+    await supabase
+  )
+    .from("proceeding_day")
+    .select(`
+      id,
+      date,
+      proceeding (
+        id,
+        number,
+        title
+      ),
+      proceeding_point_ai (
+        id,
+        topic,
+        summary_tldr,
+        voting_numbers,
+        print_numbers,
+        statements:statement_to_point (
+          statement:statement_id (
+            id,
+            speaker_name,
+            statement_ai (
+              speaker_rating,
+              citations,
+              summary_tldr
+            )
+          )
+        )
+      )
+    `)
+    .eq('proceeding.number', number)
+    .eq('date', date)
+    .single();
+
+  return data;
 }

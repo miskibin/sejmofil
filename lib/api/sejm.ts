@@ -22,7 +22,6 @@ interface VotingResult {
 }
 
 export async function getVotingDetails(proceedingNumber: number, votingNumber: number): Promise<VotingResult> {
-    console.log(proceedingNumber, votingNumber);
   const response = await fetch(
     `https://api.sejm.gov.pl/sejm/term10/votings/${proceedingNumber}/${votingNumber}`
   );
