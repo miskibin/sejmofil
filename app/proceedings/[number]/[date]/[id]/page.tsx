@@ -8,7 +8,10 @@ import { getClubAndIdsByNames } from "@/lib/queries/person";
 import { TopicAttitudeChart } from "./topic-attitude-chart";
 import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/stat-card";
-import { getPrintsByNumbers } from "@/lib/queries/print";
+import {
+  getLatestStageAndPerformer,
+  getPrintsByNumbers,
+} from "@/lib/queries/print";
 import { Metadata } from "next";
 import { getVotingDetails } from "@/lib/api/sejm";
 import { VotingResultsChart } from "./voting-results-chart";
@@ -80,6 +83,14 @@ export default async function PointDetail({
       ? await getPrintsByNumbers(point.print_numbers.map(String))
       : [];
 
+  // Add this after the print fetch:
+  const printsWithStages = await Promise.all(
+    prints.map(async (print) => {
+      const stageInfo = await getLatestStageAndPerformer(print.number);
+      return { ...print, stageInfo };
+    })
+  );
+
   // Group statements by speaker to avoid repeated lookups
   const statementsBySpeaker = new Map<string, typeof point.statements>();
   point.statements.forEach((st) => {
@@ -112,7 +123,6 @@ export default async function PointDetail({
     attitude: data.total / data.count - 3,
     count: data.count,
   }));
-
 
   // Fetch voting results if available
   const votingResults =
@@ -158,7 +168,6 @@ export default async function PointDetail({
         <Badge className="text-xs sm:text-sm" variant="default">
           {category}
         </Badge>
-
       </div>
 
       {/* First Bento grid - Adjust column spans for different breakpoints */}
@@ -327,7 +336,7 @@ export default async function PointDetail({
           >
             {prints.length > 0 ? (
               <div className="space-y-3 sm:space-y-4">
-                {prints.map((print) => (
+                {printsWithStages.map((print) => (
                   <div
                     key={print.number}
                     className="p-3 sm:p-4 bg-gray-50 rounded-lg"
@@ -340,6 +349,7 @@ export default async function PointDetail({
                         )}
                       </span>
                     </h4>
+                    
                     {print.attachments.length > 0 && (
                       <div className="space-y-2">
                         {print.attachments.map((attachment) => (
@@ -357,6 +367,21 @@ export default async function PointDetail({
                           </a>
                         ))}
                       </div>
+                    )}
+                    {print.stageInfo && (
+                        <div className="text-sm flex flex-wrap gap-2 mt-5 items-center">
+                          <span className="font-medium text-muted-foreground">
+                          Etap procesu legislacyjnego:
+                          </span>
+                          <span className="">
+                          {print.stageInfo.stageName.replace("Skierowanie", "Skierowano do: ")}
+                          </span>
+                          {print.stageInfo.performerName && (
+                          <span className="font-medium bg-primary/20 px-2 py-1 rounded-md">
+                            {print.stageInfo.performerName}
+                          </span>
+                          )}
+                        </div>
                     )}
                   </div>
                 ))}
