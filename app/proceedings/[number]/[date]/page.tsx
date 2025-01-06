@@ -7,18 +7,15 @@ import StatCard from "@/components/stat-card";
 import { Badge } from "@/components/ui/badge";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     number: string;
     date: string;
-  };
+  }>;
 }
 
 export default async function ProceedingDayPage({ params }: PageProps) {
   const { number, date } = await params;
-  const proceedingDay = await getProceedingDayDetails(
-    parseInt(number),
-    date
-  );
+  const proceedingDay = await getProceedingDayDetails(parseInt(number), date);
 
   if (!proceedingDay) notFound();
 
@@ -30,7 +27,6 @@ export default async function ProceedingDayPage({ params }: PageProps) {
       )
     ),
   ];
-
 
   // Calculate statistics
   const totalStatements = proceedingDay.proceeding_point_ai.reduce(
@@ -117,7 +113,7 @@ export default async function ProceedingDayPage({ params }: PageProps) {
               </div>
 
               <Link
-                href={`/proceedings/${params.number}/${params.date}/${point.id}`}
+                href={`/proceedings/${number}/${date}/${point.id}`}
                 className="text-sm text-primary hover:underline block mt-4"
               >
                 Zobacz szczegóły →
