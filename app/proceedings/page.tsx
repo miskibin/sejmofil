@@ -16,14 +16,13 @@ export const metadata: Metadata = {
   title: "Posiedzenia Sejmu | Sejmofil",
   description: "Lista posiedzeń Sejmu X kadencji",
 };
-
 export default async function ProceedingsPage({
   searchParams,
 }: {
-  searchParams?: { query?: string };
+  searchParams: Promise<{ query?: string }>;
 }) {
+  const { query } = (await searchParams) || {};
   const proceedings = await getProceedings();
-  const query = searchParams?.query?.toLowerCase();
 
   // Filter proceedings if search query exists
   const filteredProceedings = proceedings

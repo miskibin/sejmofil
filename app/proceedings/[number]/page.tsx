@@ -7,13 +7,13 @@ import StatCard from "@/components/stat-card";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
-
-interface PageProps {
-  params: { number: string };
-}
-
-export default async function ProceedingPage({ params }: PageProps) {
-  const proceeding = await getProceedingDetails(parseInt(params.number));
+export default async function ProceedingPage({
+  params,
+}: {
+  params: Promise<{ number: string }>;
+}) {
+  const { number } = await params;
+  const proceeding = await getProceedingDetails(parseInt(number));
   if (!proceeding) notFound();
 
   // Calculate statistics
