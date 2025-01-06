@@ -197,8 +197,7 @@ function EnvoysList() {
 export default function EnvoysPage() {
   return (
     <>
-      <h1 className="text-3xl font-bold mb-8">Posłowie</h1>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Ładowanie...</div>}>
         <EnvoysList />
       </Suspense>
     </>

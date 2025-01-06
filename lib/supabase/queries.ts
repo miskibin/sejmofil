@@ -1,7 +1,6 @@
 import { createClient } from "@/supabase/server";
 import { StatementCombined } from "../types/statement";
 import { SummaryMain } from "../types/proceeding";
-import { constrainedMemory } from "process";
 
 export async function getEnvoyStatementDetails(name: string) {
   const supabase = createClient();
@@ -56,6 +55,8 @@ export async function getStatementCombinedDetails(
 interface TopicCount {
   id: number;
   topic: string;
+  proceeding_id: number;
+  date: string;
   count: number;
 }
 
@@ -64,7 +65,6 @@ export async function getTopDiscussedTopics(): Promise<TopicCount[]> {
   const { data } = await (await supabase)
     .rpc("get_top_discussed_topics")
     .limit(5); // Create this function in your database
-
   return data || [];
 }
 
@@ -224,7 +224,8 @@ export async function getProceedings(): Promise<ProceedingWithDays[]> {
     await supabase
   )
     .from("proceeding")
-    .select(`
+    .select(
+      `
       id,
       number,
       title,
@@ -238,8 +239,9 @@ export async function getProceedings(): Promise<ProceedingWithDays[]> {
           summary_tldr
         )
       )
-    `)
-    .order('number', { ascending: false });
+    `
+    )
+    .order("number", { ascending: false });
 
   return data || [];
 }
@@ -267,13 +269,16 @@ interface ProceedingWithDetails {
   }>;
 }
 
-export async function getProceedingDetails(number: number): Promise<ProceedingWithDetails> {
+export async function getProceedingDetails(
+  number: number
+): Promise<ProceedingWithDetails> {
   const supabase = createClient();
   const { data } = await (
     await supabase
   )
     .from("proceeding")
-    .select(`
+    .select(
+      `
       id,
       number,
       title,
@@ -296,11 +301,12 @@ export async function getProceedingDetails(number: number): Promise<ProceedingWi
           )
         )
       )
-    `)
-    .eq('number', number)
+    `
+    )
+    .eq("number", number)
     .single();
 
-  return data;
+  return data as unknown as ProceedingWithDetails;
 }
 
 interface ProceedingDayDetails {
@@ -331,13 +337,17 @@ interface ProceedingDayDetails {
   }>;
 }
 
-export async function getProceedingDayDetails(number: number, date: string): Promise<ProceedingDayDetails> {
+export async function getProceedingDayDetails(
+  number: number,
+  date: string
+): Promise<ProceedingDayDetails> {
   const supabase = createClient();
   const { data } = await (
     await supabase
   )
     .from("proceeding_day")
-    .select(`
+    .select(
+      `
       id,
       date,
       proceeding (
@@ -363,10 +373,11 @@ export async function getProceedingDayDetails(number: number, date: string): Pro
           )
         )
       )
-    `)
-    .eq('proceeding.number', number)
-    .eq('date', date)
+    `
+    )
+    .eq("proceeding.number", number)
+    .eq("date", date)
     .single();
 
-  return data;
+  return data as unknown as ProceedingDayDetails;
 }

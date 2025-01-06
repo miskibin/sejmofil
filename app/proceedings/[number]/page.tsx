@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { getProceedingDetails } from "@/lib/supabase/queries";
-import { getClubAndIdsByNames } from "@/lib/queries/person";
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { CalendarDays, Sparkles } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/stat-card";
 import Link from "next/link";
@@ -19,13 +18,8 @@ export default async function ProceedingPage({ params }: PageProps) {
 
   // Calculate statistics
   const allStatements = proceeding.proceeding_day.flatMap((day) =>
-    day.proceeding_point_ai.flatMap((point) =>
-      point.statements.map((s) => s.statement)
-    )
+    day.proceeding_point_ai.flatMap((point) => point.statements.map((s) => s))
   );
-
-  const uniqueSpeakers = [...new Set(allStatements.map((s) => s.speaker_name))];
-  const speakerInfo = await getClubAndIdsByNames(uniqueSpeakers);
 
   // Calculate average emotions
   const averageEmotions = Math.round(
@@ -82,7 +76,10 @@ export default async function ProceedingPage({ params }: PageProps) {
             <div className="space-y-4">
               {day.proceeding_point_ai.map((point, index) => (
                 <div key={point.id} className="space-y-2">
-                  <Link href={`/points/${point.id}`} className="group block">
+                  <Link
+                    href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
+                    prefetch={true}
+                  >
                     <h3 className="text-sm font-medium group-hover:text-primary transition-colors">
                       <span className="inline-block w-8 text-muted-foreground">
                         {index + 1}.

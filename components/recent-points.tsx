@@ -14,7 +14,9 @@ export default async function RecentPoints() {
 
           return (
             <div key={index + topic.id} className="space-y-1">
-              <Link href={`/points/${topic.id}`}>
+              <Link
+                href={`/proceedings/${topic.proceeding_id}/${topic.date}/${topic.id}`}
+              >
                 <div className="flex gap-3 items-start">
                   <div className="min-w-9 min-h-9 w-9 h-9 rounded-lg flex items-center justify-center bg-primary text-white">
                     <Check className="w-6 h-6" />
