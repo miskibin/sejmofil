@@ -6,11 +6,13 @@ interface StatCardProps {
   category: string;
   sourceDescription?: string;
   sourceUrls?: string[];
+  headerIcon?: React.ReactNode;
 }
 
 export default function StatCard({
   title,
   value,
+  headerIcon,
   category,
   sourceDescription,
   sourceUrls,
@@ -23,6 +25,7 @@ export default function StatCard({
       sourceDescription={sourceDescription}
       sourceUrls={sourceUrls}
       variant="inverted"
+      headerIcon={headerIcon}
       showGradient={false}
     >
       <p className="text-3xl font-bold">{value}</p>

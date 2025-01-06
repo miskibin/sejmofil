@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import Breadcrumbs from "@/components/breadcrumb-nav";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -77,6 +78,8 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased bg-neutral-50`}>
         <Navbar />
         <main className="container mx-auto max-w-7xl mt-4 2xl:max-w-[1400px] p-4 sm:p-6 lg:p-12  ">
+          <Breadcrumbs />
+
           <div className="min-h-screen mt-8">{children}</div>
         </main>
         <hr className="my-8 mx-4" />

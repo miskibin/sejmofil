@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { getProceedingDayDetails } from "@/lib/supabase/queries";
-import { getClubAndIdsByNames } from "@/lib/queries/person";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { CalendarDays, FileText, MessageSquare, Users } from "lucide-react";
 import Link from "next/link";
@@ -16,7 +15,6 @@ interface PageProps {
 
 export default async function ProceedingDayPage({ params }: PageProps) {
   const { number, date } = await params;
-  console.log(number, date);
   const proceedingDay = await getProceedingDayDetails(
     parseInt(number),
     date
@@ -33,7 +31,6 @@ export default async function ProceedingDayPage({ params }: PageProps) {
     ),
   ];
 
-  const speakerInfo = await getClubAndIdsByNames(Array.from(allSpeakers));
 
   // Calculate statistics
   const totalStatements = proceedingDay.proceeding_point_ai.reduce(
@@ -57,18 +54,6 @@ export default async function ProceedingDayPage({ params }: PageProps) {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/proceedings/${params.number}`}
-            className="text-muted-foreground hover:text-primary"
-          >
-            Posiedzenie {proceedingDay.proceeding.number}
-          </Link>
-          <span className="text-muted-foreground">/</span>
-          <h1 className="text-2xl font-bold">
-            {new Date(proceedingDay.date).toLocaleDateString("pl-PL")}
-          </h1>
-        </div>
         <p className="text-muted-foreground">
           {proceedingDay.proceeding.title}
         </p>
@@ -79,19 +64,19 @@ export default async function ProceedingDayPage({ params }: PageProps) {
         <StatCard
           title="Punkty"
           value={proceedingDay.proceeding_point_ai.length}
-          icon={<FileText className="h-4 w-4" />}
+          headerIcon={<FileText className="h-4 w-4" />}
           category="Dzień"
         />
         <StatCard
           title="Wypowiedzi"
           value={totalStatements}
-          icon={<MessageSquare className="h-4 w-4" />}
+          headerIcon={<MessageSquare className="h-4 w-4" />}
           category="Dzień"
         />
         <StatCard
           title="Mówcy"
           value={allSpeakers.length}
-          icon={<Users className="h-4 w-4" />}
+          headerIcon={<Users className="h-4 w-4" />}
           category="Dzień"
         />
         <StatCard
@@ -132,7 +117,7 @@ export default async function ProceedingDayPage({ params }: PageProps) {
               </div>
 
               <Link
-                href={`/points/${point.id}`}
+                href={`/proceedings/${params.number}/${params.date}/${point.id}`}
                 className="text-sm text-primary hover:underline block mt-4"
               >
                 Zobacz szczegóły →

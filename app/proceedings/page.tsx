@@ -43,7 +43,6 @@ export default async function ProceedingsPage({
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-bold">Posiedzenia Sejmu</h1>
         <SearchBox />
       </div>
       <div className="grid gap-6">
@@ -74,7 +73,7 @@ export default async function ProceedingsPage({
                         {day.proceeding_point_ai?.map((point) => (
                           <Link
                             key={point.id}
-                            href={`/points/${point.id}`}
+                            href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
                             className="block hover:underline text-sm text-muted-foreground hover:text-primary"
                           >
                             {point.topic.split(" | ")[1] || point.topic}
