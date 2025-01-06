@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { getPointDetails } from "@/lib/supabase/queries";
-import { Sparkles, Check, XCircle } from "lucide-react";
+import { Sparkles, Check, XCircle, ExternalLink } from "lucide-react";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { getClubAndIdsByNames } from "@/lib/queries/person";
@@ -344,8 +344,8 @@ export default async function PointDetail({
                       <div className="space-y-2">
                         {print.attachments.map((attachment) => (
                           <a
-                            key={`${process.env.NEXT_PUBLIC_API_URL}/prints/${print.number}/${attachment}`}
-                            href={`${process.env.NEXT_PUBLIC_API_URL}/prints/${print.number}/${attachment}`}
+                            key={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
+                            href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
                             target="_blank"
                             rel="noreferrer"
                             className="flex items-center gap-2 text-sm text-primary bg-white p-2 rounded-lg shadow-sm"
@@ -392,23 +392,23 @@ export default async function PointDetail({
                     className="p-3 sm:p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-3"
                   >
                     <div className="flex gap-4">
-                        <div className="w-12 h-16 relative flex-shrink-0">
-                          <Image
-                            src={
-                              speakerInfo?.id
-                                ? `${
-                                    process.env.NEXT_PUBLIC_API_BASE_URL ||
-                                    "https://api.sejm.gov.pl/sejm/term10"
-                                  }/MP/${speakerInfo.id}/photo`
-                                : "/placeholder.svg"
-                            }
-                            alt={statement.speaker_name}
-                            fill
-                            sizes="40px"
-                            className="rounded-lg object-cover"
-                            loading="lazy"
-                          />
-                        </div>
+                      <div className="w-12 h-16 relative flex-shrink-0">
+                        <Image
+                          src={
+                            speakerInfo?.id
+                              ? `${
+                                  process.env.NEXT_PUBLIC_API_BASE_URL ||
+                                  "https://api.sejm.gov.pl/sejm/term10"
+                                }/MP/${speakerInfo.id}/photo`
+                              : "/placeholder.svg"
+                          }
+                          alt={statement.speaker_name}
+                          fill
+                          sizes="40px"
+                          className="rounded-lg object-cover"
+                          loading="lazy"
+                        />
+                      </div>
                       <div className="flex-1">
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                           <h3 className="font-semibold text-primary">
@@ -459,9 +459,12 @@ export default async function PointDetail({
                         </div>
 
                         {statement.statement_ai?.summary_tldr && (
-                          <p className="text-sm text-gray-600">
-                            {statement.statement_ai.summary_tldr}
-                          </p>
+                          <div>
+                            <p className="text-sm text-gray-600">
+                              {statement.statement_ai.summary_tldr}
+                            </p>
+                          
+                          </div>
                         )}
 
                         {statement.statement_ai?.citations && (
@@ -476,7 +479,15 @@ export default async function PointDetail({
                                 </blockquote>
                               )
                             )}
+                              <Link
+                              className="text-sm text-primary hover:underline"
+                              href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/transcripts/${statement.number_source}`}
+                              target="_blank"
+                            >
+                              całość wypowiedzi <ExternalLink className="h-4 w-4 inline" />
+                            </Link>
                           </div>
+                          
                         )}
                       </div>
                     </div>
