@@ -158,12 +158,7 @@ export default async function PointDetail({
         <Badge className="text-xs sm:text-sm" variant="default">
           {category}
         </Badge>
-        <Badge className="text-xs sm:text-sm" variant="secondary">
-          Data: {point.proceeding_day.date}
-        </Badge>
-        <Badge className="text-xs sm:text-sm" variant="secondary">
-          Posiedzenie: {point.proceeding_day.proceeding.number}
-        </Badge>
+
       </div>
 
       {/* First Bento grid - Adjust column spans for different breakpoints */}

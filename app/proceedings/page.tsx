@@ -65,7 +65,12 @@ export default async function ProceedingsPage({
                 {proceeding.proceeding_day.map((day) => (
                   <AccordionItem key={day.id} value={`day-${day.id}`}>
                     <AccordionTrigger className="text-sm">
-                      Dzień {new Date(day.date).toLocaleDateString("pl-PL")}
+                      <Link
+                        href={`/proceedings/${proceeding.number}/${day.date}`}
+                        className="hover:text-primary hover:underline"
+                      >
+                        Dzień {new Date(day.date).toLocaleDateString("pl-PL")}
+                      </Link>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2 pl-4">

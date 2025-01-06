@@ -1,7 +1,7 @@
 // components/Breadcrumbs.tsx
 "use client";
 
-import { Home } from "lucide-react";
+import { ChevronRight, Home } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -31,15 +31,14 @@ const Breadcrumbs: React.FC = () => {
   const pathSegments = pathname?.split("/").filter((segment) => segment !== "");
 
   return (
-    <nav className="flex  py-3 text-gray-700" aria-label="Breadcrumb">
+    <nav className="flex  py-3 mt-5 " aria-label="Breadcrumb">
       <ol className="inline-flex items-center space-x-1 md:space-x-2">
         <li className="inline-flex items-center">
           <Link
             href="/"
             className="inline-flex items-center text-sm font-medium  hover:text-primary-600"
           >
-            <Home className="w-4 h-4 inline mx-2" />
-            Strona główna
+            <Home className="w-4 h-4 inline mx-1" />
           </Link>
         </li>
         {pathSegments?.map((segment, index) => {
@@ -51,23 +50,9 @@ const Breadcrumbs: React.FC = () => {
           return (
             <li key={href}>
               <div className="flex items-center">
-                <svg
-                  className="w-3 h-3 mx-1 text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 6 10"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m1 9 4-4-4-4"
-                  />
-                </svg>
+                <ChevronRight className="w-4 h-4 font-bold " />
                 {isLast ? (
-                  <span className="ml-1 text-sm font-medium text-gray-500 dark:text-gray-300 md:ml-2">
+                  <span className="ml-1 text-sm font-medium md:ml-2">
                     {polishName}
                   </span>
                 ) : (
