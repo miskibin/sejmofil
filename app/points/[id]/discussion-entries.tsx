@@ -114,7 +114,7 @@ export function DiscussionEntries({
                       </blockquote>
                     ))}
                     <Link
-                      className="text-sm text-primary hover:underline"
+                      className="text-sm text-primary hover:underline my-2"
                       href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${proceedingNumber}/${proceedingDate}/transcripts/${statement.number_source}`}
                       target="_blank"
                     >
