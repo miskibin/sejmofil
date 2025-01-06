@@ -46,6 +46,7 @@ export function TopicAttitudeChart({ data }: TopicAttitudeChartProps) {
           margin={{
             top: 20,
             right: 20,
+            left: 15,
             bottom: 5,
           }}
         >
@@ -80,13 +81,13 @@ export function TopicAttitudeChart({ data }: TopicAttitudeChartProps) {
             dataKey="negative"
             fill="hsl(var(--destructive))"
             stackId="stack"
-            radius={[0, 0, 4, 4]}
+            radius={[4, 4, 4, 4]}
           />
           <Bar
             dataKey="positive"
             fill="hsl(var(--success))"
             stackId="stack"
-            radius={[4, 4, 0, 0]}
+            radius={[4, 4, 4, 4]}
           />
           <Tooltip
             cursor={false}

@@ -34,6 +34,7 @@ export default function Navbar() {
   const [searchValue, setSearchValue] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     let currentIndex = 0;
@@ -84,6 +85,10 @@ export default function Navbar() {
     </div>
   );
 
+  const handleLinkClick = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50   transition-all duration-300 ${
@@ -95,7 +100,7 @@ export default function Navbar() {
       {/* Left section with logo and links */}
       <div className="flex items-center gap-6">
         {/* Mobile Menu */}
-        <Sheet>
+        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           <SheetTrigger asChild className="md:hidden">
             <Button variant="ghost" size="icon">
               <Menu className="h-5 w-5" />
@@ -107,11 +112,16 @@ export default function Navbar() {
             </SheetHeader>
             <div className="flex flex-col gap-4 mt-4">
               {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} className="text-lg">
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-lg"
+                  onClick={handleLinkClick}
+                >
                   {link.text}
                 </Link>
               ))}
-              <Link href="/about" className="text-lg">
+              <Link href="/about" className="text-lg" onClick={handleLinkClick}>
                 O Projekcie
               </Link>
             </div>

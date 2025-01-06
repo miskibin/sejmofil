@@ -166,7 +166,9 @@ export async function getEnvoySubjectPrints(
   return result.map((record) => record.print);
 }
 
-export async function getPrintsByNumbers(numbers: string[]): Promise<PrintShort[]> {
+export async function getPrintsByNumbers(
+  numbers: string[]
+): Promise<PrintShort[]> {
   const query = `
     MATCH (print:Print)
     WHERE print.number IN $numbers
@@ -181,4 +183,36 @@ export async function getPrintsByNumbers(numbers: string[]): Promise<PrintShort[
   `;
   const result = await runQuery<{ print: PrintShort }>(query, { numbers });
   return result.map((record) => record.print);
+}
+
+export async function getLatestStageAndPerformer(printNumber: string): Promise<{
+  stageName: string;
+  performerName: string | null;
+  performerCode: string | null;
+}> {
+  const query = `
+  MATCH (print:Print)-[:IS_SOURCE_OF|REFERS_TO]->(process:Process)
+  WHERE print.number = $printNumber
+  WITH process
+  MATCH (process)-[:HAS]->(stage:Stage)
+  CALL apoc.path.subgraphNodes(stage, {
+      relationshipFilter: 'HAS_CHILD>',
+      labelFilter: '+Stage'
+  })
+  YIELD node AS relatedStage
+  WITH relatedStage
+  ORDER BY relatedStage.number DESC
+  LIMIT 1
+  OPTIONAL MATCH (relatedStage)-[:PERFORMED_BY]->(performer)
+  RETURN 
+  relatedStage.stageName AS stageName,
+  performer.name AS performerName,
+  performer.code AS performerCode
+  `;
+  const result = await runQuery<{
+    stageName: string;
+    performerName: string | null;
+    performerCode: string | null;
+  }>(query, { printNumber });
+  return result[0] || { stageName: '', performerName: null, performerCode: null };
 }
