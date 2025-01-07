@@ -1,6 +1,10 @@
 import Image from "next/image";
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { getPointDetails, getRelatedPoint, getAdjacentPoints } from "@/lib/supabase/queries";
+import {
+  getPointDetails,
+  getRelatedPoint,
+  getAdjacentPoints,
+} from "@/lib/supabase/queries";
 import { Sparkles, Check, XCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -57,16 +61,21 @@ export default async function PointDetail({
 
   const showAll = (await searchParams)?.showAll === "true";
   const point = await getPointDetails(id, showAll);
-  
-  // Add this near other data fetching
-  const adjacentPoints = await getAdjacentPoints(id, point.proceeding_day.proceeding.number);
 
-  // Check for related point
-  const relatedPoint = await getRelatedPoint(
+  // Add this near other data fetching
+  const adjacentPoints = await getAdjacentPoints(
     id,
-    point.official_point,
     point.proceeding_day.proceeding.number
   );
+
+  // Check for related point
+  const relatedPoint = point.official_point
+    ? await getRelatedPoint(
+        id,
+        point.official_point,
+        point.proceeding_day.proceeding.number
+      )
+    : null;
 
   const [category, title] = point.topic.split(" | ");
   // Get clubs for speakers
@@ -176,7 +185,10 @@ export default async function PointDetail({
   return (
     <div className="space-y-6">
       {relatedPoint && (
-        <Alert variant={"destructive"} className="flex justify-center items-center">
+        <Alert
+          variant={"destructive"}
+          className="flex justify-center items-center"
+        >
           <AlertDescription>
             Dyskusja została przerwana.{" "}
             <Link
@@ -464,12 +476,10 @@ export default async function PointDetail({
       {/* Add this at the bottom of the JSX, before the closing div */}
       <div className="flex justify-between items-center pt-6 border-t">
         {adjacentPoints.prev ? (
-          <Button
-            variant="outline"
-            asChild
-            className="flex items-center gap-2"
-          >
-            <Link href={`/proceedings/${number}/${adjacentPoints.prev.proceeding_day.date}/${adjacentPoints.prev.id}`}>
+          <Button variant="outline" asChild className="flex items-center gap-2">
+            <Link
+              href={`/proceedings/${number}/${adjacentPoints.prev.proceeding_day.date}/${adjacentPoints.prev.id}`}
+            >
               <ChevronLeft className="h-4 w-4" />
               Poprzedni punkt
             </Link>
@@ -477,14 +487,12 @@ export default async function PointDetail({
         ) : (
           <div />
         )}
-        
+
         {adjacentPoints.next ? (
-          <Button
-            variant="outline"
-            asChild
-            className="flex items-center gap-2"
-          >
-            <Link href={`/proceedings/${number}/${adjacentPoints.next.proceeding_day.date}/${adjacentPoints.next.id}`}>
+          <Button variant="outline" asChild className="flex items-center gap-2">
+            <Link
+              href={`/proceedings/${number}/${adjacentPoints.next.proceeding_day.date}/${adjacentPoints.next.id}`}
+            >
               Następny punkt
               <ChevronRight className="h-4 w-4" />
             </Link>
