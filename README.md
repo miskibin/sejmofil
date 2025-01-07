@@ -71,3 +71,12 @@ sejmofront/
 ---
 
 Zrobione z ❤️ dla polskiej demokracji
+
+
+# Baza danych
+
+![image](https://github.com/user-attachments/assets/189d9fc7-8a21-4092-a967-2254a239f8fc)
+
+![image](https://github.com/user-attachments/assets/2c06b56f-aa1f-4618-9002-fb5ff1a6860e)
+
+![image](https://github.com/user-attachments/assets/f75f3716-3f54-4f24-ab85-0363f0e8121c)
