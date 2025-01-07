@@ -26,7 +26,8 @@ export async function getVotingDetails(
   votingNumber: number
 ): Promise<VotingResult> {
   const response = await fetch(
-    `https://api.sejm.gov.pl/sejm/term10/votings/${proceedingNumber}/${votingNumber}`
+    `https://api.sejm.gov.pl/sejm/term10/votings/${proceedingNumber}/${votingNumber}`,
+    { next: { revalidate: 24 * 3600 } }
   );
 
   if (!response.ok) {
