@@ -1,4 +1,4 @@
-interface VotingResult {
+export interface VotingResult {
   abstain: number;
   date: string;
   description: string;
