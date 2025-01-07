@@ -7,7 +7,10 @@ export default async function RecentPoints() {
   const topics = await getTopDiscussedTopics();
 
   return (
-    <CardWrapper title="Ostatnio omawiane" subtitle="Punkty obrad">
+    <CardWrapper title="Ostatnio omawiane" subtitle="Punkty obrad"
+    showGradient={true}
+    showMoreLink="/proceedings"
+    >
       <div className="space-y-5 py-4">
         {topics.map((topic, index) => {
           const [category, title] = topic.topic.split(" | ");
