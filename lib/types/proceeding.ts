@@ -31,3 +31,18 @@ export interface ProceedingDay {
   day_no: number;
   date: Date;
 }
+
+export interface ProceedingPointExtended extends ProceedingPointAI {
+  date?: string; // Add this for sorting
+}
+
+export interface ProceedingDayBase {
+  id: number;
+  proceeding_id: number;
+  day_no: number;
+  date: Date;
+}
+
+export interface PointsByNumberMap {
+  [key: string]: ProceedingPointExtended[];
+}
