@@ -249,12 +249,8 @@ export async function getAdjacentPoints(
     .single();
 
   return {
-    prev: prevPoint
-      ? { id: prevPoint.id, proceeding_day: prevPoint.proceeding_day[0] }
-      : null,
-    next: nextPoint
-      ? { id: nextPoint.id, proceeding_day: nextPoint.proceeding_day[0] }
-      : null,
+    prev: (prevPoint as unknown as AdjacentPoint) || null,
+    next: (nextPoint as unknown as AdjacentPoint) || null,
   };
 }
 
