@@ -40,7 +40,7 @@ export default async function PlebiscytCard() {
     },
     {
       name: "Donald Tusk",
-      id: "001",
+      id: "400",
       count: 42,
       mainStat: {
         value: 42,
