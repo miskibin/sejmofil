@@ -14,8 +14,8 @@ export function VotingDisplay({ voting }: { voting: VotingResult }) {
       <Vote className="h-3 w-3 flex-shrink-0" />
       <span className="mr-1 truncate">{voting.topic}:</span>
       <span className="flex items-center gap-1 flex-shrink-0">
-        {yesVotes} <ThumbsUp className="h-3 w-3 text-success" />- {noVotes}{" "}
-        <ThumbsDown className="h-3 w-3 text-destructive" />
+         <ThumbsUp className="h-3 w-3 text-success" />{yesVotes} - {noVotes}{" "}
+        <ThumbsDown className="h-3 w-3  text-destructive" />
       </span>
     </div>
   );
