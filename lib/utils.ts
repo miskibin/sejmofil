@@ -21,11 +21,11 @@ export function getNextProceedingDate(
 
   return allDates.find((date) => date >= today) || null;
 }
-
 export function getTimeUntilNextProceeding(nextDate: Date | null): string {
   if (!nextDate) return "brak zaplanowanych obrad";
 
   const now = new Date();
+  nextDate.setHours(9, 0, 0, 0); // Set proceeding start time to 9 AM
   const diff = nextDate.getTime() - now.getTime();
 
   if (diff <= 0) return "trwa";
