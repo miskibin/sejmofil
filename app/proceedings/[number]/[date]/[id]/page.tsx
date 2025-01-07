@@ -40,6 +40,49 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
+// Add the EmptyState component to handle empty states with a clean UI.
+const EmptyState = ({ text }: { text: string }) => (
+  <div className="text-center pb-6">
+    <div className="flex justify-center mb-4">
+      <Image
+        src="/empty.svg"
+        width={200}
+        height={200}
+        alt="Empty state illustration"
+      />
+    </div>
+    <p className="text-gray-500">{text}</p>
+  </div>
+);
+
+// Update the SummarySection component to handle null values
+const SummarySection = ({
+  content,
+  title,
+  subtitle,
+  emptyText,
+}: {
+  content: string | null | undefined;
+  title: string;
+  subtitle: string;
+  emptyText: string;
+}) => (
+  <CardWrapper
+    title={title}
+    subtitle={subtitle}
+    className="h-full"
+    headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+  >
+    {content && content !== "null" ? (
+      <div className="prose prose-sm max-w-none">
+        <ReactMarkdown>{content}</ReactMarkdown>
+      </div>
+    ) : (
+      <EmptyState text={emptyText} />
+    )}
+  </CardWrapper>
+);
+
 export async function generateMetadata({}: {
   params: Promise<{ id: number }>;
 }): Promise<Metadata> {
@@ -219,16 +262,12 @@ export default async function PointDetail({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-6">
         {/* Main topic section - Make it full width on mobile */}
         <div className="col-span-full lg:col-span-4 lg:row-span-3">
-          <CardWrapper
+          <SummarySection
             title="Główne Zagadnienia"
-            className="h-full"
             subtitle="Kluczowe tematy"
-            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
-          >
-            <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>{point.summary_main.main_topics}</ReactMarkdown>
-            </div>
-          </CardWrapper>
+            content={point.summary_main?.main_topics}
+            emptyText="Brak głównych zagadnień"
+          />
         </div>
 
         {/* Stats cards - Adjust grid for better mobile layout */}
@@ -258,29 +297,21 @@ export default async function PointDetail({
 
         {/* Secondary sections - Adjust spans for better flow */}
         <div className="col-span-full md:col-span-1 lg:col-span-4 lg:row-span-2">
-          <CardWrapper
+          <SummarySection
             title="Wnioski"
             subtitle="Podsumowanie"
-            className="h-full"
-            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
-          >
-            <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>{point.summary_main.outtakes}</ReactMarkdown>
-            </div>
-          </CardWrapper>
+            content={point.summary_main?.outtakes}
+            emptyText="Brak wniosków"
+          />
         </div>
 
         <div className="col-span-full md:col-span-1 lg:col-span-4 lg:row-span-2">
-          <CardWrapper
-            className="h-full"
+          <SummarySection
             title="Kwestie sporne"
             subtitle="Nie rozwiązane problemy"
-            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
-          >
-            <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>{point.summary_main.unresolved}</ReactMarkdown>
-            </div>
-          </CardWrapper>
+            content={point.summary_main?.unresolved}
+            emptyText="Brak kwestii spornych"
+          />
         </div>
       </div>
 
@@ -297,16 +328,12 @@ export default async function PointDetail({
 
         {/* Key positions section */}
         <div className="col-span-full lg:col-span-6">
-          <CardWrapper
+          <SummarySection
             title="Kluczowe stanowiska"
             subtitle="Stanowiska klubów"
-            className="h-full"
-            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
-          >
-            <div className="prose prose-sm max-w-none">
-              <ReactMarkdown>{point.summary_main.key_positions}</ReactMarkdown>
-            </div>
-          </CardWrapper>
+            content={point.summary_main?.key_positions}
+            emptyText="Brak kluczowych stanowisk"
+          />
         </div>
 
         {/* Voting section */}
