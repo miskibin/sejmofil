@@ -204,7 +204,22 @@ export async function getPointDetails(
   return transformedData as unknown as PointWithStatements;
 }
 
-export async function getAdjacentPoints(pointId: number, proceedingId: number) {
+interface AdjacentPoint {
+  id: number;
+  proceeding_day: {
+    date: string;
+  };
+}
+
+interface AdjacentPointsResponse {
+  prev: AdjacentPoint | null;
+  next: AdjacentPoint | null;
+}
+
+export async function getAdjacentPoints(
+  pointId: number,
+  proceedingId: number
+): Promise<AdjacentPointsResponse> {
   const supabase = createClient();
 
   const { data: currentPoint } = await (await supabase)
@@ -234,8 +249,12 @@ export async function getAdjacentPoints(pointId: number, proceedingId: number) {
     .single();
 
   return {
-    prev: prevPoint || null,
-    next: nextPoint || null,
+    prev: prevPoint
+      ? { id: prevPoint.id, proceeding_day: prevPoint.proceeding_day[0] }
+      : null,
+    next: nextPoint
+      ? { id: nextPoint.id, proceeding_day: nextPoint.proceeding_day[0] }
+      : null,
   };
 }
 
