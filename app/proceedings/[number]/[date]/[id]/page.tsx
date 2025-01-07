@@ -5,11 +5,11 @@ import {
   getRelatedPoint,
   getAdjacentPoints,
 } from "@/lib/supabase/queries";
-import { Sparkles, Check, XCircle } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { getClubAndIdsByNames } from "@/lib/queries/person";
-import { TopicAttitudeChart } from "./topic-attitude-chart";
+import { TopicAttitudeChart } from "./components/topic-attitude-chart";
 import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/stat-card";
 import {
@@ -18,27 +18,20 @@ import {
 } from "@/lib/queries/print";
 import { Metadata } from "next";
 import { getVotingDetails } from "@/lib/api/sejm";
-import { VotingResultsChart } from "./voting-results-chart";
-import { FaRegFilePdf } from "react-icons/fa";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { DiscussionEntries } from "./discussion-entries";
+import { DiscussionEntries } from "./components/discussion-entries";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { VotingSection } from "./components/voting-section";
+import { PrintSection } from "./components/print-section";
 
 // Add the EmptyState component to handle empty states with a clean UI.
 const EmptyState = ({ text }: { text: string }) => (
@@ -152,7 +145,14 @@ export default async function PointDetail({
   const printsWithStages = await Promise.all(
     prints.map(async (print) => {
       const stageInfo = await getLatestStageAndPerformer(print.number);
-      return { ...print, stageInfo };
+      return {
+        ...print,
+        stageInfo: {
+          ...stageInfo,
+          performerName: stageInfo.performerName ?? undefined,
+          performerCode: stageInfo.performerCode ?? undefined,
+        },
+      };
     })
   );
 
@@ -338,143 +338,12 @@ export default async function PointDetail({
 
         {/* Voting section */}
         <div className="col-span-full lg:col-span-6">
-          <CardWrapper
-            title="Głosowania"
-            className="h-full"
-            subtitle={
-              votingResults.length > 0
-                ? `Głosowań: ${votingResults.length}`
-                : "Brak głosowań"
-            }
-          >
-            {votingResults.length > 0 ? (
-              <div>
-                <Carousel className="w-[90%] mx-auto">
-                  <CarouselContent>
-                    {votingData.map((voting, index) => (
-                      <CarouselItem key={index}>
-                        <div className="p-1">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                              {voting.result?.passed ? (
-                                <Check className="h-5 w-5 text-success" />
-                              ) : (
-                                <XCircle className="h-5 w-5 text-destructive" />
-                              )}
-                              <h3 className="font-medium text-sm">
-                                {voting.topic}
-                              </h3>
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              Za: {voting.result?.yes} Przeciw:{" "}
-                              {voting.result?.no}
-                            </div>
-                          </div>
-                          <VotingResultsChart data={voting.data} />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <div className="flex justify-center gap-4 mt-4">
-                    <CarouselPrevious />
-                    <CarouselNext />
-                  </div>
-                </Carousel>
-              </div>
-            ) : (
-              <div className="text-center pb-6">
-                <div className="flex justify-center mb-4">
-                  <Image
-                    src="/street.svg"
-                    width={350}
-                    height={350}
-                    alt="No committees"
-                  />
-                </div>
-                <p className="text-gray-500">Brak głosowań</p>
-              </div>
-            )}
-          </CardWrapper>
+          <VotingSection votingData={votingData} />
         </div>
 
         {/* Print section - Add responsive padding and spacing */}
         <div className="col-span-full lg:col-span-6">
-          <CardWrapper
-            title="Druki"
-            className="h-full"
-            subtitle={
-              prints.length > 0 ? "Omawiane druki" : "Brak powiązanych druków"
-            }
-          >
-            {prints.length > 0 ? (
-              <div className="space-y-3 sm:space-y-4">
-                {printsWithStages.map((print) => (
-                  <div
-                    key={print.number}
-                    className="p-3 sm:p-4 bg-gray-50 rounded-lg"
-                  >
-                    <h4 className="text-sm font-medium mb-2 flex justify-between gap-2">
-                      <span>{print.title}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(print.deliveryDate).toLocaleDateString(
-                          "pl-PL"
-                        )}
-                      </span>
-                    </h4>
-
-                    {print.attachments.length > 0 && (
-                      <div className="space-y-2">
-                        {print.attachments.map((attachment) => (
-                          <a
-                            key={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
-                            href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-2 text-sm text-primary bg-white p-2 rounded-lg shadow-sm"
-                          >
-                            <span>
-                              <FaRegFilePdf className="h-6 w-6 inline mx-2" />
-                              {attachment}
-                            </span>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                    {print.stageInfo && (
-                      <div className="text-sm flex flex-wrap gap-2 mt-5 items-center">
-                        <span className="font-medium text-muted-foreground">
-                          Etap procesu legislacyjnego:
-                        </span>
-                        <span className="">
-                          {print.stageInfo.stageName.replace(
-                            "Skierowanie",
-                            "Skierowano do: "
-                          )}
-                        </span>
-                        {print.stageInfo.performerName && (
-                          <span className="font-medium bg-primary/20 px-2 py-1 rounded-md">
-                            {print.stageInfo.performerName}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center pb-6">
-                <div className="flex justify-center mb-4">
-                  <Image
-                    src="/explore.svg"
-                    width={250}
-                    height={250}
-                    alt="No committees"
-                  />
-                </div>
-                <p className="text-gray-500">Brak druków</p>
-              </div>
-            )}
-          </CardWrapper>
+          <PrintSection prints={printsWithStages} />
         </div>
 
         {/* Replace the entire Statements section with: */}
