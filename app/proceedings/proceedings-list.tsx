@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useMemo, useCallback, useTransition } from "react";
-import { Search } from "lucide-react";
+import { Search, CalendarDays, Timer, Vote } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { CalendarDays, Timer, Vote } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import {
@@ -13,8 +12,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { VotingDisplay } from "./components/voting-display";
-import { Proceeding, VotingResult } from "./types";
+import {
+  Proceeding,
+  PointRenderProps,
+  ProceedingPoint,
+} from "./types";
 
 export function ProceedingsList({
   proceedings,
@@ -25,46 +27,113 @@ export function ProceedingsList({
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
 
-  // Memoize filtered proceedings
-  const filteredProceedings = useMemo(() => {
-    if (searchTerm.length < 2) return proceedings;
-    return proceedings
-      .map((proceeding) => ({
-        ...proceeding,
-        proceeding_day: proceeding.proceeding_day
-          .map((day) => ({
-            ...day,
-            proceeding_point_ai: day.proceeding_point_ai.filter((point) =>
-              point.topic.toLowerCase().includes(searchTerm.toLowerCase())
-            ),
-          }))
-          .filter((day) => day.proceeding_point_ai.length > 0),
-      }))
-      .filter((proc) => proc.proceeding_day.length > 0);
-  }, [proceedings, searchTerm]);
+  const filteredProceedings = useMemo(
+    () =>
+      searchTerm.length < 2
+        ? proceedings
+        : proceedings
+            .map((proc) => ({
+              ...proc,
+              proceeding_day: proc.proceeding_day
+                .map((day) => ({
+                  ...day,
+                  proceeding_point_ai: day.proceeding_point_ai.filter((point) =>
+                    point.topic.toLowerCase().includes(searchTerm.toLowerCase())
+                  ),
+                }))
+                .filter((day) => day.proceeding_point_ai.length > 0),
+            }))
+            .filter((proc) => proc.proceeding_day.length > 0),
+    [proceedings, searchTerm]
+  );
 
-  // Handle search with transition
   const handleSearch = useCallback(
     (value: string) => {
       setSearchTerm(value);
       startTransition(() => {
-        if (value.length >= 2) {
-          // Open all sections that have matches
-          setOpenSections(
-            filteredProceedings
-              .map((proc) => proc.proceeding_day.map((day) => `day-${day.id}`))
-              .flat()
-          );
-        } else {
-          setOpenSections([]);
-        }
+        setOpenSections(
+          value.length >= 2
+            ? filteredProceedings.flatMap((proc) =>
+                proc.proceeding_day.map((day) => `day-${day.id}`)
+              )
+            : []
+        );
       });
     },
     [filteredProceedings]
   );
 
+  const renderPoint = ({
+    point,
+    pointsByNumber,
+    proceeding,
+    day,
+  }: PointRenderProps) => {
+    const pointNumber = point.official_point?.split(".")[0];
+    const points = pointsByNumber[pointNumber] || [];
+    const lastIndex = points.length - 1;
+    const currentIndex = points.findIndex((p) => p.id === point.id);
+    const isInterrupted = points.length > 1 && currentIndex < lastIndex;
+    const isContinuation = points.length > 1 && currentIndex === lastIndex;
+
+    return (
+      <div
+        key={point.id}
+        className="relative pl-2 sm:pl-6 border-l hover:border-primary"
+      >
+        <Link
+          href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
+          className="block hover:text-primary"
+          prefetch={false}
+        >
+          <div
+            className={`text-sm ${
+              point.official_point ? "font-medium" : "italic"
+            } break-words`}
+          >
+            {point.official_point && (
+              <span className="mr-2 text-muted-foreground">{pointNumber}.</span>
+            )}
+            {point.topic.split(" | ")[1] || point.topic}
+            {isInterrupted && (
+              <span className="ml-2 text-xs text-destructive italic">
+                (przerwano)
+              </span>
+            )}
+            {isContinuation && (
+              <span className="ml-2 text-xs text-primary italic">
+                (kontynuacja)
+              </span>
+            )}
+          </div>
+          {/* {(point.votingResults?.length ?? 0) > 0 && (
+            <div className="flex flex-col gap-2 mt-1">
+              {point.votingResults?.map((voting: VotingResult, idx) => (
+                <VotingDisplay key={idx} voting={voting} />
+              ))}
+            </div>
+          )} */}
+        </Link>
+      </div>
+    );
+  };
+
+  const getPointsByNumber = (
+    proceeding: Proceeding
+  ): Record<string, ProceedingPoint[]> =>
+    proceeding.proceeding_day.reduce((acc, day) => {
+      day.proceeding_point_ai.forEach((point) => {
+        if (point.official_point) {
+          const number = point.official_point.split(".")[0];
+          if (!acc[number]) acc[number] = [];
+          acc[number].push({ ...point, date: day.date });
+        }
+      });
+      return acc;
+    }, {} as Record<string, ProceedingPoint[]>);
+
   return (
-    <div className="space-y-4 mx-0 px-0">
+    <div className="space-y-4">
       <div className="mb-6">
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -74,45 +143,48 @@ export function ProceedingsList({
             onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
-        {searchTerm.length < 2 ? (
-          <p className="text-sm text-muted-foreground mt-2">
-            Wpisz minimum 2 znaki aby wyszukać
-          </p>
-        ) : isPending ? (
-          <p className="text-sm text-muted-foreground mt-2">Wyszukiwanie...</p>
-        ) : filteredProceedings.length === 0 ? (
-          <p className="text-sm text-muted-foreground mt-2">Brak wyników</p>
-        ) : null}
+        <p className="text-sm text-muted-foreground mt-2">
+          {searchTerm.length < 2
+            ? "Wpisz minimum 2 znaki aby wyszukać"
+            : isPending
+            ? "Wyszukiwanie..."
+            : !filteredProceedings.length && "Brak wyników"}
+        </p>
       </div>
 
       {(searchTerm.length < 2 ? proceedings : filteredProceedings).map(
-        (proceeding) => (
-          <CardWrapper
-            key={proceeding.number}
-            title={proceeding.dates
-              .map((date) => new Date(date).toLocaleDateString("pl-PL"))
-              .join(", ")}
-            subtitle={`Posiedzenie ${proceeding.number}`}
-            showGradient={false}
-          >
-            <Accordion
-              type="multiple"
-              value={openSections}
-              onValueChange={setOpenSections}
+        (proceeding) => {
+          const pointsByNumber = getPointsByNumber(proceeding);
+          Object.values(pointsByNumber).forEach((points) =>
+            points.sort(
+              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+            )
+          );
+
+          return (
+            <CardWrapper
+              key={proceeding.number}
+              title={proceeding.dates
+                .map((d) => new Date(d).toLocaleDateString("pl-PL"))
+                .join(", ")}
+              subtitle={`Posiedzenie ${proceeding.number}`}
+              showGradient={false}
             >
-              {proceeding.proceeding_day.map((day) => (
-                <AccordionItem key={day.id} value={`day-${day.id}`}>
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex flex-wrap items-center gap-2 text-sm">
-                      <div className="flex items-center gap-2">
+              <Accordion
+                type="multiple"
+                value={openSections}
+                onValueChange={setOpenSections}
+              >
+                {proceeding.proceeding_day.map((day) => (
+                  <AccordionItem key={day.id} value={`day-${day.id}`}>
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
                         <CalendarDays className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          {new Date(day.date).toLocaleDateString("pl-PL")} 
+                          {new Date(day.date).toLocaleDateString("pl-PL")}
                         </span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
                         {day.proceeding_point_ai.some(
-                          (p) => (p.votingResults?.length ?? 0) > 0
+                          (p) => p.votingResults?.length
                         ) && (
                           <Badge
                             variant="outline"
@@ -129,7 +201,7 @@ export function ProceedingsList({
                           </Badge>
                         )}
                         {day.proceeding_point_ai.some(
-                          (p) => (p.breakVotingsCount ?? 0) > 0
+                          (p) => p.breakVotingsCount
                         ) && (
                           <Badge
                             variant="secondary"
@@ -147,46 +219,25 @@ export function ProceedingsList({
                           </Badge>
                         )}
                       </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <div className="space-y-3 ml-2 sm:ml-6 border-l">
-                        {day.proceeding_point_ai?.map((point, ) => (
-                        <div
-                          key={point.id}
-                          className="relative pl-2 sm:pl-6 border-l hover:border-primary"
-                        >
-                          <Link
-                          href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
-                          className="block hover:text-primary"
-                          >
-                            <div className={`text-sm ${point.official_point ? 'font-medium' : 'italic'} break-words`}>
-                            {point.official_point && (
-                              <span className="mr-2 text-muted-foreground">
-                              {point.official_point.split(".")[0]}.
-                              </span>
-                            )}
-                            {point.topic.split(" | ")[1] || point.topic}
-                            </div>
-                          {(point.votingResults?.length ?? 0) > 0 && (
-                            <div className="flex flex-col gap-2 mt-1">
-                            {point.votingResults?.map(
-                              (voting: VotingResult, idx) => (
-                              <VotingDisplay key={idx} voting={voting} />
-                              )
-                            )}
-                            </div>
-                          )}
-                          </Link>
-                        </div>
-                        ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </CardWrapper>
-        )
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-2 pb-4">
+                      <div className="space-y-3 ml-2 sm:ml-6 border-l">
+                        {day.proceeding_point_ai?.map((point) =>
+                          renderPoint({
+                            point,
+                            pointsByNumber,
+                            proceeding,
+                            day,
+                          })
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </CardWrapper>
+          );
+        }
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { getPointDetails } from "@/lib/supabase/queries";
+import { getPointDetails, getRelatedPoint, getAdjacentPoints } from "@/lib/supabase/queries";
 import { Sparkles, Check, XCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -23,6 +23,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { DiscussionEntries } from "./discussion-entries";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
   Carousel,
@@ -31,8 +35,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata({}: {
   params: Promise<{ id: number }>;
@@ -47,14 +49,25 @@ export default async function PointDetail({
   params,
   searchParams,
 }: {
-  params: Promise<{ id: number }>;
+  params: Promise<{ id: number; number: string; date: string }>;
   searchParams?: Promise<{ showAll?: string }>;
 }) {
-  const { id } = await params;
+  const { id, number, date } = await params;
   if (!id) notFound();
 
   const showAll = (await searchParams)?.showAll === "true";
   const point = await getPointDetails(id, showAll);
+  
+  // Add this near other data fetching
+  const adjacentPoints = await getAdjacentPoints(id, point.proceeding_day.proceeding.number);
+
+  // Check for related point
+  const relatedPoint = await getRelatedPoint(
+    id,
+    point.official_point,
+    point.proceeding_day.proceeding.number
+  );
+
   const [category, title] = point.topic.split(" | ");
   // Get clubs for speakers
   const speakerNames = [
@@ -162,11 +175,31 @@ export default async function PointDetail({
 
   return (
     <div className="space-y-6">
+      {relatedPoint && (
+        <Alert variant={"destructive"} className="flex justify-center items-center">
+          <AlertDescription>
+            Dyskusja została przerwana.{" "}
+            <Link
+              href={`/proceedings/${number}/${date}/${relatedPoint.id}`}
+              className="font-medium underline underline-offset-4"
+            >
+              Zobacz kontynuację
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
       {/* Header section - Make it more responsive */}
       <div className="space-y-2 sm:space-y-4 space-x-4">
-        <h1 className="text-2xl sm:text-3xl font-bold break-words">{title}</h1>
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-bold break-words">
+            {title}
+          </h1>
+        </div>
         <Badge className="text-xs sm:text-sm" variant="default">
           {category}
+        </Badge>
+        <Badge className="text-xs sm:text-sm" variant="outline">
+          {point.official_point}
         </Badge>
       </div>
 
@@ -349,7 +382,7 @@ export default async function PointDetail({
                         )}
                       </span>
                     </h4>
-                    
+
                     {print.attachments.length > 0 && (
                       <div className="space-y-2">
                         {print.attachments.map((attachment) => (
@@ -369,19 +402,22 @@ export default async function PointDetail({
                       </div>
                     )}
                     {print.stageInfo && (
-                        <div className="text-sm flex flex-wrap gap-2 mt-5 items-center">
-                          <span className="font-medium text-muted-foreground">
+                      <div className="text-sm flex flex-wrap gap-2 mt-5 items-center">
+                        <span className="font-medium text-muted-foreground">
                           Etap procesu legislacyjnego:
-                          </span>
-                          <span className="">
-                          {print.stageInfo.stageName.replace("Skierowanie", "Skierowano do: ")}
-                          </span>
-                          {print.stageInfo.performerName && (
+                        </span>
+                        <span className="">
+                          {print.stageInfo.stageName.replace(
+                            "Skierowanie",
+                            "Skierowano do: "
+                          )}
+                        </span>
+                        {print.stageInfo.performerName && (
                           <span className="font-medium bg-primary/20 px-2 py-1 rounded-md">
                             {print.stageInfo.performerName}
                           </span>
-                          )}
-                        </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -423,6 +459,39 @@ export default async function PointDetail({
             </Accordion>
           </CardWrapper>
         </div>
+      </div>
+
+      {/* Add this at the bottom of the JSX, before the closing div */}
+      <div className="flex justify-between items-center pt-6 border-t">
+        {adjacentPoints.prev ? (
+          <Button
+            variant="outline"
+            asChild
+            className="flex items-center gap-2"
+          >
+            <Link href={`/proceedings/${number}/${adjacentPoints.prev.proceeding_day.date}/${adjacentPoints.prev.id}`}>
+              <ChevronLeft className="h-4 w-4" />
+              Poprzedni punkt
+            </Link>
+          </Button>
+        ) : (
+          <div />
+        )}
+        
+        {adjacentPoints.next ? (
+          <Button
+            variant="outline"
+            asChild
+            className="flex items-center gap-2"
+          >
+            <Link href={`/proceedings/${number}/${adjacentPoints.next.proceeding_day.date}/${adjacentPoints.next.id}`}>
+              Następny punkt
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        ) : (
+          <div />
+        )}
       </div>
     </div>
   );
