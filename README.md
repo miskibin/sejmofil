@@ -46,7 +46,7 @@ Aplikacja będzie dostępna pod adresem `http://localhost:3000`
 
 ## 📚 Technologie
 
-- Next.js 13 (App Router)
+- Next.js 15 (App Router)
 - TypeScript
 - Tailwind CSS
 - Shadcn/ui
