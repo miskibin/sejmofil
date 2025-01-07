@@ -135,7 +135,7 @@ export async function getIdsFromNames(names: string[]): Promise<number[]> {
     RETURN p.firstLastName as name, p.id as id
   `;
   const result = await runQuery<{ name: string; id: string }>(query, { names });
-  
+
   // Create a map of name to id
   const nameToId = result.reduce((acc, { name, id }) => {
     acc[name] = parseInt(id, 10);
@@ -143,10 +143,12 @@ export async function getIdsFromNames(names: string[]): Promise<number[]> {
   }, {} as Record<string, number>);
 
   // Map original names array to preserve order
-  return names.map(name => nameToId[name]);
+  return names.map((name) => nameToId[name]);
 }
 
-export async function getClubsByNames(names: string[]): Promise<Array<{ name: string, club: string }>> {
+export async function getClubsByNames(
+  names: string[]
+): Promise<Array<{ name: string; club: string }>> {
   const query = `
     MATCH (p:Person)
     WHERE p.firstLastName IN $names
@@ -155,12 +157,17 @@ export async function getClubsByNames(names: string[]): Promise<Array<{ name: st
   return runQuery<{ name: string; club: string }>(query, { names });
 }
 
-export async function getClubAndIdsByNames(names: string[]): Promise<Array<{ name: string, club: string, id: number }>> {
+export async function getClubAndIdsByNames(
+  names: string[]
+): Promise<Array<{ name: string; club: string; id: number }>> {
   const query = `
     MATCH (p:Person)
     WHERE p.firstLastName IN $names
     RETURN p.firstLastName as name, p.club as club, p.id as id
   `;
-  const result = await runQuery<{ name: string; club: string; id: number }>(query, { names });
+  const result = await runQuery<{ name: string; club: string; id: number }>(
+    query,
+    { names }
+  );
   return result || [];
 }
