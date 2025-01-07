@@ -227,22 +227,39 @@ export default async function PointDetail({
 
   return (
     <div className="space-y-6">
-      {relatedPoint && (
-        <Alert
-          variant={"destructive"}
-          className="flex justify-center items-center"
-        >
-          <AlertDescription>
-            Dyskusja została przerwana.{" "}
-            <Link
-              href={`/proceedings/${number}/${date}/${relatedPoint.id}`}
-              className="font-medium underline underline-offset-4"
-            >
-              Zobacz kontynuację
-            </Link>
-          </AlertDescription>
-        </Alert>
-      )}
+      {relatedPoint &&
+        (relatedPoint.proceeding_day?.date > point.proceeding_day.date ? (
+          <Alert
+            variant={"destructive"}
+            className="flex justify-center items-center"
+          >
+            <AlertDescription>
+              Dyskusja została przerwana.{" "}
+              <Link
+                href={`/proceedings/${number}/${date}/${relatedPoint.id}`}
+                className="font-medium underline underline-offset-4"
+              >
+                Zobacz kontynuację
+              </Link>
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert
+            variant={"default"}
+            className="flex justify-center items-center"
+          >
+            <AlertDescription>
+              Kontynuacja dyskusji.{" "}
+              <Link
+                href={`/proceedings/${number}/${date}/${relatedPoint.id}`}
+                className="font-medium underline underline-offset-4"
+              >
+                Zobacz początek
+              </Link>
+            </AlertDescription>
+          </Alert>
+        ))}
+
       {/* Header section - Make it more responsive */}
       <div className="space-y-2 sm:space-y-4 space-x-4">
         <div className="flex flex-col space-y-2">
