@@ -54,7 +54,7 @@ export function VotingResultsChart({ data }: VotingResultsChartProps) {
             name="Za"
             fill="hsl(var(--success))"
             stackId="stack"
-            radius={[4, 4, 4, 4]}
+            radius={[1, 1, 1, 1]}
           />
           <Bar
             dataKey="no"
@@ -67,7 +67,7 @@ export function VotingResultsChart({ data }: VotingResultsChartProps) {
             name="Wstrzymanie się"
             fill="hsl(var(--muted))"
             stackId="stack"
-            radius={[4, 4, 4, 4]}
+            radius={[1, 1, 1, 1]}
           />
         </BarChart>
       </ResponsiveContainer>
