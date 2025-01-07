@@ -40,6 +40,7 @@ export default function HotTopics() {
   return (
     <CardWrapper
       title="Newsy"
+      showGradient={true}
       className="h-full"
       sourceDescription="Dane z oficjalnego api sejmu RP przetworzone przez AI"
       sourceUrls={[
@@ -57,7 +58,7 @@ export default function HotTopics() {
       subtitle="Gorące tematy"
       headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
     >
-      <div className="space-y-5 py-4">
+      <div className="space-y-4 ">
         {news.slice(0, 4).map((item) => (
           <div key={item.id} className="space-y-1">
             <div className="flex gap-3 items-center">
