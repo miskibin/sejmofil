@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { getProceedings } from "@/lib/supabase/queries";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import Link from "next/link";
-import { CalendarDays, Timer } from "lucide-react";
+import { CalendarDays, Timer, Vote } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -36,13 +36,13 @@ export default async function ProceedingsPage({
               .filter(
                 (point) => !query || point.topic.toLowerCase().includes(query)
               )
-              .map(async (point: ProceedingPoint) => {
+              .map(async (point) => {
                 if (!point.voting_numbers?.length) {
                   return {
                     ...point,
                     votingResults: [],
                     breakVotingsCount: 0,
-                  } as ProceedingPoint;
+                  } as unknown as ProceedingPoint;
                 }
 
                 const votings = await Promise.all(
@@ -73,7 +73,7 @@ export default async function ProceedingsPage({
   );
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-4">
+    <div className="space-y-4 mx-0 px-0">
       <div className="mb-6">
         <SearchBox />
       </div>
@@ -95,20 +95,25 @@ export default async function ProceedingsPage({
                     <div className="flex items-center gap-2">
                       <CalendarDays className="h-4 w-4 text-muted-foreground" />
                       <span>
-                        {new Date(day.date).toLocaleDateString("pl-PL")}
+                        {new Date(day.date).toLocaleDateString("pl-PL")} (
+                        {day.proceeding_point_ai.length})
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {day.proceeding_point_ai.some(
                         (p) => (p.votingResults?.length ?? 0) > 0
                       ) && (
-                        <Badge variant="outline">
-                          Głosowania (
-                          {day.proceeding_point_ai.reduce(
-                            (acc, p) => acc + (p.votingResults?.length || 0),
-                            0
-                          )}
-                          )
+                        <Badge
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          <Vote className="h-3 w-3" />
+                          <span>
+                            {day.proceeding_point_ai.reduce(
+                              (acc, p) => acc + (p.votingResults?.length || 0),
+                              0
+                            )}
+                          </span>
                         </Badge>
                       )}
                       {day.proceeding_point_ai.some(

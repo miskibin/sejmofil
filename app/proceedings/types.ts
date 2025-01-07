@@ -1,15 +1,10 @@
-export interface VotingResult {
-  topic: string;
-  votes: { vote: string }[];
-  totalVoted: number;
-  passed?: boolean;
-}
+import { ProceedingPointAI } from "@/lib/types/proceeding";
+import { VotingResult as SejmVotingResult } from "@/lib/api/sejm";
 
-export interface ProceedingPoint {
-  id: number;
-  topic: string;
-  summary_tldr: string;
-  voting_numbers: number[];
-  votingResults?: (VotingResult | null)[];
+export interface ProceedingPoint extends ProceedingPointAI {
+  statements: unknown;
+  votingResults?: SejmVotingResult[];
   breakVotingsCount?: number;
 }
+
+export type { SejmVotingResult as VotingResult };

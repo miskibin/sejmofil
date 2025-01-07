@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { debounce } from "lodash";
 import { useCallback } from "react";
+
 export function SearchBox() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -27,7 +28,7 @@ export function SearchBox() {
     <div className="relative w-full sm:w-64">
       <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
       <Input
-        placeholder="Szukaj punktu..."
+        placeholder="Wpisz minimum 2 znaki..."
         className="pl-8"
         onChange={(e) => handleSearch(e.target.value)}
         defaultValue={searchParams.get("query")?.toString()}
