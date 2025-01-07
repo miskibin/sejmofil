@@ -28,6 +28,7 @@ export interface Envoy extends EnvoyShort {
   birthDate: string;
   birthLocation: string;
   districtNum: number;
+  genitiveName: string;
   educationLevel: string;
   email: string;
   isFemale: boolean;

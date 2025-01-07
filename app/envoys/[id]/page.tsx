@@ -29,10 +29,8 @@ export async function generateMetadata({
   const envoy = await getEnvoyInfo(id);
 
   return {
-    title: `${envoy.firstLastName} | Sejmofil`,
-    description: `Profil, aktywność i analiza wypowiedzi posła ${
-      envoy.firstLastName
-    }. ${envoy.club ? `Klub parlamentarny: ${envoy.club}.` : ""}`,
+    title: `${envoy.firstLastName} `,
+    description: `Analiza AI, Cytaty, Biografia, działalność parlamentarna ${envoy.genitiveName} (${envoy.club})`,
   };
 }
 
