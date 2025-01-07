@@ -34,12 +34,17 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({}: {
-  params: Promise<{ id: number }>;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: number; number: string; date: string }>;
 }): Promise<Metadata> {
+  const point = await getPointDetails((await params).id, false);
+  const [category, title] = point.topic.split(" | ");
+
   return {
-    title: `Punkt obrad | Sejmofil`,
-    description: `Analiza punktu obrad w Sejmie.`,
+    title: `${title || "Punkt obrad"} `,
+    description: `${category}: ${title}. Analiza AI wypowiedzi, głosowania, druki i szczegółowe informacje o punkcie obrad Sejmu.`,
   };
 }
 
@@ -349,7 +354,7 @@ export default async function PointDetail({
                         )}
                       </span>
                     </h4>
-                    
+
                     {print.attachments.length > 0 && (
                       <div className="space-y-2">
                         {print.attachments.map((attachment) => (
@@ -369,19 +374,22 @@ export default async function PointDetail({
                       </div>
                     )}
                     {print.stageInfo && (
-                        <div className="text-sm flex flex-wrap gap-2 mt-5 items-center">
-                          <span className="font-medium text-muted-foreground">
+                      <div className="text-sm flex flex-wrap gap-2 mt-5 items-center">
+                        <span className="font-medium text-muted-foreground">
                           Etap procesu legislacyjnego:
-                          </span>
-                          <span className="">
-                          {print.stageInfo.stageName.replace("Skierowanie", "Skierowano do: ")}
-                          </span>
-                          {print.stageInfo.performerName && (
+                        </span>
+                        <span className="">
+                          {print.stageInfo.stageName.replace(
+                            "Skierowanie",
+                            "Skierowano do: "
+                          )}
+                        </span>
+                        {print.stageInfo.performerName && (
                           <span className="font-medium bg-primary/20 px-2 py-1 rounded-md">
                             {print.stageInfo.performerName}
                           </span>
-                          )}
-                        </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 ))}

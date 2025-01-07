@@ -8,7 +8,7 @@ import {
 } from "@/lib/queries/person";
 
 export default async function PlebiscytCard() {
-  const mostInterruptions = await getPersonWithMostInterruptions() || 0;
+  const mostInterruptions = (await getPersonWithMostInterruptions()) || 0;
   const mostStatements = await getPersonWithMostStatements();
   const leastStatements = await getPersonWithMostStatements(true);
 
@@ -59,6 +59,7 @@ export default async function PlebiscytCard() {
       aiPrompt="Give me interesting statistics about politicians."
       subtitle="Czy wiesz, że?"
       showMoreLink="/envoys"
+      showGradient={true}
       headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
     >
       <div className="space-y-2 ">

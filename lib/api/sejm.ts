@@ -21,14 +21,17 @@ interface VotingResult {
   }>;
 }
 
-export async function getVotingDetails(proceedingNumber: number, votingNumber: number): Promise<VotingResult> {
+export async function getVotingDetails(
+  proceedingNumber: number,
+  votingNumber: number
+): Promise<VotingResult> {
   const response = await fetch(
     `https://api.sejm.gov.pl/sejm/term10/votings/${proceedingNumber}/${votingNumber}`
   );
-  
+
   if (!response.ok) {
-    throw new Error('Failed to fetch voting data');
+    throw new Error("Failed to fetch voting data");
   }
-  
+
   return response.json();
 }

@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Image from "next/image";
 import {
   Users,
@@ -12,6 +13,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import Script from "next/script";
 import { SOCIAL_LINKS, SUPPORT_LINKS } from "@/lib/config/links";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "O Projekcie",
+  description:
+    "Poznaj zespół i cele projektu Sejmofil. Dowiedz się więcej o naszej misji zwiększania transparentności pracy Sejmu poprzez analizę AI.",
+};
 
 const teamMembers = [
   {

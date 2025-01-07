@@ -74,7 +74,9 @@ interface CitationWithPerson {
   statement_id: number;
 }
 
-export async function getLatestCitizations(): Promise<CitationWithPerson[]> {
+export async function getLatestCitizations(
+  number: number
+): Promise<CitationWithPerson[]> {
   const supabase = createClient();
 
   const { data } = await (
@@ -93,7 +95,7 @@ export async function getLatestCitizations(): Promise<CitationWithPerson[]> {
     .not("statement_ai.citations", "is", null)
     .not("statement_ai.citations", "eq", "{}")
     .order("id", { ascending: false })
-    .limit(4);
+    .limit(number);
   if (!data) return [];
 
   // Process and flatten citations, keeping only unique speakers
@@ -211,6 +213,7 @@ interface ProceedingWithDays {
     id: number;
     date: string;
     proceeding_point_ai: Array<{
+      voting_numbers: number[];
       id: number;
       topic: string;
       summary_tldr: string;
@@ -236,7 +239,8 @@ export async function getProceedings(): Promise<ProceedingWithDays[]> {
         proceeding_point_ai (
           id,
           topic,
-          summary_tldr
+          summary_tldr,
+          voting_numbers
         )
       )
     `
