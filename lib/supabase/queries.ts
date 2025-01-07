@@ -239,6 +239,7 @@ export async function getProceedings(): Promise<ProceedingWithDays[]> {
         proceeding_point_ai (
           id,
           topic,
+          official_point,
           summary_tldr,
           voting_numbers
         )

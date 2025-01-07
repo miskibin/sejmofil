@@ -107,8 +107,7 @@ export function ProceedingsList({
                       <div className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          {new Date(day.date).toLocaleDateString("pl-PL")} (
-                          {day.proceeding_point_ai.length})
+                          {new Date(day.date).toLocaleDateString("pl-PL")} 
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -152,30 +151,35 @@ export function ProceedingsList({
                   </AccordionTrigger>
                   <AccordionContent className="pt-2 pb-4">
                     <div className="space-y-3 ml-2 sm:ml-6 border-l">
-                      {day.proceeding_point_ai?.map((point) => (
+                        {day.proceeding_point_ai?.map((point, ) => (
                         <div
                           key={point.id}
                           className="relative pl-2 sm:pl-6 border-l hover:border-primary"
                         >
                           <Link
-                            href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
-                            className="block hover:text-primary"
+                          href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
+                          className="block hover:text-primary"
                           >
-                            <div className="text-sm font-medium break-words">
-                              {point.topic.split(" | ")[1] || point.topic}
-                            </div>
-                            {(point.votingResults?.length ?? 0) > 0 && (
-                              <div className="flex flex-col gap-2 mt-1">
-                                {point.votingResults?.map(
-                                  (voting: VotingResult, idx) => (
-                                    <VotingDisplay key={idx} voting={voting} />
-                                  )
-                                )}
-                              </div>
+                            <div className={`text-sm ${point.official_point ? 'font-medium' : 'italic'} break-words`}>
+                            {point.official_point && (
+                              <span className="mr-2 text-muted-foreground">
+                              {point.official_point.split(".")[0]}.
+                              </span>
                             )}
+                            {point.topic.split(" | ")[1] || point.topic}
+                            </div>
+                          {(point.votingResults?.length ?? 0) > 0 && (
+                            <div className="flex flex-col gap-2 mt-1">
+                            {point.votingResults?.map(
+                              (voting: VotingResult, idx) => (
+                              <VotingDisplay key={idx} voting={voting} />
+                              )
+                            )}
+                            </div>
+                          )}
                           </Link>
                         </div>
-                      ))}
+                        ))}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
