@@ -27,6 +27,7 @@ import { VotingSection } from "./components/voting-section";
 import { PrintSection } from "./components/print-section";
 import { EmptyState } from "@/components/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
 
 // Update the SummarySection component to handle null values
 const SummarySection = ({
@@ -55,6 +56,15 @@ const SummarySection = ({
     )}
   </CardWrapper>
 );
+
+const TabContent = ({ content }: { content: string | null | undefined }) => {
+  if (!content || content === "null") return null;
+  return (
+    <div className="prose prose-sm max-w-none">
+      <ReactMarkdown>{content}</ReactMarkdown>
+    </div>
+  );
+};
 
 export async function generateMetadata({}: {
   params: Promise<{ id: number }>;
@@ -205,6 +215,30 @@ export default async function PointDetail({
 
   // Add helper function to get speaker info
 
+  // Define available tabs with their content
+  const tabs = [
+    {
+      value: "summary",
+      label: "Podsumowanie",
+      content: point.summary_main?.outtakes,
+    },
+    {
+      value: "issues",
+      label: "Kwestie sporne",
+      content: point.summary_main?.unresolved,
+    },
+    {
+      value: "positions",
+      label: "Stanowiska",
+      content: point.summary_main?.key_positions,
+    },
+    {
+      value: "prints",
+      label: "Dokumenty",
+      content: printsWithStages.length > 0 ? "has-content" : null,
+    },
+  ].filter(tab => tab.content); // Only keep tabs with content
+
   return (
     <div className="space-y-6">
       {relatedPoint &&
@@ -255,7 +289,6 @@ export default async function PointDetail({
         </Badge>
       </div>
 
-      {/* First Bento grid - Adjust column spans for different breakpoints */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-4 lg:gap-x-6">
         {/* Main topic section - Make it full width on mobile */}
         <div className="col-span-full lg:col-span-4 lg:row-span-3 sm:mb-0 mb-6">
@@ -268,66 +301,56 @@ export default async function PointDetail({
         </div>
 
         {/* Stats cards - Adjust grid for better mobile layout */}
-        <div className="col-span-full lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 sm:mb-6">
-          <StatCard
-            title="Emocjonalność"
-            value={`${Math.round(
-              point.statements.reduce(
-                (acc, s) =>
-                  acc + (s.statement_ai?.speaker_rating?.emotions || 0),
-                0
-              ) / point.statements.length
-            )}/5`}
-            category="Legislacja"
-          />
-          <StatCard
-            title="Wypowiedzi"
-            value={Math.round(point.statements.length)}
-            category="Legislacja"
-          />
-          <StatCard
-            title="Uczestnicy"
-            value={Math.round(speakerNames.length)}
-            category="Legislacja"
-          />
-        </div>
+        <div className="col-span-full lg:col-span-8 flex flex-col  gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <StatCard
+              title="Emocjonalność"
+              value={`${Math.round(
+                point.statements.reduce(
+                  (acc, s) =>
+                    acc + (s.statement_ai?.speaker_rating?.emotions || 0),
+                  0
+                ) / point.statements.length
+              )}/5`}
+              category="Legislacja"
+            />
+            <StatCard
+              title="Wypowiedzi"
+              value={Math.round(point.statements.length)}
+              category="Legislacja"
+            />
+            <StatCard
+              title="Uczestnicy"
+              value={Math.round(speakerNames.length)}
+              category="Legislacja"
+            />
+          </div>
 
-        {/* Combined card with all tabs */}
-        <CardWrapper className="col-span-full lg:col-span-8 my-0 h-full min-h-96">
-          <Tabs defaultValue="summary" className="w-full">
-            <TabsList className=" bg-gray-100">
-              <TabsTrigger value="summary">Podsumowanie</TabsTrigger>
-              <TabsTrigger value="issues">Kwestie sporne</TabsTrigger>
-              <TabsTrigger value="positions">Stanowiska</TabsTrigger>
-              <TabsTrigger value="prints">Dokumenty</TabsTrigger>
-            </TabsList>
-            <TabsContent value="summary" className="mt-6">
-              <div className="prose prose-sm max-w-none">
-                <ReactMarkdown>
-                  {point.summary_main?.outtakes || "Brak podsumowania"}
-                </ReactMarkdown>
-              </div>
-            </TabsContent>
-            <TabsContent value="issues" className="mt-6">
-              <div className="prose prose-sm max-w-none">
-                <ReactMarkdown>
-                  {point.summary_main?.unresolved || "Brak kwestii spornych"}
-                </ReactMarkdown>
-              </div>
-            </TabsContent>
-            <TabsContent value="positions" className="mt-6">
-              <div className="prose prose-sm max-w-none">
-                <ReactMarkdown>
-                  {point.summary_main?.key_positions || "Brak stanowisk"}
-                </ReactMarkdown>
-              </div>
-            </TabsContent>
-            <TabsContent value="prints" className="mt-6">
-              <PrintSection prints={printsWithStages} />
-            </TabsContent>
-          </Tabs>
-        </CardWrapper>
+          {tabs.length > 0 && (
+            <Card className="flex-1 p-4 h-full min-h-96 grow">
+              <Tabs defaultValue={tabs[0].value} className="w-full grow h-full">
+                <TabsList>
+                  {tabs.map(tab => (
+                    <TabsTrigger key={tab.value} value={tab.value}>
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                {tabs.map(tab => (
+                  <TabsContent key={tab.value} value={tab.value} className="mt-6">
+                    {tab.value === "prints" ? (
+                      <PrintSection prints={printsWithStages} />
+                    ) : (
+                      <TabContent content={tab.content} />
+                    )}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </Card>
+          )}
+        </div>
       </div>
+
       {/* Second grid section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
         {/* Charts and analysis section */}

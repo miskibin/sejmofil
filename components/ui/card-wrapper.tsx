@@ -62,13 +62,6 @@ export function CardWrapper({
         </div>
       </CardHeader>
 
-      {/* <hr
-        className={cn(
-          "mx-6 mb-4",
-          isInverted ? "border-primary-foreground/20" : "border-primary/20"
-        )}
-      /> */}
-
       <CardContent className="flex-1 flex flex-col min-h-12 mt-4">
         <div className="relative flex-1">
           <div className="space-y-4">{children}</div>

@@ -83,7 +83,7 @@ export function DiscussionEntries({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mb-4">
       <div className="flex justify-between items-center pb-4 border-b">
         <div className="text-sm text-muted-foreground flex items-center gap-2">
           <span className="font-medium">
@@ -106,7 +106,7 @@ export function DiscussionEntries({
         </select>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 mb-4">
         {sortedStatements.map((statement) => {
           const speaker = getSpeakerInfo(statement.speaker_name);
           const isFeatured =
