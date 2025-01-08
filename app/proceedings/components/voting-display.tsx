@@ -34,10 +34,10 @@ export function VotingDisplay({ voting, isDetailed, onLoadDetails }: VotingProps
         className="w-full justify-start" 
         onClick={handleClick}
       >
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex w-full items-center gap-1 text-xs text-muted-foreground">
           <Vote className="h-3 w-3 flex-shrink-0" />
-          <span className="mr-1 truncate">{voting.topic}:</span>
-          <span className="flex items-center gap-1 flex-shrink-0">
+          <span className="truncate mr-1">{voting.topic}</span>
+          <span className="flex items-center gap-1 flex-shrink-0 ml-auto">
             <ThumbsUp className="h-3 w-3 text-success" />{yesVotes} - {noVotes}{" "}
             <ThumbsDown className="h-3 w-3 text-destructive" />
           </span>
