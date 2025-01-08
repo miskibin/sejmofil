@@ -6,7 +6,7 @@ import {
   getPersonInterruptionsCount 
 } from "@/lib/queries/person";
 import { EnvoysListClient } from "./components/envoys-list-client";
-
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // 1 hour
 
 const getEnvoysData = cache(async () => {
