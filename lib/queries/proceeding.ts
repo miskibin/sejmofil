@@ -29,7 +29,7 @@ export async function getProceedingDates(): Promise<ProceedingDates[]> {
   return result;
 }
 
-interface VotingResult {
+export interface VotingResult {
   votingNumber: number;
   topic: string;
   yes: number;

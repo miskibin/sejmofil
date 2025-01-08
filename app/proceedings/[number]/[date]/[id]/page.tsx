@@ -16,18 +16,18 @@ import {
   getPrintsByNumbersAndVotings,
 } from "@/lib/queries/print";
 import { Metadata } from "next";
-import { getVotingDetails } from "@/lib/api/sejm";
 import { DiscussionEntries } from "./components/discussion-entries";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { VotingSection } from "./components/voting-section";
 import { PrintSection } from "./components/print-section";
 import { EmptyState } from "@/components/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import { getVotingResultsByNumbrs } from "@/lib/queries/proceeding";
+import { VotingList } from "./components/voting-list";
 
 // Update the SummarySection component to handle null values
 const SummarySection = ({
@@ -110,21 +110,6 @@ export default async function PointDetail({
   ];
   const speakerClubs = await getClubAndIdsByNames(speakerNames);
 
-  // Helper function to determine voting result
-  const getVotingResult = (votingResult: (typeof votingResults)[0]) => {
-    if (!votingResult) return null;
-
-    const yesVotes = votingResult.votes.filter((v) => v.vote === "YES").length;
-    const noVotes = votingResult.votes.filter((v) => v.vote === "NO").length;
-
-    return {
-      passed: yesVotes > noVotes && votingResult.totalVoted > 230,
-      total: votingResult.totalVoted,
-      yes: yesVotes,
-      no: noVotes,
-    };
-  };
-
   // Fetch prints if available
   const prints =
     point.print_numbers?.length > 0
@@ -183,35 +168,13 @@ export default async function PointDetail({
   }));
 
   // Fetch voting results if available
-  const votingResults =
+  const simpleVotingResults =
     point.voting_numbers?.length > 0
-      ? await Promise.all(
-          point.voting_numbers.map((num) =>
-            getVotingDetails(point.proceeding_day.proceeding.number, num)
-          )
+      ? await getVotingResultsByNumbrs(
+          point.proceeding_day.proceeding.number,
+          point.voting_numbers
         )
       : [];
-
-  // Process voting data for each voting result
-  const processVotingData = (votes: { club: string; vote: string }[]) =>
-    Object.entries(
-      votes.reduce((acc, vote) => {
-        if (!acc[vote.club]) {
-          acc[vote.club] = { club: vote.club, yes: 0, no: 0, abstain: 0 };
-        }
-        if (vote.vote === "YES") acc[vote.club].yes++;
-        if (vote.vote === "NO") acc[vote.club].no++;
-        if (vote.vote === "ABSTAIN") acc[vote.club].abstain++;
-        return acc;
-      }, {} as Record<string, { club: string; yes: number; no: number; abstain: number }>)
-    ).map(([, data]) => data);
-
-  // Process voting data for all votings
-  const votingData = votingResults.map((result) => ({
-    topic: result.topic,
-    data: processVotingData(result.votes),
-    result: getVotingResult(result),
-  }));
 
   // Add helper function to get speaker info
 
@@ -304,8 +267,8 @@ export default async function PointDetail({
         <div className="col-span-full lg:col-span-8 flex flex-col gap-4 h-full">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
-            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
-            sourceDescription="Emocje mierzone są na podstawie metryk, opisanych w zakładce 'o projekcie'. Każda wypowiedź jest oceniana w skali od 1 do 5"
+              headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+              sourceDescription="Emocje mierzone są na podstawie metryk, opisanych w zakładce 'o projekcie'. Każda wypowiedź jest oceniana w skali od 1 do 5"
               title="Emocjonalność"
               value={`${Math.round(
                 point.statements.reduce(
@@ -374,8 +337,11 @@ export default async function PointDetail({
         </div>
 
         {/* Voting section */}
-        <div className="col-span-full lg:col-span-6">
-          <VotingSection votingData={votingData} />
+        <div className="col-span-full  lg:col-span-6">
+          <VotingList
+            votings={simpleVotingResults}
+            proceedingNumber={point.proceeding_day.proceeding.number}
+          />
         </div>
 
         {/* Replace the Statements section with: */}
