@@ -33,7 +33,6 @@ interface DiscussionEntriesProps {
   proceedingDate: string;
   initialMode?: FilterMode;
 }
-
 export function DiscussionEntries({
   statements,
   speakerClubs,
@@ -185,13 +184,22 @@ export function DiscussionEntries({
                       ))}
                   </div>
                 )}
-
                 {/* Citations */}
-                {statement.statement_ai?.citations?.[0] && (
-                  <blockquote className="text-sm text-muted-foreground border-l-2 border-primary/30 pl-3 mt-2 italic">
-                    {statement.statement_ai.citations[0]}
-                  </blockquote>
-                )}
+                {Array.isArray(statement.statement_ai?.citations) &&
+                  statement.statement_ai.citations.length > 0 && (
+                    <div className="space-y-2 mt-2">
+                      {statement.statement_ai.citations.map(
+                        (citation, index) => (
+                          <blockquote
+                            key={index}
+                            className="text-sm text-muted-foreground border-l-2 border-primary/30 pl-3 italic"
+                          >
+                            {citation}
+                          </blockquote>
+                        )
+                      )}
+                    </div>
+                  )}
 
                 {/* Footer */}
                 <div className="mt-2 flex items-center gap-2">
