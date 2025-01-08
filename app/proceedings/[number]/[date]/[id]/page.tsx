@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import {
   getPointDetails,
@@ -14,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/stat-card";
 import {
   getLatestStageAndPerformer,
-  getPrintsByNumbers,
+  getPrintsByNumbersAndVotings,
 } from "@/lib/queries/print";
 import { Metadata } from "next";
 import { getVotingDetails } from "@/lib/api/sejm";
@@ -32,21 +31,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { VotingSection } from "./components/voting-section";
 import { PrintSection } from "./components/print-section";
-
-// Add the EmptyState component to handle empty states with a clean UI.
-const EmptyState = ({ text }: { text: string }) => (
-  <div className="text-center pb-6">
-    <div className="flex justify-center mb-4">
-      <Image
-        src="/empty.svg"
-        width={200}
-        height={200}
-        alt="Empty state illustration"
-      />
-    </div>
-    <p className="text-gray-500">{text}</p>
-  </div>
-);
+import { EmptyState } from "@/components/empty-state";
 
 // Update the SummarySection component to handle null values
 const SummarySection = ({
@@ -71,7 +56,7 @@ const SummarySection = ({
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>
     ) : (
-      <EmptyState text={emptyText} />
+      <EmptyState text={emptyText} image="empty.svg" />
     )}
   </CardWrapper>
 );
@@ -138,7 +123,10 @@ export default async function PointDetail({
   // Fetch prints if available
   const prints =
     point.print_numbers?.length > 0
-      ? await getPrintsByNumbers(point.print_numbers.map(String))
+      ? await getPrintsByNumbersAndVotings(
+          point.print_numbers.map(String),
+          point.voting_numbers
+        )
       : [];
 
   // Add this after the print fetch:
@@ -221,9 +209,6 @@ export default async function PointDetail({
   }));
 
   // Add helper function to get speaker info
-  const getSpeakerInfo = (name: string) => {
-    return speakerClubs.find((s) => s.name === name);
-  };
 
   return (
     <div className="space-y-6">
@@ -368,6 +353,15 @@ export default async function PointDetail({
           <CardWrapper
             title="Wypowiedzi"
             subtitle={`Przebieg dyskusji (${point.statements.length})`}
+            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+            sourceDescription="
+              Dane pochodzą z oficjalnej strony sejmowej i analizowane przez AI. 
+              Ocena emocji w wypowiedzieach opisana jest w zakładce `o projekcie`. 
+              Odpowiedzi wyróżnione - to takie, które zostały zakwalifikowane jako najbardziej szokujące i emocjonalne. 
+            "
+            sourceUrls={[
+              `${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/transcripts/0`,
+            ]}
           >
             <Accordion type="single" collapsible>
               <AccordionItem value="statements">
@@ -375,9 +369,12 @@ export default async function PointDetail({
                 <AccordionContent>
                   <DiscussionEntries
                     statements={point.statements}
-                    speakerInfo={getSpeakerInfo}
+                    speakerClubs={speakerClubs}
                     proceedingNumber={point.proceeding_day.proceeding.number}
                     proceedingDate={point.proceeding_day.date}
+                    initialMode={
+                      (await searchParams)?.showAll ? "all" : "normal"
+                    }
                   />
                 </AccordionContent>
               </AccordionItem>
