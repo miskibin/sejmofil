@@ -5,8 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Heart, Brain, Scale, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { Button } from "@/components/ui/button";
 
 type FilterMode = "featured" | "all" | "normal";
 
@@ -66,6 +71,7 @@ export function DiscussionEntries({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filterMode, setFilterMode] = useState<FilterMode>(initialMode);
+  const [showAll, setShowAll] = useState(false);
   const getSpeakerInfo = (name: string) => {
     return speakerClubs.find((s) => s.name === name);
   };
@@ -105,6 +111,10 @@ export function DiscussionEntries({
     return a.number_source - b.number_source;
   });
 
+  const displayedStatements = showAll
+    ? sortedStatements
+    : sortedStatements.slice(0, 2);
+
   return (
     <div className="space-y-4 mb-4">
       <div className="flex justify-between items-center pb-4 border-b">
@@ -130,7 +140,7 @@ export function DiscussionEntries({
       </div>
 
       <div className="space-y-6 mb-4">
-        {sortedStatements.map((statement) => {
+        {displayedStatements.map((statement) => {
           const speaker = getSpeakerInfo(statement.speaker_name);
           const isFeatured =
             (statement.statement_ai?.speaker_rating?.emotions ?? 0) >= 4 ||
@@ -181,20 +191,20 @@ export function DiscussionEntries({
                   </span>
                   <TooltipProvider>
                     {Object.entries(statement.statement_ai.speaker_rating)
-                    .filter(([, value]) => value >= 4)
-                    .map(([key, value]) => (
-                      <Tooltip key={key}>
-                      <TooltipTrigger>
-                        <div className="flex items-center gap-1">
-                        {metricIcons[key]?.icon}
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {metricIcons[key]?.tooltip}: {value}/5
-                      </TooltipContent>
-                      </Tooltip>
-                    ))}
-                    </TooltipProvider>
+                      .filter(([, value]) => value >= 4)
+                      .map(([key, value]) => (
+                        <Tooltip key={key}>
+                          <TooltipTrigger>
+                            <div className="flex items-center gap-1">
+                              {metricIcons[key]?.icon}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {metricIcons[key]?.tooltip}: {value}/5
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                  </TooltipProvider>
                 </div>
 
                 {/* Main content */}
@@ -239,6 +249,19 @@ export function DiscussionEntries({
           );
         })}
       </div>
+
+      {/* Add load all button */}
+      {!showAll && sortedStatements.length > 2 && (
+        <div className="flex justify-center pt-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowAll(true)}
+            className="w-full max-w-sm"
+          >
+            Załaduj wszystkie ({sortedStatements.length - 2} pozostało)
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
