@@ -28,7 +28,7 @@ export function getTimeUntilNextProceeding(nextDate: Date | null): string {
   nextDate.setHours(9, 0, 0, 0); // Set proceeding start time to 9 AM
   const diff = nextDate.getTime() - now.getTime();
 
-  if (diff <= 0) return "trwa";
+  if (diff <= 0) return "0";
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

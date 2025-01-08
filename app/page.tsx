@@ -19,11 +19,17 @@ export default async function Home() {
   return (
     <>
       <div className="mb-4 sm:mb-8 mt-16">
-        <h1 className="text-2xl font-semibold">
+        <h1 className="text-2xl px-2 font-semibold">
           {nextDate ? (
             <>
-              Do następnych Obrad zostało{" "}
-              <span className="text-primary">{timeUntil}</span>
+              {timeUntil === "0" ? (
+                "Obrady trwają"
+              ) : (
+                <>
+                  Do następnych Obrad zostało{" "}
+                  <span className="text-primary">{timeUntil}</span>
+                </>
+              )}
             </>
           ) : (
             <span>Brak zaplanowanych obrad</span>
@@ -68,7 +74,9 @@ export default async function Home() {
             value={"268M PLN"}
             category="w 2025"
             sourceDescription="Ustawa budżetowa na rok 2025. Strona 45"
-            sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/685/687-ustawa%20i%20za%C5%82%C4%85czniki%20do%20ustawy.pdf`]}
+            sourceUrls={[
+              `${process.env.NEXT_PUBLIC_API_BASE_URL}/685/687-ustawa%20i%20za%C5%82%C4%85czniki%20do%20ustawy.pdf`,
+            ]}
           />
         </div>
 
