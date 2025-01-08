@@ -11,7 +11,8 @@ import SejmCostCounter from "@/components/total-cost";
 import { getProceedingDates } from "@/lib/queries/proceeding";
 import { getNextProceedingDate, getTimeUntilNextProceeding } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
+// export const revalidate = 60 * 10; // Revalidate every hour
 export default async function Home() {
   const proceedings = await getProceedingDates();
   const nextDate = getNextProceedingDate(proceedings);
