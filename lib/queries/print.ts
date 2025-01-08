@@ -166,9 +166,11 @@ export async function getEnvoySubjectPrints(
   return result.map((record) => record.print);
 }
 
-export async function getPrintsByNumbers(
-  numbers: string[]
+export async function getPrintsByNumbersAndVotings(
+  numbers: string[],
+  voting_numbers: number[]
 ): Promise<PrintShort[]> {
+  console.log(voting_numbers); // TODO add prints for votings in db!!!!
   const query = `
     MATCH (print:Print)
     WHERE print.number IN $numbers
@@ -214,5 +216,7 @@ export async function getLatestStageAndPerformer(printNumber: string): Promise<{
     performerName: string | null;
     performerCode: string | null;
   }>(query, { printNumber });
-  return result[0] || { stageName: '', performerName: null, performerCode: null };
+  return (
+    result[0] || { stageName: "", performerName: null, performerCode: null }
+  );
 }

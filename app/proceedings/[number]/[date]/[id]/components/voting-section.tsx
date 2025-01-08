@@ -8,7 +8,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import Image from "next/image";
+import { EmptyState } from "@/components/empty-state";
 
 type VotingData = {
   topic: string;
@@ -17,33 +17,34 @@ type VotingData = {
 };
 
 export const VotingSection = ({ votingData }: { votingData: VotingData[] }) => {
-  if (!votingData.length) {
-    return (
-      <CardWrapper title="Głosowania" subtitle="Brak głosowań">
-        <EmptyState image="/street.svg" text="Brak głosowań" />
-      </CardWrapper>
-    );
-  }
-
   return (
     <CardWrapper
       title="Głosowania"
-      subtitle={`Głosowań: ${votingData.length}`}
+      subtitle={
+        votingData.length ? `Głosowań: ${votingData.length}` : "Brak głosowań"
+      }
       className="h-full"
     >
-      <Carousel className="w-[90%] mx-auto">
-        <CarouselContent>
-          {votingData.map((voting, index) => (
-            <CarouselItem key={index}>
-              <VotingItem voting={voting} />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <div className="flex justify-center gap-4 mt-4">
-          <CarouselPrevious />
-          <CarouselNext />
-        </div>
-      </Carousel>
+      {votingData.length === 0 ? (
+        <EmptyState
+          text="Nie odbyły się żadne głosowania w trakcie tego posiedzenia."
+          image="/street.svg"
+        />
+      ) : (
+        <Carousel className="w-[90%] mx-auto">
+          <CarouselContent>
+            {votingData.map((voting, index) => (
+              <CarouselItem key={index}>
+                <VotingItem voting={voting} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <div className="flex justify-center gap-4 mt-4">
+            <CarouselPrevious />
+            <CarouselNext />
+          </div>
+        </Carousel>
+      )}
     </CardWrapper>
   );
 };
@@ -64,14 +65,5 @@ const VotingItem = ({ voting }: { voting: VotingData }) => (
       </div>
     </div>
     <VotingResultsChart data={voting.data} />
-  </div>
-);
-
-const EmptyState = ({ image, text }: { image: string; text: string }) => (
-  <div className="text-center pb-6">
-    <div className="flex justify-center mb-4">
-      <Image src={image} width={350} height={350} alt="Empty state" />
-    </div>
-    <p className="text-gray-500">{text}</p>
   </div>
 );
