@@ -28,3 +28,25 @@ export async function getProceedingDates(): Promise<ProceedingDates[]> {
   );
   return result;
 }
+
+interface VotingResult {
+  votingNumber: number;
+  topic: string;
+  yes: number;
+  no: number;
+}
+
+export async function getVotingResultsByNumbrs(
+  sitting: number,
+  voting_numbers: number[]
+): Promise<VotingResult[]> {
+  const query = `
+    MATCH (v:Voting)
+    WHERE v.sitting = $sitting AND v.votingNumber IN $voting_numbers
+    RETURN  v.votingNumber as votingNumber, 
+           v.topic as topic, v.yes as yes, v.no as no
+    ORDER BY v.votingNumber
+  `;
+
+  return runQuery<VotingResult>(query, { sitting, voting_numbers });
+}
