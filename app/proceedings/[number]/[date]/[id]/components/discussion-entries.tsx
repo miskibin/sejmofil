@@ -3,9 +3,10 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Heart, Brain, Scale, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 type FilterMode = "featured" | "all" | "normal";
 
@@ -13,10 +14,10 @@ interface Statement {
   id: number;
   speaker_name: string;
   number_source: number;
-  statement_ai?: {
-    summary_tldr?: string;
+  statement_ai: {
+    summary_tldr: string;
     citations?: string[];
-    speaker_rating?: Record<string, number>;
+    speaker_rating: Record<string, number>;
   };
 }
 
@@ -33,6 +34,28 @@ interface DiscussionEntriesProps {
   proceedingDate: string;
   initialMode?: FilterMode;
 }
+
+// Add this mapping near the top of the file, before the component
+const metricIcons: Record<string, { icon: React.ReactNode; tooltip: string }> =
+  {
+    emotions: {
+      icon: <Heart className="w-4 h-4 text-primary" />,
+      tooltip: "Emocjonalność",
+    },
+    manipulation: {
+      icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
+      tooltip: "Manipulacja",
+    },
+    logic: {
+      icon: <Brain className="w-4 h-4 text-blue-500" />,
+      tooltip: "Logika",
+    },
+    facts: {
+      icon: <Scale className="w-4 h-4 text-success" />,
+      tooltip: "Fakty",
+    },
+  };
+
 export function DiscussionEntries({
   statements,
   speakerClubs,
@@ -156,6 +179,22 @@ export function DiscussionEntries({
                   <span className="text-xs text-muted-foreground">
                     ({speaker?.club || "Brak klubu"})
                   </span>
+                  <TooltipProvider>
+                    {Object.entries(statement.statement_ai.speaker_rating)
+                    .filter(([, value]) => value >= 4)
+                    .map(([key, value]) => (
+                      <Tooltip key={key}>
+                      <TooltipTrigger>
+                        <div className="flex items-center gap-1">
+                        {metricIcons[key]?.icon}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {metricIcons[key]?.tooltip}: {value}/5
+                      </TooltipContent>
+                      </Tooltip>
+                    ))}
+                    </TooltipProvider>
                 </div>
 
                 {/* Main content */}
@@ -165,25 +204,8 @@ export function DiscussionEntries({
                   </p>
                 )}
 
-                {/* Metrics */}
-                {statement.statement_ai?.speaker_rating && (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {Object.entries(statement.statement_ai.speaker_rating)
-                      .filter(([, value]) => value >= 4)
-                      .map(([key, value]) => (
-                        <Badge
-                          key={key}
-                          variant="secondary"
-                          className="text-xs px-2"
-                        >
-                          {key === "manipulation" && "Manipulacja"}
-                          {key === "facts" && "Fakty"}
-                          {key === "logic" && "Logika"}
-                          {key === "emotions" && "Emocje"} {value}/5
-                        </Badge>
-                      ))}
-                  </div>
-                )}
+                {/* Replace the Metrics section with: */}
+
                 {/* Citations */}
                 {Array.isArray(statement.statement_ai?.citations) &&
                   statement.statement_ai.citations.length > 0 && (

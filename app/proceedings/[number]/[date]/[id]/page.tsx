@@ -229,7 +229,7 @@ export default async function PointDetail({
     },
     {
       value: "positions",
-      label: "Stanowiska",
+      label: "Stanowiska partii",
       content: point.summary_main?.key_positions,
     },
     {
@@ -237,7 +237,7 @@ export default async function PointDetail({
       label: "Dokumenty",
       content: printsWithStages.length > 0 ? "has-content" : null,
     },
-  ].filter(tab => tab.content); // Only keep tabs with content
+  ].filter((tab) => tab.content); // Only keep tabs with content
 
   return (
     <div className="space-y-6">
@@ -289,9 +289,9 @@ export default async function PointDetail({
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-4 lg:gap-x-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-4 lg:gap-x-6 auto-rows-min">
         {/* Main topic section - Make it full width on mobile */}
-        <div className="col-span-full lg:col-span-4 lg:row-span-3 sm:mb-0 mb-6">
+        <div className="col-span-full lg:col-span-4">
           <SummarySection
             title="Główne Zagadnienia"
             subtitle="Kluczowe tematy"
@@ -301,7 +301,7 @@ export default async function PointDetail({
         </div>
 
         {/* Stats cards - Adjust grid for better mobile layout */}
-        <div className="col-span-full lg:col-span-8 flex flex-col  gap-4">
+        <div className="col-span-full lg:col-span-8 flex flex-col gap-4 h-full">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
               title="Emocjonalność"
@@ -327,24 +327,33 @@ export default async function PointDetail({
           </div>
 
           {tabs.length > 0 && (
-            <Card className="flex-1 p-4 h-full min-h-96 grow">
-              <Tabs defaultValue={tabs[0].value} className="w-full grow h-full">
+            <Card className="flex-1 p-4 flex flex-col  min-h-96">
+              <Tabs
+                defaultValue={tabs[0].value}
+                className="flex-1 flex flex-col"
+              >
                 <TabsList>
-                  {tabs.map(tab => (
+                  {tabs.map((tab) => (
                     <TabsTrigger key={tab.value} value={tab.value}>
                       {tab.label}
                     </TabsTrigger>
                   ))}
                 </TabsList>
-                {tabs.map(tab => (
-                  <TabsContent key={tab.value} value={tab.value} className="mt-6">
-                    {tab.value === "prints" ? (
-                      <PrintSection prints={printsWithStages} />
-                    ) : (
-                      <TabContent content={tab.content} />
-                    )}
-                  </TabsContent>
-                ))}
+                <div className="flex-1 ">
+                  {tabs.map((tab) => (
+                    <TabsContent
+                      key={tab.value}
+                      value={tab.value}
+                      className="mt-6 h-full"
+                    >
+                      {tab.value === "prints" ? (
+                        <PrintSection prints={printsWithStages} />
+                      ) : (
+                        <TabContent content={tab.content} />
+                      )}
+                    </TabsContent>
+                  ))}
+                </div>
               </Tabs>
             </Card>
           )}
