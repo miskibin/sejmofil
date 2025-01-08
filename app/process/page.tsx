@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import debounce from "lodash/debounce";
 import { getAllPrints } from "@/lib/queries/print";
 import { PrintListItem } from "@/lib/types/print";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardWrapper } from "@/components/ui/card-wrapper";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 const CachedSearchResults = async ({
   query,
@@ -59,56 +61,50 @@ export default function ProcessSearchPage() {
   }, [searchQuery, performSearch]);
 
   return (
-    <div className="container mx-auto p-8">
-      <Card className="max-w-3xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-sm text-primary">Wyszukiwarka</CardTitle>
-          <h2 className="text-2xl font-semibold">Proces legislacyjny</h2>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="w-full">
-            <input
-              type="text"
+    <div className="space-y-4">
+      <CardWrapper
+        title="Proces legislacyjny"
+        subtitle="Wyszukaj druki sejmowe"
+        showGradient={false}
+      >
+        <div className="space-y-6">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Wyszukaj po tytule lub temacie..."
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="pl-8"
             />
           </div>
 
           {searchQuery.trim() && searchResults.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">
-              Nie znaleziono wyników
-            </div>
+            <div className="text-muted-foreground">Nie znaleziono wyników</div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 border-l">
               {searchResults.map((print) => (
                 <div
                   key={print.number}
-                  className="p-4 rounded-lg transition-all cursor-pointer 
-                           hover:scale-[1.01] hover:shadow-md
-                      "
+                  className="relative pl-4 border-l hover:border-primary transition-colors"
                   onClick={() => router.push(`/process/${print.number}`)}
                 >
-                  <div className="space-y-2">
-                    <p className="text-lg font-semibold line-clamp-2">
-                      {print.title}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      <span className="px-2 py-1 text-xs rounded-full  text-primary font-medium">
+                  <div className="block hover:text-primary cursor-pointer">
+                    <div className="text-sm font-medium">{print.title}</div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">
                         {print.topicName}
                       </span>
+                      <span className="text-xs text-primary font-medium">
+                        Druk {print.number}
+                      </span>
                     </div>
-                    <p className="text-xs font-medium text-primary/70">
-                      Druk {print.number}
-                    </p>
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </CardWrapper>
     </div>
   );
 }
