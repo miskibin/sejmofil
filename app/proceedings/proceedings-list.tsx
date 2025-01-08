@@ -12,11 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  Proceeding,
-  PointRenderProps,
-  ProceedingPoint,
-} from "./types";
+import { Proceeding, PointRenderProps, ProceedingPoint } from "./types";
 
 export function ProceedingsList({
   proceedings,
@@ -86,13 +82,11 @@ export function ProceedingsList({
           className="block hover:text-primary"
           prefetch={false}
         >
-          <div
-            className={`text-sm ${
-              point.official_point ? "font-medium" : "italic"
-            } break-words`}
-          >
-            {point.official_point && (
+          <div className={`text-sm font-medium break-words`}>
+            {point.official_point ? (
               <span className="mr-2 text-muted-foreground">{pointNumber}.</span>
+            ) : (
+              <span className="mr-2 italic">{"(Bez numeru)"}.</span>
             )}
             {point.topic.split(" | ")[1] || point.topic}
             {isInterrupted && (
@@ -164,9 +158,11 @@ export function ProceedingsList({
           return (
             <CardWrapper
               key={proceeding.number}
-              title={proceeding.dates
-                .map((d) => new Date(d).toLocaleDateString("pl-PL"))
-                .join(", ")}
+              title={`${new Date(proceeding.dates[0]).toLocaleDateString(
+                "pl-PL"
+              )} - ${new Date(
+                proceeding.dates[proceeding.dates.length - 1]
+              ).toLocaleDateString("pl-PL")}`}
               subtitle={`Posiedzenie ${proceeding.number}`}
               showGradient={false}
             >
@@ -181,7 +177,11 @@ export function ProceedingsList({
                       <div className="flex flex-wrap items-center gap-2 text-sm">
                         <CalendarDays className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          {new Date(day.date).toLocaleDateString("pl-PL")}
+                          {`${new Date(day.date).toLocaleDateString(
+                            "pl-PL"
+                          )} - ${new Date(
+                            proceeding.dates[proceeding.dates.length - 1]
+                          ).toLocaleDateString("pl-PL")}`}
                         </span>
                         {day.proceeding_point_ai.some(
                           (p) => p.votingResults?.length
@@ -190,7 +190,7 @@ export function ProceedingsList({
                             variant="outline"
                             className="flex items-center gap-1"
                           >
-                            <Vote className="h-3 w-3" />
+                            <Vote className=" ms-1 h-3 w-3" /> Głosowań:{" "}
                             <span>
                               {day.proceeding_point_ai.reduce(
                                 (acc, p) =>
