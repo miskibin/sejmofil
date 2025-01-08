@@ -1,22 +1,56 @@
 import { Vote, ThumbsUp, ThumbsDown } from "lucide-react";
-import { VotingResult } from "../types";
+import { VotingResult as SimpleVoting } from "@/lib/queries/proceeding";
+import { VotingResult as DetailedVoting } from "@/lib/api/sejm";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { VotingDetailModal } from "../[number]/[date]/[id]/components/voting-detail-modal";
 
-export function VotingDisplay({ voting }: { voting: VotingResult }) {
-  const yesVotes = voting.votes.filter(
-    (v: { vote: string }) => v.vote === "YES"
-  ).length;
-  const noVotes = voting.votes.filter(
-    (v: { vote: string }) => v.vote === "NO"
-  ).length;
+type VotingProps = {
+  voting: SimpleVoting | DetailedVoting;
+  isDetailed?: boolean;
+  onLoadDetails?: () => void;
+};
+
+export function VotingDisplay({ voting, isDetailed, onLoadDetails }: VotingProps) {
+  const [showModal, setShowModal] = useState(false);
+
+  const yesVotes = isDetailed 
+    ? (voting as DetailedVoting).votes.filter(v => v.vote === "YES").length 
+    : (voting as SimpleVoting).yes;
+    
+  const noVotes = isDetailed 
+    ? (voting as DetailedVoting).votes.filter(v => v.vote === "NO").length 
+    : (voting as SimpleVoting).no;
+
+  const handleClick = async () => {
+    await onLoadDetails?.();
+    setShowModal(true);
+  };
 
   return (
-    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-      <Vote className="h-3 w-3 flex-shrink-0" />
-      <span className="mr-1 truncate">{voting.topic}:</span>
-      <span className="flex items-center gap-1 flex-shrink-0">
-         <ThumbsUp className="h-3 w-3 text-success" />{yesVotes} - {noVotes}{" "}
-        <ThumbsDown className="h-3 w-3  text-destructive" />
-      </span>
-    </div>
+    <>
+      <Button 
+        variant="ghost" 
+        className="w-full justify-start" 
+        onClick={handleClick}
+      >
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Vote className="h-3 w-3 flex-shrink-0" />
+          <span className="mr-1 truncate">{voting.topic}:</span>
+          <span className="flex items-center gap-1 flex-shrink-0">
+            <ThumbsUp className="h-3 w-3 text-success" />{yesVotes} - {noVotes}{" "}
+            <ThumbsDown className="h-3 w-3 text-destructive" />
+          </span>
+        </div>
+      </Button>
+      
+      {isDetailed && (
+        <VotingDetailModal
+          voting={voting as DetailedVoting}
+          open={showModal}
+          onOpenChange={setShowModal}
+        />
+      )}
+    </>
   );
 }

@@ -6,6 +6,7 @@ export interface VotingResult {
   no: number;
   notParticipating: number;
   sitting: number;
+  yes: number;
   sittingDay: number;
   term: number;
   title: string;
