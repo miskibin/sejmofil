@@ -12,6 +12,13 @@ import {
 } from "@/components/ui/tooltip";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type FilterMode = "featured" | "all" | "normal";
 
@@ -128,58 +135,56 @@ export function DiscussionEntries({
             ({filteredStatements.length} z {statements.length})
           </span>
         </div>
-        <select
+        <Select
           value={filterMode}
-          onChange={(e) => handleModeChange(e.target.value as FilterMode)}
-          className="text-sm border rounded-md px-2 py-1 bg-transparent transition-colors"
+          onValueChange={(value: FilterMode) => handleModeChange(value)}
         >
-          <option value="featured">Najciekawsze</option>
-          <option value="normal">Chronologicznie</option>
-          <option value="all">Wszystkie</option>
-        </select>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="featured">Najciekawsze</SelectItem>
+            <SelectItem value="normal">Chronologicznie</SelectItem>
+            <SelectItem value="all">Wszystkie</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-6 mb-4">
         {displayedStatements.map((statement) => {
           const speaker = getSpeakerInfo(statement.speaker_name);
-          const isFeatured =
-            (statement.statement_ai?.speaker_rating?.emotions ?? 0) >= 4 ||
-            (statement.statement_ai?.speaker_rating?.manipulation ?? 0) >= 4;
+          // const isFeatured =
+          //   (statement.statement_ai?.speaker_rating?.emotions ?? 0) >= 4 ||
+          //   (statement.statement_ai?.speaker_rating?.manipulation ?? 0) >= 4;
 
           return (
             <div
               key={statement.id}
               className={cn(
-                "flex gap-3 p-3 rounded-lg transition-colors",
-                isFeatured &&
-                  filterMode === "featured" &&
-                  "bg-primary/5 border border-primary/20",
-                !isFeatured && filterMode === "featured" && "opacity-75"
+                "flex flex-col  ",
               )}
             >
-              {/* Avatar */}
-              <Link
-                href={speaker?.id ? `/envoys/${speaker.id}` : "#"}
-                className="flex-shrink-0"
-              >
-                <Image
-                  src={
-                    speaker?.id
-                      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/MP/${speaker.id}/photo`
-                      : "/placeholder.svg"
-                  }
-                  alt={statement.speaker_name}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                  loading="lazy"
-                />
-              </Link>
+              {/* Header - Now top section on mobile */}
+              <div className="flex items-center gap-3 mb-4">
+                <Link
+                  href={speaker?.id ? `/envoys/${speaker.id}` : "#"}
+                  className="flex-shrink-0"
+                >
+                  <Image
+                    src={
+                      speaker?.id
+                        ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/MP/${speaker.id}/photo`
+                        : "/placeholder.svg"
+                    }
+                    alt={statement.speaker_name}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                    loading="lazy"
+                  />
+                </Link>
 
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                {/* Header */}
-                <div className="flex flex-wrap items-start gap-x-2 gap-y-1 mb-1">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                   <Link
                     href={speaker?.id ? `/envoys/${speaker.id}` : "#"}
                     className="text-sm font-medium hover:underline"
@@ -190,31 +195,33 @@ export function DiscussionEntries({
                     ({speaker?.club || "Brak klubu"})
                   </span>
                   <TooltipProvider>
-                    {Object.entries(statement.statement_ai.speaker_rating)
-                      .filter(([, value]) => value >= 4)
-                      .map(([key, value]) => (
-                        <Tooltip key={key}>
-                          <TooltipTrigger>
-                            <div className="flex items-center gap-1">
-                              {metricIcons[key]?.icon}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {metricIcons[key]?.tooltip}: {value}/5
-                          </TooltipContent>
-                        </Tooltip>
-                      ))}
+                    <div className="flex gap-1">
+                      {Object.entries(statement.statement_ai.speaker_rating)
+                        .filter(([, value]) => value >= 4)
+                        .map(([key, value]) => (
+                          <Tooltip key={key}>
+                            <TooltipTrigger>
+                              <div className="flex items-center">
+                                {metricIcons[key]?.icon}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {metricIcons[key]?.tooltip}: {value}/5
+                            </TooltipContent>
+                          </Tooltip>
+                        ))}
+                    </div>
                   </TooltipProvider>
                 </div>
+              </div>
 
-                {/* Main content */}
+              {/* Content section */}
+              <div className="w-full">
                 {statement.statement_ai?.summary_tldr && (
                   <p className="text-sm text-foreground/90 mb-2">
                     {statement.statement_ai.summary_tldr}
                   </p>
                 )}
-
-                {/* Replace the Metrics section with: */}
 
                 {/* Citations */}
                 {Array.isArray(statement.statement_ai?.citations) &&

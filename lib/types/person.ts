@@ -18,6 +18,7 @@ export interface EnvoyShort {
   lastName: string;
   numberOfVotes: number;
   profession: string;
+  absents: number;
 }
 
 export interface Envoy extends EnvoyShort {
@@ -25,6 +26,7 @@ export interface Envoy extends EnvoyShort {
   firstLastName: string;
   biography: string;
   biographyUrl?: string;
+  absents: number;
   birthDate: string;
   birthLocation: string;
   districtNum: number;
