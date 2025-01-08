@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Search, CalendarDays, Timer, Vote } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { CardWrapper } from "@/components/ui/card-wrapper";
@@ -13,12 +14,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Proceeding, PointRenderProps, ProceedingPoint } from "./types";
+import Loading from "../loading";
 
 export function ProceedingsList({
   proceedings,
 }: {
   proceedings: Proceeding[];
 }) {
+  const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -59,6 +63,15 @@ export function ProceedingsList({
     [filteredProceedings]
   );
 
+  const handlePointClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    e.preventDefault();
+    setIsNavigating(true);
+    router.push(href);
+  };
+
   const renderPoint = ({
     point,
     pointsByNumber,
@@ -79,34 +92,39 @@ export function ProceedingsList({
       >
         <Link
           href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
-          className="block hover:text-primary"
+          className={`block hover:text-primary ${
+            isNavigating ? "pointer-events-none opacity-50" : ""
+          }`}
+          onClick={(e) =>
+            handlePointClick(
+              e,
+              `/proceedings/${proceeding.number}/${day.date}/${point.id}`
+            )
+          }
           prefetch={false}
         >
-          <div className={`text-sm font-medium break-words`}>
+          <div className={`text-sm break-words flex items-center gap-2`}>
             {point.official_point ? (
-              <span className="mr-2 text-muted-foreground">{pointNumber}.</span>
+              <span className="text-muted-foreground">{pointNumber}.</span>
             ) : (
-              <span className="mr-2 italic">{"(Bez numeru)"}.</span>
+              <span className="italic">{"(Bez numeru)"}.</span>
             )}
-            {point.topic.split(" | ")[1] || point.topic}
+            <span>{point.topic.split(" | ")[1] || point.topic}</span>
             {isInterrupted && (
-              <span className="ml-2 text-xs text-destructive italic">
+              <span className="text-xs text-destructive italic">
                 (przerwano)
               </span>
             )}
             {isContinuation && (
-              <span className="ml-2 text-xs text-primary italic">
-                (kontynuacja)
-              </span>
+              <span className="text-xs text-primary italic">(kontynuacja)</span>
+            )}
+            {(point.votingResults?.length ?? 0) > 0 && (
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Vote className="h-3 w-3" />
+                {point.votingResults?.length}
+              </Badge>
             )}
           </div>
-          {/* {(point.votingResults?.length ?? 0) > 0 && (
-            <div className="flex flex-col gap-2 mt-1">
-              {point.votingResults?.map((voting: VotingResult, idx) => (
-                <VotingDisplay key={idx} voting={voting} />
-              ))}
-            </div>
-          )} */}
         </Link>
       </div>
     );
@@ -125,6 +143,10 @@ export function ProceedingsList({
       });
       return acc;
     }, {} as Record<string, ProceedingPoint[]>);
+
+  if (isPending || isNavigating) {
+    return <Loading />;
+  }
 
   return (
     <div className="space-y-4">

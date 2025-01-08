@@ -4,59 +4,82 @@
 
 @layer base {
   :root {
-    --background: 0 0% 99%; /* #FDFDFD */
-    --foreground: 222 14% 28%; /* #3C3F50 */
+    --background: 0 0% 99%;
+    /* #FDFDFD */
+    --foreground: 222 14% 28%;
+    /* #3C3F50 */
     --card: 0 0% 100%;
     --card-foreground: 222 14% 28%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 14% 28%;
-    --primary: 340 92% 24%; /* #76052E */
+    --primary: 340 92% 24%;
+    /* #76052E */
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 14% 28%; /* #3C3F50 */
+    --secondary: 222 14% 28%;
+    /* #3C3F50 */
     --secondary-foreground: 0 0% 100%;
-    --muted: 222 14% 28%; /* #3C3F50 40% */
+    --muted: 222 14% 28%;
+    /* #3C3F50 40% */
     --muted-foreground: 222 14% 28%;
-    --accent: 222 14% 28%; /* #3C3F50 */
-    --accent-foreground: 0 0% 100%;
-    --destructive:340 92% 24%;
+    --accent: 300 10% 80%;
+    --accent-foreground: 222 14% 28%;
+    /* #3C3F50 */
+    --destructive: 340 92% 24%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 91%; /* #3C3F50 20% */
-    --input: 222 14% 28%; /* #3C3F50 20% */
-    --ring: 340 92% 24%; /* #76052E */
+    --border: 220 13% 91%;
+    /* #3C3F50 20% */
+    --input: 222 14% 28%;
+    /* #3C3F50 20% */
+    --ring: 340 92% 24%;
+    /* #76052E */
     --radius: 0.5rem;
     /* #004eaf BLUE */
     /* Updated chart colors to match design system */
-    --chart-1: 340 92% 24%; /* #76052E - primary */
-    --chart-2: 222 14% 28%; /* #3C3F50 - secondary */
-    --chart-3: 339 65% 40%; /* #A52E5C - lighter primary */
-    --chart-4: 222 22% 45%; /* #5D6375 - lighter secondary */
-    --chart-5: 340 75% 33%; /* #8F1845 - mid primary */
-    
+    --chart-1: 340 92% 24%;
+    /* #76052E - primary */
+    --chart-2: 222 14% 28%;
+    /* #3C3F50 - secondary */
+    --chart-3: 339 65% 40%;
+    /* #A52E5C - lighter primary */
+    --chart-4: 222 22% 45%;
+    /* #5D6375 - lighter secondary */
+    --chart-5: 340 75% 33%;
+    /* #8F1845 - mid primary */
+
     /* Success color from Figma */
-    --success: 136 100% 19%; /* #006214 */
+    --success: 136 100% 19%;
+    /* #006214 */
     --success-foreground: 0 0% 100%;
   }
 
   .dark {
-    --background: 222 14% 28%; /* #3C3F50 */
-    --foreground: 0 0% 100%; /* #FFFFFF */
+    --background: 222 14% 28%;
+    /* #3C3F50 */
+    --foreground: 0 0% 100%;
+    /* #FFFFFF */
     --card: 222 14% 28%;
     --card-foreground: 0 0% 100%;
     --popover: 222 14% 28%;
     --popover-foreground: 0 0% 100%;
-    --primary: 340 92% 24%; /* #76052E */
+    --primary: 340 92% 24%;
+    /* #76052E */
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 14% 28%; /* #3C3F50 */
+    --secondary: 222 14% 28%;
+    /* #3C3F50 */
     --secondary-foreground: 0 0% 100%;
-    --muted: 222 14% 28%; /* #3C3F50 40% */
+    --muted: 222 14% 28%;
+    /* #3C3F50 40% */
     --muted-foreground: 222 14% 28%;
-    --accent: 340 92% 24%; /* #76052E */
+    --accent: 340 92% 24%;
+    /* #76052E */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 14% 28%; /* #3C3F50 20% */
+    --border: 222 14% 28%;
+    /* #3C3F50 20% */
     --input: 222 14% 28%;
-    --ring: 340 92% 24%; /* #76052E */
+    --ring: 340 92% 24%;
+    /* #76052E */
   }
 }
 
@@ -64,6 +87,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;

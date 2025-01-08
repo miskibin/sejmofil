@@ -126,20 +126,22 @@ export function DiscussionEntries({
     <div className="space-y-4 mb-4">
       <div className="flex justify-between items-center pb-4 border-b">
         <div className="text-sm text-muted-foreground flex items-center gap-2">
-          <span className="font-medium">
-            {filterMode === "featured"
-              ? "Wyróżnione wypowiedzi"
-              : "Wszystkie wypowiedzi"}
-          </span>
-          <span className="text-muted-foreground">
-            ({filteredStatements.length} z {statements.length})
-          </span>
-        </div>
+          {filterMode === "featured" && (
+            <div className="flex gap-2">
+              <span className="font-medium">
+                Wyróżnione
+              </span>
+              <span className="text-muted-foreground">
+                ({filteredStatements.length} z {statements.length})
+              </span>
+            </div>
+          )}</div>
+
         <Select
           value={filterMode}
           onValueChange={(value: FilterMode) => handleModeChange(value)}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-36">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -153,9 +155,6 @@ export function DiscussionEntries({
       <div className="space-y-6 mb-4">
         {displayedStatements.map((statement) => {
           const speaker = getSpeakerInfo(statement.speaker_name);
-          // const isFeatured =
-          //   (statement.statement_ai?.speaker_rating?.emotions ?? 0) >= 4 ||
-          //   (statement.statement_ai?.speaker_rating?.manipulation ?? 0) >= 4;
 
           return (
             <div
@@ -261,7 +260,7 @@ export function DiscussionEntries({
       {!showAll && sortedStatements.length > 2 && (
         <div className="flex justify-center pt-4">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => setShowAll(true)}
             className="w-full max-w-sm"
           >
