@@ -6,8 +6,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 interface CardWrapperProps {
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
   headerIcon?: ReactNode;
   showSource?: boolean;
   showMoreLink?: string; // replaced showDate
@@ -46,15 +46,17 @@ export function CardWrapper({
       <CardHeader className="pb-2 lg:px-4 2xl:px-6">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle
-              className={cn(
-                "text-sm font-semibold",
-                isInverted ? "text-primary-foreground" : "text-primary"
-              )}
-            >
-              {title}
-            </CardTitle>
-            <h2 className="text-2xl font-semibold">{subtitle}</h2>
+            {title && (
+              <CardTitle
+                className={cn(
+                  "text-sm font-semibold",
+                  isInverted ? "text-primary-foreground" : "text-primary"
+                )}
+              >
+                {title}
+              </CardTitle>
+            )}
+            {subtitle && <h2 className="text-2xl font-semibold">{subtitle}</h2>}
           </div>
           {headerIcon && <div className="p-2 rounded-lg">{headerIcon}</div>}
         </div>
@@ -67,7 +69,7 @@ export function CardWrapper({
         )}
       /> */}
 
-      <CardContent className="flex-1 flex flex-col min-h-[100px] mt-4">
+      <CardContent className="flex-1 flex flex-col min-h-12 mt-4">
         <div className="relative flex-1">
           <div className="space-y-4">{children}</div>
 
@@ -93,16 +95,16 @@ export function CardWrapper({
             )}
           >
             {showMoreLink ? (
-                <Link
+              <Link
                 href={showMoreLink}
                 prefetch={true}
                 className={cn(
                   "border rounded-full px-2 py-1 hover:bg-primary/5 cursor-pointer transition-colors flex items-center",
                   isInverted && "border-primary-foreground/20"
                 )}
-                >
+              >
                 Więcej <ArrowRight className="h-4 w-4 ml-1 inline" />
-                </Link>
+              </Link>
             ) : (
               <div></div>
             )}

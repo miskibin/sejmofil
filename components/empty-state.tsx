@@ -3,7 +3,7 @@ export const EmptyState = ({
   text,
   image,
 }: {
-  text: string;
+  text?: string;
   image: string;
 }) => (
   <div className="text-center pb-6">
@@ -15,6 +15,6 @@ export const EmptyState = ({
         alt="Empty state illustration"
       />
     </div>
-    <p className="text-gray-500">{text}</p>
+    {text && <p className="text-gray-500">{text}</p>}
   </div>
 );
