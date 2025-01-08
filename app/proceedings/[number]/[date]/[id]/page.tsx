@@ -258,7 +258,7 @@ export default async function PointDetail({
       {/* First Bento grid - Adjust column spans for different breakpoints */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-4 lg:gap-x-6">
         {/* Main topic section - Make it full width on mobile */}
-        <div className="col-span-full lg:col-span-4 lg:row-span-3">
+        <div className="col-span-full lg:col-span-4 lg:row-span-3 sm:mb-0 mb-6">
           <SummarySection
             title="Główne Zagadnienia"
             subtitle="Kluczowe tematy"
@@ -268,7 +268,7 @@ export default async function PointDetail({
         </div>
 
         {/* Stats cards - Adjust grid for better mobile layout */}
-        <div className="col-span-full lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="col-span-full lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 sm:mb-6">
           <StatCard
             title="Emocjonalność"
             value={`${Math.round(
@@ -295,34 +295,34 @@ export default async function PointDetail({
         {/* Combined card with all tabs */}
         <CardWrapper className="col-span-full lg:col-span-8 my-0 h-full min-h-96">
           <Tabs defaultValue="summary" className="w-full">
-            <TabsList className="grid grid-cols-2 lg:grid-cols-4 bg-inherit">
+            <TabsList className=" bg-gray-100">
               <TabsTrigger value="summary">Podsumowanie</TabsTrigger>
               <TabsTrigger value="issues">Kwestie sporne</TabsTrigger>
-              <TabsTrigger value="positions">Stanowiska klubów</TabsTrigger>
-              <TabsTrigger value="prints">Omawiane druki</TabsTrigger>
+              <TabsTrigger value="positions">Stanowiska</TabsTrigger>
+              <TabsTrigger value="prints">Dokumenty</TabsTrigger>
             </TabsList>
-            <TabsContent value="summary" className="mt-4">
+            <TabsContent value="summary" className="mt-6">
               <div className="prose prose-sm max-w-none">
                 <ReactMarkdown>
                   {point.summary_main?.outtakes || "Brak podsumowania"}
                 </ReactMarkdown>
               </div>
             </TabsContent>
-            <TabsContent value="issues" className="mt-4">
+            <TabsContent value="issues" className="mt-6">
               <div className="prose prose-sm max-w-none">
                 <ReactMarkdown>
                   {point.summary_main?.unresolved || "Brak kwestii spornych"}
                 </ReactMarkdown>
               </div>
             </TabsContent>
-            <TabsContent value="positions" className="mt-4">
+            <TabsContent value="positions" className="mt-6">
               <div className="prose prose-sm max-w-none">
                 <ReactMarkdown>
                   {point.summary_main?.key_positions || "Brak stanowisk"}
                 </ReactMarkdown>
               </div>
             </TabsContent>
-            <TabsContent value="prints" className="mt-4">
+            <TabsContent value="prints" className="mt-6">
               <PrintSection prints={printsWithStages} />
             </TabsContent>
           </Tabs>
