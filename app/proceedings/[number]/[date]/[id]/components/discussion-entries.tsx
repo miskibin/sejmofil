@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type FilterMode = "featured" | "all" | "normal";
 
@@ -38,7 +39,7 @@ export function DiscussionEntries({
   speakerClubs,
   proceedingNumber,
   proceedingDate,
-  initialMode = "normal",
+  initialMode = "featured",
 }: DiscussionEntriesProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -83,20 +84,30 @@ export function DiscussionEntries({
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end gap-2">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center pb-4 border-b">
+        <div className="text-sm text-muted-foreground flex items-center gap-2">
+          <span className="font-medium">
+            {filterMode === "featured"
+              ? "Wyróżnione wypowiedzi"
+              : "Wszystkie wypowiedzi"}
+          </span>
+          <span className="text-muted-foreground">
+            ({filteredStatements.length} z {statements.length})
+          </span>
+        </div>
         <select
           value={filterMode}
           onChange={(e) => handleModeChange(e.target.value as FilterMode)}
-          className="px-3 py-1 border rounded-md text-sm"
+          className="text-sm border rounded-md px-2 py-1 bg-transparent transition-colors"
         >
+          <option value="featured">Najciekawsze</option>
           <option value="normal">Chronologicznie</option>
-          <option value="featured">Wyróżnione wypowiedzi</option>
-          <option value="all">Wszystkie wypowiedzi</option>
+          <option value="all">Wszystkie</option>
         </select>
       </div>
 
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-6">
         {sortedStatements.map((statement) => {
           const speaker = getSpeakerInfo(statement.speaker_name);
           const isFeatured =
@@ -106,93 +117,92 @@ export function DiscussionEntries({
           return (
             <div
               key={statement.id}
-              className={`p-3 sm:p-4 rounded-lg space-y-2 sm:space-y-3 ${
-                isFeatured && filterMode === "featured"
-                  ? "bg-primary/5 border border-primary/20"
-                  : "bg-gray-50"
-              }`}
+              className={cn(
+                "flex gap-3 p-3 rounded-lg transition-colors",
+                isFeatured &&
+                  filterMode === "featured" &&
+                  "bg-primary/5 border border-primary/20",
+                !isFeatured && filterMode === "featured" && "opacity-75"
+              )}
             >
-              <div className="flex gap-4">
-                <div className="w-12 h-16 relative flex-shrink-0">
-                  <Image
-                    src={
-                      speaker?.id
-                        ? `${
-                            process.env.NEXT_PUBLIC_API_BASE_URL ||
-                            "https://api.sejm.gov.pl/sejm/term10"
-                          }/MP/${speaker.id}/photo`
-                        : "/placeholder.svg"
-                    }
-                    alt={statement.speaker_name}
-                    fill
-                    sizes="40px"
-                    className="rounded-lg object-cover"
-                    loading="lazy"
-                  />
+              {/* Avatar */}
+              <Link
+                href={speaker?.id ? `/envoys/${speaker.id}` : "#"}
+                className="flex-shrink-0"
+              >
+                <Image
+                  src={
+                    speaker?.id
+                      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/MP/${speaker.id}/photo`
+                      : "/placeholder.svg"
+                  }
+                  alt={statement.speaker_name}
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                  loading="lazy"
+                />
+              </Link>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                {/* Header */}
+                <div className="flex flex-wrap items-start gap-x-2 gap-y-1 mb-1">
+                  <Link
+                    href={speaker?.id ? `/envoys/${speaker.id}` : "#"}
+                    className="text-sm font-medium hover:underline"
+                  >
+                    {statement.speaker_name}
+                  </Link>
+                  <span className="text-xs text-muted-foreground">
+                    ({speaker?.club || "Brak klubu"})
+                  </span>
                 </div>
-                <div className="flex-1">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                    <h3 className="font-semibold text-primary">
-                      {speaker?.id ? (
-                        <Link
-                          href={`/envoys/${speaker.id}`}
-                          className="hover:underline"
-                        >
-                          {statement.speaker_name} ({speaker.club})
-                        </Link>
-                      ) : (
-                        statement.speaker_name
-                      )}
-                    </h3>
-                    {statement.statement_ai?.speaker_rating && (
-                      <div className="flex flex-wrap gap-1 sm:gap-2">
-                        {["manipulation", "facts", "logic", "emotions"].map(
-                          (key) =>
-                            statement.statement_ai?.speaker_rating?.[key] && (
-                              <Badge
-                                key={key}
-                                variant="secondary"
-                                className="text-xs"
-                                title={key}
-                              >
-                                {key === "manipulation" && "Manipulacja"}
-                                {key === "facts" && "Fakty"}
-                                {key === "logic" && "Logika"}
-                                {key === "emotions" && "Emocje"}:{" "}
-                                {statement.statement_ai.speaker_rating[key]} / 5
-                              </Badge>
-                            )
-                        )}
-                      </div>
-                    )}
-                  </div>
 
-                  {statement.statement_ai?.summary_tldr && (
-                    <p className="text-sm text-gray-600">
-                      {statement.statement_ai.summary_tldr}
-                    </p>
-                  )}
+                {/* Main content */}
+                {statement.statement_ai?.summary_tldr && (
+                  <p className="text-sm text-foreground/90 mb-2">
+                    {statement.statement_ai.summary_tldr}
+                  </p>
+                )}
 
-                  {statement.statement_ai?.citations && (
-                    <div className="space-y-2">
-                      {statement.statement_ai.citations.map((citation, idx) => (
-                        <blockquote
-                          key={idx}
-                          className="border-l-2 border-primary/30 pl-3 italic text-sm text-gray-600"
+                {/* Metrics */}
+                {statement.statement_ai?.speaker_rating && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {Object.entries(statement.statement_ai.speaker_rating)
+                      .filter(([, value]) => value >= 4)
+                      .map(([key, value]) => (
+                        <Badge
+                          key={key}
+                          variant="secondary"
+                          className="text-xs px-2"
                         >
-                          {citation}
-                        </blockquote>
+                          {key === "manipulation" && "Manipulacja"}
+                          {key === "facts" && "Fakty"}
+                          {key === "logic" && "Logika"}
+                          {key === "emotions" && "Emocje"} {value}/5
+                        </Badge>
                       ))}
-                      <Link
-                        className="text-sm text-primary hover:underline my-2"
-                        href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${proceedingNumber}/${proceedingDate}/transcripts/${statement.number_source}`}
-                        target="_blank"
-                      >
-                        całość wypowiedzi{" "}
-                        <ExternalLink className="h-4 w-4 inline" />
-                      </Link>
-                    </div>
-                  )}
+                  </div>
+                )}
+
+                {/* Citations */}
+                {statement.statement_ai?.citations?.[0] && (
+                  <blockquote className="text-sm text-muted-foreground border-l-2 border-primary/30 pl-3 mt-2 italic">
+                    {statement.statement_ai.citations[0]}
+                  </blockquote>
+                )}
+
+                {/* Footer */}
+                <div className="mt-2 flex items-center gap-2">
+                  <Link
+                    href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${proceedingNumber}/${proceedingDate}/transcripts/${statement.number_source}`}
+                    target="_blank"
+                    className="text-xs text-primary hover:underline flex items-center gap-1"
+                  >
+                    całość wypowiedzi
+                    <ExternalLink className="h-3 w-3" />
+                  </Link>
                 </div>
               </div>
             </div>

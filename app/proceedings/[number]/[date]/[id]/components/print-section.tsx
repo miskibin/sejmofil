@@ -1,5 +1,4 @@
 import { EmptyState } from "@/components/empty-state";
-import { CardWrapper } from "@/components/ui/card-wrapper";
 import { FaRegFilePdf } from "react-icons/fa";
 
 type PrintWithStage = {
@@ -60,11 +59,7 @@ const PrintItem = ({ print }: { print: PrintWithStage }) => (
 );
 
 export const PrintSection = ({ prints }: { prints: PrintWithStage[] }) => (
-  <CardWrapper
-    title="Druki"
-    className="h-full"
-    subtitle={prints.length > 0 ? "Omawiane druki" : "Brak powiązanych druków"}
-  >
+  <div>
     {prints.length > 0 ? (
       <div className="space-y-3 sm:space-y-4">
         {prints.map((print) => (
@@ -74,5 +69,5 @@ export const PrintSection = ({ prints }: { prints: PrintWithStage[] }) => (
     ) : (
       <EmptyState image="/explore.svg" text="Brak druków" />
     )}
-  </CardWrapper>
+  </div>
 );

@@ -26,10 +26,7 @@ export const VotingSection = ({ votingData }: { votingData: VotingData[] }) => {
       className="h-full"
     >
       {votingData.length === 0 ? (
-        <EmptyState
-          text="Nie odbyły się żadne głosowania w trakcie tego posiedzenia."
-          image="/street.svg"
-        />
+        <EmptyState image="/street.svg" />
       ) : (
         <Carousel className="w-[90%] mx-auto">
           <CarouselContent>

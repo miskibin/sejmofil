@@ -17,12 +17,6 @@ import {
 } from "@/lib/queries/print";
 import { Metadata } from "next";
 import { getVotingDetails } from "@/lib/api/sejm";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { DiscussionEntries } from "./components/discussion-entries";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
@@ -32,6 +26,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { VotingSection } from "./components/voting-section";
 import { PrintSection } from "./components/print-section";
 import { EmptyState } from "@/components/empty-state";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Update the SummarySection component to handle null values
 const SummarySection = ({
@@ -261,7 +256,7 @@ export default async function PointDetail({
       </div>
 
       {/* First Bento grid - Adjust column spans for different breakpoints */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-4 lg:gap-x-6">
         {/* Main topic section - Make it full width on mobile */}
         <div className="col-span-full lg:col-span-4 lg:row-span-3">
           <SummarySection
@@ -273,7 +268,7 @@ export default async function PointDetail({
         </div>
 
         {/* Stats cards - Adjust grid for better mobile layout */}
-        <div className="col-span-full lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="col-span-full lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <StatCard
             title="Emocjonalność"
             value={`${Math.round(
@@ -297,26 +292,42 @@ export default async function PointDetail({
           />
         </div>
 
-        {/* Secondary sections - Adjust spans for better flow */}
-        <div className="col-span-full md:col-span-1 lg:col-span-4 lg:row-span-2">
-          <SummarySection
-            title="Wnioski"
-            subtitle="Podsumowanie"
-            content={point.summary_main?.outtakes}
-            emptyText="Brak wniosków"
-          />
-        </div>
-
-        <div className="col-span-full md:col-span-1 lg:col-span-4 lg:row-span-2">
-          <SummarySection
-            title="Kwestie sporne"
-            subtitle="Nie rozwiązane problemy"
-            content={point.summary_main?.unresolved}
-            emptyText="Brak kwestii spornych"
-          />
-        </div>
+        {/* Combined card with all tabs */}
+        <CardWrapper className="col-span-full lg:col-span-8 my-0 h-full min-h-96">
+          <Tabs defaultValue="summary" className="w-full">
+            <TabsList className="grid grid-cols-2 lg:grid-cols-4 bg-inherit">
+              <TabsTrigger value="summary">Podsumowanie</TabsTrigger>
+              <TabsTrigger value="issues">Kwestie sporne</TabsTrigger>
+              <TabsTrigger value="positions">Stanowiska klubów</TabsTrigger>
+              <TabsTrigger value="prints">Omawiane druki</TabsTrigger>
+            </TabsList>
+            <TabsContent value="summary" className="mt-4">
+              <div className="prose prose-sm max-w-none">
+                <ReactMarkdown>
+                  {point.summary_main?.outtakes || "Brak podsumowania"}
+                </ReactMarkdown>
+              </div>
+            </TabsContent>
+            <TabsContent value="issues" className="mt-4">
+              <div className="prose prose-sm max-w-none">
+                <ReactMarkdown>
+                  {point.summary_main?.unresolved || "Brak kwestii spornych"}
+                </ReactMarkdown>
+              </div>
+            </TabsContent>
+            <TabsContent value="positions" className="mt-4">
+              <div className="prose prose-sm max-w-none">
+                <ReactMarkdown>
+                  {point.summary_main?.key_positions || "Brak stanowisk"}
+                </ReactMarkdown>
+              </div>
+            </TabsContent>
+            <TabsContent value="prints" className="mt-4">
+              <PrintSection prints={printsWithStages} />
+            </TabsContent>
+          </Tabs>
+        </CardWrapper>
       </div>
-
       {/* Second grid section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
         {/* Charts and analysis section */}
@@ -328,27 +339,12 @@ export default async function PointDetail({
           </CardWrapper>
         </div>
 
-        {/* Key positions section */}
-        <div className="col-span-full lg:col-span-6">
-          <SummarySection
-            title="Kluczowe stanowiska"
-            subtitle="Stanowiska klubów"
-            content={point.summary_main?.key_positions}
-            emptyText="Brak kluczowych stanowisk"
-          />
-        </div>
-
         {/* Voting section */}
         <div className="col-span-full lg:col-span-6">
           <VotingSection votingData={votingData} />
         </div>
 
-        {/* Print section - Add responsive padding and spacing */}
-        <div className="col-span-full lg:col-span-6">
-          <PrintSection prints={printsWithStages} />
-        </div>
-
-        {/* Replace the entire Statements section with: */}
+        {/* Replace the Statements section with: */}
         <div className="col-span-full">
           <CardWrapper
             title="Wypowiedzi"
@@ -363,22 +359,13 @@ export default async function PointDetail({
               `${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/transcripts/0`,
             ]}
           >
-            <Accordion type="single" collapsible>
-              <AccordionItem value="statements">
-                <AccordionTrigger>Pokaż wypowiedzi</AccordionTrigger>
-                <AccordionContent>
-                  <DiscussionEntries
-                    statements={point.statements}
-                    speakerClubs={speakerClubs}
-                    proceedingNumber={point.proceeding_day.proceeding.number}
-                    proceedingDate={point.proceeding_day.date}
-                    initialMode={
-                      (await searchParams)?.showAll ? "all" : "normal"
-                    }
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+            <DiscussionEntries
+              statements={point.statements}
+              speakerClubs={speakerClubs}
+              proceedingNumber={point.proceeding_day.proceeding.number}
+              proceedingDate={point.proceeding_day.date}
+              initialMode="featured"
+            />
           </CardWrapper>
         </div>
       </div>
