@@ -304,6 +304,8 @@ export default async function PointDetail({
         <div className="col-span-full lg:col-span-8 flex flex-col gap-4 h-full">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
+            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+            sourceDescription="Emocje mierzone są na podstawie metryk, opisanych w zakładce 'o projekcie'. Każda wypowiedź jest oceniana w skali od 1 do 5"
               title="Emocjonalność"
               value={`${Math.round(
                 point.statements.reduce(
