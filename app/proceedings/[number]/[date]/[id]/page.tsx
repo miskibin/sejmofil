@@ -28,7 +28,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { getVotingResultsByNumbrs } from "@/lib/queries/proceeding";
 import { VotingList } from "./components/voting-list";
-
+export const dynamic = "force-dynamic";
+export const revalidate = 3600; // Revalidate every hour
 // Update the SummarySection component to handle null values
 const SummarySection = ({
   content,
@@ -373,9 +374,10 @@ export default async function PointDetail({
       {/* Add this at the bottom of the JSX, before the closing div */}
       <div className="flex justify-between items-center pt-6 border-t">
         {adjacentPoints.prev ? (
-          <Button variant="outline" asChild className="flex items-center gap-2">
+          <Button variant="ghost" asChild className="flex items-center gap-2">
             <Link
               href={`/proceedings/${number}/${adjacentPoints.prev.proceeding_day.date}/${adjacentPoints.prev.id}`}
+              prefetch={true}
             >
               <ChevronLeft className="h-4 w-4" />
               Poprzedni punkt
@@ -386,9 +388,10 @@ export default async function PointDetail({
         )}
 
         {adjacentPoints.next ? (
-          <Button variant="outline" asChild className="flex items-center gap-2">
+          <Button variant="ghost" asChild className="flex items-center gap-2">
             <Link
               href={`/proceedings/${number}/${adjacentPoints.next.proceeding_day.date}/${adjacentPoints.next.id}`}
+              prefetch={true}
             >
               Następny punkt
               <ChevronRight className="h-4 w-4" />

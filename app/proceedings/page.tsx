@@ -1,15 +1,22 @@
 import { Metadata } from "next";
 import { getProceedings } from "@/lib/supabase/queries";
 import { ProceedingsList } from "./proceedings-list";
-import { getVotingDetails, VotingResult } from "@/lib/api/sejm";
+import {  VotingResult } from "@/lib/api/sejm";
 import { ProceedingPoint } from "./types";
+import { getVotingResultsByNumbrs } from "@/lib/queries/proceeding";
 
 export const metadata: Metadata = {
   title: "Posiedzenia Sejmu | Sejmofil",
   description: "Lista posiedzeń Sejmu X kadencji",
 };
 
+export const revalidate = 3600; // Revalidate every hour
+export const dynamic = 'force-dynamic';
+
 export default async function ProceedingsPage() {
+  // Add artificial delay in development to test loading states
+
+
   const proceedings = await getProceedings();
 
   // Fetch voting data for all proceedings
@@ -27,24 +34,20 @@ export default async function ProceedingsPage() {
                 } as ProceedingPoint;
               }
 
-              const votings = await Promise.all(
-                point.voting_numbers.map((num) =>
-                  getVotingDetails(proceeding.number, num).catch(() => null)
-                )
+              const votings = await getVotingResultsByNumbrs(
+                proceeding.number,
+                point.voting_numbers
               );
 
-              const validVotings = votings.filter(
-                (v): v is NonNullable<typeof v> => v !== null
-              );
               return {
                 ...point,
-                votingResults: validVotings.filter(
+                votingResults: votings.filter(
                   (v) => v.topic !== "Wniosek o przerwę"
                 ),
-                breakVotingsCount: validVotings.filter(
+                breakVotingsCount: votings.filter(
                   (v) => v.topic === "Wniosek o przerwę"
                 ).length,
-              } as ProceedingPoint;
+              } as unknown as ProceedingPoint;
             })
           );
           return { ...day, proceeding_point_ai: points };
