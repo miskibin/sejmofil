@@ -27,20 +27,22 @@ export default function CalendarDayTile({
       <div
         onClick={handleClick}
         className={`relative aspect-square p-1 py-1 sm:px-2 rounded-lg flex items-start justify-start ${
-          isProceeding
-            ? "bg-primary cursor-pointer hover:opacity-90"
-            : isToday
-            ? "bg-[#2D3748]"
-            : "bg-gray-100"
+          isProceeding && isToday
+        ? "bg-primary border-b-[16px] border-gray-700 cursor-pointer"
+        : isProceeding
+        ? "bg-primary cursor-pointer hover:opacity-90"
+        : isToday
+        ? "bg-[#2D3748]"
+        : "bg-gray-100"
         }`}
       >
         {(isProceeding || isToday) && (
           <span
-            className={`${
-              isProceeding || isToday ? "text-white" : "text-gray-700"
-            } font-semibold z-10`}
+        className={`${
+          isProceeding || isToday ? "text-white" : "text-gray-700"
+        } font-semibold z-10`}
           >
-            {date}
+        {date}
           </span>
         )}
       </div>

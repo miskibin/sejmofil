@@ -10,9 +10,7 @@ export const metadata: Metadata = {
   description: "Lista posiedzeń Sejmu X kadencji",
 };
 
-export const revalidate = 3600; // Revalidate every hour
-export const dynamic = 'force-dynamic';
-
+// export const revalidate = 3600; // Revalidate every hour
 export default async function ProceedingsPage() {
   // Add artificial delay in development to test loading states
 
