@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Ban, Medal } from "lucide-react";
+import { Ban, Medal, UserX,  Award, VolumeX, ThumbsUp, ThumbsDown } from "lucide-react";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { EnvoyShort } from "@/lib/types/person";
 import { Badge } from "@/components/ui/badge";
 import { truncateText } from "@/lib/utils";
 
 interface EnvoyCardProps {
-  envoy: EnvoyShort;
+  envoy: EnvoyShort & { metrics?: Set<string> };
   rankingPosition: number;
   rankingValue: number | null;
   rankingType: "votes" | "absents" | "statements" | "interruptions" | null;
@@ -48,6 +48,28 @@ export function EnvoyCard({
       default:
         return null;
     }
+  };
+
+  const getMetricIcons = (metrics?: Set<string>) => {
+    if (!metrics) return null;
+    
+    const icons = {
+      topVotes: { icon: <ThumbsUp className="w-5 h-5 text-success" />, title: "Wysoka frekwencja głosowań" },
+      lowVotes: { icon: <ThumbsDown className="w-5 h-5 text-primary" />, title: "Niska frekwencja głosowań" },
+      topAbsents: { icon: <UserX className="w-5 h-5 text-primary" />, title: "Częste nieobecności" },
+      lowAbsents: { icon: <Award className="w-5 h-5 text-success" />, title: "Rzadkie nieobecności" },
+      topInterruptions: { icon: <VolumeX className="w-5 h-5 text-yellow-500" />, title: "Częste okrzyki" }
+    };
+
+    return (
+      <div className="flex gap-3 mt-1">
+        {Array.from(metrics).map(metric => (
+          <div key={metric} title={icons[metric as keyof typeof icons]?.title}>
+            {icons[metric as keyof typeof icons]?.icon}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const medalColor = getMedalColor(rankingPosition);
@@ -110,6 +132,7 @@ export function EnvoyCard({
                   {rankingLabel}: {rankingValue}
                 </p>
               )}
+              {getMetricIcons(envoy.metrics)}
             </div>
           </div>
         </div>

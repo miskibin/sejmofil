@@ -22,6 +22,18 @@ interface Props {
   initialInterruptionCounts: Record<string, number>;
 }
 
+const TOP_RANK_THRESHOLD = 40;
+
+const createRankingMap = (
+  envoys: EnvoyShort[],
+  getValue: (envoy: EnvoyShort) => number
+) => {
+  const sorted = [...envoys]
+    .sort((a, b) => getValue(b) - getValue(a))
+    .map((e, i) => [e.id, i + 1] as [string, number]); // Type assertion here
+  return new Map<string, number>(sorted);
+};
+
 const getRankingValue = (
   envoy: EnvoyShort,
   type: RankingType,
@@ -39,6 +51,47 @@ const getRankingValue = (
     default:
       return 0;
   }
+};
+
+const createMetricsCache = (
+  envoys: EnvoyShort[],
+  interruptionCounts: Record<string, number>
+) => {
+  const votesRanking = createRankingMap(
+    envoys,
+    (e) => Number(e.numberOfVotes) || 0
+  );
+  const absentsRanking = createRankingMap(envoys, (e) => e.absents || 0);
+  const interruptionsRanking = createRankingMap(
+    envoys,
+    (e) => interruptionCounts[e.id] || 0
+  );
+  const totalEnvoys = envoys.length;
+
+  return {
+    votesRanking,
+    absentsRanking,
+    interruptionsRanking,
+    getMetrics: (envoyId: string) => {
+      const metrics = new Set<string>();
+      const votePos = votesRanking.get(envoyId) ?? 0; // Use nullish coalescing
+      const absentsPos = absentsRanking.get(envoyId) ?? 0;
+      const interruptionsPos = interruptionsRanking.get(envoyId) ?? 0;
+
+      // Compare with explicit numbers
+      if (votePos > 0 && votePos <= TOP_RANK_THRESHOLD) metrics.add("topVotes");
+      if (votePos > 0 && votePos >= totalEnvoys - TOP_RANK_THRESHOLD)
+        metrics.add("lowVotes");
+      if (absentsPos > 0 && absentsPos <= TOP_RANK_THRESHOLD)
+        metrics.add("topAbsents");
+      if (absentsPos > 0 && absentsPos >= totalEnvoys - TOP_RANK_THRESHOLD)
+        metrics.add("lowAbsents");
+      if (interruptionsPos > 0 && interruptionsPos <= TOP_RANK_THRESHOLD)
+        metrics.add("topInterruptions");
+
+      return metrics;
+    },
+  };
 };
 
 export function EnvoysListClient({
@@ -79,56 +132,77 @@ export function EnvoysListClient({
     router.push(`?${params.toString()}`, { scroll: false });
   }, [rankingType, router, searchParams]);
 
+  const metricsCache = useMemo(
+    () => createMetricsCache(initialEnvoys, initialInterruptionCounts),
+    [initialEnvoys, initialInterruptionCounts]
+  );
+
   const rankingPositions = useMemo(() => {
     if (!rankingType || rankingType === "none")
       return new Map<string, number>();
-    const counts =
-      rankingType === "statements"
-        ? initialStatementCounts
-        : initialInterruptionCounts;
-    return new Map(
-      [...initialEnvoys]
-        .sort(
-          (a, b) =>
-            getRankingValue(b, rankingType, counts) -
-            getRankingValue(a, rankingType, counts)
-        )
-        .map((envoy, index) => [envoy.id, index + 1])
+
+    if (rankingType === "votes") return metricsCache.votesRanking;
+    if (rankingType === "absents") return metricsCache.absentsRanking;
+    if (rankingType === "interruptions")
+      return metricsCache.interruptionsRanking;
+
+    return createRankingMap(
+      initialEnvoys,
+      (e) => initialStatementCounts[e.id] || 0
     );
-  }, [
-    rankingType,
-    initialEnvoys,
-    initialStatementCounts,
-    initialInterruptionCounts,
-  ]);
+  }, [rankingType, metricsCache, initialEnvoys, initialStatementCounts]);
 
   const sortedAndFilteredEnvoys = useMemo(() => {
-    const filtered = initialEnvoys.filter(
-      (envoy) =>
-        `${envoy.firstName} ${envoy.lastName}`
-          .toLowerCase()
-          .includes(filters.search.toLowerCase()) &&
-        (filters.club === "all" || envoy.club === filters.club) &&
-        (filters.activity === "all" ||
-          (filters.activity === "active" ? envoy.active : !envoy.active)) &&
-        (!filters.district || envoy.districtName === filters.district) &&
-        (filters.professions.length === 0 ||
-          filters.professions.some((p) =>
-            envoy.profession
-              ?.split(",")
-              .map((s) => s.trim())
-              .includes(p)
-          ))
-    );
+    const professionSet =
+      filters.professions.length > 0 ? new Set(filters.professions) : null;
 
-    return rankingType && rankingType !== "none"
-      ? filtered.sort(
-          (a, b) =>
-            (rankingPositions.get(a.id) || 0) -
-            (rankingPositions.get(b.id) || 0)
-        )
-      : filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
-  }, [filters, rankingType, rankingPositions]);
+    const searchLower = filters.search.toLowerCase();
+
+    const filtered = initialEnvoys.filter((envoy) => {
+      if (filters.club !== "all" && envoy.club !== filters.club) return false;
+      if (filters.district && envoy.districtName !== filters.district)
+        return false;
+      if (
+        filters.activity !== "all" &&
+        (filters.activity === "active" ? !envoy.active : envoy.active)
+      )
+        return false;
+
+      if (
+        searchLower &&
+        !`${envoy.firstName} ${envoy.lastName} ${envoy.role || ""}`
+          .toLowerCase()
+          .includes(searchLower)
+      )
+        return false;
+
+      if (professionSet && envoy.profession) {
+        const hasMatchingProfession = envoy.profession
+          .split(",")
+          .some((p) => professionSet.has(p.trim()));
+        if (!hasMatchingProfession) return false;
+      }
+
+      return true;
+    });
+
+    const envoysWithMetrics = filtered.map((envoy) => ({
+      ...envoy,
+      metrics: metricsCache.getMetrics(envoy.id),
+    }));
+
+    if (rankingType && rankingType !== "none") {
+      return envoysWithMetrics.sort((a, b) => {
+        const posA = rankingPositions.get(a.id) ?? 0;
+        const posB = rankingPositions.get(b.id) ?? 0;
+        return posA - posB;
+      });
+    }
+
+    return envoysWithMetrics.sort((a, b) =>
+      a.lastName.localeCompare(b.lastName)
+    );
+  }, [filters, rankingType, rankingPositions, initialEnvoys, metricsCache]);
 
   return (
     <>
@@ -169,7 +243,7 @@ export function EnvoysListClient({
             <EnvoyCard
               key={envoy.id}
               envoy={envoy}
-              rankingPosition={rankingPositions.get(envoy.id) || 0}
+              rankingPosition={rankingPositions.get(envoy.id) ?? 0}
               rankingValue={
                 rankingType && rankingType !== "none"
                   ? getRankingValue(
