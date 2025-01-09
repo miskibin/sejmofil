@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useTransition } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, CalendarDays, Timer, Vote } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Proceeding, PointRenderProps, ProceedingPoint } from "./types";
-import Loading from "../loading";
 
 export function ProceedingsList({
   proceedings,
@@ -25,7 +24,6 @@ export function ProceedingsList({
   const [isNavigating, setIsNavigating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [openSections, setOpenSections] = useState<string[]>([]);
-  const [isPending, startTransition] = useTransition();
 
   const filteredProceedings = useMemo(
     () =>
@@ -50,15 +48,13 @@ export function ProceedingsList({
   const handleSearch = useCallback(
     (value: string) => {
       setSearchTerm(value);
-      startTransition(() => {
-        setOpenSections(
-          value.length >= 2
-            ? filteredProceedings.flatMap((proc) =>
-                proc.proceeding_day.map((day) => `day-${day.id}`)
-              )
-            : []
-        );
-      });
+      setOpenSections(
+        value.length >= 2
+          ? filteredProceedings.flatMap((proc) =>
+              proc.proceeding_day.map((day) => `day-${day.id}`)
+            )
+          : []
+      );
     },
     [filteredProceedings]
   );
@@ -143,10 +139,6 @@ export function ProceedingsList({
       return acc;
     }, {} as Record<string, ProceedingPoint[]>);
 
-  if (isPending || isNavigating) {
-    return <Loading />;
-  }
-
   return (
     <div className="space-y-4">
       <div className="mb-6">
@@ -161,8 +153,6 @@ export function ProceedingsList({
         <p className="text-sm text-muted-foreground mt-2">
           {searchTerm.length < 2
             ? "Wpisz minimum 2 znaki aby wyszukać"
-            : isPending
-            ? "Wyszukiwanie..."
             : !filteredProceedings.length && "Brak wyników"}
         </p>
       </div>
