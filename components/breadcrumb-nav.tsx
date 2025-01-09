@@ -32,7 +32,7 @@ const Breadcrumbs: React.FC = () => {
   const pathSegments = pathname?.split("/").filter((segment) => segment !== "");
 
   return (
-    <nav className="flex  py-3 mt-5 " aria-label="Breadcrumb">
+    <nav className="flex  py-3 mt-7 sm:mt-4 " aria-label="Breadcrumb">
       <ol className="inline-flex items-center space-x-1 md:space-x-2">
         <li className="inline-flex items-center">
           <Link
