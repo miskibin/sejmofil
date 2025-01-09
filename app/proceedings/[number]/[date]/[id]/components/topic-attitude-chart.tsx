@@ -1,6 +1,14 @@
 "use client";
 
-import { Bar, BarChart, XAxis, YAxis, ReferenceLine, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  Bar,
+  BarChart,
+  XAxis,
+  YAxis,
+  ReferenceLine,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { ChartContainer } from "@/components/ui/chart";
 
 interface TopicAttitudeChartProps {
@@ -37,7 +45,7 @@ export function TopicAttitudeChart({ data }: TopicAttitudeChartProps) {
           color: "hsl(var(--chart-1))",
         },
       }}
-      className="h-[400px] w-full"
+      className="h-[400px] w-11/12"
     >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
@@ -98,7 +106,8 @@ export function TopicAttitudeChart({ data }: TopicAttitudeChartProps) {
                   <div className="rounded-lg bg-white p-2 shadow-md border max-w-[200px] break-words">
                     <p className="font-medium text-sm">{label}</p>
                     <p className="text-xs">
-                      Ocena: {originalValue.toFixed(2)} ({valueToRating(originalValue)})
+                      Ocena: {originalValue.toFixed(2)} (
+                      {valueToRating(originalValue)})
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Liczba wypowiedzi: {payload[0].payload.count}
