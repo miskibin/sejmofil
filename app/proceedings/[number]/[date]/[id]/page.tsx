@@ -67,6 +67,30 @@ const TabContent = ({ content }: { content: string | null | undefined }) => {
   );
 };
 
+// Add new OfficialInfo component
+const OfficialInfo = ({
+  official_topic,
+  official_point,
+}: {
+  official_topic: string;
+  official_point: string;
+}) => (
+  <div className="space-y-4">
+    <div className="space-y-2">
+      <h3 className="text-sm font-medium text-muted-foreground">
+        Temat oficjalny
+      </h3>
+      <p className="text-sm">{official_topic || "Brak oficjalnego tematu"}</p>
+    </div>
+    <div className="space-y-2">
+      <h3 className="text-sm font-medium text-muted-foreground">
+        Punkt porządku dziennego
+      </h3>
+      <p className="text-sm">{official_point || "Brak numeru punktu"}</p>
+    </div>
+  </div>
+);
+
 export async function generateMetadata({}: {
   params: Promise<{ id: number }>;
 }): Promise<Metadata> {
@@ -193,8 +217,13 @@ export default async function PointDetail({
     },
     {
       value: "positions",
-      label: "Stanowiska partii",
+      label: "Stanowiska",
       content: point.summary_main?.key_positions,
+    },
+    {
+      value: "official",
+      label: "Informacje",
+      content: "has-content", // Always show this tab
     },
     {
       value: "prints",
@@ -265,7 +294,7 @@ export default async function PointDetail({
         </div>
 
         {/* Stats cards - Adjust grid for better mobile layout */}
-        <div className="col-span-full lg:col-span-8 flex flex-col gap-4 h-full">
+        <div className="col-span-full lg:col-span-8 flex flex-col gap-4 mt-4 sm:mt-0 h-full">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
               headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
@@ -314,6 +343,11 @@ export default async function PointDetail({
                     >
                       {tab.value === "prints" ? (
                         <PrintSection prints={printsWithStages} />
+                      ) : tab.value === "official" ? (
+                        <OfficialInfo
+                          official_topic={point.official_topic}
+                          official_point={point.official_point}
+                        />
                       ) : (
                         <TabContent content={tab.content} />
                       )}

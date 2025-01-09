@@ -92,7 +92,7 @@ export function ProceedingsList({
       >
         <Link
           href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
-          className={`block hover:text-primary ${
+          className={`hover:text-primary ${
             isNavigating ? "pointer-events-none opacity-50" : ""
           }`}
           onClick={(e) =>
@@ -103,23 +103,22 @@ export function ProceedingsList({
           }
           prefetch={false}
         >
-          <div className={`text-sm break-words flex items-center gap-2`}>
-            {point.official_point ? (
-              <span className="text-muted-foreground">{pointNumber}.</span>
-            ) : (
-              <span className="italic">{"(Bez numeru)"}.</span>
-            )}
-            <span>{point.topic.split(" | ")[1] || point.topic}</span>
+          <div className="text-sm break-words">
+            <span className="text-muted-foreground">
+              {point.official_point ? `${pointNumber}.` : <i>(Bez numeru)</i>}
+            </span>{" "}
+            <span>{point.topic.split(" | ")[1] || point.topic}</span>{" "}
             {isInterrupted && (
-              <span className="text-xs text-destructive italic">
-                (przerwano)
-              </span>
+              <span className="text-destructive italic">(przerwano)</span>
             )}
             {isContinuation && (
-              <span className="text-xs text-primary italic">(kontynuacja)</span>
-            )}
+              <span className="text-primary italic">(kontynuacja)</span>
+            )}{" "}
             {(point.votingResults?.length ?? 0) > 0 && (
-              <Badge variant="outline" className="flex items-center gap-1">
+              <Badge
+                variant="outline"
+                className="inline-flex items-center gap-1"
+              >
                 <Vote className="h-3 w-3" />
                 {point.votingResults?.length}
               </Badge>
