@@ -1,6 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Ban, Medal, UserX,  Award, VolumeX, ThumbsUp, ThumbsDown } from "lucide-react";
+import {
+  Ban,
+  Medal,
+  UserX,
+  Award,
+  VolumeX,
+  ThumbsUp,
+  ThumbsDown,
+} from "lucide-react";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { EnvoyShort } from "@/lib/types/person";
 import { Badge } from "@/components/ui/badge";
@@ -52,18 +60,33 @@ export function EnvoyCard({
 
   const getMetricIcons = (metrics?: Set<string>) => {
     if (!metrics) return null;
-    
+
     const icons = {
-      topVotes: { icon: <ThumbsUp className="w-5 h-5 text-success" />, title: "Wysoka frekwencja głosowań" },
-      lowVotes: { icon: <ThumbsDown className="w-5 h-5 text-primary" />, title: "Niska frekwencja głosowań" },
-      topAbsents: { icon: <UserX className="w-5 h-5 text-primary" />, title: "Częste nieobecności" },
-      lowAbsents: { icon: <Award className="w-5 h-5 text-success" />, title: "Rzadkie nieobecności" },
-      topInterruptions: { icon: <VolumeX className="w-5 h-5 text-yellow-500" />, title: "Częste okrzyki" }
+      topVotes: {
+        icon: <ThumbsUp className="w-5 h-5 text-success" />,
+        title: "Wysoka frekwencja głosowań",
+      },
+      lowVotes: {
+        icon: <ThumbsDown className="w-5 h-5 text-primary" />,
+        title: "Niska frekwencja głosowań",
+      },
+      topAbsents: {
+        icon: <UserX className="w-5 h-5 text-primary" />,
+        title: "Częste nieobecności",
+      },
+      lowAbsents: {
+        icon: <Award className="w-5 h-5 text-success" />,
+        title: "Rzadkie nieobecności",
+      },
+      topInterruptions: {
+        icon: <VolumeX className="w-5 h-5 text-yellow-500" />,
+        title: "Częste okrzyki",
+      },
     };
 
     return (
       <div className="flex gap-3 mt-1">
-        {Array.from(metrics).map(metric => (
+        {Array.from(metrics).map((metric) => (
           <div key={metric} title={icons[metric as keyof typeof icons]?.title}>
             {icons[metric as keyof typeof icons]?.icon}
           </div>
@@ -91,6 +114,7 @@ export function EnvoyCard({
         subtitle={truncatedName}
         showSource={false}
         showGradient={false}
+        headerElements={getMetricIcons(envoy.metrics)}
         headerIcon={!envoy.active && <Ban className="text-destructive" />}
         className={`hover:shadow-lg transition-all duration-200 ${rankingStyle}`}
       >
@@ -115,14 +139,19 @@ export function EnvoyCard({
               )}
             </div>
             <div className="min-w-0">
-              {envoy.role && envoy.role !== "Poseł" && envoy.role !== "envoy" && (
-                <p className="text-sm font-medium text-muted-foreground mb-1">
-                  {truncateText(envoy.role, 40)}
-                </p>
-              )}
+              {envoy.role &&
+                envoy.role !== "Poseł" &&
+                envoy.role !== "envoy" && (
+                  <p className="text-sm font-medium text-muted-foreground mb-1">
+                    {truncateText(envoy.role, 40)}
+                  </p>
+                )}
               <div className="mb-1">
                 {rankingType && (
-                  <Badge variant={rankingPosition <= 3 ? "default" : "secondary"} className="mr-2">
+                  <Badge
+                    variant={rankingPosition <= 3 ? "default" : "secondary"}
+                    className="mr-2"
+                  >
                     #{rankingPosition}
                   </Badge>
                 )}
@@ -132,7 +161,6 @@ export function EnvoyCard({
                   {rankingLabel}: {rankingValue}
                 </p>
               )}
-              {getMetricIcons(envoy.metrics)}
             </div>
           </div>
         </div>
