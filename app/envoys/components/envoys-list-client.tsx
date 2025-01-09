@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import debounce from "lodash/debounce";
 import { EnvoysListFilters } from "@/components/envoys-list-filters";
 import { EnvoyCard } from "@/components/envoy-card";
 import { EnvoyShort } from "@/lib/types/person";
+import type { ActivityStatus } from "@/components/envoys-list-filters";
+
+type RankingType = "votes" | "absents" | "statements" | "interruptions" | "none" | null;
 
 interface Props {
   initialEnvoys: EnvoyShort[];
@@ -12,121 +16,119 @@ interface Props {
   initialInterruptionCounts: Record<string, number>;
 }
 
-export function EnvoysListClient({
-  initialEnvoys,
-  initialStatementCounts,
-  initialInterruptionCounts,
-}: Props) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedClub, setSelectedClub] = useState("all");
-  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
-  const [activityFilter, setActivityFilter] = useState<"active" | "inactive" | "all">("active");
-  const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
-  const [sortField, setSortField] = useState<"votes" | "statements" | "interruptions">("votes");
-  const sortDirection = "desc";
+const getRankingValue = (envoy: EnvoyShort, type: RankingType, counts: Record<string, number>) => {
+  switch (type) {
+    case "votes": return Number(envoy.numberOfVotes) || 0;
+    case "absents": return envoy.absents || 0;
+    case "statements": return counts[envoy.id] || 0;
+    case "interruptions": return counts[envoy.id] || 0;
+    default: return 0;
+  }
+};
+
+export function EnvoysListClient({ initialEnvoys, initialStatementCounts, initialInterruptionCounts }: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [filters, setFilters] = useState({
+    search: "",
+    club: "all",
+    district: null as string | null,
+    activity: "active" as ActivityStatus,
+    professions: [] as string[],
+  });
+  const [rankingType, setRankingType] = useState<RankingType>(
+    (searchParams.get("ranking") as RankingType) || null
+  );
   const [isSearching, setIsSearching] = useState(false);
 
-  const debouncedSearch = useCallback(
-    debounce((value: string) => {
-      setIsSearching(true);
-      setSearchTerm(value);
-      setTimeout(() => setIsSearching(false), 200);
-    }, 150),
-    []
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        setIsSearching(true);
+        requestAnimationFrame(() => {
+          setFilters(f => ({ ...f, search: value }));
+          setIsSearching(false);
+        });
+      }, 300),
+    [setFilters, setIsSearching]
   );
 
-  const filterEnvoys = (list: EnvoyShort[]) =>
-    list.filter((envoy) => {
-      return (
-        `${envoy.firstName} ${envoy.lastName}`
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) &&
-        (selectedClub === "all" || envoy.club === selectedClub) &&
-        (activityFilter === "all" ||
-          (activityFilter === "active" && envoy.active) ||
-          (activityFilter === "inactive" && !envoy.active)) &&
-        (!selectedDistrict || envoy.districtName === selectedDistrict) &&
-        (selectedProfessions.length === 0 ||
-          selectedProfessions.some((p) =>
-            envoy.profession
-              ?.split(",")
-              .map((s) => s.trim())
-              .includes(p)
-          ))
-      );
-    });
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (rankingType) params.set("ranking", rankingType);
+    else params.delete("ranking");
+    router.push(`?${params.toString()}`, { scroll: false });
+  }, [rankingType, router, searchParams]);
 
-  const sortedEnvoys = [...filterEnvoys(initialEnvoys)].sort((a, b) => {
-    const m = sortDirection === "desc" ? 1 : -1;
-    switch (sortField) {
-      case "votes":
-        return m * ((Number(b.numberOfVotes) || 0) - (Number(a.numberOfVotes) || 0));
-      case "statements":
-        return m * ((initialStatementCounts[b.id] || 0) - (initialStatementCounts[a.id] || 0));
-      case "interruptions":
-        return m * ((initialInterruptionCounts[b.id] || 0) - (initialInterruptionCounts[a.id] || 0));
-      default:
-        return 0;
-    }
-  });
+  const rankingPositions = useMemo(() => {
+    if (!rankingType || rankingType === 'none') return new Map<string, number>();
+    const counts = rankingType === 'statements' ? initialStatementCounts : initialInterruptionCounts;
+    return new Map(
+      [...initialEnvoys]
+        .sort((a, b) => getRankingValue(b, rankingType, counts) - getRankingValue(a, rankingType, counts))
+        .map((envoy, index) => [envoy.id, index + 1])
+    );
+  }, [rankingType, initialEnvoys, initialStatementCounts, initialInterruptionCounts]);
 
-  const clubs = [...new Set(initialEnvoys.map((e) => e.club).filter(Boolean))];
+  const sortedAndFilteredEnvoys = useMemo(() => {
+    const filtered = initialEnvoys.filter(envoy => 
+      `${envoy.firstName} ${envoy.lastName}`.toLowerCase().includes(filters.search.toLowerCase()) &&
+      (filters.club === "all" || envoy.club === filters.club) &&
+      (filters.activity === "all" || (filters.activity === "active" ? envoy.active : !envoy.active)) &&
+      (!filters.district || envoy.districtName === filters.district) &&
+      (filters.professions.length === 0 || filters.professions.some(p => 
+        envoy.profession?.split(",").map(s => s.trim()).includes(p)
+      ))
+    );
 
-  const getProfessionCounts = (list: EnvoyShort[]) => {
-    const counts = new Map<string, number>();
-    list.forEach((env) => {
-      env.profession
-        ?.split(",")
-        .map((p) => p.trim())
-        .forEach((prof) => counts.set(prof, (counts.get(prof) || 0) + 1));
-    });
-    return Array.from(counts.entries())
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
-  };
+    return rankingType && rankingType !== 'none'
+      ? filtered.sort((a, b) => (rankingPositions.get(a.id) || 0) - (rankingPositions.get(b.id) || 0))
+      : filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
+  }, [filters, rankingType, rankingPositions]);
 
   return (
     <>
       <EnvoysListFilters
-        clubs={clubs}
-        professions={getProfessionCounts(initialEnvoys)}
+        clubs={[...new Set(initialEnvoys.map(e => e.club).filter(Boolean))]}
+        professions={(() => {
+          const counts = new Map<string, number>();
+          initialEnvoys.forEach((env) => {
+            env.profession
+              ?.split(",")
+              .map((p: string) => p.trim())
+              .forEach((prof: string) => counts.set(prof, (counts.get(prof) || 0) + 1));
+          });
+          return Array.from(counts.entries())
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+        })()}
         onSearchChange={debouncedSearch}
-        onClubChange={setSelectedClub}
-        onActivityChange={setActivityFilter}
-        onDistrictChange={setSelectedDistrict}
-        onProfessionsChange={setSelectedProfessions}
-        selectedProfessions={selectedProfessions}
-        onSortChange={setSortField}
+        onClubChange={club => setFilters(f => ({ ...f, club }))}
+        onActivityChange={activity => setFilters(f => ({ ...f, activity }))}
+        onDistrictChange={district => setFilters(f => ({ ...f, district }))}
+        onProfessionsChange={professions => setFilters(f => ({ ...f, professions }))}
+        selectedProfessions={filters.professions}
+        onSortChange={setRankingType}
       />
 
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {isSearching ? (
           <div className="col-span-full text-center py-4">Wyszukiwanie...</div>
-        ) : sortedEnvoys.length === 0 ? (
+        ) : sortedAndFilteredEnvoys.length === 0 ? (
           <div className="col-span-full text-center py-4">Brak wyników</div>
         ) : (
-          sortedEnvoys.map((envoy) => {
-            const displayValue = (() => {
-              switch (sortField) {
-                case "votes":
-                  return `Głosy: ${envoy.numberOfVotes || "Brak danych"}`;
-                case "statements":
-                  return `Wypowiedzi: ${initialStatementCounts[envoy.id] || 0}`;
-                case "interruptions":
-                  return `Przerywania: ${initialInterruptionCounts[envoy.id] || 0}`;
-                default:
-                  return `Głosy: ${envoy.numberOfVotes || "Brak danych"}`;
-              }
-            })();
-
-            return (
-              <EnvoyCard
-                key={envoy.id}
-                envoy={envoy}
-                displayValue={displayValue}
-              />
-            );
-          })
+          sortedAndFilteredEnvoys.map(envoy => (
+            <EnvoyCard
+              key={envoy.id}
+              envoy={envoy}
+              rankingPosition={rankingPositions.get(envoy.id) || 0}
+              rankingValue={rankingType && rankingType !== 'none' 
+                ? getRankingValue(envoy, rankingType, 
+                    rankingType === 'statements' ? initialStatementCounts : initialInterruptionCounts)
+                : null}
+              rankingType={rankingType === 'none' ? null : rankingType}
+            />
+          ))
         )}
       </div>
     </>

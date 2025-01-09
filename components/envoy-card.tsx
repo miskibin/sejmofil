@@ -1,25 +1,66 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Ban } from "lucide-react";
+import { Ban, Medal } from "lucide-react";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { EnvoyShort } from "@/lib/types/person";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { truncateText } from "@/lib/utils";
 
 interface EnvoyCardProps {
   envoy: EnvoyShort;
-  displayValue: string;
+  rankingPosition: number;
+  rankingValue: number | null;
+  rankingType: "votes" | "absents" | "statements" | "interruptions" | null;
 }
 
-export function EnvoyCard({ envoy, displayValue }: EnvoyCardProps) {
+export function EnvoyCard({
+  envoy,
+  rankingPosition,
+  rankingValue,
+  rankingType,
+}: EnvoyCardProps) {
   const fullName = `${envoy.firstName} ${envoy.lastName}`;
   const truncatedName = truncateText(fullName, 18);
+
+  const getRankingStyle = (position: number) => {
+    if (!rankingType) return null;
+    switch (position) {
+      case 1:
+        return "bg-yellow-500/10 shadow-yellow-500/20 shadow-inner";
+      case 2:
+        return "bg-gray-500/10 shadow-gray-500/20 shadow-inner";
+      case 3:
+        return "bg-amber-700/10 shadow-amber-700/20 shadow-inner";
+      default:
+        return "";
+    }
+  };
+
+  const getMedalColor = (position: number) => {
+    if (!rankingType) return null;
+    switch (position) {
+      case 1:
+        return "text-yellow-500";
+      case 2:
+        return "text-gray-400";
+      case 3:
+        return "text-amber-700";
+      default:
+        return null;
+    }
+  };
+
+  const medalColor = getMedalColor(rankingPosition);
+  const rankingStyle = getRankingStyle(rankingPosition);
+
+  const rankingLabel = rankingType
+    ? {
+        votes: "Głosy",
+        absents: "Nieobecności",
+        statements: "Wypowiedzi",
+        interruptions: "Okrzyki",
+      }[rankingType]
+    : null;
 
   return (
     <Link href={`/envoys/${envoy.id}`}>
@@ -28,13 +69,11 @@ export function EnvoyCard({ envoy, displayValue }: EnvoyCardProps) {
         subtitle={truncatedName}
         showSource={false}
         showGradient={false}
-        headerIcon={
-          <>{!envoy.active && <Ban className="text-destructive" />}</>
-        }
-        className="hover:shadow-lg transition-shadow duration-200"
+        headerIcon={!envoy.active && <Ban className="text-destructive" />}
+        className={`hover:shadow-lg transition-all duration-200 ${rankingStyle}`}
       >
         <div className="flex flex-col">
-          <div className="flex items-center gap-4 mb-2">
+          <div className="flex items-center gap-4">
             <div className="w-16 h-20 relative flex-shrink-0">
               <Image
                 src={`${
@@ -47,33 +86,35 @@ export function EnvoyCard({ envoy, displayValue }: EnvoyCardProps) {
                 className="rounded-lg object-cover"
                 loading="lazy"
               />
+              {medalColor && (
+                <div className="absolute -top-2 -right-2 bg-background rounded-full p-0.5 shadow-sm">
+                  <Medal className={`w-6 h-6 ${medalColor}`} />
+                </div>
+              )}
             </div>
             <div className="min-w-0">
               <div className="mb-1">
+                {rankingType && (
+                  <Badge
+                    variant={rankingPosition <= 3 ? "default" : "secondary"}
+                    className={`mr-2`}
+                  >
+                    #{rankingPosition}
+                  </Badge>
+                )}
                 {envoy.role &&
                   envoy.role !== "Poseł" &&
-                  envoy.role != "envoy" && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Badge
-                            variant="secondary"
-                            className="inline-block truncate"
-                          >
-                            {truncateText(envoy.role, 28)}
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{envoy.role}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                  envoy.role !== "envoy" && (
+                    <Badge variant="outline">
+                      {truncateText(envoy.role, 20)}
+                    </Badge>
                   )}
               </div>
-              <p className="text-sm text-muted-foreground truncate">
-                {envoy.profession || "Brak danych"}
-              </p>
-              <p className="text-sm text-muted-foreground">{displayValue}</p>
+              {rankingType && rankingLabel && (
+                <p className="text-sm text-muted-foreground">
+                  {rankingLabel}: {rankingValue}
+                </p>
+              )}
             </div>
           </div>
         </div>
