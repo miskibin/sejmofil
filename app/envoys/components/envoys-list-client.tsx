@@ -24,13 +24,10 @@ interface Props {
 
 const TOP_RANK_THRESHOLD = 40;
 
-const createRankingMap = (
-  envoys: EnvoyShort[],
-  getValue: (envoy: EnvoyShort) => number
-) => {
+const createRankingMap = (envoys: EnvoyShort[], getValue: (envoy: EnvoyShort) => number) => {
   const sorted = [...envoys]
     .sort((a, b) => getValue(b) - getValue(a))
-    .map((e, i) => [e.id, i + 1] as [string, number]); // Type assertion here
+    .map((e, i) => [e.id, i + 1] as [string, number]);  // Type assertion here
   return new Map<string, number>(sorted);
 };
 
@@ -57,15 +54,9 @@ const createMetricsCache = (
   envoys: EnvoyShort[],
   interruptionCounts: Record<string, number>
 ) => {
-  const votesRanking = createRankingMap(
-    envoys,
-    (e) => Number(e.numberOfVotes) || 0
-  );
-  const absentsRanking = createRankingMap(envoys, (e) => e.absents || 0);
-  const interruptionsRanking = createRankingMap(
-    envoys,
-    (e) => interruptionCounts[e.id] || 0
-  );
+  const votesRanking = createRankingMap(envoys, e => Number(e.numberOfVotes) || 0);
+  const absentsRanking = createRankingMap(envoys, e => e.absents || 0);
+  const interruptionsRanking = createRankingMap(envoys, e => interruptionCounts[e.id] || 0);
   const totalEnvoys = envoys.length;
 
   return {
@@ -74,23 +65,19 @@ const createMetricsCache = (
     interruptionsRanking,
     getMetrics: (envoyId: string) => {
       const metrics = new Set<string>();
-      const votePos = votesRanking.get(envoyId) ?? 0; // Use nullish coalescing
+      const votePos = votesRanking.get(envoyId) ?? 0;      // Use nullish coalescing
       const absentsPos = absentsRanking.get(envoyId) ?? 0;
       const interruptionsPos = interruptionsRanking.get(envoyId) ?? 0;
 
       // Compare with explicit numbers
-      if (votePos > 0 && votePos <= TOP_RANK_THRESHOLD) metrics.add("topVotes");
-      if (votePos > 0 && votePos >= totalEnvoys - TOP_RANK_THRESHOLD)
-        metrics.add("lowVotes");
-      if (absentsPos > 0 && absentsPos <= TOP_RANK_THRESHOLD)
-        metrics.add("topAbsents");
-      if (absentsPos > 0 && absentsPos >= totalEnvoys - TOP_RANK_THRESHOLD)
-        metrics.add("lowAbsents");
-      if (interruptionsPos > 0 && interruptionsPos <= TOP_RANK_THRESHOLD)
-        metrics.add("topInterruptions");
+      if (votePos > 0 && votePos <= TOP_RANK_THRESHOLD) metrics.add('topVotes');
+      if (votePos > 0 && votePos >= totalEnvoys - TOP_RANK_THRESHOLD) metrics.add('lowVotes');
+      if (absentsPos > 0 && absentsPos <= TOP_RANK_THRESHOLD) metrics.add('topAbsents');
+      if (absentsPos > 0 && absentsPos >= totalEnvoys - TOP_RANK_THRESHOLD) metrics.add('lowAbsents');
+      if (interruptionsPos > 0 && interruptionsPos <= TOP_RANK_THRESHOLD) metrics.add('topInterruptions');
 
       return metrics;
-    },
+    }
   };
 };
 
@@ -138,71 +125,65 @@ export function EnvoysListClient({
   );
 
   const rankingPositions = useMemo(() => {
-    if (!rankingType || rankingType === "none")
-      return new Map<string, number>();
-
+    if (!rankingType || rankingType === "none") return new Map<string, number>();
+    
     if (rankingType === "votes") return metricsCache.votesRanking;
     if (rankingType === "absents") return metricsCache.absentsRanking;
-    if (rankingType === "interruptions")
-      return metricsCache.interruptionsRanking;
-
-    return createRankingMap(
-      initialEnvoys,
-      (e) => initialStatementCounts[e.id] || 0
-    );
+    if (rankingType === "interruptions") return metricsCache.interruptionsRanking;
+    
+    return createRankingMap(initialEnvoys, e => initialStatementCounts[e.id] || 0);
   }, [rankingType, metricsCache, initialEnvoys, initialStatementCounts]);
 
   const sortedAndFilteredEnvoys = useMemo(() => {
-    const professionSet =
-      filters.professions.length > 0 ? new Set(filters.professions) : null;
+    const professionSet = filters.professions.length > 0 
+      ? new Set(filters.professions)
+      : null;
 
     const searchLower = filters.search.toLowerCase();
-
-    const filtered = initialEnvoys.filter((envoy) => {
+    
+    const filtered = initialEnvoys.filter(envoy => {
       if (filters.club !== "all" && envoy.club !== filters.club) return false;
-      if (filters.district && envoy.districtName !== filters.district)
-        return false;
-      if (
-        filters.activity !== "all" &&
-        (filters.activity === "active" ? !envoy.active : envoy.active)
-      )
-        return false;
+      if (filters.district && envoy.districtName !== filters.district) return false;
+      if (filters.activity !== "all" && 
+          (filters.activity === "active" ? !envoy.active : envoy.active)) return false;
 
-      if (
-        searchLower &&
-        !`${envoy.firstName} ${envoy.lastName} ${envoy.role || ""}`
+      if (searchLower && !`${envoy.firstName} ${envoy.lastName} ${envoy.role || ''}`
           .toLowerCase()
-          .includes(searchLower)
-      )
-        return false;
+          .includes(searchLower)) return false;
 
       if (professionSet && envoy.profession) {
         const hasMatchingProfession = envoy.profession
           .split(",")
-          .some((p) => professionSet.has(p.trim()));
+          .some(p => professionSet.has(p.trim()));
         if (!hasMatchingProfession) return false;
       }
 
       return true;
     });
 
-    const envoysWithMetrics = filtered.map((envoy) => ({
+    const envoysWithMetrics = filtered.map(envoy => ({
       ...envoy,
-      metrics: metricsCache.getMetrics(envoy.id),
+      metrics: metricsCache.getMetrics(envoy.id)
     }));
 
     if (rankingType && rankingType !== "none") {
-      return envoysWithMetrics.sort((a, b) => {
-        const posA = rankingPositions.get(a.id) ?? 0;
-        const posB = rankingPositions.get(b.id) ?? 0;
-        return posA - posB;
-      });
+      return envoysWithMetrics.sort(
+        (a, b) => {
+          const posA = rankingPositions.get(a.id) ?? 0;
+          const posB = rankingPositions.get(b.id) ?? 0;
+          return posA - posB;
+        }
+      );
     }
 
-    return envoysWithMetrics.sort((a, b) =>
-      a.lastName.localeCompare(b.lastName)
-    );
-  }, [filters, rankingType, rankingPositions, initialEnvoys, metricsCache]);
+    return envoysWithMetrics.sort((a, b) => a.lastName.localeCompare(b.lastName));
+  }, [
+    filters,
+    rankingType,
+    rankingPositions,
+    initialEnvoys,
+    metricsCache
+  ]);
 
   return (
     <>
