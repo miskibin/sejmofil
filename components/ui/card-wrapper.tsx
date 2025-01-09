@@ -18,6 +18,7 @@ interface CardWrapperProps {
   aiPrompt?: string;
   className?: string;
   variant?: "default" | "inverted";
+  headerElements?: ReactNode; // Add this new prop
 }
 
 export function CardWrapper({
@@ -32,6 +33,7 @@ export function CardWrapper({
   aiPrompt,
   className,
   variant = "default",
+  headerElements,
 }: CardWrapperProps) {
   const isInverted = variant === "inverted";
 
@@ -44,21 +46,24 @@ export function CardWrapper({
       )}
     >
       <CardHeader className="pb-2 lg:px-4 2xl:px-6">
-        <div className="flex justify-between items-start">
-          <div>
+        <div className="flex justify-between items-start gap-2">
+          <div className="min-w-0">
             {title && (
               <CardTitle
                 className={cn(
-                  "text-sm font-semibold",
+                  "text-sm font-semibold truncate",
                   isInverted ? "text-primary-foreground" : "text-primary"
                 )}
               >
                 {title}
               </CardTitle>
             )}
-            {subtitle && <h2 className="text-2xl font-semibold">{subtitle}</h2>}
+            {subtitle && <h2 className="text-2xl font-semibold truncate">{subtitle}</h2>}
           </div>
-          {headerIcon && <div className="p-2 rounded-lg">{headerIcon}</div>}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {headerElements}
+            {headerIcon && <div className="p-2 rounded-lg">{headerIcon}</div>}
+          </div>
         </div>
       </CardHeader>
 
