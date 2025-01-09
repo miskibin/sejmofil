@@ -63,20 +63,20 @@ export function EnvoyCard({
 
     const icons = {
       topVotes: {
-        icon: <ThumbsUp className="w-5 h-5 text-success" />,
-        title: "Wysoka frekwencja głosowań",
+        icon: <Award className="w-5 h-5 text-success" />,
+        title: "Popularność wśród wyborców",
       },
       lowVotes: {
+        icon: <UserX className="w-5 h-5 text-primary" />,
+        title: "Nieznany/a wśród wyborców",
+      },
+      topAbsents: {
         icon: <ThumbsDown className="w-5 h-5 text-primary" />,
         title: "Niska frekwencja głosowań",
       },
-      topAbsents: {
-        icon: <UserX className="w-5 h-5 text-primary" />,
-        title: "Częste nieobecności",
-      },
       lowAbsents: {
-        icon: <Award className="w-5 h-5 text-success" />,
-        title: "Rzadkie nieobecności",
+        icon: <ThumbsUp className="w-5 h-5 text-success" />,
+        title: "Wysoka frekwencja głosowań",
       },
       topInterruptions: {
         icon: <VolumeX className="w-5 h-5 text-yellow-500" />,
