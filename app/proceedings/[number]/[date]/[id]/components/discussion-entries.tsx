@@ -128,14 +128,13 @@ export function DiscussionEntries({
         <div className="text-sm text-muted-foreground flex items-center gap-2">
           {filterMode === "featured" && (
             <div className="flex gap-2">
-              <span className="font-medium">
-                Wyróżnione
-              </span>
+              <span className="font-medium">Wyróżnione</span>
               <span className="text-muted-foreground">
                 ({filteredStatements.length} z {statements.length})
               </span>
             </div>
-          )}</div>
+          )}
+        </div>
 
         <Select
           value={filterMode}
@@ -157,12 +156,7 @@ export function DiscussionEntries({
           const speaker = getSpeakerInfo(statement.speaker_name);
 
           return (
-            <div
-              key={statement.id}
-              className={cn(
-                "flex flex-col  ",
-              )}
-            >
+            <div key={statement.id} className={cn("flex flex-col  ")}>
               {/* Header - Now top section on mobile */}
               <div className="flex items-center gap-3 mb-4">
                 <Link
