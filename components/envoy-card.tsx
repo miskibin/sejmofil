@@ -93,22 +93,17 @@ export function EnvoyCard({
               )}
             </div>
             <div className="min-w-0">
+              {envoy.role && envoy.role !== "Poseł" && envoy.role !== "envoy" && (
+                <p className="text-sm font-medium text-muted-foreground mb-1">
+                  {truncateText(envoy.role, 40)}
+                </p>
+              )}
               <div className="mb-1">
                 {rankingType && (
-                  <Badge
-                    variant={rankingPosition <= 3 ? "default" : "secondary"}
-                    className={`mr-2`}
-                  >
+                  <Badge variant={rankingPosition <= 3 ? "default" : "secondary"} className="mr-2">
                     #{rankingPosition}
                   </Badge>
                 )}
-                {envoy.role &&
-                  envoy.role !== "Poseł" &&
-                  envoy.role !== "envoy" && (
-                    <Badge variant="outline">
-                      {truncateText(envoy.role, 20)}
-                    </Badge>
-                  )}
               </div>
               {rankingType && rankingLabel && (
                 <p className="text-sm text-muted-foreground">
