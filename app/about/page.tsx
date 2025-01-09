@@ -26,12 +26,12 @@ const teamMembers = [
   {
     name: "Michał",
     image: "/michal-profil-1.webp", // Add actual image path
-    badges: ["Backend", "Frontend", "UI", "Marketing", "AI"],
+    badges: ["Full-Stack", "Data Eng", "UI/UX", "LLM Eng"],
   },
   {
     name: "Michał",
     image: "/profil-michal-2.webp", // Add actual image path
-    badges: ["Backend", "DevOps", "AI", "Marketing"],
+    badges: ["Infra", "Data Eng", "MLOps", "LLM Eng"],
   },
   {
     name: "Adam",
