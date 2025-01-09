@@ -194,6 +194,11 @@ export function ProceedingsList({
                             proceeding.dates[proceeding.dates.length - 1]
                           ).toLocaleDateString("pl-PL")}`}
                         </span>
+                        {!day.proceeding_point_ai?.length && (
+                          <Badge variant={"destructive"}>
+                            brak danych
+                          </Badge>
+                        )}
                         {day.proceeding_point_ai.some(
                           (p) => p.votingResults?.length
                         ) && (

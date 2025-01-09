@@ -169,18 +169,18 @@ export function EnvoysListFilters({
     <div className="space-y-4 p-3 mb-8">
       <div className="flex gap-2 items-center">
         <Input
-          placeholder="Szukaj posła..."
+          placeholder="Szukaj posła lub funkcji..."
           className="flex-1 md:flex-none md:w-48"
           onChange={(e) => onSearchChange(e.target.value)}
         />
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             onClick={() => setIsFiltersVisible(!isFiltersVisible)}
             className="flex items-center gap-2"
           >
-            <Filter className={isFiltersVisible ? "text-primary" : ""} />
+            <Filter className={isFiltersVisible ? "text-white" : ""} />
             <span className="hidden md:inline">Filtry</span>
           </Button>
           {rankingLabel && (
