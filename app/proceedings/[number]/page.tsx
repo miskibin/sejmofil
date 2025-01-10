@@ -16,17 +16,19 @@ export default async function ProceedingPage({
   if (!proceeding) notFound();
 
   // Calculate importance score for each point
-  const points = proceeding.proceeding_day.flatMap((day, dayIndex) =>
-    day.proceeding_point_ai.map((point, pointIndex) => ({
-      ...point,
-      date: day.date,
-      dayNumber: dayIndex + 1,
-      pointIndex,
-      importance: (point.statements?.length || 0) + 
-                 (point.voting_numbers?.length || 0) * 2 +
-                 (point.summary_tldr ? 1 : 0)
-    }))
-  ).sort((a, b) => b.importance - a.importance);
+  const points = proceeding.proceeding_day
+    .flatMap((day, dayIndex) =>
+      day.proceeding_point_ai.map((point, pointIndex) => ({
+        ...point,
+        date: day.date,
+        dayNumber: dayIndex + 1,
+        pointIndex,
+        importance:
+          (point.statements?.length || 0) +
+          (point.voting_numbers?.length || 0) * 20,
+      }))
+    )
+    .sort((a, b) => b.importance - a.importance);
 
   // Create sections of 7 cards each (1 large + 2 medium + 4 small)
   const sections = [];
@@ -34,13 +36,17 @@ export default async function ProceedingPage({
     const section = {
       large: points[i],
       medium: points.slice(i + 1, i + 3),
-      small: points.slice(i + 3, i + 7)
+      small: points.slice(i + 3, i + 7),
     };
     // Only add section if it has at least a large card
     if (section.large) {
       // Ensure medium and small arrays are always of correct length
-      section.medium = section.medium.concat(Array(2 - section.medium.length).fill(null));
-      section.small = section.small.concat(Array(4 - section.small.length).fill(null));
+      section.medium = section.medium.concat(
+        Array(2 - section.medium.length).fill(null)
+      );
+      section.small = section.small.concat(
+        Array(4 - section.small.length).fill(null)
+      );
       sections.push(section);
     }
   }
@@ -75,28 +81,34 @@ export default async function ProceedingPage({
                   size="large"
                 />
               </div>
-              
+
               {/* Medium Cards */}
               <div className="col-span-12 lg:col-span-4 grid grid-cols-1 gap-6">
-                {section.medium.map((point, idx) => point && (
-                  <div key={point?.id || `medium-${idx}`}>
-                    <PointCard
-                      point={point}
-                      proceedingNumber={proceeding.number}
-                      date={point?.date}
-                      dayNumber={point?.dayNumber}
-                      pointIndex={point?.pointIndex}
-                      size="medium"
-                    />
-                  </div>
-                ))}
+                {section.medium.map(
+                  (point, idx) =>
+                    point && (
+                      <div key={point?.id || `medium-${idx}`}>
+                        <PointCard
+                          point={point}
+                          proceedingNumber={proceeding.number}
+                          date={point?.date}
+                          dayNumber={point?.dayNumber}
+                          pointIndex={point?.pointIndex}
+                          size="medium"
+                        />
+                      </div>
+                    )
+                )}
               </div>
             </div>
 
             {/* Small Cards */}
             <div className="grid grid-cols-12 gap-6">
               {section.small.map((point, idx) => (
-                <div key={point?.id || `small-${idx}`} className="col-span-12 sm:col-span-6 lg:col-span-3">
+                <div
+                  key={point?.id || `small-${idx}`}
+                  className="col-span-12 sm:col-span-6 lg:col-span-3"
+                >
                   {point && (
                     <PointCard
                       point={point}
