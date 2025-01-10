@@ -161,6 +161,11 @@ export function EnvoyCard({
                   {rankingLabel}: {rankingValue}
                 </p>
               )}
+              {!rankingType && envoy.profession && (
+                <p className="text-sm text-muted-foreground">
+                  {truncateText(envoy.profession, 40)}
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 export type ActivityStatus = "active" | "inactive" | "all";
@@ -130,17 +130,6 @@ export function EnvoysListFilters({
       })),
     },
     {
-      label: "Sortowanie",
-      placeholder: "Wybierz typ",
-      type: "select",
-      defaultValue: "none",
-      onChange: (value) => onSortChange(value as SortField),
-      options: Object.entries(RANKING_OPTIONS).map(([value, label]) => ({
-        value,
-        label,
-      })),
-    },
-    {
       label: "Okręg wyborczy",
       placeholder: "Kod pocztowy",
       type: "postal",
@@ -153,7 +142,7 @@ export function EnvoysListFilters({
       type: "professions",
       onChange: toggleProfession,
       badge: selectedProfessions.length || undefined,
-      options: filteredProfessions.map(prof => ({
+      options: filteredProfessions.map((prof) => ({
         value: prof.name,
         label: prof.name,
       })),
@@ -161,9 +150,10 @@ export function EnvoysListFilters({
   ];
 
   const currentRanking = searchParams?.get("ranking");
-  const rankingLabel = currentRanking && currentRanking !== "none" 
-    ? RANKING_OPTIONS[currentRanking as keyof typeof RANKING_OPTIONS]
-    : null;
+  const rankingLabel =
+    currentRanking && currentRanking !== "none"
+      ? RANKING_OPTIONS[currentRanking as keyof typeof RANKING_OPTIONS]
+      : null;
 
   return (
     <div className="space-y-4 p-3 mb-8">
@@ -174,6 +164,25 @@ export function EnvoysListFilters({
           onChange={(e) => onSearchChange(e.target.value)}
         />
         <div className="flex items-center gap-2">
+          <Select
+            defaultValue={searchParams?.get("ranking") || "none"}
+            onValueChange={(value) => onSortChange(value as SortField)}
+          >
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Sortowanie">
+                {RANKING_OPTIONS[
+                  searchParams?.get("ranking") as keyof typeof RANKING_OPTIONS
+                ] || "Alfabetycznie"}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(RANKING_OPTIONS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             variant="default"
             size="sm"
@@ -194,96 +203,132 @@ export function EnvoysListFilters({
       {isFiltersVisible && (
         <>
           <div className="flex flex-col md:flex-row flex-wrap gap-4">
-            {filterButtonConfigs.map(({ label, placeholder, type, onChange, options, defaultValue, badge }) => (
-              <div key={placeholder} className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-muted-foreground">
-                  {label}
-                </label>
-                {type === "select" && (
-                  <Select defaultValue={defaultValue} onValueChange={onChange}>
-                    <SelectTrigger className="w-full md:w-[180px]">
-                      <SelectValue placeholder={placeholder} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {options?.map(({ value, label }) => (
-                        <SelectItem key={value} value={value}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-                {type === "postal" && (
-                  <div className="flex items-center gap-2">
-                    <Input
-                      placeholder={placeholder}
-                      onChange={(e) => onChange(e.target.value)}
-                      maxLength={6}
-                      className="w-full md:w-[180px]"
-                    />
-                    {badge && <Badge variant="secondary" className="whitespace-nowrap">{badge}</Badge>}
-                  </div>
-                )}
-                {type === "professions" && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-9 w-[180px] border-dashed justify-between">
-                        {placeholder}
-                        {badge && (
-                          <>
-                            <Separator orientation="vertical" className="mx-2 h-4" />
-                            <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-                              {badge}
-                            </Badge>
-                          </>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 p-2" align="start">
-                      <div className="flex flex-col gap-2">
-                        <Input
-                          placeholder="Szukaj zawodu..."
-                          value={professionFilter}
-                          onChange={(e) => setProfessionFilter(e.target.value)}
-                          className="mb-2"
-                        />
-                        <div className="max-h-[300px] overflow-y-auto">
-                          {filteredProfessions.length === 0 ? (
-                            <p className="text-sm text-center py-4 text-muted-foreground">
-                              Nie znaleziono zawodów
-                            </p>
-                          ) : (
-                            <div className="flex flex-col gap-1">
-                              {filteredProfessions.map((prof) => (
-                                <button
-                                  key={prof.name}
-                                  onClick={() => toggleProfession(prof.name)}
-                                  className="flex items-center gap-2 px-2 py-1.5 hover:bg-primary/20 rounded-sm text-sm"
-                                >
-                                  <div
-                                    className={`flex h-4 w-4 items-center justify-center rounded-sm border border-primary ${
-                                      selectedProfessions.includes(prof.name)
-                                        ? "bg-primary text-primary-foreground"
-                                        : "opacity-50"
-                                    }`}
-                                  >
-                                    {selectedProfessions.includes(prof.name) && "✓"}
-                                  </div>
-                                  <span className="flex-grow text-left">
-                                    {prof.name}
-                                  </span>
-                                  <span className="text-muted-foreground">
-                                    ({prof.count})
-                                  </span>
-                                </button>
-                              ))}
-                            </div>
+            {filterButtonConfigs.map(
+              ({
+                label,
+                placeholder,
+                type,
+                onChange,
+                options,
+                defaultValue,
+                badge,
+              }) => (
+                <div key={placeholder} className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-muted-foreground">
+                    {label}
+                  </label>
+                  {type === "select" && (
+                    <Select
+                      defaultValue={defaultValue}
+                      onValueChange={onChange}
+                    >
+                      <SelectTrigger className="w-full md:w-[180px]">
+                        <SelectValue placeholder={placeholder} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options?.map(({ value, label }) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  {type === "postal" && (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder={placeholder}
+                        onChange={(e) => onChange(e.target.value)}
+                        maxLength={6}
+                        className="w-full md:w-[180px]"
+                      />
+                      {badge && (
+                        <Badge
+                          variant="secondary"
+                          className="whitespace-nowrap"
+                        >
+                          {badge}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                  {type === "professions" && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-9 w-[180px] border-dashed justify-between"
+                        >
+                          {placeholder}
+                          {badge && (
+                            <>
+                              <Separator
+                                orientation="vertical"
+                                className="mx-2 h-4"
+                              />
+                              <Badge
+                                variant="secondary"
+                                className="rounded-sm px-1 font-normal"
+                              >
+                                {badge}
+                              </Badge>
+                            </>
                           )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-2" align="start">
+                        <div className="flex flex-col gap-2">
+                          <Input
+                            placeholder="Szukaj zawodu..."
+                            value={professionFilter}
+                            onChange={(e) =>
+                              setProfessionFilter(e.target.value)
+                            }
+                            className="mb-2"
+                          />
+                          <div className="max-h-[300px] overflow-y-auto">
+                            {filteredProfessions.length === 0 ? (
+                              <p className="text-sm text-center py-4 text-muted-foreground">
+                                Nie znaleziono zawodów
+                              </p>
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                {filteredProfessions.map((prof) => (
+                                  <button
+                                    key={prof.name}
+                                    onClick={() => toggleProfession(prof.name)}
+                                    className="flex items-center gap-2 px-2 py-1.5 hover:bg-primary/20 rounded-sm text-sm"
+                                  >
+                                    <div
+                                      className={`flex h-4 w-4 items-center justify-center rounded-sm border border-primary ${
+                                        selectedProfessions.includes(prof.name)
+                                          ? "bg-primary text-primary-foreground"
+                                          : "opacity-50"
+                                      }`}
+                                    >
+                                      {selectedProfessions.includes(
+                                        prof.name
+                                      ) && "✓"}
+                                    </div>
+                                    <span className="flex-grow text-left">
+                                      {prof.name}
+                                    </span>
+                                    <span className="text-muted-foreground">
+                                      ({prof.count})
+                                    </span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                )}
-              </div>
-            ))}
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
+              )
+            )}
           </div>
           {searchParams?.get("ranking") !== "none" &&
             searchParams?.get("ranking") && (
