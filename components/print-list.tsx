@@ -22,7 +22,7 @@ export function PrintList({ prints }: PrintListProps) {
           <div className="flex justify-between items-center mt-2 text-sm text-gray-600">
             <span>Druk nr {print.number}</span>
             <span>
-              {new Date(print.deliveryDate).toLocaleDateString("pl-PL")}
+              {new Date(print.documentDate).toLocaleDateString("pl-PL")}
             </span>
           </div>
         </Link>
