@@ -137,7 +137,7 @@ export async function getEnvoyPrints(
   RETURN print {
     number: print.number,
     title: print.title,
-    deliveryDate: print.deliveryDate,
+    documentData: print.documentData,
     summary: print.summary
   } as print
   ORDER BY print.documentDate DESC
@@ -156,7 +156,7 @@ export async function getEnvoySubjectPrints(
       RETURN print {
         number: print.number,
         title: print.title,
-        deliveryDate: print.deliveryDate,
+        documentData: print.documentData,
         summary: print.summary
       } as print
       ORDER BY print.documentDate DESC
@@ -177,7 +177,7 @@ export async function getPrintsByNumbersAndVotings(
     RETURN print {
       number: print.number,
       title: print.title,
-      deliveryDate: print.deliveryDate,
+      documentData: print.documentData,
       attachments: print.attachments, 
       summary: print.summary
     } as print
