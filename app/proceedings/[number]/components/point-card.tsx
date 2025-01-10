@@ -55,7 +55,7 @@ export const PointCard = ({
           className="object-cover   blur-[2px] group-hover:blur-0 transition-all duration-500 group-hover:scale-110"
         />
         <div
-          className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent 
+          className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent 
       
       transition-all duration-300"
         />
