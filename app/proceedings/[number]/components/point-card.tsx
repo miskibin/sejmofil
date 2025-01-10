@@ -38,23 +38,27 @@ export const PointCard = ({
     >
       <div
         className={`relative rounded-xl overflow-hidden shadow-lg transition-all duration-300 group-hover:shadow-xl
-        ${
-          size === "large"
-            ? "h-[590px]"
-            : size === "medium"
-            ? "h-[280px]"
-            : "h-[200px]"
-        }
-      `}
+      ${
+        size === "large"
+          ? "h-[590px]"
+          : size === "medium"
+          ? "h-[280px]"
+          : "h-[200px]"
+      }
+    `}
       >
         <ImageWithFallback
           src={imageUrl}
           alt={point.topic}
           fallbackSrc="/default.jpg"
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className="object-cover   blur-[2px] group-hover:blur-0 transition-all duration-500 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent transition-all duration-300 group-hover:via-black/80" />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent 
+      
+      transition-all duration-300"
+        />
 
         <div className="absolute inset-0 p-5 flex flex-col justify-end">
           <div className="space-y-3">
@@ -73,14 +77,14 @@ export const PointCard = ({
 
             <h3
               className={`text-white font-semibold leading-tight tracking-tight group-hover:text-primary-foreground transition-colors
-              ${
-                size === "large"
-                  ? "text-2xl"
-                  : size === "medium"
-                  ? "text-lg"
-                  : "text-base"
-              }
-            `}
+          ${
+            size === "large"
+              ? "text-2xl"
+              : size === "medium"
+              ? "text-lg"
+              : "text-base"
+          }
+        `}
             >
               {point.topic.split(" | ")[1] || point.topic}
             </h3>
@@ -89,8 +93,8 @@ export const PointCard = ({
               <div className="space-y-2">
                 <p
                   className={`text-white/80 line-clamp-2 group-hover:text-white/90 transition-colors
-                  ${size === "large" ? "text-base" : "text-sm"}
-                `}
+            ${size === "large" ? "text-base" : "text-sm"}
+            `}
                 >
                   {point.summary_tldr}
                 </p>
@@ -99,7 +103,6 @@ export const PointCard = ({
           </div>
         </div>
       </div>
-      <div className="absolute inset-0 rounded-xl ring-1 ring-white/10 group-hover:ring-primary/50 transition-all"></div>
     </Link>
   );
 };

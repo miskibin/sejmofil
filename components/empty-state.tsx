@@ -7,11 +7,11 @@ export const EmptyState = ({
   image: string;
 }) => (
   <div className="text-center pb-6">
-    <div className="flex justify-center mb-4">
+    <div className="flex justify-center items-center mb-4">
       <Image
         src={image}
-        width={200}
-        height={200}
+        width={300}
+        height={300}
         alt="Empty state illustration"
       />
     </div>
