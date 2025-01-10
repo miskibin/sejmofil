@@ -12,7 +12,7 @@ export type Print = {
 };
 
 export type PrintShort = {
-  deliveryDate: string;
+  documentDate: string;
   number: string;
   summary: string;
   title: string;
@@ -31,4 +31,3 @@ export type Comment = {
   author: string;
   organization: string;
 };
-

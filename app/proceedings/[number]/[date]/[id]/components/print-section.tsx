@@ -4,7 +4,7 @@ import { FaRegFilePdf } from "react-icons/fa";
 type PrintWithStage = {
   number: string;
   title: string;
-  deliveryDate: string;
+  documentDate: string;
   attachments: string[];
   stageInfo?: {
     stageName: string;
@@ -17,7 +17,7 @@ const PrintItem = ({ print }: { print: PrintWithStage }) => (
     <h4 className="text-sm font-medium mb-2 flex justify-between gap-2">
       <span>{print.title}</span>
       <span className="text-xs text-muted-foreground">
-        {new Date(print.deliveryDate).toLocaleDateString("pl-PL")}
+        {new Date(print.documentDate).toLocaleDateString("pl-PL")}
       </span>
     </h4>
 
