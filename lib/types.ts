@@ -71,12 +71,7 @@ export type Print = {
   title: string;
   documentType?: string;
 };
-export type PrintShort = {
-  deliveryDate: string;
-  number: string;
-  summary: string;
-  title: string;
-};
+
 export type Topic = {
   name: string;
   description: string;
