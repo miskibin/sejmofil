@@ -47,7 +47,7 @@ export default async function ProcessPage({
           <CardWrapper
             title="Uwagi"
             headerIcon={<MessageSquare className="h-5 w-5 text-primary" />}
-            className="md:col-span-2"
+            className="md:col-span-2" 
           >
             <ReactMarkdown className="prose prose-sm max-w-none">
               {process.comments}
