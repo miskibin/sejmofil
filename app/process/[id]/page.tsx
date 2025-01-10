@@ -8,10 +8,11 @@ import LegislativeTimeline from "./stepper";
 export default async function ProcessPage({
   params,
 }: {
-  params: Promise<{ number: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const { number } = await params;
-  const process = await getProcessDetails(number);
+  const { id } = await params;
+
+  const process = await getProcessDetails(id);
   if (!process) notFound();
 
   return (
