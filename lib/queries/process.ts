@@ -58,7 +58,7 @@ interface ProcessDetailResponse {
 
 export async function getProcessDetails(
   processNumber: string
-): Promise<ProcessDetailData> {
+): Promise<ProcessDetailData | null> {
   const query = `
 MATCH (process:Process {number: $processNumber})
 CALL {
@@ -73,7 +73,7 @@ CALL {
          collect(voting {sitting: voting.sitting, votingNumber: voting.votingNumber, yes: voting.yes, no: voting.no}) AS votings,
          collect(stagePrint {attachments: stagePrint.attachments, documentDate: stagePrint.documentDate, summary: stagePrint.summary, title: stagePrint.title}) AS stagePrints,
          collect(childStage {name: childStage.stageName, date: childStage.date, number: childStage.number}) AS childStages,
-         collect(childPrint {attachments: childPrint.attachments, documentDate: childPrint.documentDate, summary: childPrint.summary, title: childPrint.title}) AS childPrints,
+         collect(childPrint {attachments: childPrint.attachments, documentDate: childPrint.documentDate, summary: childPrint.summary,number: childPrint.number, title: childPrint.title}) AS childPrints,
          collect(childCommittee {code: childCommittee.code, name: childCommittee.name}) AS childCommittees
     RETURN 
         stage {
@@ -92,7 +92,7 @@ CALL {
     MATCH (print:Print)-[:IS_SOURCE_OF]->(process)
     RETURN 
         NULL AS stageData,
-        collect(print {attachments: print.attachments, documentDate: print.documentDate, summary: print.summary, title: print.title}) AS processPrints
+        collect(print {attachments: print.attachments, documentDate: print.documentDate, summary: print.summary, number: print.number, title: print.title}) AS processPrints
 }
 WITH process, collect(stageData) AS stages, collect(processPrints) AS allProcessPrints
 RETURN process {
@@ -109,5 +109,5 @@ RETURN process {
     processNumber,
   })) as ProcessDetailResponse[];
   console.log(resp);
-  return resp[0].processData;
+  return resp[0]?.processData;
 }
