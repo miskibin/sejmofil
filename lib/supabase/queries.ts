@@ -351,6 +351,7 @@ interface ProceedingWithDetails {
       id: number;
       topic: string;
       summary_tldr: string;
+      voting_numbers: number[];
       statements: Array<{
         id: number;
         speaker_name: string;
@@ -383,6 +384,7 @@ export async function getProceedingDetails(
           id,
           topic,
           summary_tldr,
+          voting_numbers,
           statements:statement_to_point!proceeding_point_ai_id (
             statement:statement_id (
               id,

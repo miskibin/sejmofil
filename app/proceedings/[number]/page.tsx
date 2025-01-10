@@ -1,13 +1,11 @@
 import { notFound } from "next/navigation";
 import { getProceedingDetails } from "@/lib/supabase/queries";
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import { CalendarDays } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import StatCard from "@/components/stat-card";
-import Link from "next/link";
+import { PointCard } from "./components/point-card";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600; // Revalidate every hour
+
 export default async function ProceedingPage({
   params,
 }: {
@@ -17,21 +15,39 @@ export default async function ProceedingPage({
   const proceeding = await getProceedingDetails(parseInt(number));
   if (!proceeding) notFound();
 
-  // Calculate statistics
-  const allStatements = proceeding.proceeding_day.flatMap((day) =>
-    day.proceeding_point_ai.flatMap((point) => point.statements.map((s) => s))
-  );
+  // Calculate importance score for each point
+  const points = proceeding.proceeding_day.flatMap((day, dayIndex) =>
+    day.proceeding_point_ai.map((point, pointIndex) => ({
+      ...point,
+      date: day.date,
+      dayNumber: dayIndex + 1,
+      pointIndex,
+      importance: (point.statements?.length || 0) + 
+                 (point.voting_numbers?.length || 0) * 2 +
+                 (point.summary_tldr ? 1 : 0)
+    }))
+  ).sort((a, b) => b.importance - a.importance);
 
-  // Calculate average emotions
-  const averageEmotions = Math.round(
-    allStatements.reduce(
-      (acc, s) => acc + (s.statement_ai?.speaker_rating?.emotions || 0),
-      0
-    ) / allStatements.length
-  );
+  // Create sections of 7 cards each (1 large + 2 medium + 4 small)
+  const sections = [];
+  for (let i = 0; i < points.length; i += 7) {
+    const section = {
+      large: points[i],
+      medium: points.slice(i + 1, i + 3),
+      small: points.slice(i + 3, i + 7)
+    };
+    // Only add section if it has at least a large card
+    if (section.large) {
+      // Ensure medium and small arrays are always of correct length
+      section.medium = section.medium.concat(Array(2 - section.medium.length).fill(null));
+      section.small = section.small.concat(Array(4 - section.small.length).fill(null));
+      sections.push(section);
+    }
+  }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">{proceeding.title}</h1>
         <div className="flex flex-wrap gap-2">
@@ -43,60 +59,58 @@ export default async function ProceedingPage({
         </div>
       </div>
 
-      {/* Statistics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard
-          title="Punkty"
-          value={proceeding.proceeding_day.reduce(
-            (acc, day) => acc + day.proceeding_point_ai.length,
-            0
-          )}
-          category="Posiedzenie"
-        />
-        <StatCard
-          title="Wypowiedzi"
-          value={allStatements.length}
-          category="Posiedzenie"
-        />
-        <StatCard
-          title="Emocjonalność"
-          value={`${averageEmotions}/5`}
-          category="Posiedzenie"
-        />
-      </div>
+      {/* Sections Grid */}
+      <div className="space-y-12">
+        {sections.map((section, sectionIndex) => (
+          <div key={sectionIndex} className="space-y-6">
+            {/* Large Featured Card */}
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-12 lg:col-span-8 h-full">
+                <PointCard
+                  point={section.large}
+                  proceedingNumber={proceeding.number}
+                  date={section.large.date}
+                  dayNumber={section.large.dayNumber}
+                  pointIndex={section.large.pointIndex}
+                  size="large"
+                />
+              </div>
+              
+              {/* Medium Cards */}
+              <div className="col-span-12 lg:col-span-4 grid grid-cols-1 gap-6">
+                {section.medium.map((point, idx) => point && (
+                  <div key={point?.id || `medium-${idx}`}>
+                    <PointCard
+                      point={point}
+                      proceedingNumber={proceeding.number}
+                      date={point?.date}
+                      dayNumber={point?.dayNumber}
+                      pointIndex={point?.pointIndex}
+                      size="medium"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      {/* Days Grid */}
-      <div className="grid gap-6">
-        {proceeding.proceeding_day.map((day) => (
-          <CardWrapper
-            key={day.id}
-            title={new Date(day.date).toLocaleDateString("pl-PL")}
-            subtitle={`${day.proceeding_point_ai.length} punktów`}
-            headerIcon={<CalendarDays className="h-5 w-5 text-primary" />}
-          >
-            <div className="space-y-4">
-              {day.proceeding_point_ai.map((point, index) => (
-                <div key={point.id} className="space-y-2">
-                  <Link
-                    href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
-                    prefetch={true}
-                  >
-                    <h3 className="text-sm font-medium group-hover:text-primary transition-colors">
-                      <span className="inline-block w-8 text-muted-foreground">
-                        {index + 1}.
-                      </span>
-                      {point.topic.split(" | ")[1] || point.topic}
-                    </h3>
-                    {point.summary_tldr && (
-                      <p className="text-sm text-muted-foreground pl-8">
-                        {point.summary_tldr}
-                      </p>
-                    )}
-                  </Link>
+            {/* Small Cards */}
+            <div className="grid grid-cols-12 gap-6">
+              {section.small.map((point, idx) => (
+                <div key={point?.id || `small-${idx}`} className="col-span-12 sm:col-span-6 lg:col-span-3">
+                  {point && (
+                    <PointCard
+                      point={point}
+                      proceedingNumber={proceeding.number}
+                      date={point.date}
+                      dayNumber={point.dayNumber}
+                      pointIndex={point.pointIndex}
+                      size="small"
+                    />
+                  )}
                 </div>
               ))}
             </div>
-          </CardWrapper>
+          </div>
         ))}
       </div>
     </div>

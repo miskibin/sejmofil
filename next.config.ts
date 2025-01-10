@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["api.sejm.gov.pl", "www.freepik.com"],
+    domains: ["api.sejm.gov.pl", "www.freepik.com","db.msulawiak.pl"],
     minimumCacheTTL: 480,
   },
   experimental: {
