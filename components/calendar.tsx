@@ -29,7 +29,6 @@ export default async function SessionCalendar() {
 
   // Get the day of week for first day (0-6)
   const firstDayWeekday = firstDayOfMonth.getDay();
-  console.log(firstDayWeekday);
   // Adjust for Monday start (0 becomes 6, otherwise subtract 1)
 
   const calendarDays: CalendarDay[][] = [];
@@ -63,7 +62,6 @@ export default async function SessionCalendar() {
     const proceedingForDay = proceedings.find((p) =>
       p.proceeding_dates.includes(dateStr)
     );
-    console.log(proceedingForDay, dateStr, day);
     currentWeek.push({
       date: date.getUTCDate(),
       isProceeding: !!proceedingForDay,

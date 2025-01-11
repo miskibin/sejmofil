@@ -17,6 +17,7 @@ const stageConfig = {
     prezydent: "Crown",
     zamknięcie: "CheckCircle2",
     "0": "Send",
+    publikacja: "FileText",
     default: "CircleDot",
   },
   colors: {
@@ -25,8 +26,8 @@ const stageConfig = {
     głosowanie: "from-violet-500 to-violet-600",
     senat: "from-amber-500 to-amber-600",
     prezydent: "from-yellow-500 to-yellow-600",
-    zamknięcie: "from-green-500 to-green-600",
-    "0": "from-primary to-primary/80",
+    zamknięcie: "bg-success",
+    publikacja: "from-green-500 to-green-600",
     default: "from-gray-500 to-gray-600",
   },
 };
@@ -218,6 +219,16 @@ export default function LegislativeTimeline({
                 <div className="space-y-1">
                   <div className="font-semibold text-base  flex items-center gap-2 flex-wrap">
                     {stage.name}
+                    {stage.act && (
+                        <a
+                        href={`https://api.sejm.gov.pl/eli/acts/${stage.act}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline text-sm"
+                        >
+                        (Ustawa {stage.act})
+                        </a>
+                    )}
                     {firstPrint && firstPrint.attachments.length > 0 && (
                       <a
                         href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${firstPrint.number}/${firstPrint.attachments[0]}`}
@@ -250,6 +261,11 @@ export default function LegislativeTimeline({
                       </button>
                     )}
                   </div>
+                  {stage.comment && (
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {stage.comment}
+                    </div>
+                  )}
                 </div>
                 {stage.date && (
                   <div className="text-sm text-muted-foreground flex items-center gap-2">
