@@ -115,6 +115,20 @@ export async function getPersonWithMostInterruptions(): Promise<RecordHolder> {
   return result[0];
 }
 
+export async function getPersonWithMostAbsents(
+  invert = false
+): Promise<RecordHolder> {
+  const query = `
+    MATCH (p:Person)
+    WHERE p.role IS NOT NULL AND p.active
+    WITH p, COALESCE(p.absents, 0) as absents
+    RETURN p.firstLastName as name, absents as count, p.id as id
+    ORDER BY absents ${invert ? "ASC" : "DESC"}
+    LIMIT 1
+  `;
+  const result = await runQuery<RecordHolder>(query);
+  return result[0];
+}
 export async function getPersonWithMostStatements(
   invert = false
 ): Promise<RecordHolder> {
@@ -129,6 +143,7 @@ export async function getPersonWithMostStatements(
   const result = await runQuery<RecordHolder>(query);
   return result[0];
 }
+
 export async function getIdsFromNames(names: string[]): Promise<number[]> {
   const query = `
     MATCH (p:Person)
