@@ -2,50 +2,75 @@ import { CardWrapper } from "@/components/ui/card-wrapper";
 import CalendarDayTile from "./calendar-day";
 import { getProceedingDates } from "@/lib/queries/proceeding";
 
+interface ProceedingDates {
+  proceeding_number: string;
+  proceeding_dates: string[];
+}
+
 interface CalendarDay {
   date: number | null;
   isProceeding?: boolean;
   proceedingNumber?: string;
   isToday?: boolean;
+  isAdjacentMonth?: boolean;
+  fullDate?: string;
+  proceeding_dates: ProceedingDates[];
 }
 
 export default async function SessionCalendar() {
-  const weekDays = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sb", "Nd"];
+  const weekDays = ["Nd", "Pon", "Wt", "Śr", "Czw", "Pt", "Sb"];
   const proceedings = await getProceedingDates();
   const today = new Date();
 
-  // Calculate the middle of our 4-week view (2 weeks before, 2 weeks after)
-  const startDate = new Date(today);
-  startDate.setDate(today.getDate() - 21);
+  // Get first day of current month
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  // Get last day of current month
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-  // Adjust to start from Monday
-  const startDay = startDate.getDay();
-  const diff = startDate.getDate() - startDay + (startDay === 0 ? -6 : 1);
-  startDate.setDate(diff);
+  // Get the day of week for first day (0-6)
+  const firstDayWeekday = firstDayOfMonth.getDay();
+  console.log(firstDayWeekday);
+  // Adjust for Monday start (0 becomes 6, otherwise subtract 1)
 
   const calendarDays: CalendarDay[][] = [];
   let currentWeek: CalendarDay[] = [];
 
-  // Generate exactly 4 weeks (28 days)
-  for (let i = 0; i < 35; i++) {
-    const currentDate = new Date(startDate);
-    currentDate.setDate(startDate.getDate() + i);
-    const dateStr = currentDate.toISOString().split("T")[0];
-
+  // Add days from previous month
+  const prevMonthLastDay = new Date(firstDayOfMonth);
+  prevMonthLastDay.setDate(0);
+  for (let i = firstDayWeekday - 1; i >= 0; i--) {
+    const date = new Date(prevMonthLastDay);
+    date.setDate(prevMonthLastDay.getDate() - i);
+    const dateStr = date.toISOString().split("T")[0];
     const proceedingForDay = proceedings.find((p) =>
       p.proceeding_dates.includes(dateStr)
     );
 
-    const isToday =
-      currentDate.getDate() === today.getDate() &&
-      currentDate.getMonth() === today.getMonth() &&
-      currentDate.getFullYear() === today.getFullYear();
-
     currentWeek.push({
-      date: currentDate.getDate(),
+      date: date.getDate(),
       isProceeding: !!proceedingForDay,
       proceedingNumber: proceedingForDay?.proceeding_number,
-      isToday,
+      isAdjacentMonth: true,
+      fullDate: dateStr,
+      proceeding_dates: proceedings,
+    });
+  }
+
+  // Add days from current month
+  for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
+    const date = new Date(Date.UTC(today.getFullYear(), today.getMonth(), day));
+    const dateStr = date.toISOString().split("T")[0];
+    const proceedingForDay = proceedings.find((p) =>
+      p.proceeding_dates.includes(dateStr)
+    );
+    console.log(proceedingForDay, dateStr, day);
+    currentWeek.push({
+      date: date.getUTCDate(),
+      isProceeding: !!proceedingForDay,
+      proceedingNumber: proceedingForDay?.proceeding_number,
+      isToday: day === today.getDate(),
+      fullDate: dateStr,
+      proceeding_dates: proceedings,
     });
 
     if (currentWeek.length === 7) {
@@ -54,11 +79,37 @@ export default async function SessionCalendar() {
     }
   }
 
+  // Add days from next month
+  let nextMonthDay = 1;
+  while (currentWeek.length < 7) {
+    const date = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      nextMonthDay
+    );
+    const dateStr = date.toISOString().split("T")[0];
+    const proceedingForDay = proceedings.find((p) =>
+      p.proceeding_dates.includes(dateStr)
+    );
+
+    currentWeek.push({
+      date: nextMonthDay,
+      isProceeding: !!proceedingForDay,
+      proceedingNumber: proceedingForDay?.proceeding_number,
+      isAdjacentMonth: true,
+      fullDate: dateStr,
+      proceeding_dates: proceedings,
+    });
+    nextMonthDay++;
+  }
+  calendarDays.push(currentWeek);
+
   return (
     <CardWrapper
       title="Kalendarz obrad"
       className="h-full"
       sourceDescription="Oficjalne api sejmu RP"
+      showMoreLink="/proceedings"
       sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
       subtitle={`${
         new Intl.DateTimeFormat("pl-PL", {
@@ -83,7 +134,7 @@ export default async function SessionCalendar() {
         {weekDays.map((day) => (
           <div
             key={day}
-            className="text-center text-sm font-medium px-2 py-1 my-1 rounded-full bg-gray-50"
+            className="text-center text-sm font-medium px-2 my-1 rounded-full bg-gray-50"
           >
             {day}
           </div>

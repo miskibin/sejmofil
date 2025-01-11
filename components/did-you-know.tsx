@@ -4,36 +4,49 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   getPersonWithMostInterruptions,
+  getPersonWithMostAbsents,
   getPersonWithMostStatements,
 } from "@/lib/queries/person";
 
 export default async function PlebiscytCard() {
   const mostInterruptions = (await getPersonWithMostInterruptions()) || 0;
+  const mostAbsents = await getPersonWithMostAbsents();
+  // const leastAbsents = await getPersonWithMostAbsents(true);
   const mostStatements = await getPersonWithMostStatements();
-  const leastStatements = await getPersonWithMostStatements(true);
-
   const politicians = [
+    {
+      ...mostAbsents,
+      mainStat: {
+        value: mostAbsents.count,
+        url: `/envoys?ranking=statements`,
+        displayText: `Nieobecności: ${mostAbsents.count}`,
+      },
+      image: `https://api.sejm.gov.pl/sejm/term10/MP/${mostAbsents.id}/photo`,
+    },
     {
       ...mostStatements,
       mainStat: {
         value: mostStatements.count,
+        url: `/envoys?ranking=statements`,
         displayText: `Wypowiedzi: ${mostStatements.count}`,
       },
       image: `https://api.sejm.gov.pl/sejm/term10/MP/${mostStatements.id}/photo`,
     },
-    {
-      ...leastStatements,
-      mainStat: {
-        value: leastStatements.count,
-        displayText: `Wypowiedzi: ${leastStatements.count}`,
-      },
-      image: `https://api.sejm.gov.pl/sejm/term10/MP/${leastStatements.id}/photo`,
-    },
+    // {
+    //   ...mostAbsents,
+    //   mainStat: {
+    //     url: `/envoys?ranking=absents`,
+    //     value: mostAbsents.count,
+    //     displayText: `Nieobecności: ${mostAbsents.count}`,
+    //   },
+    //   image: `https://api.sejm.gov.pl/sejm/term10/MP/${mostAbsents.id}/photo`,
+    // },
 
     {
       ...mostInterruptions,
       mainStat: {
         value: 0,
+        url: `/envoys?ranking=interruptions`,
         displayText: `Przerwał/a: ${mostInterruptions.count} razy`,
       },
       image: `https://api.sejm.gov.pl/sejm/term10/MP/${mostInterruptions.id}/photo`,
@@ -44,6 +57,7 @@ export default async function PlebiscytCard() {
       count: 42,
       mainStat: {
         value: 42,
+        url: `/envoys?ranking=votes`,
         displayText: "Wypowiedzi: 42",
       },
       image: "https://api.sejm.gov.pl/sejm/term10/MP/400/photo",
@@ -65,7 +79,7 @@ export default async function PlebiscytCard() {
       <div className="space-y-2 ">
         {politicians.map((politician) => (
           <Link
-            href={`/envoys/${politician.id}`}
+            href={politician.mainStat.url}
             key={politician.id}
             prefetch={true}
             className="flex items-center justify-between hover:bg-primary/5 p-2 rounded-lg transition-colors"
