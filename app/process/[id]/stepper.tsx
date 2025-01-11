@@ -229,7 +229,7 @@ export default function LegislativeTimeline({
                       </a>
                     )}
                     {stage.votings.length > 0 && (
-                      <Icons.Vote className="w-4 h-4 text-violet-500" />
+                      <Icons.Vote className="w-4 h-4 text-primary" />
                     )}
                     {hasDetails && (
                       <button

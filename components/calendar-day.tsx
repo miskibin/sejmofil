@@ -15,7 +15,7 @@ export default function CalendarDayTile({
   isToday,
 }: CalendarDayProps) {
   const router = useRouter();
-
+  console.log(date, isProceeding, proceedingNumber, isToday);
   const handleClick = () => {
     if (proceedingNumber) {
       router.push(`/proceedings/${proceedingNumber}`);

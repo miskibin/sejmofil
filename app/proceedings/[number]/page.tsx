@@ -25,7 +25,7 @@ export default async function ProceedingPage({
         pointIndex,
         importance:
           (point.statements?.length || 0) +
-          (point.voting_numbers?.length || 0) * 20,
+          (point.voting_numbers?.length || 0) * 5,
       }))
     )
     .sort((a, b) => b.importance - a.importance);
