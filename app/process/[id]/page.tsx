@@ -7,6 +7,34 @@ import { CardWrapper } from "@/components/ui/card-wrapper";
 import { MessageSquare, Timer, FileText } from "lucide-react";
 import { FaRegFilePdf } from "react-icons/fa";
 import Link from "next/link";
+import { getPrintComments } from "@/lib/queries/print";
+import { cn } from "@/lib/utils";
+
+type Comment = {
+  sentiment: "Neutralny" | "Pozytywny" | "Negatywny";
+  summary: string;
+  author: string;
+  organization: string;
+};
+
+const CommentBadge = ({ sentiment }: { sentiment: Comment["sentiment"] }) => {
+  const variants = {
+    Neutralny: "bg-gray-100 text-gray-800",
+    Pozytywny: "bg-green-100 text-green-800",
+    Negatywny: "bg-red-100 text-red-800",
+  };
+
+  return (
+    <span
+      className={cn(
+        "px-2 py-1 rounded-full text-xs font-medium",
+        variants[sentiment]
+      )}
+    >
+      {sentiment}
+    </span>
+  );
+};
 
 export default async function ProcessPage({
   params,
@@ -15,6 +43,7 @@ export default async function ProcessPage({
 }) {
   const { id } = await params;
   const processDetails = await getProcessDetails(id);
+  const comments = await getPrintComments(id);
   if (!processDetails) notFound();
 
   // Flatten the nested prints array
@@ -22,77 +51,111 @@ export default async function ProcessPage({
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <CardWrapper
-        title={processDetails.documentType}
-        subtitle={processDetails.title}
-        headerElements={
-          <div className="flex gap-2">
-            {processDetails.UE === "YES" && (
-              <Badge variant="secondary">Projekt UE</Badge>
-            )}
-          </div>
-        }
-        className="bg-gradient-to-br from-background to-primary/5"
-      >
+      {/* Header Section */}
+      <div className="space-y-4">
+        <div>
+          <h1 className="text-2xl font-semibold mb-2">
+            {processDetails.documentType}
+          </h1>
+          <h2 className="text-lg text-muted-foreground leading-tight mb-4">
+            {processDetails.title}
+          </h2>
+          {processDetails.UE === "YES" && (
+            <Badge variant="secondary">Projekt UE</Badge>
+          )}
+        </div>
+
         <p className="text-muted-foreground">{processDetails.description}</p>
-      </CardWrapper>
+      </div>
 
-      <div className="grid gap-6 md:grid-cols-[2fr,1fr]">
-        <CardWrapper
-          title="Przebieg procesu legislacyjnego"
-          headerIcon={<Timer className="h-5 w-5 text-primary" />}
-          className="md:col-span-2"
-        >
-          <div className="max-w-4xl mx-auto">
-            <LegislativeTimeline data={processDetails} />
-          </div>
-        </CardWrapper>
-
-        {processDetails.comments && (
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-min">
+        {/* Timeline - Spans full width */}
+        <div className="md:col-span-2">
           <CardWrapper
-            title="Uwagi"
-            headerIcon={<MessageSquare className="h-5 w-5 text-primary" />}
-            className="md:col-span-2"
+            title="Przebieg procesu legislacyjnego"
+            headerIcon={<Timer className="h-5 w-5 text-primary" />}
           >
-            <ReactMarkdown className="prose prose-sm max-w-none">
-              {processDetails.comments}
-            </ReactMarkdown>
+            <div className="max-w-4xl mx-auto">
+              <LegislativeTimeline data={processDetails} />
+            </div>
           </CardWrapper>
-        )}
+        </div>
 
-        <CardWrapper
-          title="Druki"
-          headerIcon={<FileText className="h-5 w-5 text-primary" />}
-          className="md:col-span-2"
-        >
-          <div className="space-y-3 sm:space-y-4">
+        {/* Process Comments Section - Spans 2 columns if exists */}
+        <div className="md:col-span-2 gap-6 space-y-6">
+          {processDetails.comments && (
+            <CardWrapper
+              title="Uwagi ogólne"
+              headerIcon={<MessageSquare className="h-5 w-5 text-primary" />}
+            >
+              <ReactMarkdown className="prose prose-sm max-w-none">
+                {processDetails.comments}
+              </ReactMarkdown>
+            </CardWrapper>
+          )}
+          {/* Prints Section - Spans remaining space */}
+          <CardWrapper
+            title="Druki i opinie"
+            headerIcon={<FileText className="h-5 w-5 text-primary" />}
+          >
             {allPrints.map((print) => (
               <div
                 key={print.number}
-                className="p-3 sm:p-4 bg-gray-50 rounded-lg"
+                className="bg-gray-50 rounded-lg p-4 space-y-4"
               >
-                <h4 className="text-sm font-medium mb-2 flex justify-between gap-2">
-                  <span>{print.title}</span>
-                  <span className="text-xs text-muted-foreground">
+                {/* Print Header */}
+                <div className="flex justify-between items-start gap-2">
+                  <h4 className="text-sm font-medium">{print.title}</h4>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(print.documentDate).toLocaleDateString("pl-PL")}
                   </span>
-                </h4>
+                </div>
 
+                {/* Print Summary */}
                 {print.summary && (
-                  <p className="prose  max-w-none prose-sm my-2">
+                  <div className="prose prose-sm max-w-none">
                     <ReactMarkdown>{print.summary}</ReactMarkdown>
-                  </p>
+                  </div>
                 )}
 
+                {/* Print Comments */}
+                {comments.length > 0 && (
+                  <div className="space-y-3 mt-4">
+                    <h5 className="text-sm font-medium text-muted-foreground">
+                      Opinie ({comments.length})
+                    </h5>
+                    <div className="space-y-3">
+                      {comments.map((comment, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-white p-3 rounded-lg space-y-2"
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <span className="text-sm font-medium">
+                              {comment.organization}
+                            </span>
+                            <CommentBadge sentiment={comment.sentiment} />
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            <ReactMarkdown>{comment.summary}</ReactMarkdown>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Attachments */}
                 {print.attachments?.length > 0 && (
                   <div className="space-y-2">
                     {print.attachments.map((attachment) => (
                       <Link
-                        key={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
+                        key={attachment}
                         href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-2 text-sm text-primary bg-white p-2 rounded-lg shadow-sm"
+                        className="flex items-center gap-2 text-sm text-primary bg-white p-2 rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
                       >
                         <FaRegFilePdf className="h-6 w-6 inline mx-2" />
                         {attachment}
@@ -102,8 +165,8 @@ export default async function ProcessPage({
                 )}
               </div>
             ))}
-          </div>
-        </CardWrapper>
+          </CardWrapper>
+        </div>
       </div>
     </div>
   );
