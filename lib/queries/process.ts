@@ -32,6 +32,8 @@ interface Stage {
   date: string | null;
   number: string;
   votings: Voting[];
+  comment: string | null;
+  act: string | null;
   prints: PrintShort[];
   childStages: {
     name: string;
@@ -69,22 +71,26 @@ CALL {
     OPTIONAL MATCH (childStage)-[:PERFORMED_BY]->(childCommittee:Committee)
     OPTIONAL MATCH (stage)-[:CONTAINS]->(stagePrint:Print)
     OPTIONAL MATCH (stage)-[:HAS]->(voting:Voting)
+    OPTIONAL MATCH (stage)-[:HAS]->(act:Act) // Match the Act related to the Stage
     WITH process, stage, 
          collect(voting {sitting: voting.sitting, votingNumber: voting.votingNumber, yes: voting.yes, no: voting.no}) AS votings,
          collect(stagePrint {attachments: stagePrint.attachments, documentDate: stagePrint.documentDate, summary: stagePrint.summary, title: stagePrint.title}) AS stagePrints,
          collect(childStage {name: childStage.stageName, date: childStage.date, number: childStage.number}) AS childStages,
          collect(childPrint {attachments: childPrint.attachments, documentDate: childPrint.documentDate, summary: childPrint.summary,number: childPrint.number, title: childPrint.title}) AS childPrints,
-         collect(childCommittee {code: childCommittee.code, name: childCommittee.name}) AS childCommittees
+         collect(childCommittee {code: childCommittee.code, name: childCommittee.name}) AS childCommittees,
+         act.ELI AS actELI // Get the ELI field from the Act node
     RETURN 
         stage {
             name: stage.stageName, 
             date: stage.date, 
             number: stage.number,
+            comment: stage.comment, 
             votings: votings,
             prints: stagePrints,
             childStages: childStages,
             childPrints: childPrints,
-            childCommittees: childCommittees
+            childCommittees: childCommittees,
+            act: actELI // Include Act data here
         } AS stageData,
         [] AS processPrints
     UNION
@@ -104,7 +110,8 @@ RETURN process {
         stages: stages,
         prints: [print IN allProcessPrints WHERE print IS NOT NULL]
     } AS processData
-    `;
+`;
+
   const resp = (await runQuery<ProcessDetailResponse>(query, {
     processNumber,
   })) as ProcessDetailResponse[];
