@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FaYoutube } from "react-icons/fa";
 
 type FilterMode = "featured" | "all" | "normal";
 
@@ -27,6 +28,7 @@ interface Statement {
   speaker_name: string;
   number_source: number;
   statement_ai: {
+    yt_sec: string;//url to ut
     summary_tldr: string;
     citations?: string[];
     speaker_rating: Record<string, number>;
@@ -234,7 +236,7 @@ export function DiscussionEntries({
                   )}
 
                 {/* Footer */}
-                <div className="mt-2 flex items-center gap-2">
+                <div className="mt-2 flex items-center gap-3">
                   <Link
                     href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${proceedingNumber}/${proceedingDate}/transcripts/${statement.number_source}`}
                     target="_blank"
@@ -243,6 +245,16 @@ export function DiscussionEntries({
                     całość wypowiedzi
                     <ExternalLink className="h-3 w-3" />
                   </Link>
+                  {statement.statement_ai?.yt_sec && (
+                    <a
+                      href={statement.statement_ai.yt_sec}
+                      target="_blank"
+                      className="text-xs font-medium text-red-600 hover:text-red-700 flex items-center gap-1.5"
+                    >
+                      <FaYoutube className="h-4 w-4" />
+                      Zobacz na YouTube
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
