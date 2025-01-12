@@ -4,9 +4,10 @@ import { Sparkles } from "lucide-react";
 import { getLatestCitizations } from "@/lib/supabase/queries";
 import { getIdsFromNames } from "@/lib/queries/person";
 import Link from "next/link";
+import { truncateText } from "@/lib/utils";
 
 export default async function PoliticianQuotes() {
-  const citations = await getLatestCitizations(3);
+  const citations = await getLatestCitizations(2);
   const envoys = await getIdsFromNames(
     citations.map((citation) => citation.speaker_name)
   );
@@ -40,7 +41,7 @@ export default async function PoliticianQuotes() {
                 {quote.speaker_name}
               </p>
             </div>
-            <p className="italic">{quote.citation}</p>
+            <p className="italic">{truncateText(quote.citation, 300)}</p>
           </Link>
         ))}
       </div>

@@ -22,6 +22,7 @@ export type PrintShort = {
 export type PrintListItem = {
   title: string;
   number: string;
+  processPrint: string[];
   topicName: string;
   topicDescription: string;
 };

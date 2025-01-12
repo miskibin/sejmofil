@@ -17,7 +17,7 @@ import {
 
 const navLinks = [
   { href: "/envoys", text: "Posłowie" },
-  { href: "/process", text: "Procesy Sejmowe" },
+  { href: "/processes", text: "Procesy Sejmowe" },
   { href: "/proceedings", text: "Posiedzenia" },
 ];
 

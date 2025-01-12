@@ -88,6 +88,7 @@ export async function getAllPrints(): Promise<PrintListItem[]> {
       MATCH (print:Print)-[:REFERS_TO]->(topic:Topic)
       RETURN print.number AS number, 
              print.title AS title,
+              print.processPrint AS processPrint,
              topic.name AS topicName, 
              topic.description AS topicDescription
     `;

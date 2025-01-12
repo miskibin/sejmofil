@@ -86,7 +86,11 @@ export default function ProcessSearchPage() {
                 <div
                   key={print.number}
                   className="relative pl-4 border-l hover:border-primary transition-colors"
-                  onClick={() => router.push(`/process/${print.number}`)}
+                  onClick={() =>
+                    router.push(
+                      `/processes/${print.processPrint[0] || print.number}`
+                    )
+                  }
                 >
                   <div className="block hover:text-primary cursor-pointer">
                     <div className="text-sm font-medium">{print.title}</div>
