@@ -118,7 +118,7 @@ export const RelatedPrintsSection = ({ prints }: { prints: Print[] }) => (
     <CardContent className="space-y-2">
       {prints.map((print) => (
         <a
-          href={`/process/${print.number}`}
+          href={`/processes/${print.number}`}
           key={print.number}
           className="block p-3 border rounded-lg hover:bg-primary/5 transition-colors"
         >
@@ -199,7 +199,7 @@ export const TopicPrintsSection = ({ prints }: { prints: Print[] }) => (
         <div className="space-y-2 pr-4">
           {prints.map((print) => (
             <a
-              href={`/process/${print.number}`}
+              href={`/processes/${print.number}`}
               key={print.number}
               className="block p-3 border rounded-lg hover:bg-accent/50 transition-colors"
             >
