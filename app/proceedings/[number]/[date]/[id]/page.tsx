@@ -364,18 +364,10 @@ export default async function PointDetail({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
         {/* Charts and analysis section */}
         <div className="col-span-full lg:col-span-6">
-          <CardWrapper
-            title="Analiza klubów"
-            className="h-full"
-            subtitle="Stosunek do tematu"
-          >
-            {point.statements.length >= 10 ? (
-              <div className="w-full overflow-x-auto">
-                <TopicAttitudeChart data={chartData} />
-              </div>
-            ) : (
-              <EmptyState text="Za mało wypowiedzi" image="/explore.svg" />
-            )}
+          <CardWrapper title="Analiza klubów" subtitle="Stosunek do tematu">
+            <div className="w-full overflow-x-auto">
+              <TopicAttitudeChart data={chartData} />
+            </div>
           </CardWrapper>
         </div>
 

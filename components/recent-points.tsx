@@ -4,12 +4,14 @@ import { Check } from "lucide-react";
 import Link from "next/link";
 
 export default async function RecentPoints() {
-  const topics = await getTopDiscussedTopics();
+  const topics = await getTopDiscussedTopics(6);
 
   return (
-    <CardWrapper title="Ostatnio omawiane" subtitle="Punkty obrad"
-    showGradient={true}
-    showMoreLink="/proceedings"
+    <CardWrapper
+      title="Ostatnio omawiane"
+      subtitle="Punkty obrad"
+      showGradient={true}
+      showMoreLink="/proceedings"
     >
       <div className="space-y-5 py-4">
         {topics.map((topic, index) => {
@@ -20,11 +22,11 @@ export default async function RecentPoints() {
               <Link
                 href={`/proceedings/${topic.proceeding_id}/${topic.date}/${topic.id}`}
               >
-                <div className="flex gap-3 items-start">
+                <div className="flex gap-x-3 items-start">
                   <div className="min-w-9 min-h-9 w-9 h-9 rounded-lg flex items-center justify-center bg-primary text-white">
                     <Check className="w-6 h-6" />
                   </div>
-                  <div className="space-y-1 flex-1">
+                  <div className="flex-1">
                     <p className="font-medium">{title}</p>
                     <p className="text-sm text-muted-foreground">
                       {category} • {topic.count} wypowiedzi

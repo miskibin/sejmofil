@@ -4,7 +4,7 @@ import { SourcePopover } from "./source-popover";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-
+import Image from "next/image";
 interface CardWrapperProps {
   title?: string;
   subtitle?: string;
@@ -18,6 +18,7 @@ interface CardWrapperProps {
   aiPrompt?: string;
   className?: string;
   variant?: "default" | "inverted";
+  imageSrc?: string;
   headerElements?: ReactNode; // Add this new prop
 }
 
@@ -34,6 +35,7 @@ export function CardWrapper({
   className,
   variant = "default",
   headerElements,
+  imageSrc,
 }: CardWrapperProps) {
   const isInverted = variant === "inverted";
 
@@ -45,6 +47,18 @@ export function CardWrapper({
         className
       )}
     >
+      {imageSrc && (
+        <div className="relative w-full aspect-[16/9] p-2 overflow-hidden rounded-t-lg">
+          <Image
+            src={imageSrc}
+            alt=""
+            className="object-cover w-full h-full rounded-t-lg"
+            objectFit="cover"
+            width={500}
+            height={300}
+          />
+        </div>
+      )}
       <CardHeader className="pb-2 lg:px-4 2xl:px-6">
         <div className="flex justify-between items-start gap-2">
           <div className="min-w-0">
@@ -58,7 +72,9 @@ export function CardWrapper({
                 {title}
               </CardTitle>
             )}
-            {subtitle && <h2 className="text-2xl font-semibold truncate">{subtitle}</h2>}
+            {subtitle && (
+              <h2 className="text-2xl font-semibold truncate">{subtitle}</h2>
+            )}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {headerElements}
@@ -77,7 +93,7 @@ export function CardWrapper({
                 "absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t pointer-events-none",
                 isInverted
                   ? "from-primary via-primary to-transparent"
-                  : "from-white via-white to-transparent"
+                  : "from-white via-white/80 to-transparent"
               )}
             />
           )}
