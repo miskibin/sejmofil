@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getProceedingDetails } from "@/lib/supabase/queries";
 import { Badge } from "@/components/ui/badge";
 import { PointCard } from "./components/point-card";
+import LatestInterestingPoints from "@/components/latest-interesting-points";
+import { sortPointsByImportance } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600; // Revalidate every hour
@@ -16,19 +18,16 @@ export default async function ProceedingPage({
   if (!proceeding) notFound();
 
   // Calculate importance score for each point
-  const points = proceeding.proceeding_day
-    .flatMap((day, dayIndex) =>
+  const points = sortPointsByImportance(
+    proceeding.proceeding_day.flatMap((day, dayIndex) =>
       day.proceeding_point_ai.map((point, pointIndex) => ({
         ...point,
         date: day.date,
         dayNumber: dayIndex + 1,
         pointIndex,
-        importance:
-          (point.statements?.length || 0) +
-          ((point.voting_numbers?.length || 0) > 0 ? 10 : 0),
       }))
     )
-    .sort((a, b) => b.importance - a.importance);
+  );
 
   // Create sections of 7 cards each (1 large + 2 medium + 4 small)
   const sections = [];
@@ -125,6 +124,9 @@ export default async function ProceedingPage({
           </div>
         ))}
       </div>
+
+      {/* Latest Interesting Points */}
+      <LatestInterestingPoints />
     </div>
   );
 }

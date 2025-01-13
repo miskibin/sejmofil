@@ -60,11 +60,13 @@ interface TopicCount {
   count: number;
 }
 
-export async function getTopDiscussedTopics(): Promise<TopicCount[]> {
+export async function getTopDiscussedTopics(
+  limit: number
+): Promise<TopicCount[]> {
   const supabase = createClient();
   const { data } = await (await supabase)
     .rpc("get_top_discussed_topics")
-    .limit(5); // Create this function in your database
+    .limit(limit); // Create this function in your database
   return data || [];
 }
 
@@ -294,7 +296,7 @@ export async function getRelatedPoint(
   return data as unknown as RelatedPoint;
 }
 
-interface ProceedingWithDays {
+export interface ProceedingWithDays {
   id: number;
   number: number;
   title: string;
@@ -341,7 +343,7 @@ export async function getProceedings(): Promise<ProceedingWithDays[]> {
   return data || [];
 }
 
-interface ProceedingWithDetails {
+export interface ProceedingWithDetails {
   id: number;
   number: number;
   title: string;

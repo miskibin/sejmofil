@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { ProceedingDates } from "./types/process";
+import { ProceedingWithDetails } from "@/lib/supabase/queries";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -35,4 +36,20 @@ export function getTimeUntilNextProceeding(nextDate: Date | null): string {
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
   return `${days}d ${hours}h ${minutes}m`;
+}
+
+type PointType =
+  ProceedingWithDetails["proceeding_day"][0]["proceeding_point_ai"][0];
+
+export function calculatePointImportance(point: PointType) {
+  return (
+    (point.statements?.length || 0) +
+    ((point.voting_numbers?.length || 0) > 0 ? 20 : 0)
+  );
+}
+
+export function sortPointsByImportance<T extends PointType>(points: T[]): T[] {
+  return [...points].sort(
+    (a, b) => calculatePointImportance(b) - calculatePointImportance(a)
+  );
 }

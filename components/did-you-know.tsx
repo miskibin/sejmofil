@@ -11,7 +11,7 @@ import {
 export default async function PlebiscytCard() {
   const mostInterruptions = (await getPersonWithMostInterruptions()) || 0;
   const mostAbsents = await getPersonWithMostAbsents();
-  // const leastAbsents = await getPersonWithMostAbsents(true);
+  const leastAbsents = await getPersonWithMostAbsents(true);
   const mostStatements = await getPersonWithMostStatements();
   const politicians = [
     {
@@ -32,15 +32,15 @@ export default async function PlebiscytCard() {
       },
       image: `https://api.sejm.gov.pl/sejm/term10/MP/${mostStatements.id}/photo`,
     },
-    // {
-    //   ...mostAbsents,
-    //   mainStat: {
-    //     url: `/envoys?ranking=absents`,
-    //     value: mostAbsents.count,
-    //     displayText: `Nieobecności: ${mostAbsents.count}`,
-    //   },
-    //   image: `https://api.sejm.gov.pl/sejm/term10/MP/${mostAbsents.id}/photo`,
-    // },
+    {
+      ...leastAbsents,
+      mainStat: {
+        url: `/envoys?ranking=absents`,
+        value: leastAbsents.count,
+        displayText: `Nieobecności: ${leastAbsents.count}`,
+      },
+      image: `https://api.sejm.gov.pl/sejm/term10/MP/${leastAbsents.id}/photo`,
+    },
 
     {
       ...mostInterruptions,
