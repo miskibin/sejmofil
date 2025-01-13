@@ -40,7 +40,7 @@ export default async function Home() {
       <div className="grid grid-cols-1 sm:grid-cols-6 lg:grid-cols-12 gap-4">
         {/* First row */}
         <div
-          className="sm:col-span-6 lg:col-span-9  grid grid-cols-2 gap-4"
+          className="sm:col-span-6 lg:col-span-9 grid-cols-1  grid  lg:grid-cols-2 gap-4"
           data-umami-event="hot-topics-view"
         >
           <HotTopics />
@@ -54,14 +54,14 @@ export default async function Home() {
           <DidYouKnow />
         </div>
         <div
-          className="sm:col-span-3 lg:col-span-9 grid grid-cols-2 gap-4"
+          className="sm:col-span-3 lg:col-span-9 grid grid-cols-1 lg:grid-cols-2 gap-4"
           data-umami-event="recent-votes-view"
         >
           <LatestInterestingPoints />
         </div>
 
         {/* Stats row */}
-        <div className="sm:col-span-2 lg:col-span-6 grid grid-cols-2 gap-4">
+        <div className="sm:col-span-2 lg:col-span-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
           <SejmCostCounter />
           <TotalProceedingDays />
           <TotalProceedingDays />
@@ -77,9 +77,18 @@ export default async function Home() {
           <CardWrapper
             title="Podoba ci się nasza praca?"
             subtitle="Dołącz do nas"
-            className="col-span-2"
+            className="col-span-1 lg:col-span-2"
           >
-            <></>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Szczególnie potrzebujemy:
+              </p>
+              <ul className="list-disc pl-5 text-sm">
+                <li>Projektanta UI/UX</li>
+                <li>Programisty Frontend</li>
+                <li>Konsultanta ds. legislacji</li>
+              </ul>
+            </div>
           </CardWrapper>
         </div>
         <div className="sm:col-span-2 lg:col-span-6">
