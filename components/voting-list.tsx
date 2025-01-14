@@ -5,20 +5,21 @@ import { VotingDisplay } from "@/app/proceedings/components/voting-display";
 import { VotingResult as SimpleVoting } from "@/lib/queries/proceeding";
 import { VotingResult as DetailedVoting } from "@/lib/api/sejm";
 import { getVotingDetails } from "@/lib/api/sejm";
-import { CardWrapper } from "@/components/ui/card-wrapper";
 import { EmptyState } from "@/components/empty-state";
 
 interface Props {
   votings: SimpleVoting[];
-  proceedingNumber: number;
 }
 
-export function VotingList({ votings, proceedingNumber }: Props) {
+export function VotingList({ votings }: Props) {
   const [detailedVotings, setDetailedVotings] = useState<
     Record<number, DetailedVoting>
   >({});
 
-  const handleVotingClick = async (votingNumber: number) => {
+  const handleVotingClick = async (
+    votingNumber: number,
+    proceedingNumber: number
+  ) => {
     if (!detailedVotings[votingNumber]) {
       const details = await getVotingDetails(proceedingNumber, votingNumber);
       setDetailedVotings((prev) => ({
@@ -28,28 +29,22 @@ export function VotingList({ votings, proceedingNumber }: Props) {
     }
   };
 
+  if (votings.length === 0) return <EmptyState image="/empty.svg" />;
+
   return (
-    <CardWrapper
-      title="Głosowania"
-      className="h-full"
-      subtitle="Wyniki głosowań"
-    >
-      {votings.length === 0 ? (
-      <EmptyState image="/empty.svg" />
-      ) : (
-      <div className="max-h-96 overflow-y-auto overflow-x-hidden">
-        <div className="space-y-2">
-        {votings.map((voting) => (
+    <div className="max-h-[600px] overflow-y-auto overflow-x-hidden">
+      <div className="space-y-2">
+        {votings.map((voting, idx) => (
           <VotingDisplay
-          key={voting.votingNumber}
-          voting={detailedVotings[voting.votingNumber] || voting}
-          isDetailed={!!detailedVotings[voting.votingNumber]}
-          onLoadDetails={() => handleVotingClick(voting.votingNumber)}
+            key={`${voting.votingNumber}-${idx}`}
+            voting={detailedVotings[voting.votingNumber] || voting}
+            isDetailed={!!detailedVotings[voting.votingNumber]}
+            onLoadDetails={() =>
+              handleVotingClick(voting.votingNumber, voting.sitting)
+            }
           />
         ))}
-        </div>
       </div>
-      )}
-    </CardWrapper>
+    </div>
   );
 }

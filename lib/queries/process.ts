@@ -1,6 +1,20 @@
 import { runQuery } from "../db/client";
 import { PrintShort } from "../types/print";
 import { ProcessStage } from "../types/process";
+import { VotingResult } from "./proceeding";
+
+interface Act {
+  ELI: string;
+  title: string;
+  announcementDate: string;
+  comment: string;
+  status: string;
+  address: string;
+}
+
+interface ActResponse {
+  act: Act;
+}
 
 export async function getAllProcessStages(
   processNumber: string
@@ -158,4 +172,46 @@ export async function getPrintsByTopic(
 
   const res = await runQuery<PrintResponse>(query, { topicName, limit });
   return res.map((r) => r.p);
+}
+
+export async function getActsForProcess(processNumber: string): Promise<Act[]> {
+  const query = `
+    MATCH (p:Process {number: $processNumber})-[:HAS]->(s:Stage {type: "PUBLICATION"})-[:HAS]->(a:Act)
+    RETURN a {
+      ELI: a.ELI,
+      title: a.title,
+      announcementDate: a.announcementDate,
+      comments: a.comments,
+      status: a.status,
+      address: a.address
+    } as act
+    ORDER BY a.announcementDate DESC
+  `;
+
+  const res = await runQuery<ActResponse>(query, { processNumber });
+  return res.map((r) => r.act);
+}
+
+export async function getProcessVotings(processNumber: string) {
+  const query = `
+    MATCH (p:Process {number: $processNumber})
+    CALL {
+      WITH p
+      MATCH (p)<-[:IS_SOURCE_OF|REFERS_TO]-(print:Print)<-[:RELATED_TO]-(v:Voting)
+      RETURN v {
+        sitting: v.sitting,
+        votingNumber: v.votingNumber,
+        yes: v.yes,
+        no: v.no,
+        topic: v.topic,
+        sitting: v.sitting
+      } as voting
+    }
+    RETURN voting
+  `;
+
+  const res = await runQuery<{ voting: VotingResult }>(query, {
+    processNumber,
+  });
+  return res.map((r) => r.voting);
 }
