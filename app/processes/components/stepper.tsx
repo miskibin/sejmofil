@@ -283,6 +283,7 @@ export default function LegislativeTimeline({
           </div>
         );
       })}
+      {data.comments && <div className="mt-8 text-sm">{data.comments}</div>}
     </div>
   );
 }
