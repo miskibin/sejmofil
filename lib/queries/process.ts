@@ -197,7 +197,7 @@ export async function getProcessVotings(processNumber: string) {
     CALL {
       WITH p
       MATCH (p)<-[:IS_SOURCE_OF|REFERS_TO]-(print:Print)<-[:RELATED_TO]-(v:Voting)
-      RETURN v {
+      RETURN DISTINCT v {
         sitting: v.sitting,
         votingNumber: v.votingNumber,
         yes: v.yes,
