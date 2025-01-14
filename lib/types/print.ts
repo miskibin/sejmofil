@@ -16,6 +16,7 @@ export type PrintShort = {
   number: string;
   summary: string;
   title: string;
+  processPrint: string[];
   attachments: string[];
 };
 

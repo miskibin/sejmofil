@@ -118,3 +118,44 @@ RETURN process {
   console.log(resp);
   return resp[0]?.processData;
 }
+interface PrintResponse {
+  p: PrintShort;
+}
+export async function getLatestPrints(
+  limit: number = 10
+): Promise<PrintShort[]> {
+  const query = `
+    MATCH (p:Print)
+    RETURN p {
+      number: p.number,
+      title: p.title,
+      documentDate: p.documentDate,
+      processPrint: p.processPrint
+    }
+    ORDER BY p.documentDate DESC
+    LIMIT 10
+  `;
+
+  const res = await runQuery<PrintResponse>(query, { limit });
+  return res.map((r) => r.p);
+}
+
+export async function getPrintsByTopic(
+  topicName: string,
+  limit: number = 10
+): Promise<PrintShort[]> {
+  const query = `
+    MATCH (p:Print)-[:REFERS_TO]->(t:Topic {name: $topicName})
+    RETURN p {
+      number: p.number,
+      title: p.title,
+      documentDate: p.documentDate,
+      processPrint: p.processPrint
+    }
+    ORDER BY p.documentDate DESC
+    LIMIT 10
+  `;
+
+  const res = await runQuery<PrintResponse>(query, { topicName, limit });
+  return res.map((r) => r.p);
+}
