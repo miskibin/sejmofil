@@ -168,10 +168,9 @@ export async function getEnvoySubjectPrints(
 }
 
 export async function getPrintsByNumbersAndVotings(
-  numbers: string[],
-  voting_numbers: number[]
+  numbers: string[]
 ): Promise<PrintShort[]> {
-  console.log(voting_numbers); // TODO add prints for votings in db!!!!
+  // TODO add prints for votings in db!!!!
   const query = `
     MATCH (print:Print)
     WHERE print.number IN $numbers

@@ -129,7 +129,6 @@ RETURN process {
   const resp = (await runQuery<ProcessDetailResponse>(query, {
     processNumber,
   })) as ProcessDetailResponse[];
-  console.log(resp);
   return resp[0]?.processData;
 }
 interface PrintResponse {

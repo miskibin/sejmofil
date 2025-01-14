@@ -138,10 +138,7 @@ export default async function PointDetail({
   // Fetch prints if available
   const prints =
     point.print_numbers?.length > 0
-      ? await getPrintsByNumbersAndVotings(
-          point.print_numbers.map(String),
-          point.voting_numbers
-        )
+      ? await getPrintsByNumbersAndVotings(point.print_numbers.map(String))
       : [];
 
   // Add this after the print fetch:
@@ -374,10 +371,7 @@ export default async function PointDetail({
         {/* Voting section */}
         <div className="col-span-full  lg:col-span-6">
           <CardWrapper title="Głosowania" subtitle="Wyniki głosowań">
-            <VotingList
-              votings={simpleVotingResults}
-              proceedingNumber={point.proceeding_day.proceeding.number}
-            />
+            <VotingList votings={simpleVotingResults} />
           </CardWrapper>
         </div>
 
