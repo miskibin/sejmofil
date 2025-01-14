@@ -278,9 +278,9 @@ export default async function ProcessPage({
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 space-y-2">
                       <div className="text-sm font-medium line-clamp-2">
-                        {print.number}: Druk dot.{" "}
+                        {print.number}:{" "}
                         {print.title.includes("w sprawie")
-                          ? print.title.split("w sprawie")[1]
+                          ? "Druk dot. " + print.title.split("w sprawie")[1]
                           : print.title}
                       </div>
 
