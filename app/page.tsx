@@ -11,7 +11,6 @@ import LatestInterestingPoints from "@/components/latest-interesting-points";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import TotalProceedingDays from "@/components/total-proceeding-days";
 import { Paintbrush, Code, ScrollText } from "lucide-react";
-import { FaDiscord } from "react-icons/fa";
 import { SOCIAL_LINKS } from "@/lib/config/links";
 
 // export const dynamic = "force-dynamic";
