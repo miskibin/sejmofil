@@ -2,6 +2,7 @@ import {
   getProcessDetails,
   getActsForProcess,
   getProcessVotings,
+  getSimilarPrints,
 } from "@/lib/queries/process";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -55,13 +56,29 @@ export default async function ProcessPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [processDetails, acts, votings] = await Promise.all([
-    getProcessDetails(id),
+  const processDetails = await getProcessDetails(id);
+  if (!processDetails) notFound();
+
+  // Get the source print for this process or find a print from stages
+  const sourcePrint = processDetails.prints.flat()[0];
+  const stagePrint = !sourcePrint
+    ? processDetails.stages
+        .flatMap((stage) => [
+          ...(stage.prints || []),
+          ...(stage.childPrints || []),
+        ])
+        .find((print) => print?.number)
+    : null;
+
+  const printNumber = sourcePrint?.number || stagePrint?.number;
+
+  const [acts, votings, similarPrints] = await Promise.all([
     getActsForProcess(id),
     getProcessVotings(id),
+    printNumber ? getSimilarPrints(printNumber) : Promise.resolve([]),
   ]);
+
   const comments = await getPrintComments(id);
-  if (!processDetails) notFound();
 
   // Flatten the nested prints array
   const allPrints = processDetails.prints.flat();
@@ -243,6 +260,43 @@ export default async function ProcessPage({
           </CardWrapper>
         </div>
       </div>
+
+      {/* Add Similar Prints Section at the bottom */}
+      {similarPrints.length > 0 && (
+        <div className="mt-8">
+          <CardWrapper
+            title="Podobne"
+            headerIcon={<FileText className="h-5 w-5 text-primary" />}
+          >
+            <div className="grid  gap-4">
+              {similarPrints.map((print) => (
+                <Link
+                  key={print.number}
+                  href={`/processes/${print.processPrint}`}
+                  className="block bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 space-y-2">
+                      <div className="text-sm font-medium line-clamp-2">
+                        {print.number}: Druk dot.{" "}
+                        {print.title.includes("w sprawie")
+                          ? print.title.split("w sprawie")[1]
+                          : print.title}
+                      </div>
+
+                      {print.summary && (
+                        <div className="prose prose-sm max-w-none">
+                          <ReactMarkdown>{print.summary}</ReactMarkdown>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </CardWrapper>
+        </div>
+      )}
     </div>
   );
 }

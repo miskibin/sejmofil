@@ -214,3 +214,30 @@ export async function getProcessVotings(processNumber: string) {
   });
   return res.map((r) => r.voting);
 }
+
+export async function getSimilarPrints(
+  printNumber: string
+): Promise<PrintShort[]> {
+  const query = `
+    MATCH (sourcePrint:Print {number: $printNumber})
+    WITH sourcePrint
+    MATCH (otherPrint:Print)
+    WHERE otherPrint <> sourcePrint
+    WITH otherPrint, sourcePrint,
+         gds.similarity.cosine(sourcePrint.embedding, otherPrint.embedding) as similarity
+    WHERE similarity > 0.7
+    RETURN otherPrint {
+      number: otherPrint.number,
+      title: otherPrint.title,
+      documentDate: otherPrint.documentDate,
+      processPrint: otherPrint.processPrint,
+      summary: otherPrint.summary,
+      similarity: similarity
+    } as p
+    ORDER BY similarity DESC
+    LIMIT 3
+  `;
+
+  const res = await runQuery<PrintResponse>(query, { printNumber });
+  return res.map((r) => r.p);
+}
