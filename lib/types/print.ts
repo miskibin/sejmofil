@@ -18,6 +18,7 @@ export type PrintShort = {
   title: string;
   processPrint: string[];
   attachments: string[];
+  similarity?: number;
 };
 
 export type PrintListItem = {
