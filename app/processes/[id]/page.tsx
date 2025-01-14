@@ -1,14 +1,22 @@
-import { getProcessDetails } from "@/lib/queries/process";
+import {
+  getProcessDetails,
+  getActsForProcess,
+  getProcessVotings,
+} from "@/lib/queries/process";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
-import LegislativeTimeline from "./stepper";
+import LegislativeTimeline from "../components/stepper";
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { MessageSquare, Timer, FileText } from "lucide-react";
+import { Timer, FileText } from "lucide-react";
 import { FaRegFilePdf } from "react-icons/fa";
 import Link from "next/link";
 import { getPrintComments } from "@/lib/queries/print";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/empty-state";
+import { VotingList } from "@/components/voting-list";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookOpen, Vote } from "lucide-react";
 
 type Comment = {
   sentiment: "Neutralny" | "Pozytywny" | "Negatywny";
@@ -16,6 +24,11 @@ type Comment = {
   author: string;
   organization: string;
 };
+
+function constructActUrl(eli: string) {
+  const baseUrl = `https://api.sejm.gov.pl/eli/acts`;
+  return `${baseUrl}/${eli}/text.pdf`;
+}
 
 const CommentBadge = ({ sentiment }: { sentiment: Comment["sentiment"] }) => {
   const variants = {
@@ -42,7 +55,11 @@ export default async function ProcessPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const processDetails = await getProcessDetails(id);
+  const [processDetails, acts, votings] = await Promise.all([
+    getProcessDetails(id),
+    getActsForProcess(id),
+    getProcessVotings(id),
+  ]);
   const comments = await getPrintComments(id);
   if (!processDetails) notFound();
 
@@ -82,89 +99,147 @@ export default async function ProcessPage({
           </CardWrapper>
         </div>
 
-        {/* Process Comments Section - Spans 2 columns if exists */}
-        <div className="md:col-span-2 gap-6 space-y-6">
-          {processDetails.comments && (
-            <CardWrapper
-              title="Uwagi ogólne"
-              headerIcon={<MessageSquare className="h-5 w-5 text-primary" />}
-            >
-              <ReactMarkdown className="prose prose-sm max-w-none">
-                {processDetails.comments}
-              </ReactMarkdown>
-            </CardWrapper>
-          )}
-          {/* Prints Section - Spans remaining space */}
-          <CardWrapper
-            title="Druki i opinie"
-            headerIcon={<FileText className="h-5 w-5 text-primary" />}
-          >
-            {allPrints.map((print) => (
-              <div
-                key={print.number}
-                className="bg-gray-50 rounded-lg p-4 space-y-4"
-              >
-                {/* Print Header */}
-                <div className="flex justify-between items-start gap-2">
-                  <h4 className="text-sm font-medium">{print.title}</h4>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(print.documentDate).toLocaleDateString("pl-PL")}
-                  </span>
-                </div>
-
-                {/* Print Summary */}
-                {print.summary && (
-                  <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown>{print.summary}</ReactMarkdown>
-                  </div>
+        {/* Right side - Tabbed content */}
+        <div className="md:col-span-2">
+          <CardWrapper className="min-h-96 h-full">
+            <Tabs defaultValue="prints" className="w-full">
+              <TabsList className="w-full">
+                <TabsTrigger value="prints" className="flex-1">
+                  <FileText className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Druki</span>
+                </TabsTrigger>
+                {acts.length > 0 && (
+                  <TabsTrigger value="acts" className="flex-1">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">Ustawy</span>
+                  </TabsTrigger>
                 )}
-
-                {/* Print Comments */}
-                {comments.length > 0 && (
-                  <div className="space-y-3 mt-4">
-                    <h5 className="text-sm font-medium text-muted-foreground">
-                      Opinie ({comments.length})
-                    </h5>
-                    <div className="space-y-3">
-                      {comments.map((comment, idx) => (
-                        <div
-                          key={idx}
-                          className="bg-white p-3 rounded-lg space-y-2"
-                        >
-                          <div className="flex justify-between items-start gap-2">
-                            <span className="text-sm font-medium">
-                              {comment.organization}
-                            </span>
-                            <CommentBadge sentiment={comment.sentiment} />
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            <ReactMarkdown>{comment.summary}</ReactMarkdown>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                {votings.length > 0 && (
+                  <TabsTrigger value="votings" className="flex-1">
+                    <Vote className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">Głosowania</span>
+                  </TabsTrigger>
                 )}
+              </TabsList>
 
-                {/* Attachments */}
-                {print.attachments?.length > 0 && (
-                  <div className="space-y-2">
-                    {print.attachments.map((attachment) => (
-                      <Link
-                        key={attachment}
-                        href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-2 text-sm text-primary bg-white p-2 rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
+              <TabsContent value="prints" className="mt-4">
+                {allPrints.length > 0 ? (
+                  <div className="space-y-4">
+                    {allPrints.map((print) => (
+                      <div
+                        key={print.number}
+                        className="bg-gray-50 rounded-lg p-4 space-y-4"
                       >
-                        <FaRegFilePdf className="h-6 w-6 inline mx-2" />
-                        {attachment}
-                      </Link>
+                        {/* Print Header */}
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="text-sm font-medium">{print.title}</h4>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
+                            {new Date(print.documentDate).toLocaleDateString(
+                              "pl-PL"
+                            )}
+                          </span>
+                        </div>
+
+                        {/* Print Summary */}
+                        {print.summary && (
+                          <div className="prose prose-sm max-w-none">
+                            <ReactMarkdown>{print.summary}</ReactMarkdown>
+                          </div>
+                        )}
+
+                        {/* Print Comments */}
+                        {comments.length > 0 && (
+                          <div className="space-y-3 mt-4">
+                            <h5 className="text-sm font-medium text-muted-foreground">
+                              Opinie ({comments.length})
+                            </h5>
+                            <div className="space-y-3">
+                              {comments.map((comment, idx) => (
+                                <div
+                                  key={idx}
+                                  className="bg-white p-3 rounded-lg space-y-2"
+                                >
+                                  <div className="flex justify-between items-start gap-2">
+                                    <span className="text-sm font-medium">
+                                      {comment.organization}
+                                    </span>
+                                    <CommentBadge
+                                      sentiment={comment.sentiment}
+                                    />
+                                  </div>
+                                  <div className="text-sm text-muted-foreground">
+                                    <ReactMarkdown>
+                                      {comment.summary}
+                                    </ReactMarkdown>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Attachments */}
+                        {print.attachments?.length > 0 && (
+                          <div className="space-y-2">
+                            {print.attachments.map((attachment) => (
+                              <Link
+                                key={attachment}
+                                href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-2 text-sm text-primary bg-white p-2 rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
+                              >
+                                <FaRegFilePdf className="h-6 w-6 inline mx-2" />
+                                {attachment}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
+                ) : (
+                  <EmptyState text="Proces bez druku" image="/empty.svg" />
                 )}
-              </div>
-            ))}
+              </TabsContent>
+
+              {acts.length > 0 && (
+                <TabsContent value="acts" className="mt-4">
+                  <div className="space-y-4">
+                    {acts.map((act) => (
+                      <div
+                        key={act.ELI}
+                        className="bg-gray-50 rounded-lg p-4 space-y-2"
+                      >
+                        <Badge variant="outline" className="me-2">
+                          {act.ELI}
+                        </Badge>
+                        <Badge variant="outline" className="me-2">
+                          Ogłoszono: {act.announcementDate}
+                        </Badge>
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="text-sm font-medium">{act.title}</h4>
+                        </div>
+                        <Link
+                          href={constructActUrl(act.ELI)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Treść →
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+              )}
+
+              {votings.length > 0 && (
+                <TabsContent value="votings" className="mt-4">
+                  <VotingList votings={votings} />
+                </TabsContent>
+              )}
+            </Tabs>
           </CardWrapper>
         </div>
       </div>

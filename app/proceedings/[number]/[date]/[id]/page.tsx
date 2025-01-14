@@ -27,7 +27,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { getVotingResultsByNumbrs } from "@/lib/queries/proceeding";
-import { VotingList } from "./components/voting-list";
+import { VotingList } from "../../../../../components/voting-list";
 export const dynamic = "force-dynamic";
 export const revalidate = 3600; // Revalidate every hour
 // Update the SummarySection component to handle null values
@@ -373,10 +373,12 @@ export default async function PointDetail({
 
         {/* Voting section */}
         <div className="col-span-full  lg:col-span-6">
-          <VotingList
-            votings={simpleVotingResults}
-            proceedingNumber={point.proceeding_day.proceeding.number}
-          />
+          <CardWrapper title="Głosowania" subtitle="Wyniki głosowań">
+            <VotingList
+              votings={simpleVotingResults}
+              proceedingNumber={point.proceeding_day.proceeding.number}
+            />
+          </CardWrapper>
         </div>
 
         {/* Replace the Statements section with: */}

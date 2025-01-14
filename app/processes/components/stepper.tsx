@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { ProcessDetailData } from "@/lib/queries/process";
 import { PrintShort } from "@/lib/types/print";
+import ReactMarkdown from "react-markdown";
 
 const stageConfig = {
   icons: {
@@ -70,24 +71,26 @@ const PrintDetails = ({ prints }: { prints: PrintShort[] }) => (
         </div>
         {print.documentDate && (
           <div className="text-muted-foreground">
-        {format(new Date(print.documentDate), "d MMM yyyy", { locale: pl })}
+            {format(new Date(print.documentDate), "d MMM yyyy", { locale: pl })}
           </div>
         )}
-        <div className="text-sm">{print.summary}</div>
+        <div className="prose prose-sm max-w-none">
+          <ReactMarkdown>{print.summary}</ReactMarkdown>
+        </div>
         {print.attachments.length > 0 && (
           <div className="space-y-1">
-        {print.attachments.map((attachment) => (
-          <a
-            key={attachment}
-            href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-primary hover:underline"
-          >
-            <Icons.Paperclip className="w-4 h-4" />
-            {attachment}
-          </a>
-        ))}
+            {print.attachments.map((attachment) => (
+              <a
+                key={attachment}
+                href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-primary hover:underline"
+              >
+                <Icons.Paperclip className="w-4 h-4" />
+                {attachment}
+              </a>
+            ))}
           </div>
         )}
       </motion.div>
@@ -220,14 +223,14 @@ export default function LegislativeTimeline({
                   <div className="font-semibold text-base  flex items-center gap-2 flex-wrap">
                     {stage.name}
                     {stage.act && (
-                        <a
+                      <a
                         href={`https://api.sejm.gov.pl/eli/acts/${stage.act}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline text-sm"
-                        >
+                      >
                         (Ustawa {stage.act})
-                        </a>
+                      </a>
                     )}
                     {firstPrint && firstPrint.attachments.length > 0 && (
                       <a
