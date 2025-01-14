@@ -153,7 +153,7 @@ export async function getPrintsByTopic(
       processPrint: p.processPrint
     }
     ORDER BY p.documentDate DESC
-    LIMIT 10
+    LIMIT 40
   `;
 
   const res = await runQuery<PrintResponse>(query, { topicName, limit });
