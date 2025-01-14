@@ -3,12 +3,16 @@ import RecentPoints from "@/components/recent-points";
 import DidYouKnow from "@/components/did-you-know";
 import SessionCalendar from "@/components/calendar";
 import HotTopics from "@/components/hot-topics";
-import TotalProceedingDays from "@/components/total-proceeding-days";
+import TotalBreaks from "@/components/total-breaks";
 import SejmCostCounter from "@/components/total-cost";
 import { getProceedingDates } from "@/lib/queries/proceeding";
 import { getNextProceedingDate, getTimeUntilNextProceeding } from "@/lib/utils";
 import LatestInterestingPoints from "@/components/latest-interesting-points";
 import { CardWrapper } from "@/components/ui/card-wrapper";
+import TotalProceedingDays from "@/components/total-proceeding-days";
+import { Paintbrush, Code, ScrollText } from "lucide-react";
+import { FaDiscord } from "react-icons/fa";
+import { SOCIAL_LINKS } from "@/lib/config/links";
 
 // export const dynamic = "force-dynamic";
 // export const revalidate = 60 * 10; // Revalidate every hour
@@ -64,7 +68,7 @@ export default async function Home() {
         <div className="sm:col-span-2 lg:col-span-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
           <SejmCostCounter />
           <TotalProceedingDays />
-          <TotalProceedingDays />
+          <TotalBreaks />
           <StatCard
             title="Koszty pracy senatu"
             value={"268M PLN"}
@@ -75,19 +79,34 @@ export default async function Home() {
             ]}
           />
           <CardWrapper
-            title="Podoba ci się nasza praca?"
+            title="Podoba Ci się nasza praca?"
             subtitle="Dołącz do nas"
             className="col-span-1 lg:col-span-2"
           >
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Szczególnie potrzebujemy:
-              </p>
-              <ul className="list-disc pl-5 text-sm">
-                <li>Projektanta UI/UX</li>
-                <li>Programisty Frontend</li>
-                <li>Konsultanta ds. legislacji</li>
-              </ul>
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex items-center gap-2 p-2 rounded-lg ">
+                  <Paintbrush className="h-4 w-4 text-prrimary" />
+                  <span className="text-sm">UI/UX</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg ">
+                  <Code className="h-4 w-4 text-prrimary" />
+                  <span className="text-sm">Frontend</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg ">
+                  <ScrollText className="h-4 w-4 text-prrimary" />
+                  <span className="text-sm">Legislacja</span>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <a
+                  href={SOCIAL_LINKS.DISCORD}
+                  target="_blank"
+                  className="text-xs text-primary hover:text-primary/80 cursor-pointer transition-colors"
+                >
+                  Napisz na discord
+                </a>
+              </div>
             </div>
           </CardWrapper>
         </div>
@@ -96,9 +115,6 @@ export default async function Home() {
           <RecentPoints />
         </div>
       </div>
-      {/* <div className="sm:col-span-3 lg:col-span-4 row-span-auto">
-          {/* <UpcomingElections />
-        </div>  */}
     </>
   );
 }

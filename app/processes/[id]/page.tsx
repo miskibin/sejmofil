@@ -272,6 +272,7 @@ export default async function ProcessPage({
               {similarPrints.map((print) => (
                 <Link
                   key={print.number}
+                  prefetch={true}
                   href={`/processes/${print.processPrint}`}
                   className="block py-3 hover:bg-gray-50 transition-colors"
                 >
