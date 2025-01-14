@@ -6,8 +6,10 @@ import { getAllPrints } from "@/lib/queries/print";
 import { PrintListItem, PrintShort } from "@/lib/types/print";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import { Input } from "@/components/ui/input";
-import { Search, Clock, Zap, Shield, PiggyBank } from "lucide-react";
+import { Search } from "lucide-react";
 import { getLatestPrints, getPrintsByTopic } from "@/lib/queries/process";
+import { Clock, Zap, Shield, PiggyBank } from "lucide-react";
+import { DocumentCategoryCard } from "./components/document-category-card";
 
 const CachedSearchResults = async ({
   query,
@@ -75,32 +77,6 @@ export default function ProcessSearchPage() {
     performSearch(searchQuery);
   }, [searchQuery, performSearch]);
 
-  const PrintList = ({ items }: { items: PrintShort[] }) => (
-    <div className="space-y-3">
-      {items.slice(0, 5).map((print) => (
-        <div
-          key={print.number}
-          onClick={() =>
-            router.push(`/processes/${print.processPrint[0] || print.number}`)
-          }
-          className="cursor-pointer group"
-        >
-          <div className="flex justify-between items-start space-x-2">
-            <span className="text-xs text-primary font-medium whitespace-nowrap">
-              {print.number}
-            </span>
-            <span className="text-sm line-clamp-2 group-hover:text-primary transition-colors">
-              {print.title}
-            </span>
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
-              {new Date(print.documentDate).toLocaleDateString("pl-PL")}
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className="space-y-8">
       <CardWrapper
@@ -152,41 +128,30 @@ export default function ProcessSearchPage() {
       </CardWrapper>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CardWrapper
+        <DocumentCategoryCard
           title="Najnowsze druki"
           subtitle="Ostatnio dodane dokumenty"
-          headerIcon={<Clock className="w-5 h-5 text-primary" />}
-          showGradient={false}
-        >
-          <PrintList items={latestPrints} />
-        </CardWrapper>
-
-        <CardWrapper
+          icon={Clock}
+          prints={latestPrints}
+        />
+        <DocumentCategoryCard
           title="Ceny energii"
           subtitle="Dokumenty dotyczące cen energii"
-          headerIcon={<Zap className="w-5 h-5 text-primary" />}
-          showGradient={false}
-        >
-          <PrintList items={energyPrints} />
-        </CardWrapper>
-
-        <CardWrapper
+          icon={Zap}
+          prints={energyPrints}
+        />
+        <DocumentCategoryCard
           title="Immunitet poselski"
           subtitle="Sprawy dotyczące immunitetu"
-          headerIcon={<Shield className="w-5 h-5 text-primary" />}
-          showGradient={false}
-        >
-          <PrintList items={immunityPrints} />
-        </CardWrapper>
-
-        <CardWrapper
+          icon={Shield}
+          prints={immunityPrints}
+        />
+        <DocumentCategoryCard
           title="Podatki"
           subtitle="Dokumenty dotyczące podatków"
-          headerIcon={<PiggyBank className="w-5 h-5 text-primary" />}
-          showGradient={false}
-        >
-          <PrintList items={taxPrints} />
-        </CardWrapper>
+          icon={PiggyBank}
+          prints={taxPrints}
+        />
       </div>
     </div>
   );
