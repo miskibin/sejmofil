@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import LegislativeTimeline from "../components/stepper";
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { Timer, FileText } from "lucide-react";
+import { Timer, FileText, Sparkles } from "lucide-react";
 import { FaRegFilePdf } from "react-icons/fa";
 import Link from "next/link";
 import { getPrintComments } from "@/lib/queries/print";
@@ -128,7 +128,7 @@ export default async function ProcessPage({
                 {acts.length > 0 && (
                   <TabsTrigger value="acts" className="flex-1">
                     <BookOpen className="w-4 h-4 mr-2" />
-                    <span className="hidden sm:inline">Ustawy</span>
+                    <span className="hidden sm:inline">Dokumenty</span>
                   </TabsTrigger>
                 )}
                 {votings.length > 0 && (
@@ -241,9 +241,9 @@ export default async function ProcessPage({
                           href={constructActUrl(act.ELI)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-primary hover:underline"
+                          className="text-primary hover:underline"
                         >
-                          Treść →
+                          Czytaj
                         </Link>
                       </div>
                     ))}
@@ -261,34 +261,31 @@ export default async function ProcessPage({
         </div>
       </div>
 
-      {/* Add Similar Prints Section at the bottom */}
+      {/* Replace the existing Similar Prints Section with this */}
       {similarPrints.length > 0 && (
         <div className="mt-8">
           <CardWrapper
             title="Podobne"
-            headerIcon={<FileText className="h-5 w-5 text-primary" />}
+            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
           >
-            <div className="grid  gap-4">
+            <div className="divide-y divide-gray-100">
               {similarPrints.map((print) => (
                 <Link
                   key={print.number}
                   href={`/processes/${print.processPrint}`}
-                  className="block bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+                  className="block py-3 hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="text-sm font-medium line-clamp-2">
-                        {print.number}:{" "}
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-primary font-medium">
+                        {print.number}
+                      </span>
+                      <span className="">
                         {print.title.includes("w sprawie")
-                          ? "Druk dot. " + print.title.split("w sprawie")[1]
+                          ? "Druk dot. " +
+                            print.title.split("w sprawie")[1].trim()
                           : print.title}
-                      </div>
-
-                      {print.summary && (
-                        <div className="prose prose-sm max-w-none">
-                          <ReactMarkdown>{print.summary}</ReactMarkdown>
-                        </div>
-                      )}
+                      </span>
                     </div>
                   </div>
                 </Link>
