@@ -66,7 +66,7 @@ export async function getTopDiscussedTopics(
   const supabase = createClient();
   const { data } = await (await supabase)
     .rpc("get_top_discussed_topics")
-    .limit(limit); // Create this function in your database
+    .limit(limit);
   return data || [];
 }
 

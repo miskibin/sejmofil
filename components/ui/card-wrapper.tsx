@@ -83,7 +83,7 @@ export function CardWrapper({
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col min-h-12 mt-4">
+      <CardContent className="flex-1 flex flex-col min-h-12 mt-4 mb-0">
         <div className="relative flex-1">
           <div className="space-y-4">{children}</div>
 
@@ -102,7 +102,7 @@ export function CardWrapper({
         {(sourceDescription || sourceUrls || showMoreLink) && (
           <div
             className={cn(
-              "mt-0 flex items-center justify-between text-sm",
+              "mt-1 mb-0 flex items-center justify-between text-sm",
               isInverted
                 ? "text-primary-foreground/80"
                 : "text-muted-foreground"

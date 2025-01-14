@@ -8,7 +8,7 @@ import {
   FileSearch,
   Files,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const DOCUMENT_TYPES = {
   "Projekty ustaw": {
@@ -42,8 +42,6 @@ export function DocumentCategoryCard({
   icon: Icon,
   prints,
 }: Props) {
-  const router = useRouter();
-
   const categorizedPrints = prints.reduce((acc, print) => {
     const category =
       Object.entries(DOCUMENT_TYPES).find(([key, { matcher }]) =>
@@ -87,14 +85,10 @@ export function DocumentCategoryCard({
           <TabsContent key={category} value={category} className="pt-4">
             <div className="space-y-3">
               {items.slice(0, 5).map((print) => (
-                <div
+                <Link
                   key={print.number}
-                  onClick={() =>
-                    router.push(
-                      `/processes/${print.processPrint[0] || print.number}`
-                    )
-                  }
-                  className="flex items-start space-x-2 cursor-pointer group"
+                  href={`/processes/${print.processPrint[0] || print.number}`}
+                  className="flex items-start space-x-2 group"
                 >
                   <span className="text-xs text-primary font-medium whitespace-nowrap">
                     {print.number}
@@ -105,7 +99,7 @@ export function DocumentCategoryCard({
                   <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(print.documentDate).toLocaleDateString("pl-PL")}
                   </span>
-                </div>
+                </Link>
               ))}
             </div>
           </TabsContent>

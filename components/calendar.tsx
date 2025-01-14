@@ -15,6 +15,7 @@ interface CalendarDay {
   isAdjacentMonth?: boolean;
   fullDate?: string;
   proceeding_dates: ProceedingDates[];
+  isFutureDate?: boolean;
 }
 
 export default async function SessionCalendar() {
@@ -34,6 +35,13 @@ export default async function SessionCalendar() {
   const calendarDays: CalendarDay[][] = [];
   let currentWeek: CalendarDay[] = [];
 
+  const isFutureDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    today.setHours(23, 59, 0, 0);
+    return date > today;
+  };
+
   // Add days from previous month
   const prevMonthLastDay = new Date(firstDayOfMonth);
   prevMonthLastDay.setDate(0);
@@ -51,6 +59,7 @@ export default async function SessionCalendar() {
       proceedingNumber: proceedingForDay?.proceeding_number,
       isAdjacentMonth: true,
       fullDate: dateStr,
+      isFutureDate: isFutureDate(dateStr),
       proceeding_dates: proceedings,
     });
   }
@@ -68,6 +77,7 @@ export default async function SessionCalendar() {
       proceedingNumber: proceedingForDay?.proceeding_number,
       isToday: day === today.getDate(),
       fullDate: dateStr,
+      isFutureDate: isFutureDate(dateStr),
       proceeding_dates: proceedings,
     });
 
@@ -96,6 +106,7 @@ export default async function SessionCalendar() {
       proceedingNumber: proceedingForDay?.proceeding_number,
       isAdjacentMonth: true,
       fullDate: dateStr,
+      isFutureDate: isFutureDate(dateStr),
       proceeding_dates: proceedings,
     });
     nextMonthDay++;

@@ -14,6 +14,7 @@ interface CalendarDayProps {
   isAdjacentMonth?: boolean;
   fullDate?: string;
   proceeding_dates?: ProceedingDates[];
+  isFutureDate?: boolean;
 }
 
 export default function CalendarDayTile({
@@ -24,12 +25,14 @@ export default function CalendarDayTile({
   isAdjacentMonth,
   fullDate,
   proceeding_dates,
+  isFutureDate,
 }: CalendarDayProps) {
   const router = useRouter();
 
   const handleClick = () => {
+    if (isFutureDate) return;
     if (fullDate && proceeding_dates) {
-      const proceeding = proceeding_dates.find(p => 
+      const proceeding = proceeding_dates.find((p) =>
         p.proceeding_dates.includes(fullDate)
       );
 
@@ -54,7 +57,7 @@ export default function CalendarDayTile({
           : isToday
           ? "bg-gray-700"
           : "bg-gray-100"
-      }`}
+      } ${isFutureDate && "cursor-not-allowed"}`}
     >
       {shouldShowDate && (
         <span

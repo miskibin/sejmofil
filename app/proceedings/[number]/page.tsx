@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { getProceedingDetails } from "@/lib/supabase/queries";
 import { Badge } from "@/components/ui/badge";
 import { PointCard } from "./components/point-card";
-import LatestInterestingPoints from "@/components/latest-interesting-points";
 import { sortPointsByImportance } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -124,9 +123,6 @@ export default async function ProceedingPage({
           </div>
         ))}
       </div>
-
-      {/* Latest Interesting Points */}
-      <LatestInterestingPoints />
     </div>
   );
 }
