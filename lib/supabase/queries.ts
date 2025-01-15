@@ -480,3 +480,46 @@ export async function getProceedingDayDetails(
 
   return data as unknown as ProceedingDayDetails;
 }
+
+export interface SearchPointResult {
+  id: number;
+  topic: string;
+  summary_tldr: string;
+  proceeding_day: {
+    date: string;
+    proceeding: {
+      number: number;
+    };
+  };
+}
+
+export async function searchPoints(
+  query: string
+): Promise<SearchPointResult[]> {
+  // TODO TODO TODO ADD ORDERING BY using ts_rank_cd
+  const supabase = createClient();
+  const { data, error } = await (
+    await supabase
+  )
+    .from("proceeding_point_ai")
+    .select(
+      `
+    id,
+    topic,
+    summary_tldr,
+    proceeding_day!inner (
+      date,
+      proceeding!inner (
+        number
+      )
+    )
+    `
+    )
+    .textSearch("search_tsv", query, {
+      config: "pl_ispell",
+    })
+    .limit(20);
+  console.log(data, error);
+
+  return (data as unknown as SearchPointResult[]) || [];
+}

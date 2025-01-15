@@ -15,6 +15,7 @@ const urlToPolishName: { [key: string]: string } = {
   interpellations: "Interpelacje",
   acts: "Dziennik ustaw",
   about: "O projekcie",
+  search: "Wyszukiwarka",
   points: "Punkty porządku dziennego",
   proceedings: "Posiedzenia",
 
