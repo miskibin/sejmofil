@@ -66,6 +66,7 @@ export default async function SearchPage({
                     } • ${new Date(point.proceeding_day.date).toLocaleDateString(
                       "pl"
                     )}`}
+                    searchQuery={query}
                   />
                 ))}
               </div>
@@ -77,7 +78,11 @@ export default async function SearchPage({
               <h2 className="text-xl font-semibold mb-4">Druki sejmowe</h2>
               <div className="grid gap-4">
                 {prints.map((print) => (
-                  <PrintCard key={print.number} print={print} />
+                  <PrintCard 
+                    key={print.number} 
+                    print={print} 
+                    searchQuery={query}
+                  />
                 ))}
               </div>
             </section>

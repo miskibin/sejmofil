@@ -492,12 +492,19 @@ export interface SearchPointResult {
     };
   };
 }
-
+// TODO TODO TODO ADD ORDERING BY using ts_rank_cd
 export async function searchPoints(
   query: string
 ): Promise<SearchPointResult[]> {
-  // TODO TODO TODO ADD ORDERING BY using ts_rank_cd
   const supabase = createClient();
+  
+  // Convert multiple words into a format that PostgreSQL full-text search can understand
+  const formattedQuery = query
+    .trim()
+    .split(/\s+/)
+    .map(word => word + ':*')
+    .join(' & ');
+
   const { data, error } = await (
     await supabase
   )
@@ -515,7 +522,7 @@ export async function searchPoints(
     )
     `
     )
-    .textSearch("search_tsv", query, {
+    .textSearch("search_tsv", formattedQuery, {
       config: "pl_ispell",
     })
     .limit(20);

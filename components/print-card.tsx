@@ -3,9 +3,10 @@ import { SearchResultCard } from "./search-result-card";
 
 interface PrintCardProps {
   print: PrintShort;
+  searchQuery?: string;
 }
 
-export function PrintCard({ print }: PrintCardProps) {
+export function PrintCard({ print, searchQuery }: PrintCardProps) {
   return (
     <SearchResultCard
       href={`/prints/${print.number}`}
@@ -16,6 +17,7 @@ export function PrintCard({ print }: PrintCardProps) {
           ? ` • ${new Date(print.documentDate).toLocaleDateString("pl-PL")}`
           : ""
       }`}
+      searchQuery={searchQuery}
     />
   );
 }
