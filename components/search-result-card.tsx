@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { highlightText } from "@/lib/utils/highlight-text";
+import ReactMarkdown from "react-markdown";
 
 interface SearchResultCardProps {
   href: string;
@@ -7,6 +9,7 @@ interface SearchResultCardProps {
   description?: string;
   metadata?: string;
   className?: string;
+  searchQuery?: string;
 }
 
 export function SearchResultCard({
@@ -15,6 +18,7 @@ export function SearchResultCard({
   description,
   metadata,
   className,
+  searchQuery,
 }: SearchResultCardProps) {
   return (
     <Link
@@ -28,11 +32,16 @@ export function SearchResultCard({
         {metadata && (
           <div className="text-sm text-muted-foreground">{metadata}</div>
         )}
-        <h3 className="font-medium">{title}</h3>
+        <h3 
+          className="font-medium"
+          dangerouslySetInnerHTML={{
+            __html: searchQuery ? highlightText(title, searchQuery) : title,
+          }}
+        />
         {description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {description}
-          </p>
+          <div className="prose prose-sm dark:prose-invert max-w-none line-clamp-2">
+            <ReactMarkdown>{searchQuery ? highlightText(description, searchQuery) : description}</ReactMarkdown>
+          </div>
         )}
       </div>
     </Link>
