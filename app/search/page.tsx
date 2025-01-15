@@ -3,7 +3,9 @@ import { searchPersons } from "@/lib/queries/person";
 import { PrintCard } from "@/components/print-card";
 import { EnvoyCard } from "@/components/envoy-card";
 import { searchPoints } from "@/lib/supabase/queries";
-import { SearchResultCard } from "@/components/search-result-card";
+import { PointCard } from "@/components/point-card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users2, FileText, Calendar } from "lucide-react";
 
 export default async function SearchPage({
   searchParams,
@@ -27,68 +29,70 @@ export default async function SearchPage({
     searchPoints(query),
   ]);
 
-  const hasResults =
-    prints.length > 0 || persons.length > 0 || points.length > 0;
+  const hasResults = prints.length > 0 || persons.length > 0 || points.length > 0;
+
+  if (!hasResults) {
+    return (
+      <div className="container mx-auto mt-20 px-4">
+        <h1 className="text-2xl font-bold mb-4">
+          Wyniki wyszukiwania dla: {query}
+        </h1>
+        <p>Nie znaleziono wyników dla podanego zapytania.</p>
+      </div>
+    );
+  }
+
+  const defaultTab = points.length > 0 ? "points" : persons.length > 0 ? "persons" : "prints";
 
   return (
     <div className="container mx-auto mt-20 px-4">
-      <h1 className="text-2xl font-bold mb-4">
+      <h1 className="text-2xl font-bold mb-8">
         Wyniki wyszukiwania dla: {query}
       </h1>
 
-      {!hasResults ? (
-        <p>Nie znaleziono wyników dla podanego zapytania.</p>
-      ) : (
-        <div className="space-y-8">
-          {persons.length > 0 && (
-            <section>
-              <h2 className="text-xl font-semibold mb-4">Posłowie</h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {persons.map((person) => (
-                  <EnvoyCard key={person.id} envoy={person} />
-                ))}
-              </div>
-            </section>
-          )}
+      <Tabs defaultValue={defaultTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+          <TabsTrigger value="points" disabled={points.length === 0} className="flex gap-2">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden sm:inline">Punkty</span>
+            <span className="text-xs">{points.length}</span>
+          </TabsTrigger>
+          <TabsTrigger value="persons" disabled={persons.length === 0} className="flex gap-2">
+            <Users2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Posłowie</span>
+            <span className="text-xs">{persons.length}</span>
+          </TabsTrigger>
+          <TabsTrigger value="prints" disabled={prints.length === 0} className="flex gap-2">
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Druki</span>
+            <span className="text-xs">{prints.length}</span>
+          </TabsTrigger>
+        </TabsList>
 
-          {points.length > 0 && (
-            <section>
-              <h2 className="text-xl font-semibold mb-4">Punkty obrad</h2>
-              <div className="grid gap-4">
-                {points.map((point) => (
-                  <SearchResultCard
-                    key={point.id}
-                    href={`/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/${point.id}`}
-                    title={point.topic}
-                    description={point.summary_tldr}
-                    metadata={`Posiedzenie ${
-                      point.proceeding_day.proceeding.number
-                    } • ${new Date(point.proceeding_day.date).toLocaleDateString(
-                      "pl"
-                    )}`}
-                    searchQuery={query}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+        <TabsContent value="points" className="space-y-4">
+          {points.map((point) => (
+            <PointCard
+              key={point.id}
+              point={point}
+              proceedingNumber={point.proceeding_day.proceeding.number}
+              date={point.proceeding_day.date}
+              searchQuery={query}
+            />
+          ))}
+        </TabsContent>
 
-          {prints.length > 0 && (
-            <section>
-              <h2 className="text-xl font-semibold mb-4">Druki sejmowe</h2>
-              <div className="grid gap-4">
-                {prints.map((print) => (
-                  <PrintCard 
-                    key={print.number} 
-                    print={print} 
-                    searchQuery={query}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
-      )}
+        <TabsContent value="persons" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {persons.map((person) => (
+            <EnvoyCard key={person.id} envoy={person} />
+          ))}
+        </TabsContent>
+
+        <TabsContent value="prints" className="space-y-4">
+          {prints.map((print) => (
+            <PrintCard key={print.number} print={print} searchQuery={query} />
+          ))}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

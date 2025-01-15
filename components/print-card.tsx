@@ -1,32 +1,24 @@
-import Link from "next/link";
 import { PrintShort } from "@/lib/types/print";
+import { SearchResultCard } from "./search-result-card";
+import { FileText } from "lucide-react";
 
 interface PrintCardProps {
   print: PrintShort;
+  searchQuery?: string;
 }
 
-export function PrintCard({ print }: PrintCardProps) {
+export function PrintCard({ print, searchQuery }: PrintCardProps) {
   return (
-    <Link
+    <SearchResultCard
       href={`/prints/${print.number}`}
-      className="block p-4 hover:bg-accent rounded-lg transition-colors"
-    >
-      <div className="space-y-2">
-        <div className="flex items-baseline gap-2">
-          <span className="font-medium">Druk nr {print.number}</span>
-          {print.documentDate && (
-            <time className="text-sm text-muted-foreground">
-              {new Date(print.documentDate).toLocaleDateString("pl-PL")}
-            </time>
-          )}
-        </div>
-        <h3 className="text-lg font-semibold">{print.title}</h3>
-        {print.summary && (
-          <div className="prose prose-sm dark:prose-invert max-w-none line-clamp-2">
-           {print.summary}
-          </div>
-        )}
-      </div>
-    </Link>
+      title={print.title}
+      content={print.summary}
+      date={print.documentDate}
+      metadata={{
+        icon: <FileText className="h-4 w-4" />,
+        text: `Druk nr ${print.number}`,
+      }}
+      searchQuery={searchQuery}
+    />
   );
 }
