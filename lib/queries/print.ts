@@ -220,3 +220,20 @@ export async function getLatestStageAndPerformer(printNumber: string): Promise<{
     result[0] || { stageName: "", performerName: null, performerCode: null }
   );
 }
+
+export async function searchPrints(searchQuery: string): Promise<PrintShort[]> {
+  const query = `
+    CALL db.index.fulltext.queryNodes("print_content", $searchQuery) YIELD node, score
+    RETURN node {
+      number: node.number,
+      title: node.title,
+      documentDate: node.documentDate,
+      summary: node.summary
+    } as print,
+    score
+    ORDER BY score DESC
+    LIMIT 20
+  `;
+  const result = await runQuery<{ print: PrintShort }>(query, { searchQuery });
+  return result.map((record) => record.print);
+}
