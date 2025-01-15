@@ -2,6 +2,8 @@ import { searchPrints } from "@/lib/queries/print";
 import { searchPersons } from "@/lib/queries/person";
 import { PrintCard } from "@/components/print-card";
 import { EnvoyCard } from "@/components/envoy-card";
+import { searchPoints } from "@/lib/supabase/queries";
+import { SearchResultCard } from "@/components/search-result-card";
 
 export default async function SearchPage({
   searchParams,
@@ -19,12 +21,14 @@ export default async function SearchPage({
     );
   }
 
-  const [prints, persons] = await Promise.all([
+  const [prints, persons, points] = await Promise.all([
     searchPrints(query),
     searchPersons(query),
+    searchPoints(query),
   ]);
 
-  const hasResults = prints.length > 0 || persons.length > 0;
+  const hasResults =
+    prints.length > 0 || persons.length > 0 || points.length > 0;
 
   return (
     <div className="container mx-auto mt-20 px-4">
@@ -42,6 +46,27 @@ export default async function SearchPage({
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {persons.map((person) => (
                   <EnvoyCard key={person.id} envoy={person} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {points.length > 0 && (
+            <section>
+              <h2 className="text-xl font-semibold mb-4">Punkty obrad</h2>
+              <div className="grid gap-4">
+                {points.map((point) => (
+                  <SearchResultCard
+                    key={point.id}
+                    href={`/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/${point.id}`}
+                    title={point.topic}
+                    description={point.summary_tldr}
+                    metadata={`Posiedzenie ${
+                      point.proceeding_day.proceeding.number
+                    } • ${new Date(point.proceeding_day.date).toLocaleDateString(
+                      "pl"
+                    )}`}
+                  />
                 ))}
               </div>
             </section>
