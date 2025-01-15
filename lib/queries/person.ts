@@ -187,3 +187,27 @@ export async function getClubAndIdsByNames(
   );
   return result || [];
 }
+
+export async function searchPersons(
+  searchQuery: string
+): Promise<EnvoyShort[]> {
+  const query = `
+    CALL db.index.fulltext.queryNodes("person_names", $searchQuery) YIELD node, score
+    WHERE node.club IS NOT NULL
+    RETURN node {
+      active: node.active,
+      club: node.club,
+      firstName: node.firstName,
+      id: node.id,
+      districtName: node.districtName,
+      lastName: node.lastName,
+      role: node.role,
+      profession: node.profession
+    } as person,
+    score
+    ORDER BY score DESC
+    LIMIT 10
+  `;
+  const result = await runQuery<{ person: EnvoyShort }>(query, { searchQuery });
+  return result.map((record) => record.person);
+}

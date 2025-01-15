@@ -16,9 +16,9 @@ import { truncateText } from "@/lib/utils";
 
 interface EnvoyCardProps {
   envoy: EnvoyShort & { metrics?: Set<string> };
-  rankingPosition: number;
-  rankingValue: number | null;
-  rankingType: "votes" | "absents" | "statements" | "interruptions" | null;
+  rankingPosition?: number;
+  rankingValue?: number | null;
+  rankingType?: "votes" | "absents" | "statements" | "interruptions" | null;
 }
 
 export function EnvoyCard({
@@ -95,8 +95,8 @@ export function EnvoyCard({
     );
   };
 
-  const medalColor = getMedalColor(rankingPosition);
-  const rankingStyle = getRankingStyle(rankingPosition);
+  const medalColor = rankingPosition ? getMedalColor(rankingPosition) : null;
+  const rankingStyle = rankingPosition ? getRankingStyle(rankingPosition) : "";
 
   const rankingLabel = rankingType
     ? {
@@ -149,7 +149,11 @@ export function EnvoyCard({
               <div className="mb-1">
                 {rankingType && (
                   <Badge
-                    variant={rankingPosition <= 3 ? "default" : "secondary"}
+                    variant={
+                      rankingPosition && rankingPosition <= 3
+                        ? "default"
+                        : "secondary"
+                    }
                     className="mr-2"
                   >
                     #{rankingPosition}
