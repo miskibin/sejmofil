@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu, Newspaper, Search } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -42,13 +42,19 @@ export default function Navbar() {
 
   const SearchInput = ({ className = "", ...props }) => {
     const [searchValue, setSearchValue] = useState("");
-    const inputRef = useRef<HTMLInputElement>(null);
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchValue.trim()) {
+        window.location.href = `/search?q=${encodeURIComponent(
+          searchValue.trim()
+        )}`;
+      }
+    };
 
     return (
-      <div className={`relative w-full ${className}`}>
+      <form onSubmit={handleSubmit} className={`relative w-full ${className}`}>
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
         <Input
-          ref={inputRef}
           type="search"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
@@ -56,7 +62,7 @@ export default function Navbar() {
           placeholder="Szukaj..."
           {...props}
         />
-      </div>
+      </form>
     );
   };
 

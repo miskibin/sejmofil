@@ -3,10 +3,10 @@ export const SOCIAL_LINKS = {
   YOUTUBE: "https://www.youtube.com/@sejm-stats",
   TIKTOK: "https://tiktok.com",
   GITHUB: "https://github.com/miskibin/sejmofil",
+  CONTACT_EMAIL: "kontakt@sejmofil.pl",
 } as const;
 
 export const SUPPORT_LINKS = {
   PATRONITE: "https://patronite.pl/sejm-stats",
   BUY_COFFEE: "https://buymeacoffee.com/sejmstats",
 } as const;
-

@@ -387,7 +387,7 @@ export default async function PointDetail({
               Odpowiedzi wyróżnione - to takie, które zostały zakwalifikowane jako najbardziej szokujące i emocjonalne. 
             "
             sourceUrls={[
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/transcripts/0`,
+              `${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/transcripts/pdf`,
             ]}
           >
             <DiscussionEntries
