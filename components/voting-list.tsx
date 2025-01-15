@@ -16,6 +16,22 @@ export function VotingList({ votings }: Props) {
     Record<number, DetailedVoting>
   >({});
 
+  const sortVotings = (votings: SimpleVoting[]) => {
+    return [...votings].sort((a, b) => {
+      const getWeight = (topic: string) => {
+        if (topic.toLowerCase().includes("całością projektu")) return 2;
+        if (
+          topic.toLowerCase().includes("poprawk") ||
+          topic.toLowerCase().includes("wniosek mniejszości") ||
+          topic.toLowerCase().includes("wnioski mniejszości")
+        )
+          return 0;
+        return 1;
+      };
+      return getWeight(b.topic) - getWeight(a.topic);
+    });
+  };
+
   const handleVotingClick = async (
     votingNumber: number,
     proceedingNumber: number
@@ -31,10 +47,12 @@ export function VotingList({ votings }: Props) {
 
   if (votings.length === 0) return <EmptyState image="/empty.svg" />;
 
+  const sortedVotings = sortVotings(votings);
+
   return (
     <div className="max-h-[600px] overflow-y-auto overflow-x-hidden">
       <div className="space-y-2">
-        {votings.map((voting, idx) => (
+        {sortedVotings.map((voting, idx) => (
           <VotingDisplay
             key={`${voting.votingNumber}-${idx}`}
             voting={detailedVotings[voting.votingNumber] || voting}

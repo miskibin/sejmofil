@@ -57,7 +57,7 @@ export default function CalendarDayTile({
           : isToday
           ? "bg-gray-700"
           : "bg-gray-100"
-      } ${isFutureDate && "cursor-not-allowed"}`}
+      } ${isFutureDate && "!cursor-not-allowed"}`}
     >
       {shouldShowDate && (
         <span
