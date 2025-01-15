@@ -6,9 +6,9 @@ import { EnvoyCard } from "@/components/envoy-card";
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: { q: string };
+  searchParams: Promise<{ q: string }>;
 }) {
-  const query = searchParams.q;
+  const { q: query } = await searchParams;
 
   if (!query) {
     return (
