@@ -6,11 +6,17 @@ import {
   FaDiscord,
   FaTiktok,
   FaGithub,
+  FaEnvelope,
 } from "react-icons/fa";
 import { getLatestVersion } from "@/lib/github";
 import { SOCIAL_LINKS, SUPPORT_LINKS } from "@/lib/config/links";
 
 const socialLinks = [
+  {
+    name: "email",
+    url: `mailto:${SOCIAL_LINKS.CONTACT_EMAIL}`,
+    icon: <FaEnvelope className="h-5 w-5 text-gray-800" />,
+  },
   {
     name: "discord",
     url: SOCIAL_LINKS.DISCORD,
