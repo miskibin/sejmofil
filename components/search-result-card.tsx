@@ -9,7 +9,6 @@ interface SearchResultCardProps {
   description?: string;
   metadata?: string;
   className?: string;
-  searchQuery?: string;
 }
 
 export function SearchResultCard({
@@ -39,9 +38,12 @@ export function SearchResultCard({
           }}
         />
         {description && (
-          <div className="prose prose-sm dark:prose-invert max-w-none line-clamp-2">
-            <ReactMarkdown>{searchQuery ? highlightText(description, searchQuery) : description}</ReactMarkdown>
-          </div>
+          <p 
+            className="text-sm text-muted-foreground line-clamp-2"
+            dangerouslySetInnerHTML={{
+              __html: searchQuery ? highlightText(description, searchQuery) : description,
+            }}
+          />
         )}
       </div>
     </Link>
