@@ -74,7 +74,7 @@ export default async function PlebiscytCard() {
       subtitle="Czy wiesz, że?"
       showMoreLink="/envoys"
       showGradient={true}
-      headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+      headerIcon={<Sparkles className="w-4 h-4 m-1 text-white " fill="white" />}
     >
       <div className="space-y-2 ">
         {politicians.map((politician) => (
