@@ -174,7 +174,10 @@ export default async function PointDetail({
       }
       const speakerStatements = statementsBySpeaker.get(name) || [];
       speakerStatements.forEach((s) => {
-        if (s.statement_ai?.topic_attitude) {
+        if (
+          s.statement_ai?.topic_attitude?.score &&
+          s.statement_ai?.topic_attitude?.score !== 0
+        ) {
           acc[club].total += s.statement_ai.topic_attitude.score;
           acc[club].count += 1;
         }
@@ -365,7 +368,14 @@ export default async function PointDetail({
         <div className="col-span-full lg:col-span-6">
           <CardWrapper title="Analiza klubów" subtitle="Stosunek do tematu">
             <div className="w-full overflow-x-auto">
-              <TopicAttitudeChart data={chartData} />
+              {chartData.length >= 8 ? (
+                <TopicAttitudeChart data={chartData} />
+              ) : (
+                <EmptyState
+                  text="Za mało danych do wyświetlenia analizy klubów"
+                  image="empty.svg"
+                />
+              )}
             </div>
           </CardWrapper>
         </div>
