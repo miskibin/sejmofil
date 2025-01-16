@@ -18,6 +18,12 @@ import Link from "next/link";
 import { ProfileCard } from "./profile-card";
 import Image from "next/image";
 import { Metadata } from "next";
+import {
+  CredenzaContent,
+  CredenzaHeader,
+  CredenzaTitle,
+  CredenzaBody,
+} from "@/components/ui/credenza";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -53,6 +59,50 @@ export default async function EnvoyDetail({
   const statementsCombined = await getStatementCombinedDetails(
     info.firstLastName
   );
+
+  const commisionsDetails = (
+    <CredenzaContent className="max-w-[98vw] sm:max-w-2xl  p-4 rounded-lg sm:p-6">
+      <CredenzaHeader className="space-y-4 text-wrap">
+        <CredenzaTitle className="text-lg sm:text-xl text-start leading-tight">
+          Komisje parlamentarne
+        </CredenzaTitle>
+      </CredenzaHeader>
+      <CredenzaBody>
+        {committees.length > 0 ? (
+          <div className="space-y-3">
+            {committees.map((committee, index) => (
+              <div
+                key={index}
+                className="p-4 bg-gray-50 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
+              >
+                <span className="font-medium text-gray-900">
+                  {committee.name}
+                </span>
+                {committee.role && (
+                  <span className="text-sm text-muted-foreground bg-primary/20 px-2 py-1 rounded-md">
+                    {committee.role}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center pb-6">
+            <div className="flex justify-center mb-4">
+              <Image
+                src="/empty.svg"
+                width={333}
+                height={333}
+                alt="No committees"
+              />
+            </div>
+            <p className="text-gray-500">Brak członkostwa w komisjach</p>
+          </div>
+        )}
+      </CredenzaBody>
+    </CredenzaContent>
+  );
+
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -130,47 +180,11 @@ export default async function EnvoyDetail({
               title="Komisje"
               value={committees.length}
               category="Członkostwo"
+              detailsModalContent={
+                committees.length ? commisionsDetails : undefined
+              }
             />
           </div>
-
-          {/* Committees */}
-          <CardWrapper
-            title="Członkostwo"
-            subtitle="Komisje parlamentarne"
-            showGradient={false}
-          >
-            {committees.length > 0 ? (
-              <div className="space-y-3">
-                {committees.map((committee, index) => (
-                  <div
-                    key={index}
-                    className="p-4 bg-gray-50 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
-                  >
-                    <span className="font-medium text-gray-900">
-                      {committee.name}
-                    </span>
-                    {committee.role && (
-                      <span className="text-sm text-muted-foreground bg-primary/20 px-2 py-1 rounded-md">
-                        {committee.role}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center pb-6">
-                <div className="flex justify-center mb-4">
-                  <Image
-                    src="/empty.svg"
-                    width={333}
-                    height={333}
-                    alt="No committees"
-                  />
-                </div>
-                <p className="text-gray-500">Brak członkostwa w komisjach</p>
-              </div>
-            )}
-          </CardWrapper>
 
           {/* Documents */}
           <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
