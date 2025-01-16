@@ -13,7 +13,7 @@ import TotalProceedingDays from "@/components/total-proceeding-days";
 import { Paintbrush, Code, ScrollText } from "lucide-react";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 60 * 10; // Revalidate every hour
+export const revalidate = 3600; // 1 hour
 export default async function Home() {
   const proceedings = await getProceedingDates();
   const nextDate = getNextProceedingDate(proceedings);
