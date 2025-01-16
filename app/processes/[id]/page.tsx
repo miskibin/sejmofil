@@ -108,6 +108,7 @@ export default async function ProcessPage({
         <div className="md:col-span-2">
           <CardWrapper
             title="Przebieg procesu legislacyjnego"
+            className="h-full"
           >
             <div className="max-w-4xl mx-auto">
               <LegislativeTimeline data={processDetails} />
@@ -266,7 +267,10 @@ export default async function ProcessPage({
           <CardWrapper
             title="Podobne"
             headerIcon={
-              <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+                      <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />
             }
           >
             <div className="divide-y divide-gray-100">

@@ -126,7 +126,10 @@ const sections = [
           title="Prompt AI"
           subtitle="Analiza manipulacji"
           headerIcon={
-            <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+                    <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />
           }
           showGradient={false}
           className="bg-white shadow-sm"
