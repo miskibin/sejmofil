@@ -1,9 +1,12 @@
 import { EmptyState } from "@/components/empty-state";
 import { FaRegFilePdf } from "react-icons/fa";
+import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 
 type PrintWithStage = {
   number: string;
   title: string;
+  processPrint: string[];
   documentDate: string;
   attachments: string[];
   stageInfo?: {
@@ -14,12 +17,14 @@ type PrintWithStage = {
 
 const PrintItem = ({ print }: { print: PrintWithStage }) => (
   <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
-    <h4 className="text-sm font-medium mb-2 flex justify-between gap-2">
-      <span>{print.title}</span>
-      <span className="text-xs text-muted-foreground">
-        {new Date(print.documentDate).toLocaleDateString("pl-PL")}
-      </span>
-    </h4>
+    <div className="flex justify-between items-start gap-2 mb-2">
+      <h4 className="text-sm font-medium">{print.title}</h4>
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {new Date(print.documentDate).toLocaleDateString("pl-PL")}
+        </span>
+      </div>
+    </div>
 
     {print.attachments.length > 0 && (
       <div className="space-y-2">
@@ -41,19 +46,25 @@ const PrintItem = ({ print }: { print: PrintWithStage }) => (
     )}
 
     {print.stageInfo && (
-      <div className="text-sm flex flex-wrap gap-2 mt-5 items-center">
-        <span className="font-medium text-muted-foreground">
-          Etap procesu legislacyjnego:
-        </span>
-        <span className="">
-          {print.stageInfo.stageName.replace("Skierowanie", "Skierowano do: ")}
-        </span>
-        {print.stageInfo.performerName && (
-          <span className="font-medium bg-primary/20 px-2 py-1 rounded-md">
-            {print.stageInfo.performerName}
+      <Link href={`/processes/${print.processPrint[0]}`}>
+        <div className="text-sm flex flex-wrap gap-2 mt-5 items-center underline">
+          <span className="font-medium text-muted-foreground">
+            Etap procesu legislacyjnego:
           </span>
-        )}
-      </div>
+          <span className="">
+            {print.stageInfo.stageName.replace(
+              "Skierowanie",
+              "Skierowano do: "
+            )}
+          </span>
+          <ExternalLink className="h-3 w-3" />
+          {print.stageInfo.performerName && (
+            <span className="font-medium bg-primary/20 px-2 py-1 rounded-md">
+              {print.stageInfo.performerName}
+            </span>
+          )}
+        </div>
+      </Link>
     )}
   </div>
 );

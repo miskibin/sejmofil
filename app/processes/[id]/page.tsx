@@ -3,6 +3,7 @@ import {
   getActsForProcess,
   getProcessVotings,
   getSimilarPrints,
+  getProcessPrint,
 } from "@/lib/queries/process";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -56,7 +57,8 @@ export default async function ProcessPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const processDetails = await getProcessDetails(id);
+  const processId =await getProcessPrint(id);
+  const processDetails = await getProcessDetails(processId);
   if (!processDetails) notFound();
 
   // Get the source print for this process or find a print from stages
@@ -73,12 +75,12 @@ export default async function ProcessPage({
   const printNumber = sourcePrint?.number || stagePrint?.number;
 
   const [acts, votings, similarPrints] = await Promise.all([
-    getActsForProcess(id),
-    getProcessVotings(id),
+    getActsForProcess(processId),
+    getProcessVotings(processId),
     printNumber ? getSimilarPrints(printNumber) : Promise.resolve([]),
   ]);
 
-  const comments = await getPrintComments(id);
+  const comments = await getPrintComments(processId);
 
   // Flatten the nested prints array
   const allPrints = processDetails.prints.flat();

@@ -177,7 +177,8 @@ export async function getPrintsByNumbersAndVotings(
     RETURN print {
       number: print.number,
       title: print.title,
-      documentData: print.documentData,
+      processPrint: print.processPrint,
+      documentDate: print.documentDate,
       attachments: print.attachments, 
       summary: print.summary
     } as print

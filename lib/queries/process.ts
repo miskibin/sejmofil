@@ -71,7 +71,16 @@ export interface ProcessDetailData {
 interface ProcessDetailResponse {
   processData: ProcessDetailData;
 }
-
+export async function getProcessPrint(printNumber: string): Promise<string> {
+  const query = `
+    MATCH (print:Print {number: $printNumber})
+    RETURN  print.processPrint AS processPrint
+  `;
+  const res = await runQuery<{ processPrint: number[] }>(query, {
+    printNumber,
+  });
+  return String(res[0]?.processPrint[0]);
+}
 export async function getProcessDetails(
   processNumber: string
 ): Promise<ProcessDetailData | null> {
