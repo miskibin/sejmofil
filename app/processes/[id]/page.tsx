@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import LegislativeTimeline from "../components/stepper";
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { Timer, FileText, Sparkles } from "lucide-react";
+import {  FileText, Sparkles } from "lucide-react";
 import { FaRegFilePdf } from "react-icons/fa";
 import Link from "next/link";
 import { getPrintComments } from "@/lib/queries/print";
@@ -108,7 +108,6 @@ export default async function ProcessPage({
         <div className="md:col-span-2">
           <CardWrapper
             title="Przebieg procesu legislacyjnego"
-            headerIcon={<Timer className="h-5 w-5 text-primary" />}
           >
             <div className="max-w-4xl mx-auto">
               <LegislativeTimeline data={processDetails} />

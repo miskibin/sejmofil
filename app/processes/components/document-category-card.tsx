@@ -39,7 +39,6 @@ interface Props {
 export function DocumentCategoryCard({
   title,
   subtitle,
-  icon: Icon,
   prints,
 }: Props) {
   const categorizedPrints = prints.reduce((acc, print) => {
@@ -66,7 +65,6 @@ export function DocumentCategoryCard({
     <CardWrapper
       title={title}
       subtitle={subtitle}
-      headerIcon={<Icon className="w-5 h-5 text-primary" />}
       showGradient={false}
     >
       <Tabs defaultValue={nonEmptyCategories[0][0]}>

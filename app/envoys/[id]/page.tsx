@@ -103,7 +103,7 @@ export default async function EnvoyDetail({
                     href={info.biographyUrl || "https://pl.wikipedia.org/"}
                     target="_blank"
                   >
-                    <FaWikipediaW className="h-5 w-5 text-primary" />
+                    <FaWikipediaW className="h-5 w-5 text-white" />
                   </Link>
                 }
                 showGradient={false}
