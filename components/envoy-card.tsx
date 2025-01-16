@@ -122,10 +122,7 @@ export function EnvoyCard({
           <div className="flex items-center gap-4">
             <div className="w-16 h-20 relative flex-shrink-0">
               <Image
-                src={`${
-                  process.env.NEXT_PUBLIC_API_BASE_URL ||
-                  "https://api.sejm.gov.pl/sejm/term10"
-                }/MP/${envoy.id}/photo`}
+                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${envoy.id}.jpeg`}
                 alt={fullName}
                 fill
                 sizes="60px"
@@ -133,20 +130,20 @@ export function EnvoyCard({
                 loading="lazy"
               />
               {medalColor && (
-                <div className="absolute -top-2 -right-2 bg-background rounded-full p-0.5 shadow-sm">
-                  <Medal className={`w-6 h-6 ${medalColor}`} />
+                <div className="absolute -top-1 -right-1 bg-background rounded-full p-0.5 shadow-sm">
+                  <Medal className={`w-5 h-5 ${medalColor}`} /> {/* Smaller medal */}
                 </div>
               )}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 space-y-0.5"> {/* Reduced vertical spacing */}
               {envoy.role &&
                 envoy.role !== "Poseł" &&
                 envoy.role !== "envoy" && (
-                  <p className="text-sm font-medium text-muted-foreground mb-1">
-                    {truncateText(envoy.role, 40)}
+                  <p className="text-xs font-medium text-muted-foreground"> {/* Smaller text */}
+                    {truncateText(envoy.role, 60)}
                   </p>
                 )}
-              <div className="mb-1">
+              <div>
                 {rankingType && (
                   <Badge
                     variant={
@@ -154,19 +151,19 @@ export function EnvoyCard({
                         ? "default"
                         : "secondary"
                     }
-                    className="mr-2"
+                    className="mr-1 text-xs" // Smaller margin and text
                   >
                     #{rankingPosition}
                   </Badge>
                 )}
               </div>
               {rankingType && rankingLabel && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground"> {/* Smaller text */}
                   {rankingLabel}: {rankingValue}
                 </p>
               )}
               {!rankingType && envoy.profession && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground"> {/* Smaller text */}
                   {truncateText(envoy.profession, 40)}
                 </p>
               )}

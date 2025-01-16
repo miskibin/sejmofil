@@ -21,7 +21,7 @@ export default async function PlebiscytCard() {
         url: `/envoys?ranking=statements`,
         displayText: `Nieobecności: ${mostAbsents.count}`,
       },
-      image: `https://api.sejm.gov.pl/sejm/term10/MP/${mostAbsents.id}/photo`,
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostAbsents.id}.jpeg`,
     },
     {
       ...mostStatements,
@@ -30,7 +30,7 @@ export default async function PlebiscytCard() {
         url: `/envoys?ranking=statements`,
         displayText: `Wypowiedzi: ${mostStatements.count}`,
       },
-      image: `https://api.sejm.gov.pl/sejm/term10/MP/${mostStatements.id}/photo`,
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostStatements.id}.jpeg`,
     },
     {
       ...leastAbsents,
@@ -39,7 +39,7 @@ export default async function PlebiscytCard() {
         value: leastAbsents.count,
         displayText: `Nieobecności: ${leastAbsents.count}`,
       },
-      image: `https://api.sejm.gov.pl/sejm/term10/MP/${leastAbsents.id}/photo`,
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${leastAbsents.id}.jpeg`,
     },
 
     {
@@ -49,7 +49,7 @@ export default async function PlebiscytCard() {
         url: `/envoys?ranking=interruptions`,
         displayText: `Przerwał/a: ${mostInterruptions.count} razy`,
       },
-      image: `https://api.sejm.gov.pl/sejm/term10/MP/${mostInterruptions.id}/photo`,
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostInterruptions.id}.jpeg`,
     },
     {
       name: "Donald Tusk",
@@ -60,7 +60,7 @@ export default async function PlebiscytCard() {
         url: `/envoys?ranking=votes`,
         displayText: "Wypowiedzi: 42",
       },
-      image: "https://api.sejm.gov.pl/sejm/term10/MP/400/photo",
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/400.jpeg`,
     },
   ];
 
