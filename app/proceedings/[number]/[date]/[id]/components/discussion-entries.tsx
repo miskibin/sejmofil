@@ -20,12 +20,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type FilterMode = "featured" | "all" | "normal";
+// Add club to FilterMode type
+type FilterMode = "featured" | "all" | "normal" | string; // string for club names
 
 interface Statement {
   id: number;
   speaker_name: string;
   number_source: number;
+  number_sequence: number;
   statement_ai: {
     summary_tldr: string;
     citations?: string[];
@@ -94,15 +96,24 @@ export function DiscussionEntries({
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
+  // Get unique clubs from speakerClubs
+  const uniqueClubs = Array.from(
+    new Set(speakerClubs.map((s) => s.club))
+  ).filter(Boolean);
+
   const filteredStatements = statements.filter((statement) => {
     if (filterMode === "normal") return true;
     if (filterMode === "all") return true;
-
-    // Featured mode - show statements with high emotion or manipulation scores
-    const emotions = statement.statement_ai?.speaker_rating?.emotions ?? 0;
-    const manipulation =
-      statement.statement_ai?.speaker_rating?.manipulation ?? 0;
-    return emotions >= 4 || manipulation >= 4;
+    if (filterMode === "featured") {
+      // Featured mode - show statements with high emotion or manipulation scores
+      const emotions = statement.statement_ai?.speaker_rating?.emotions ?? 0;
+      const manipulation =
+        statement.statement_ai?.speaker_rating?.manipulation ?? 0;
+      return emotions >= 4 || manipulation >= 4;
+    }
+    // Club filtering
+    const speaker = getSpeakerInfo(statement.speaker_name);
+    return speaker?.club === filterMode;
   });
 
   // Sort statements based on mode
@@ -115,7 +126,7 @@ export function DiscussionEntries({
       };
       return getMaxScore(b) - getMaxScore(a);
     }
-    return a.number_source - b.number_source;
+    return a.number_sequence - b.number_sequence;
   });
 
   const displayedStatements = showAll
@@ -126,13 +137,22 @@ export function DiscussionEntries({
     <div className="space-y-4 mb-4">
       <div className="flex justify-between items-center pb-4 border-b">
         <div className="text-sm text-muted-foreground flex items-center gap-2">
-          {filterMode === "featured" && (
+          {filterMode === "featured" ? (
             <div className="flex gap-2">
               <span className="font-medium">Wyróżnione</span>
               <span className="text-muted-foreground">
                 ({filteredStatements.length} z {statements.length})
               </span>
             </div>
+          ) : (
+            uniqueClubs.includes(filterMode) && (
+              <div className="flex gap-2">
+                <span className="font-medium">{filterMode}</span>
+                <span className="text-muted-foreground">
+                  ({filteredStatements.length})
+                </span>
+              </div>
+            )
           )}
         </div>
 
@@ -140,13 +160,18 @@ export function DiscussionEntries({
           value={filterMode}
           onValueChange={(value: FilterMode) => handleModeChange(value)}
         >
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="featured">Najciekawsze</SelectItem>
             <SelectItem value="normal">Chronologicznie</SelectItem>
             <SelectItem value="all">Wszystkie</SelectItem>
+            {uniqueClubs.map((club) => (
+              <SelectItem key={club} value={club}>
+                Tylko {club}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

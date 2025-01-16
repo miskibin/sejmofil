@@ -140,6 +140,7 @@ interface PointWithStatements {
     speaker_name: string;
     text: string;
     number_source: number;
+    number_sequence: number;
     statement_ai: {
       summary_tldr: string;
       yt_sec: string;
@@ -179,6 +180,7 @@ export async function getPointDetails(
           id,
           speaker_name,
           text,
+          number_sequence,
           number_source,
           statement_ai (
             summary_tldr,
