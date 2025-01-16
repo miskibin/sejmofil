@@ -374,7 +374,7 @@ export default async function PointDetail({
         <div className="col-span-full lg:col-span-6">
           <CardWrapper title="Analiza klubów" subtitle="Stosunek do tematu">
             <div className="w-full overflow-x-auto">
-              {chartData.length >= 8 ? (
+              {chartData.length >= 7 ? (
                 <TopicAttitudeChart data={chartData} />
               ) : (
                 <EmptyState
