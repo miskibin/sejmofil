@@ -373,7 +373,7 @@ export default async function PointDetail({
               ) : (
                 <EmptyState
                   text="Za mało danych do wyświetlenia analizy klubów"
-                  image="empty.svg"
+                  image="/empty.svg"
                 />
               )}
             </div>
