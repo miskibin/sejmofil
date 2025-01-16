@@ -28,7 +28,7 @@ export function EnvoyCard({
   rankingType,
 }: EnvoyCardProps) {
   const fullName = `${envoy.firstName} ${envoy.lastName}`;
-  const truncatedName = truncateText(fullName, 18);
+  const truncatedName = truncateText(fullName, 25);
 
   const getRankingStyle = (position: number) => {
     if (!rankingType) return null;

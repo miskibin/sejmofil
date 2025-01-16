@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProceedingDayDetails } from "@/lib/supabase/queries";
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import { CalendarDays, FileText, MessageSquare, Users } from "lucide-react";
 import Link from "next/link";
 import StatCard from "@/components/stat-card";
 import { Badge } from "@/components/ui/badge";
@@ -60,19 +59,16 @@ export default async function ProceedingDayPage({ params }: PageProps) {
         <StatCard
           title="Punkty"
           value={proceedingDay.proceeding_point_ai.length}
-          headerIcon={<FileText className="h-4 w-4" />}
           category="Dzień"
         />
         <StatCard
           title="Wypowiedzi"
           value={totalStatements}
-          headerIcon={<MessageSquare className="h-4 w-4" />}
           category="Dzień"
         />
         <StatCard
           title="Mówcy"
           value={allSpeakers.length}
-          headerIcon={<Users className="h-4 w-4" />}
           category="Dzień"
         />
         <StatCard
@@ -89,7 +85,6 @@ export default async function ProceedingDayPage({ params }: PageProps) {
             key={point.id}
             title={`Punkt ${index + 1}`}
             subtitle={point.topic.split(" | ")[1] || point.topic}
-            headerIcon={<CalendarDays className="h-5 w-5 text-primary" />}
           >
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
