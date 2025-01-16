@@ -266,7 +266,9 @@ export default async function ProcessPage({
         <div className="mt-8">
           <CardWrapper
             title="Podobne"
-            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+            headerIcon={
+              <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+            }
           >
             <div className="divide-y divide-gray-100">
               {similarPrints.map((print) => (

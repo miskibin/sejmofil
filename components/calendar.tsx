@@ -139,18 +139,30 @@ export default async function SessionCalendar() {
       }`}
       showGradient={false}
     >
-      <div className="grid grid-cols-7 gap-2">
-        {weekDays.map((day) => (
+      <div className="grid grid-cols-5 md:grid-cols-7 gap-2">
+        {weekDays.map((day, index) => (
           <div
             key={day}
-            className="text-center text-sm font-medium px-2 my-1 rounded-full bg-gray-50"
+            className={`text-center text-sm font-medium px-2 my-1 rounded-full bg-gray-50 
+              ${index === 0 || index === 6 ? "hidden md:block" : ""}
+            `}
           >
             {day}
           </div>
         ))}
-        {calendarDays.flat().map((day, index) => (
-          <CalendarDayTile key={index} {...day} />
-        ))}
+        {calendarDays.flat().map((day, index) => {
+          const dayOfWeek = index % 7;
+          return (
+            <div
+              key={index}
+              className={
+                dayOfWeek === 0 || dayOfWeek === 6 ? "hidden md:block" : ""
+              }
+            >
+              <CalendarDayTile {...day} />
+            </div>
+          );
+        })}
       </div>
     </CardWrapper>
   );

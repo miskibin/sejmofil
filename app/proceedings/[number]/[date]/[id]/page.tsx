@@ -46,7 +46,7 @@ const SummarySection = ({
     title={title}
     subtitle={subtitle}
     className="h-full"
-    headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+    headerIcon={<Sparkles className="w-4 h-4 m-1 text-white " fill="white" />}
   >
     {content && content !== "null" ? (
       <div className="prose prose-sm max-w-none">
@@ -294,7 +294,9 @@ export default async function PointDetail({
         <div className="col-span-full lg:col-span-8 flex flex-col gap-4 mt-4 sm:mt-0 h-full">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
-              headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+              headerIcon={
+                <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+              }
               sourceDescription="Emocje mierzone są na podstawie metryk, opisanych w zakładce 'o projekcie'. Każda wypowiedź jest oceniana w skali od 1 do 5"
               title="Emocjonalność"
               value={`${Math.round(
@@ -370,7 +372,11 @@ export default async function PointDetail({
 
         {/* Voting section */}
         <div className="col-span-full  lg:col-span-6">
-          <CardWrapper title="Głosowania" subtitle="Wyniki głosowań">
+          <CardWrapper
+            title="Głosowania"
+            className="h-full"
+            subtitle="Wyniki głosowań"
+          >
             <VotingList votings={simpleVotingResults} />
           </CardWrapper>
         </div>
@@ -380,7 +386,9 @@ export default async function PointDetail({
           <CardWrapper
             title="Wypowiedzi"
             subtitle={`Przebieg dyskusji (${point.statements.length})`}
-            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+            headerIcon={
+              <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+            }
             sourceDescription="
               Dane pochodzą z oficjalnej strony sejmowej i analizowane przez AI. 
               Ocena emocji w wypowiedzieach opisana jest w zakładce `o projekcie`. 

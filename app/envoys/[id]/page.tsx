@@ -64,7 +64,9 @@ export default async function EnvoyDetail({
             title="Analiza AI"
             subtitle="Ostatnie wypowiedzi"
             showGradient={false}
-            headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+            headerIcon={
+              <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+            }
             sourceDescription="Analiza wypowiedzi z ostatnich 30 dni"
             sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
             aiPrompt="Twoj prompt"
@@ -175,7 +177,9 @@ export default async function EnvoyDetail({
             <CardWrapper
               title="Analiza wypowiedzi"
               subtitle="Podsumowanie i cytaty"
-              headerIcon={<Sparkles className="h-5 w-5 text-primary" />}
+              headerIcon={
+                <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+              }
               showGradient={false}
             >
               <div className="space-y-4">

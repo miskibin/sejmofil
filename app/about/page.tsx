@@ -125,7 +125,9 @@ const sections = [
         <CardWrapper
           title="Prompt AI"
           subtitle="Analiza manipulacji"
-          headerIcon={<Sparkles className="w-5 h-5" />}
+          headerIcon={
+            <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+          }
           showGradient={false}
           className="bg-white shadow-sm"
         >

@@ -70,7 +70,7 @@ export default async function Home() {
           <TotalBreaks />
           <StatCard
             title="Koszty pracy senatu"
-            value={"268M PLN"}
+            value={"268M zł"}
             category="w 2025"
             sourceDescription="Ustawa budżetowa na rok 2025. Strona 45"
             sourceUrls={[

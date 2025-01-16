@@ -33,10 +33,13 @@ export default async function LatestInterestingPoints() {
             className="block group relative w-full"
           >
             <CardWrapper
+              className="h-full"
               subtitle={point.topic.split("|")[0]}
               title={point.topic.split("|")[1]}
               showGradient={false}
-              headerIcon={<Sparkles className="w-5 h-5 text-primary" />}
+              headerIcon={
+                <Sparkles className="w-4 h-4 m-1 text-white" fill="white" />
+              }
               imageSrc={imageUrl}
             >
               <p className="text-sm text-gray-500">

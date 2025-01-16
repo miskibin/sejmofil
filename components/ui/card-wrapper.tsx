@@ -78,7 +78,9 @@ export function CardWrapper({
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {headerElements}
-            {headerIcon && <div className="p-2 rounded-lg">{headerIcon}</div>}
+            {headerIcon && (
+              <div className="p-1 rounded-md bg-primary">{headerIcon}</div>
+            )}
           </div>
         </div>
       </CardHeader>
