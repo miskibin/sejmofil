@@ -499,13 +499,13 @@ export async function searchPoints(
   query: string
 ): Promise<SearchPointResult[]> {
   const supabase = createClient();
-  
+
   // Convert multiple words into a format that PostgreSQL full-text search can understand
   const formattedQuery = query
     .trim()
     .split(/\s+/)
-    .map(word => word + ':*')
-    .join(' & ');
+    .map((word) => word + ":*")
+    .join(" & ");
 
   const { data, error } = await (
     await supabase
@@ -531,4 +531,46 @@ export async function searchPoints(
   console.log(data, error);
 
   return (data as unknown as SearchPointResult[]) || [];
+}
+
+interface PrintRelatedPoint {
+  id: number;
+  topic: string;
+  summary_tldr: string;
+  proceeding_day: {
+    date: string;
+    proceeding: {
+      number: number;
+    };
+  };
+  print_numbers: number[];
+}
+
+export async function getPointsByPrintNumbers(
+  printNumbers: string[]
+): Promise<PrintRelatedPoint[]> {
+  const supabase = createClient();
+
+  const { data } = await (
+    await supabase
+  )
+    .from("proceeding_point_ai")
+    .select(
+      `
+      id,
+      topic,
+      summary_tldr,
+      print_numbers,
+      proceeding_day!inner (
+        date,
+        proceeding!inner (
+          number
+        )
+      )
+    `
+    )
+    .overlaps("print_numbers", printNumbers)
+    .order("id", { ascending: false });
+
+  return (data as unknown as PrintRelatedPoint[]) || [];
 }

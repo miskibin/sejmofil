@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import LegislativeTimeline from "../components/stepper";
 import { CardWrapper } from "@/components/ui/card-wrapper";
-import {  FileText, Sparkles } from "lucide-react";
+import { FileText, Sparkles } from "lucide-react";
 import { FaRegFilePdf } from "react-icons/fa";
 import Link from "next/link";
 import { getPrintComments } from "@/lib/queries/print";
@@ -19,6 +19,7 @@ import { EmptyState } from "@/components/empty-state";
 import { VotingList } from "@/components/voting-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Vote } from "lucide-react";
+import { getPointsByPrintNumbers } from "@/lib/supabase/queries";
 
 type Comment = {
   sentiment: "Neutralny" | "Pozytywny" | "Negatywny";
@@ -57,7 +58,7 @@ export default async function ProcessPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const processId =await getProcessPrint(id);
+  const processId = await getProcessPrint(id);
   const processDetails = await getProcessDetails(processId);
   if (!processDetails) notFound();
 
@@ -84,6 +85,12 @@ export default async function ProcessPage({
 
   // Flatten the nested prints array
   const allPrints = processDetails.prints.flat();
+
+  // Get print numbers from all prints
+  const printNumbers = allPrints.map((print) => print.number);
+
+  // Fetch related proceeding points
+  const relatedPoints = await getPointsByPrintNumbers(printNumbers);
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -137,6 +144,12 @@ export default async function ProcessPage({
                   <TabsTrigger value="votings" className="flex-1">
                     <Vote className="w-4 h-4 mr-2" />
                     <span className="hidden sm:inline">Głosowania</span>
+                  </TabsTrigger>
+                )}
+                {relatedPoints.length > 0 && (
+                  <TabsTrigger value="points" className="flex-1">
+                    <FileText className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">Punkty obrad</span>
                   </TabsTrigger>
                 )}
               </TabsList>
@@ -258,6 +271,32 @@ export default async function ProcessPage({
                   <VotingList votings={votings} />
                 </TabsContent>
               )}
+
+              {relatedPoints.length > 0 && (
+                <TabsContent value="points" className="mt-4">
+                  <div className="space-y-4">
+                    {relatedPoints.map((point) => (
+                      <Link
+                        key={point.id}
+                        href={`/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/${point.id}`}
+                        className="block bg-gray-50 rounded-lg p-4 space-y-2 hover:bg-gray-100 transition-colors"
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="text-sm font-medium">{point.topic}</h4>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
+                            {new Date(
+                              point.proceeding_day.date
+                            ).toLocaleDateString("pl-PL")}
+                          </span>
+                        </div>
+                        {point.summary_tldr && (
+                          <span className="">{point.summary_tldr}</span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </TabsContent>
+              )}
             </Tabs>
           </CardWrapper>
         </div>
@@ -269,10 +308,7 @@ export default async function ProcessPage({
           <CardWrapper
             title="Podobne"
             headerIcon={
-                      <Sparkles
-          className="w-5 h-5 text-primary"
-          fill="#76052a"
-        />
+              <Sparkles className="w-5 h-5 text-primary" fill="#76052a" />
             }
           >
             <div className="divide-y divide-gray-100">
