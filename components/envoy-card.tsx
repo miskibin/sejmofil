@@ -115,7 +115,7 @@ export function EnvoyCard({
         showSource={false}
         showGradient={false}
         headerElements={getMetricIcons(envoy.metrics)}
-        headerIcon={!envoy.active && <Ban className="text-destructive" />}
+        headerIcon={!envoy.active && <Ban className="text-white" />}
         className={`hover:shadow-lg transition-all duration-200 ${rankingStyle}`}
       >
         <div className="flex flex-col">
@@ -140,7 +140,7 @@ export function EnvoyCard({
                 envoy.role !== "Poseł" &&
                 envoy.role !== "envoy" && (
                   <p className="text-xs font-medium text-muted-foreground"> {/* Smaller text */}
-                    {truncateText(envoy.role, 60)}
+                    {truncateText(envoy.role, 66)}
                   </p>
                 )}
               <div>
