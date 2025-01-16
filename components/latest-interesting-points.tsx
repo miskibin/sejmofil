@@ -38,7 +38,10 @@ export default async function LatestInterestingPoints() {
               title={point.topic.split("|")[1]}
               showGradient={false}
               headerIcon={
-                <Sparkles className="w-4 h-4 m-1 text-white" fill="white" />
+                        <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />
               }
               imageSrc={imageUrl}
             >

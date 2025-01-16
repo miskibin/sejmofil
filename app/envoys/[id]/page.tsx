@@ -65,7 +65,10 @@ export default async function EnvoyDetail({
             subtitle="Ostatnie wypowiedzi"
             showGradient={false}
             headerIcon={
-              <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+                      <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />
             }
             sourceDescription="Analiza wypowiedzi z ostatnich 30 dni"
             sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
@@ -178,7 +181,10 @@ export default async function EnvoyDetail({
               title="Analiza wypowiedzi"
               subtitle="Podsumowanie i cytaty"
               headerIcon={
-                <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+                        <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />
               }
               showGradient={false}
             >

@@ -79,7 +79,7 @@ export function CardWrapper({
           <div className="flex items-center gap-2 flex-shrink-0">
             {headerElements}
             {headerIcon && (
-              <div className="p-1 rounded-md bg-primary">{headerIcon}</div>
+              <div className="">{headerIcon}</div>
             )}
           </div>
         </div>

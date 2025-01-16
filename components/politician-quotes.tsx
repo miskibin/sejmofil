@@ -20,7 +20,10 @@ export default async function PoliticianQuotes() {
       title="Ciekawostki"
       subtitle="Cytaty"
       showGradient={true}
-      headerIcon={<Sparkles className="w-4 h-4 m-1 text-white " fill="white" />}
+      headerIcon={        <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />}
     >
       <div className="space-y-4">
         {combined.map((quote, index) => (

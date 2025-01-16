@@ -46,7 +46,10 @@ const SummarySection = ({
     title={title}
     subtitle={subtitle}
     className="h-full"
-    headerIcon={<Sparkles className="w-4 h-4 m-1 text-white " fill="white" />}
+    headerIcon={        <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />}
   >
     {content && content !== "null" ? (
       <div className="prose prose-sm max-w-none">
@@ -298,7 +301,10 @@ export default async function PointDetail({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
               headerIcon={
-                <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+                        <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />
               }
               sourceDescription="Emocje mierzone są na podstawie metryk, opisanych w zakładce 'o projekcie'. Każda wypowiedź jest oceniana w skali od 1 do 5"
               title="Emocjonalność"
@@ -397,7 +403,10 @@ export default async function PointDetail({
             title="Wypowiedzi"
             subtitle={`Przebieg dyskusji (${point.statements.length})`}
             headerIcon={
-              <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+                      <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />
             }
             sourceDescription="
               Dane pochodzą z oficjalnej strony sejmowej i analizowane przez AI. 

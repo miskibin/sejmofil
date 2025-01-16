@@ -11,10 +11,9 @@ import LatestInterestingPoints from "@/components/latest-interesting-points";
 import { CardWrapper } from "@/components/ui/card-wrapper";
 import TotalProceedingDays from "@/components/total-proceeding-days";
 import { Paintbrush, Code, ScrollText } from "lucide-react";
-import { SOCIAL_LINKS } from "@/lib/config/links";
 
-// export const dynamic = "force-dynamic";
-// export const revalidate = 60 * 10; // Revalidate every hour
+export const dynamic = "force-dynamic";
+export const revalidate = 60 * 10; // Revalidate every hour
 export default async function Home() {
   const proceedings = await getProceedingDates();
   const nextDate = getNextProceedingDate(proceedings);
@@ -70,7 +69,7 @@ export default async function Home() {
           <TotalBreaks />
           <StatCard
             title="Koszty pracy senatu"
-            value={"268M zł"}
+            value={"268 mln zł"}
             category="w 2025"
             sourceDescription="Ustawa budżetowa na rok 2025. Strona 45"
             sourceUrls={[
@@ -80,6 +79,7 @@ export default async function Home() {
           <CardWrapper
             title="Podoba Ci się nasza praca?"
             subtitle="Dołącz do nas"
+            showMoreLink="/about"
             className="col-span-1 lg:col-span-2"
           >
             <div className="flex flex-col gap-4">
@@ -96,15 +96,6 @@ export default async function Home() {
                   <ScrollText className="h-4 w-4 text-prrimary" />
                   <span className="text-sm">Legislacja</span>
                 </div>
-              </div>
-              <div className="flex justify-end">
-                <a
-                  href={SOCIAL_LINKS.DISCORD}
-                  target="_blank"
-                  className="text-xs text-primary hover:text-primary/80 cursor-pointer transition-colors"
-                >
-                  Napisz na discord
-                </a>
               </div>
             </div>
           </CardWrapper>

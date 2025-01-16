@@ -56,7 +56,12 @@ export default function HotTopics() {
       ...
       }}"
       subtitle="Gorące tematy"
-      headerIcon={<Sparkles className="w-4 h-4 m-1 text-white " fill="white" />}
+      headerIcon={
+        <Sparkles
+          className="w-5 h-5 text-primary"
+          fill="#76052a"
+        />
+      }
     >
       <div className="space-y-4  blur-sm">
         {news.slice(0, 4).map((item) => (
