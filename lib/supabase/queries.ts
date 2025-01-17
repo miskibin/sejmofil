@@ -1,4 +1,4 @@
-import { createClient } from "@/supabase/server";
+import { createClient } from "@/utils/supabase/server";
 import { StatementCombined } from "../types/statement";
 import { SummaryMain } from "../types/proceeding";
 
