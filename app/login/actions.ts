@@ -9,9 +9,7 @@ export async function signInWithGitHub() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: `${
-        process.env.NEXT_PUBLIC_SITE_URL || "http://sejmofil.pl"
-      }/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`,
     },
   });
 
