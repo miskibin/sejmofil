@@ -12,6 +12,7 @@ export default function LoginPage() {
         title="Zaloguj się"
       >
         <form className="space-y-4">
+          <input type="hidden" name="returnPath" value="/" />
           <Button
             formAction={signInWithGitHub}
             className="w-full flex items-center gap-2"

@@ -37,8 +37,9 @@ export function LoginDialog({ trigger, message, defaultOpen, onOpenChange }: Log
           {message && <p className="text-sm text-muted-foreground">{message}</p>}
         </DialogHeader>
         <form className="space-y-4">
+          <input type="hidden" name="returnPath" value={currentPath} />
           <Button
-            formAction={() => signInWithGitHub(currentPath)}
+            formAction={signInWithGitHub}
             className="w-full flex items-center gap-2"
             variant="outline"
           >

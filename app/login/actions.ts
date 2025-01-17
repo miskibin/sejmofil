@@ -3,8 +3,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
-export async function signInWithGitHub(returnPath: string = "/") {
+export async function signInWithGitHub(formData: FormData) {
   const supabase = await createClient();
+  const returnPath = formData.get('returnPath')?.toString() || '/';
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
