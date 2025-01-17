@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StatementReactions } from "@/components/statement-reactions";
 
 // Add club to FilterMode type
 type FilterMode = "featured" | "all" | "normal" | string; // string for club names
@@ -258,8 +259,8 @@ export function DiscussionEntries({
                     </div>
                   )}
 
-                {/* Footer */}
-                <div className="mt-2 flex items-center gap-2">
+                {/* Footer with reactions */}
+                <div className="mt-2 flex items-center justify-between">
                   <Link
                     href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${proceedingNumber}/${proceedingDate}/transcripts/${statement.number_source}`}
                     target="_blank"
@@ -268,6 +269,7 @@ export function DiscussionEntries({
                     całość wypowiedzi
                     <ExternalLink className="h-3 w-3" />
                   </Link>
+                  <StatementReactions statementId={statement.id} />
                 </div>
               </div>
             </div>

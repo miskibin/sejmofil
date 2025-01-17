@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Newspaper, Search, LogIn } from "lucide-react";
+import { Menu, Newspaper, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,6 +16,7 @@ import {
 } from "./ui/sheet";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
+import { LoginDialog } from "@/components/login-dialog";
 
 const navLinks = [
   { href: "/envoys", text: "Posłowie" },
@@ -183,15 +184,7 @@ export default function Navbar() {
             </Avatar>
           </Button>
         ) : (
-          <Link href="/login">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full flex items-center justify-center"
-            >
-              <LogIn className="h-5 w-5 text-primary" />
-            </Button>
-          </Link>
+          <LoginDialog />
         )}
       </div>
     </nav>

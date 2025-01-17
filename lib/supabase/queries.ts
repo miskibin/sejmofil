@@ -507,7 +507,7 @@ export async function searchPoints(
     .map((word) => word + ":*")
     .join(" & ");
 
-  const { data, error } = await (
+  const { data } = await (
     await supabase
   )
     .from("proceeding_point_ai")
@@ -528,7 +528,6 @@ export async function searchPoints(
       config: "pl_ispell",
     })
     .limit(20);
-  console.log(data, error);
 
   return (data as unknown as SearchPointResult[]) || [];
 }
