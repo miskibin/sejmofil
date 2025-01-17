@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Lock, Github } from "lucide-react";
+import { usePathname } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,8 @@ interface LoginDialogProps {
 }
 
 export function LoginDialog({ trigger, message, defaultOpen, onOpenChange }: LoginDialogProps) {
+  const currentPath = usePathname();
+
   return (
     <Dialog defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -35,7 +38,7 @@ export function LoginDialog({ trigger, message, defaultOpen, onOpenChange }: Log
         </DialogHeader>
         <form className="space-y-4">
           <Button
-            formAction={signInWithGitHub}
+            formAction={() => signInWithGitHub(currentPath)}
             className="w-full flex items-center gap-2"
             variant="outline"
           >
