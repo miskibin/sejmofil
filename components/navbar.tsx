@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Newspaper, Search } from "lucide-react";
+import { Menu, Newspaper, Search, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,6 +14,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
+import { User } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/client";
 
 const navLinks = [
   { href: "/envoys", text: "Posłowie" },
@@ -24,6 +26,24 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    // Get initial user state
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,6 +88,10 @@ export default function Navbar() {
 
   const handleLinkClick = () => {
     setIsSidebarOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
   };
 
   return (
@@ -141,10 +165,34 @@ export default function Navbar() {
             O Projekcie
           </Button>
         </Link>
-        <Avatar className="w-8 h-8 md:w-10 md:h-10">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        {user ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={handleSignOut}
+          >
+            <Avatar className="w-8 h-8 md:w-10 md:h-10">
+              <AvatarImage
+                src={user.user_metadata.avatar_url}
+                alt={user.user_metadata.user_name || "User"}
+              />
+              <AvatarFallback>
+                {(user.user_metadata.user_name || "User")[0]}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        ) : (
+          <Link href="/login">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full flex items-center justify-center"
+            >
+              <LogIn className="h-5 w-5 text-primary" />
+            </Button>
+          </Link>
+        )}
       </div>
     </nav>
   );
