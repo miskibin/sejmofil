@@ -266,8 +266,7 @@ export function DiscussionEntries({
                     target="_blank"
                     className="text-xs text-primary hover:underline flex items-center gap-1"
                   >
-                    całość wypowiedzi
-                    <ExternalLink className="h-3 w-3" />
+                    całość <ExternalLink className="h-3 w-3" />
                   </Link>
                   <StatementReactions statementId={statement.id} />
                 </div>
