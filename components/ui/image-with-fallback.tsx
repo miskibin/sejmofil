@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import Image from "next/image";
-import { useState } from "react";
+import Image from 'next/image'
+import { useState } from 'react'
 
 interface ImageWithFallbackProps {
-  src: string;
-  alt: string;
-  fallbackSrc: string;
-  fill?: boolean;
-  className?: string;
+  src: string
+  alt: string
+  fallbackSrc: string
+  fill?: boolean
+  className?: string
 }
 
 export function ImageWithFallback({
@@ -17,7 +17,7 @@ export function ImageWithFallback({
   fallbackSrc,
   ...props
 }: ImageWithFallbackProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(src)
 
   return (
     <Image
@@ -26,5 +26,5 @@ export function ImageWithFallback({
       alt={alt}
       onError={() => setImgSrc(fallbackSrc)}
     />
-  );
+  )
 }

@@ -2,38 +2,40 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { HelpCircle, MessagesSquare } from "lucide-react";
-import Link from "next/link";
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
+import { HelpCircle, MessagesSquare } from 'lucide-react'
+import Link from 'next/link'
 
 interface SourcePopoverProps {
-  description?: string;
-  urls?: string[];
-  aiPrompt?: string;
-  variant?: "default" | "inverted";
+  description?: string
+  urls?: string[]
+  aiPrompt?: string
+  variant?: 'default' | 'inverted'
 }
 
 export function SourcePopover({
   description,
   urls,
   aiPrompt,
-  variant = "default",
+  variant = 'default',
 }: SourcePopoverProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className={cn(  
-          "text-primary",
-          variant === "inverted" && "text-primary-foreground"
-        )}>
+        <button
+          className={cn(
+            'text-primary',
+            variant === 'inverted' && 'text-primary-foreground'
+          )}
+        >
           <HelpCircle className="h-5 w-5" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-4 border-2 border-primary">
+      <PopoverContent className="w-96 border-2 border-primary p-4">
         <div className="max-h-[60vh] overflow-y-auto">
           {description && (
-            <p className="text-sm text-muted-foreground mb-3 break-words">
+            <p className="mb-3 break-words text-sm text-muted-foreground">
               {description}
             </p>
           )}
@@ -46,7 +48,7 @@ export function SourcePopover({
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-sm text-primary hover:underline break-all"
+                  className="block break-all text-sm text-primary hover:underline"
                 >
                   {url}
                 </Link>
@@ -55,16 +57,16 @@ export function SourcePopover({
           )}
 
           {aiPrompt && (
-            <div className="mt-3 pt-3 border-t">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+            <div className="mt-3 border-t pt-3">
+              <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
                 <MessagesSquare className="h-3 w-3" />
                 <span>Prompt AI</span>
               </div>
-              <p className="text-sm italic break-words">{aiPrompt}</p>
+              <p className="break-words text-sm italic">{aiPrompt}</p>
             </div>
           )}
         </div>
       </PopoverContent>
     </Popover>
-  );
+  )
 }

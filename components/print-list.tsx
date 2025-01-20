@@ -1,13 +1,13 @@
-import { PrintShort } from "@/lib/types/print";
-import Link from "next/link";
+import { PrintShort } from '@/lib/types/print'
+import Link from 'next/link'
 
 interface PrintListProps {
-  prints: PrintShort[];
+  prints: PrintShort[]
 }
 
 export function PrintList({ prints }: PrintListProps) {
   if (prints.length === 0) {
-    return <p className="text-gray-500 text-center py-4">Brak druków</p>;
+    return <p className="py-4 text-center text-gray-500">Brak druków</p>
   }
 
   return (
@@ -16,17 +16,17 @@ export function PrintList({ prints }: PrintListProps) {
         <Link
           key={print.number}
           href={`/druki/${print.number}`}
-          className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+          className="block rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
         >
-          <p className="font-medium line-clamp-1">{print.title}</p>
-          <div className="flex justify-between items-center mt-2 text-sm text-gray-600">
+          <p className="line-clamp-1 font-medium">{print.title}</p>
+          <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
             <span>Druk nr {print.number}</span>
             <span>
-              {new Date(print.documentDate).toLocaleDateString("pl-PL")}
+              {new Date(print.documentDate).toLocaleDateString('pl-PL')}
             </span>
           </div>
         </Link>
       ))}
     </div>
-  );
+  )
 }
