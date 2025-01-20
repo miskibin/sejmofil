@@ -1,34 +1,34 @@
-import { ProceedingPointAI } from "@/lib/types/proceeding";
-import { VotingResult as SejmVotingResult } from "@/lib/api/sejm";
+import { VotingResult as SejmVotingResult } from '@/lib/api/sejm'
+import { ProceedingPointAI } from '@/lib/types/proceeding'
 
 export interface ProceedingPoint extends ProceedingPointAI {
-  votingResults: SejmVotingResult[];
-  breakVotingsCount: number;
-  date: string;
+  votingResults: SejmVotingResult[]
+  breakVotingsCount: number
+  date: string
 }
 
 export interface ProcessedPoint extends ProceedingPoint {
-  isInterrupted?: boolean;
-  isContinuation?: boolean;
+  isInterrupted?: boolean
+  isContinuation?: boolean
 }
 
 export interface ProceedingDay {
-  id: number;
-  date: string;
-  proceeding_point_ai: ProceedingPoint[];
+  id: number
+  date: string
+  proceeding_point_ai: ProceedingPoint[]
 }
 
 export interface Proceeding {
-  number: number;
-  dates: string[];
-  proceeding_day: ProceedingDay[];
+  number: number
+  dates: string[]
+  proceeding_day: ProceedingDay[]
 }
 
-export type { SejmVotingResult as VotingResult };
+export type { SejmVotingResult as VotingResult }
 
 export interface PointRenderProps {
-  point: ProceedingPoint;
-  pointsByNumber: Record<string, ProceedingPoint[]>;
-  proceeding: Proceeding;
-  day: ProceedingDay;
+  point: ProceedingPoint
+  pointsByNumber: Record<string, ProceedingPoint[]>
+  proceeding: Proceeding
+  day: ProceedingDay
 }

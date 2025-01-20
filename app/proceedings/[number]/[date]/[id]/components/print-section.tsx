@@ -1,27 +1,27 @@
-import { EmptyState } from "@/components/empty-state";
-import { FaRegFilePdf } from "react-icons/fa";
-import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { EmptyState } from '@/components/empty-state'
+import { ExternalLink } from 'lucide-react'
+import Link from 'next/link'
+import { FaRegFilePdf } from 'react-icons/fa'
 
 type PrintWithStage = {
-  number: string;
-  title: string;
-  processPrint: string[];
-  documentDate: string;
-  attachments: string[];
+  number: string
+  title: string
+  processPrint: string[]
+  documentDate: string
+  attachments: string[]
   stageInfo?: {
-    stageName: string;
-    performerName?: string;
-  };
-};
+    stageName: string
+    performerName?: string
+  }
+}
 
 const PrintItem = ({ print }: { print: PrintWithStage }) => (
-  <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
-    <div className="flex justify-between items-start gap-2 mb-2">
+  <div className="rounded-lg bg-gray-50 p-3 sm:p-4">
+    <div className="mb-2 flex items-start justify-between gap-2">
       <h4 className="text-sm font-medium">{print.title}</h4>
       <div className="flex items-center gap-3">
-        <span className="text-xs text-muted-foreground whitespace-nowrap">
-          {new Date(print.documentDate).toLocaleDateString("pl-PL")}
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          {new Date(print.documentDate).toLocaleDateString('pl-PL')}
         </span>
       </div>
     </div>
@@ -34,10 +34,10 @@ const PrintItem = ({ print }: { print: PrintWithStage }) => (
             href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 text-sm text-primary bg-white p-2 rounded-lg shadow-sm"
+            className="flex items-center gap-2 rounded-lg bg-white p-2 text-sm text-primary shadow-sm"
           >
             <span>
-              <FaRegFilePdf className="h-6 w-6 inline mx-2" />
+              <FaRegFilePdf className="mx-2 inline h-6 w-6" />
               {attachment}
             </span>
           </a>
@@ -47,19 +47,19 @@ const PrintItem = ({ print }: { print: PrintWithStage }) => (
 
     {print.stageInfo && (
       <Link href={`/processes/${print.processPrint[0]}`}>
-        <div className="text-sm flex flex-wrap gap-2 mt-5 items-center underline">
+        <div className="mt-5 flex flex-wrap items-center gap-2 text-sm underline">
           <span className="font-medium text-muted-foreground">
             Etap procesu legislacyjnego:
           </span>
           <span className="">
             {print.stageInfo.stageName.replace(
-              "Skierowanie",
-              "Skierowano do: "
+              'Skierowanie',
+              'Skierowano do: '
             )}
           </span>
           <ExternalLink className="h-3 w-3" />
           {print.stageInfo.performerName && (
-            <span className="font-medium bg-primary/20 px-2 py-1 rounded-md">
+            <span className="rounded-md bg-primary/20 px-2 py-1 font-medium">
               {print.stageInfo.performerName}
             </span>
           )}
@@ -67,7 +67,7 @@ const PrintItem = ({ print }: { print: PrintWithStage }) => (
       </Link>
     )}
   </div>
-);
+)
 
 export const PrintSection = ({ prints }: { prints: PrintWithStage[] }) => (
   <div>
@@ -81,4 +81,4 @@ export const PrintSection = ({ prints }: { prints: PrintWithStage[] }) => (
       <EmptyState image="/explore.svg" text="Brak druków" />
     )}
   </div>
-);
+)

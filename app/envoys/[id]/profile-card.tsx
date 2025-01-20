@@ -1,24 +1,24 @@
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import Image from "next/image";
-import { MapPin, Calendar, GraduationCap, Briefcase, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Envoy } from "@/lib/types";
+import { Button } from '@/components/ui/button'
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { Envoy } from '@/lib/types'
+import { Briefcase, Calendar, GraduationCap, Mail, MapPin } from 'lucide-react'
+import Image from 'next/image'
 
 interface InfoRowProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string | number;
+  icon: React.ReactNode
+  label: string
+  value: string | number
 }
 
 const InfoRow = ({ icon, label, value }: InfoRowProps) => (
   <div className="flex items-center gap-2 py-1">
-    <div className="text-muted-foreground w-4">{icon}</div>
+    <div className="w-4 text-muted-foreground">{icon}</div>
     <div className="flex flex-col">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-sm font-medium">{value}</span>
     </div>
   </div>
-);
+)
 
 export function ProfileCard(envoy: Envoy) {
   return (
@@ -57,7 +57,7 @@ export function ProfileCard(envoy: Envoy) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-1 gap-x-4 gap-y-1">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-1">
           <InfoRow
             icon={<MapPin className="h-4 w-4" />}
             label="Okręg"
@@ -91,5 +91,5 @@ export function ProfileCard(envoy: Envoy) {
         </div>
       </div>
     </CardWrapper>
-  );
+  )
 }

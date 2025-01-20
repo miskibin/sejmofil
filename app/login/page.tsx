@@ -1,11 +1,11 @@
-import { signInWithGitHub } from "./actions";
-import { Button } from "@/components/ui/button";
-import { Lock, Github } from "lucide-react";
-import { CardWrapper } from "@/components/ui/card-wrapper";
+import { Button } from '@/components/ui/button'
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { Github, Lock } from 'lucide-react'
+import { signInWithGitHub } from './actions'
 
 export default function LoginPage() {
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex items-center justify-center">
       <CardWrapper
         className="max-w-96"
         headerIcon={<Lock width={5} height={5} />}
@@ -15,14 +15,14 @@ export default function LoginPage() {
           <input type="hidden" name="returnPath" value="/" />
           <Button
             formAction={signInWithGitHub}
-            className="w-full flex items-center gap-2"
+            className="flex w-full items-center gap-2"
             variant="outline"
           >
-            <Github className="w-5 h-5" />
+            <Github className="h-5 w-5" />
             Zaloguj się przez GitHub
           </Button>
         </form>
       </CardWrapper>
     </div>
-  );
+  )
 }
