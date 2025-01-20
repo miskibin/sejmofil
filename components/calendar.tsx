@@ -1,57 +1,57 @@
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import CalendarDayTile from "./calendar-day";
-import { getProceedingDates } from "@/lib/queries/proceeding";
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { getProceedingDates } from '@/lib/queries/proceeding'
+import CalendarDayTile from './calendar-day'
 
 interface ProceedingDates {
-  proceeding_number: string;
-  proceeding_dates: string[];
+  proceeding_number: string
+  proceeding_dates: string[]
 }
 
 interface CalendarDay {
-  date: number | null;
-  isProceeding?: boolean;
-  proceedingNumber?: string;
-  isToday?: boolean;
-  isAdjacentMonth?: boolean;
-  fullDate?: string;
-  proceeding_dates: ProceedingDates[];
-  isFutureDate?: boolean;
+  date: number | null
+  isProceeding?: boolean
+  proceedingNumber?: string
+  isToday?: boolean
+  isAdjacentMonth?: boolean
+  fullDate?: string
+  proceeding_dates: ProceedingDates[]
+  isFutureDate?: boolean
 }
 
 export default async function SessionCalendar() {
-  const weekDays = ["Nd", "Pon", "Wt", "Śr", "Czw", "Pt", "Sb"];
-  const proceedings = await getProceedingDates();
-  const today = new Date();
+  const weekDays = ['Nd', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sb']
+  const proceedings = await getProceedingDates()
+  const today = new Date()
 
   // Get first day of current month
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
   // Get last day of current month
-  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
 
   // Get the day of week for first day (0-6)
-  const firstDayWeekday = firstDayOfMonth.getDay();
+  const firstDayWeekday = firstDayOfMonth.getDay()
   // Adjust for Monday start (0 becomes 6, otherwise subtract 1)
 
-  const calendarDays: CalendarDay[][] = [];
-  let currentWeek: CalendarDay[] = [];
+  const calendarDays: CalendarDay[][] = []
+  let currentWeek: CalendarDay[] = []
 
   const isFutureDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    today.setHours(23, 59, 0, 0);
-    return date > today;
-  };
+    const date = new Date(dateStr)
+    const today = new Date()
+    today.setHours(23, 59, 0, 0)
+    return date > today
+  }
 
   // Add days from previous month
-  const prevMonthLastDay = new Date(firstDayOfMonth);
-  prevMonthLastDay.setDate(0);
+  const prevMonthLastDay = new Date(firstDayOfMonth)
+  prevMonthLastDay.setDate(0)
   for (let i = firstDayWeekday - 1; i >= 0; i--) {
-    const date = new Date(prevMonthLastDay);
-    date.setDate(prevMonthLastDay.getDate() - i);
-    const dateStr = date.toISOString().split("T")[0];
+    const date = new Date(prevMonthLastDay)
+    date.setDate(prevMonthLastDay.getDate() - i)
+    const dateStr = date.toISOString().split('T')[0]
     const proceedingForDay = proceedings.find((p) =>
       p.proceeding_dates.includes(dateStr)
-    );
+    )
 
     currentWeek.push({
       date: date.getDate(),
@@ -61,16 +61,16 @@ export default async function SessionCalendar() {
       fullDate: dateStr,
       isFutureDate: isFutureDate(dateStr),
       proceeding_dates: proceedings,
-    });
+    })
   }
 
   // Add days from current month
   for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
-    const date = new Date(Date.UTC(today.getFullYear(), today.getMonth(), day));
-    const dateStr = date.toISOString().split("T")[0];
+    const date = new Date(Date.UTC(today.getFullYear(), today.getMonth(), day))
+    const dateStr = date.toISOString().split('T')[0]
     const proceedingForDay = proceedings.find((p) =>
       p.proceeding_dates.includes(dateStr)
-    );
+    )
     currentWeek.push({
       date: date.getUTCDate(),
       isProceeding: !!proceedingForDay,
@@ -79,26 +79,26 @@ export default async function SessionCalendar() {
       fullDate: dateStr,
       isFutureDate: isFutureDate(dateStr),
       proceeding_dates: proceedings,
-    });
+    })
 
     if (currentWeek.length === 7) {
-      calendarDays.push(currentWeek);
-      currentWeek = [];
+      calendarDays.push(currentWeek)
+      currentWeek = []
     }
   }
 
   // Add days from next month
-  let nextMonthDay = 1;
+  let nextMonthDay = 1
   while (currentWeek.length < 7) {
     const date = new Date(
       today.getFullYear(),
       today.getMonth() + 1,
       nextMonthDay
-    );
-    const dateStr = date.toISOString().split("T")[0];
+    )
+    const dateStr = date.toISOString().split('T')[0]
     const proceedingForDay = proceedings.find((p) =>
       p.proceeding_dates.includes(dateStr)
-    );
+    )
 
     currentWeek.push({
       date: nextMonthDay,
@@ -108,10 +108,10 @@ export default async function SessionCalendar() {
       fullDate: dateStr,
       isFutureDate: isFutureDate(dateStr),
       proceeding_dates: proceedings,
-    });
-    nextMonthDay++;
+    })
+    nextMonthDay++
   }
-  calendarDays.push(currentWeek);
+  calendarDays.push(currentWeek)
 
   return (
     <CardWrapper
@@ -121,49 +121,47 @@ export default async function SessionCalendar() {
       showMoreLink="/proceedings"
       sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
       subtitle={`${
-        new Intl.DateTimeFormat("pl-PL", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
+        new Intl.DateTimeFormat('pl-PL', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
         })
           .format(today)
           .charAt(0)
           .toUpperCase() +
-        new Intl.DateTimeFormat("pl-PL", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
+        new Intl.DateTimeFormat('pl-PL', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
         })
           .format(today)
           .slice(1)
       }`}
       showGradient={false}
     >
-      <div className="grid grid-cols-5 md:grid-cols-7 gap-2">
+      <div className="grid grid-cols-5 gap-2 md:grid-cols-7">
         {weekDays.map((day, index) => (
           <div
             key={day}
-            className={`text-center text-sm font-medium px-2 my-1 rounded-full bg-gray-50 
-              ${index === 0 || index === 6 ? "hidden md:block" : ""}
-            `}
+            className={`my-1 rounded-full bg-gray-50 px-2 text-center text-sm font-medium ${index === 0 || index === 6 ? 'hidden md:block' : ''} `}
           >
             {day}
           </div>
         ))}
         {calendarDays.flat().map((day, index) => {
-          const dayOfWeek = index % 7;
+          const dayOfWeek = index % 7
           return (
             <div
               key={index}
               className={
-                dayOfWeek === 0 || dayOfWeek === 6 ? "hidden md:block" : ""
+                dayOfWeek === 0 || dayOfWeek === 6 ? 'hidden md:block' : ''
               }
             >
               <CalendarDayTile {...day} />
             </div>
-          );
+          )
         })}
       </div>
     </CardWrapper>
-  );
+  )
 }

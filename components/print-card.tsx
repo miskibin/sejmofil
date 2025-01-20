@@ -1,10 +1,10 @@
-import { PrintShort } from "@/lib/types/print";
-import { SearchResultCard } from "./search-result-card";
-import { FileText } from "lucide-react";
+import { PrintShort } from '@/lib/types/print'
+import { FileText } from 'lucide-react'
+import { SearchResultCard } from './search-result-card'
 
 interface PrintCardProps {
-  print: PrintShort;
-  searchQuery?: string;
+  print: PrintShort
+  searchQuery?: string
 }
 
 export function PrintCard({ print, searchQuery }: PrintCardProps) {
@@ -20,5 +20,5 @@ export function PrintCard({ print, searchQuery }: PrintCardProps) {
       }}
       searchQuery={searchQuery}
     />
-  );
+  )
 }

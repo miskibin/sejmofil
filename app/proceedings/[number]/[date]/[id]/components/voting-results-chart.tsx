@@ -1,22 +1,22 @@
-"use client";
+'use client'
 
+import { ChartContainer } from '@/components/ui/chart'
 import {
   Bar,
   BarChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { ChartContainer } from "@/components/ui/chart";
+} from 'recharts'
 
 interface VotingResultsChartProps {
   data: Array<{
-    club: string;
-    yes: number;
-    no: number;
-    abstain: number;
-  }>;
+    club: string
+    yes: number
+    no: number
+    abstain: number
+  }>
 }
 
 export function VotingResultsChart({ data }: VotingResultsChartProps) {
@@ -25,8 +25,8 @@ export function VotingResultsChart({ data }: VotingResultsChartProps) {
       className="h-[350px] w-full" // Adjusted height for carousel
       config={{
         value: {
-          label: "Głosy",
-          color: "hsl(var(--chart-1))",
+          label: 'Głosy',
+          color: 'hsl(var(--chart-1))',
         },
       }}
     >
@@ -48,7 +48,7 @@ export function VotingResultsChart({ data }: VotingResultsChartProps) {
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip cursor={{ fill: "hsl(var(--chart-1))", opacity: 0.1 }} />
+          <Tooltip cursor={{ fill: 'hsl(var(--chart-1))', opacity: 0.1 }} />
           <Bar
             dataKey="yes"
             name="Za"
@@ -72,5 +72,5 @@ export function VotingResultsChart({ data }: VotingResultsChartProps) {
         </BarChart>
       </ResponsiveContainer>
     </ChartContainer>
-  );
+  )
 }

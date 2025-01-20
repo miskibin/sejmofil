@@ -1,46 +1,46 @@
 // EnvoyPage.tsx
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import StatCard from "@/components/stat-card";
-import { PrintList } from "@/components/print-list";
+import { PrintList } from '@/components/print-list'
+import StatCard from '@/components/stat-card'
+import { CardWrapper } from '@/components/ui/card-wrapper'
 import {
-  getEnvoyInfo,
   getEnvoyCommittees,
+  getEnvoyInfo,
   getEnvoySpeeches,
-} from "@/lib/queries/person";
-import { notFound } from "next/navigation";
-import { getEnvoyPrints, getEnvoySubjectPrints } from "@/lib/queries/print";
-import { getStatementCombinedDetails } from "@/lib/supabase/queries";
-import { SpeakerRatingChart } from "./speaker-rating-chart";
-import { truncateText } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
-import { FaWikipediaW } from "react-icons/fa";
-import Link from "next/link";
-import { ProfileCard } from "./profile-card";
-import Image from "next/image";
-import { Metadata } from "next";
-export const dynamic = "force-dynamic";
+} from '@/lib/queries/person'
+import { getEnvoyPrints, getEnvoySubjectPrints } from '@/lib/queries/print'
+import { getStatementCombinedDetails } from '@/lib/supabase/queries'
+import { truncateText } from '@/lib/utils'
+import { Sparkles } from 'lucide-react'
+import { Metadata } from 'next'
+import Image from 'next/image'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { FaWikipediaW } from 'react-icons/fa'
+import { ProfileCard } from './profile-card'
+import { SpeakerRatingChart } from './speaker-rating-chart'
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: number }>;
+  params: Promise<{ id: number }>
 }): Promise<Metadata> {
-  const { id } = await params;
-  const envoy = await getEnvoyInfo(id);
+  const { id } = await params
+  const envoy = await getEnvoyInfo(id)
 
   return {
     title: `${envoy.firstLastName} `,
     description: `Analiza AI, Cytaty, Biografia, działalność parlamentarna ${envoy.genitiveName} (${envoy.club})`,
-  };
+  }
 }
 
 export default async function EnvoyDetail({
   params,
 }: {
-  params: Promise<{ id: number }>;
+  params: Promise<{ id: number }>
 }) {
-  const { id } = await params;
-  if (!id) notFound();
+  const { id } = await params
+  if (!id) notFound()
 
   const [info, committees, speechCount, prints, subjectPrints] =
     await Promise.all([
@@ -49,14 +49,14 @@ export default async function EnvoyDetail({
       getEnvoySpeeches(id),
       getEnvoyPrints(id),
       getEnvoySubjectPrints(id),
-    ]);
+    ])
   const statementsCombined = await getStatementCombinedDetails(
     info.firstLastName
-  );
+  )
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-4 flex flex-col gap-y-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="flex flex-col gap-y-6 lg:col-span-4">
           <ProfileCard {...info} />
 
           {/* Rest of the cards */}
@@ -65,15 +65,12 @@ export default async function EnvoyDetail({
             subtitle="Ostatnie wypowiedzi"
             showGradient={false}
             headerIcon={
-                      <Sparkles
-          className="w-5 h-5 text-primary"
-          fill="#76052a"
-        />
+              <Sparkles className="h-5 w-5 text-primary" fill="#76052a" />
             }
             sourceDescription="Analiza wypowiedzi z ostatnich 30 dni"
             sourceUrls={[`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings`]}
             aiPrompt="Twoj prompt"
-            className="!pl-0 !ml-0"
+            className="!ml-0 !pl-0"
           >
             <SpeakerRatingChart
               speakerRatings={statementsCombined.map(
@@ -94,7 +91,7 @@ export default async function EnvoyDetail({
         </div>
 
         {/* Main Content Section */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="space-y-6 lg:col-span-8">
           {/* Biography */}
           {info.biography && (
             <div className="space-y-6">
@@ -103,7 +100,7 @@ export default async function EnvoyDetail({
                 subtitle="Biografia"
                 headerIcon={
                   <Link
-                    href={info.biographyUrl || "https://pl.wikipedia.org/"}
+                    href={info.biographyUrl || 'https://pl.wikipedia.org/'}
                     target="_blank"
                   >
                     <FaWikipediaW className="h-5 w-5 text-white" />
@@ -111,14 +108,14 @@ export default async function EnvoyDetail({
                 }
                 showGradient={false}
               >
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                <p className="whitespace-pre-wrap leading-relaxed text-gray-700">
                   {truncateText(info.biography, 800)}
                 </p>
               </CardWrapper>
             </div>
           )}
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <StatCard
               title="Wypowiedzi"
               value={speechCount}
@@ -147,13 +144,13 @@ export default async function EnvoyDetail({
                 {committees.map((committee, index) => (
                   <div
                     key={index}
-                    className="p-4 bg-gray-50 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
+                    className="flex flex-col items-start justify-between gap-2 rounded-lg bg-gray-50 p-4 sm:flex-row sm:items-center"
                   >
                     <span className="font-medium text-gray-900">
                       {committee.name}
                     </span>
                     {committee.role && (
-                      <span className="text-sm text-muted-foreground bg-primary/20 px-2 py-1 rounded-md">
+                      <span className="rounded-md bg-primary/20 px-2 py-1 text-sm text-muted-foreground">
                         {committee.role}
                       </span>
                     )}
@@ -161,8 +158,8 @@ export default async function EnvoyDetail({
                 ))}
               </div>
             ) : (
-              <div className="text-center pb-6">
-                <div className="flex justify-center mb-4">
+              <div className="pb-6 text-center">
+                <div className="mb-4 flex justify-center">
                   <Image
                     src="/empty.svg"
                     width={333}
@@ -176,15 +173,12 @@ export default async function EnvoyDetail({
           </CardWrapper>
 
           {/* Documents */}
-          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-1">
             <CardWrapper
               title="Analiza wypowiedzi"
               subtitle="Podsumowanie i cytaty"
               headerIcon={
-                        <Sparkles
-          className="w-5 h-5 text-primary"
-          fill="#76052a"
-        />
+                <Sparkles className="h-5 w-5 text-primary" fill="#76052a" />
               }
               showGradient={false}
             >
@@ -192,10 +186,10 @@ export default async function EnvoyDetail({
                 {statementsCombined.slice(0, 5).map((statement, idx) => (
                   <div
                     key={idx}
-                    className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
                   >
                     {/* Topic */}
-                    <h3 className="text-sm font-semibold text-gray-800 mb-3">
+                    <h3 className="mb-3 text-sm font-semibold text-gray-800">
                       {statement.official_topic}
                     </h3>
 
@@ -216,7 +210,7 @@ export default async function EnvoyDetail({
                           (citation, citationIdx) => (
                             <p
                               key={citationIdx}
-                              className="text-sm italic text-gray-600 border-l-2 border-primary/30 pl-3"
+                              className="border-l-2 border-primary/30 pl-3 text-sm italic text-gray-600"
                             >
                               {citation}
                             </p>
@@ -232,5 +226,5 @@ export default async function EnvoyDetail({
         </div>
       </div>
     </>
-  );
+  )
 }

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "prettier": "prettier . --write",
     "husky:prepare": "pnpm husky && pnpm husky:add-precommit && pnpm husky:add-prepush",
     "husky:add-precommit": "powershell -Command \"New-Item -Path .husky/pre-commit -ItemType File -Force; Set-Content -Path .husky/pre-commit -Value 'pnpm lint-staged && pnpm lint && echo Committing finished'\"",
     "husky:add-prepush": "powershell -Command \"New-Item -Path .husky/pre-push -ItemType File -Force; Set-Content -Path .husky/pre-push -Value 'pnpm lint && echo Pushing finished'\""
@@ -68,12 +69,13 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.0",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
-    "prettier": "^3.3.3",
-    "prettier-plugin-organize-imports": "^4.0.0"
+    "postcss": "^8",
+    "prettier": "^3.4.2",
+    "prettier-plugin-organize-imports": "^4.0.0",
+    "prettier-plugin-tailwindcss": "^0.6.10",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }

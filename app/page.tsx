@@ -1,34 +1,34 @@
-import StatCard from "@/components/stat-card";
-import RecentPoints from "@/components/recent-points";
-import DidYouKnow from "@/components/did-you-know";
-import SessionCalendar from "@/components/calendar";
-import HotTopics from "@/components/hot-topics";
-import TotalBreaks from "@/components/total-breaks";
-import SejmCostCounter from "@/components/total-cost";
-import { getProceedingDates } from "@/lib/queries/proceeding";
-import { getNextProceedingDate, getTimeUntilNextProceeding } from "@/lib/utils";
-import LatestInterestingPoints from "@/components/latest-interesting-points";
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import TotalProceedingDays from "@/components/total-proceeding-days";
-import { Paintbrush, Code, ScrollText } from "lucide-react";
+import SessionCalendar from '@/components/calendar'
+import DidYouKnow from '@/components/did-you-know'
+import HotTopics from '@/components/hot-topics'
+import LatestInterestingPoints from '@/components/latest-interesting-points'
+import RecentPoints from '@/components/recent-points'
+import StatCard from '@/components/stat-card'
+import TotalBreaks from '@/components/total-breaks'
+import SejmCostCounter from '@/components/total-cost'
+import TotalProceedingDays from '@/components/total-proceeding-days'
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { getProceedingDates } from '@/lib/queries/proceeding'
+import { getNextProceedingDate, getTimeUntilNextProceeding } from '@/lib/utils'
+import { Code, Paintbrush, ScrollText } from 'lucide-react'
 
-export const dynamic = "force-dynamic";
-export const revalidate = 3600; // 1 hour
+export const dynamic = 'force-dynamic'
+export const revalidate = 3600 // 1 hour
 export default async function Home() {
-  const proceedings = await getProceedingDates();
-  const nextDate = getNextProceedingDate(proceedings);
-  const timeUntil = getTimeUntilNextProceeding(nextDate);
+  const proceedings = await getProceedingDates()
+  const nextDate = getNextProceedingDate(proceedings)
+  const timeUntil = getTimeUntilNextProceeding(nextDate)
   return (
     <>
-      <div className="mb-4 sm:mb-8 mt-16">
-        <h1 className="text-2xl px-2 font-semibold">
+      <div className="mb-4 mt-16 sm:mb-8">
+        <h1 className="px-2 text-2xl font-semibold">
           {nextDate ? (
             <>
-              {timeUntil === "0" ? (
-                "Obrady trwają"
+              {timeUntil === '0' ? (
+                'Obrady trwają'
               ) : (
                 <>
-                  Do następnych Obrad zostało{" "}
+                  Do następnych Obrad zostało{' '}
                   <span className="text-primary">{timeUntil}</span>
                 </>
               )}
@@ -39,10 +39,10 @@ export default async function Home() {
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-6 lg:grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-6 lg:grid-cols-12">
         {/* First row */}
         <div
-          className="sm:col-span-6 lg:col-span-9 grid-cols-1  grid  lg:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:col-span-6 lg:col-span-9 lg:grid-cols-2"
           data-umami-event="hot-topics-view"
         >
           <HotTopics />
@@ -50,26 +50,26 @@ export default async function Home() {
         </div>
 
         <div
-          className="sm:col-span-3 lg:col-span-3 lg:row-span-2 "
+          className="sm:col-span-3 lg:col-span-3 lg:row-span-2"
           data-umami-event="did-you-know-view"
         >
           <DidYouKnow />
         </div>
         <div
-          className="sm:col-span-3 lg:col-span-9 grid grid-cols-1 lg:grid-cols-2 gap-4"
+          className="grid grid-cols-1 gap-4 sm:col-span-3 lg:col-span-9 lg:grid-cols-2"
           data-umami-event="recent-votes-view"
         >
           <LatestInterestingPoints />
         </div>
 
         {/* Stats row */}
-        <div className="sm:col-span-2 lg:col-span-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:col-span-2 lg:col-span-6 lg:grid-cols-2">
           <SejmCostCounter />
           <TotalProceedingDays />
           <TotalBreaks />
           <StatCard
             title="Koszty pracy senatu"
-            value={"268 mln zł"}
+            value={'268 mln zł'}
             category="w 2025"
             sourceDescription="Ustawa budżetowa na rok 2025. Strona 45"
             sourceUrls={[
@@ -83,17 +83,17 @@ export default async function Home() {
             className="col-span-1 lg:col-span-2"
           >
             <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="flex items-center gap-2 p-2 rounded-lg ">
-                  <Paintbrush className="h-4 w-4 text-prrimary" />
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="flex items-center gap-2 rounded-lg p-2">
+                  <Paintbrush className="text-prrimary h-4 w-4" />
                   <span className="text-sm">UI/UX</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 rounded-lg ">
-                  <Code className="h-4 w-4 text-prrimary" />
+                <div className="flex items-center gap-2 rounded-lg p-2">
+                  <Code className="text-prrimary h-4 w-4" />
                   <span className="text-sm">Frontend</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 rounded-lg ">
-                  <ScrollText className="h-4 w-4 text-prrimary" />
+                <div className="flex items-center gap-2 rounded-lg p-2">
+                  <ScrollText className="text-prrimary h-4 w-4" />
                   <span className="text-sm">Legislacja</span>
                 </div>
               </div>
@@ -106,5 +106,5 @@ export default async function Home() {
         </div>
       </div>
     </>
-  );
+  )
 }
