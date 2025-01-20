@@ -1,14 +1,14 @@
-import { createClient } from "@/utils/supabase/server";
-import { StatementCombined } from "../types/statement";
-import { SummaryMain } from "../types/proceeding";
+import { createClient } from '@/utils/supabase/server'
+import { SummaryMain } from '../types/proceeding'
+import { StatementCombined } from '../types/statement'
 
 export async function getEnvoyStatementDetails(name: string) {
-  const supabase = createClient();
+  const supabase = createClient()
 
   const { data: statementData } = await (
     await supabase
   )
-    .from("statement")
+    .from('statement')
     .select(
       `
       id,
@@ -20,19 +20,19 @@ export async function getEnvoyStatementDetails(name: string) {
       text
     `
     )
-    .eq("speaker_name", name);
+    .eq('speaker_name', name)
 
-  return statementData || [];
+  return statementData || []
 }
 export async function getStatementCombinedDetails(
   name: string
 ): Promise<StatementCombined[]> {
-  const supabase = createClient();
+  const supabase = createClient()
 
   const { data } = await (
     await supabase
   )
-    .from("statement")
+    .from('statement')
     .select(
       `
         id,
@@ -45,46 +45,53 @@ export async function getStatementCombinedDetails(
         )
       `
     )
-    .eq("speaker_name", name)
-    .not("number_source", "eq", 0);
+    .eq('speaker_name', name)
+    .not('number_source', 'eq', 0)
 
-  if (!data) return [];
-  return data as unknown as StatementCombined[];
+  if (!data) return []
+  return data as unknown as StatementCombined[]
 }
 
 interface TopicCount {
-  id: number;
-  topic: string;
-  proceeding_id: number;
-  date: string;
-  count: number;
+  id: number
+  topic: string
+  proceeding_id: number
+  date: string
+  count: number
+  uuid: string
 }
 
 export async function getTopDiscussedTopics(
   limit: number
 ): Promise<TopicCount[]> {
-  const supabase = createClient();
+  const supabase = createClient()
   const { data } = await (await supabase)
-    .rpc("get_top_discussed_topics")
-    .limit(limit);
-  return data || [];
+    .rpc('get_top_discussed_topics')
+    .limit(limit)
+
+  const topicsWithUUID =
+    data?.map((topic: TopicCount) => ({
+      ...topic,
+      uuid: crypto.randomUUID(),
+    })) || []
+  return topicsWithUUID
 }
 
 interface CitationWithPerson {
-  speaker_name: string;
-  citation: string;
-  statement_id: number;
+  speaker_name: string
+  citation: string
+  statement_id: number
 }
 
 export async function getLatestCitizations(
   number: number
 ): Promise<CitationWithPerson[]> {
-  const supabase = createClient();
+  const supabase = createClient()
 
   const { data } = await (
     await supabase
   )
-    .from("statement")
+    .from('statement')
     .select(
       `
       id,
@@ -94,71 +101,71 @@ export async function getLatestCitizations(
       )
     `
     )
-    .not("statement_ai.citations", "is", null)
-    .not("statement_ai.citations", "eq", "{}")
-    .order("id", { ascending: false })
-    .limit(number);
-  if (!data) return [];
+    .not('statement_ai.citations', 'is', null)
+    .not('statement_ai.citations', 'eq', '{}')
+    .order('id', { ascending: false })
+    .limit(number)
+  if (!data) return []
 
   // Process and flatten citations, keeping only unique speakers
-  const uniqueSpeakers = new Set<string>();
-  const citations: CitationWithPerson[] = [];
+  const uniqueSpeakers = new Set<string>()
+  const citations: CitationWithPerson[] = []
 
   data.forEach((item) => {
-    if (uniqueSpeakers.has(item.speaker_name)) return;
+    if (uniqueSpeakers.has(item.speaker_name)) return
 
     const citation = (item.statement_ai as unknown as { citations: string[] })
-      .citations[0];
-    if (!citation) return;
+      .citations[0]
+    if (!citation) return
 
-    uniqueSpeakers.add(item.speaker_name);
+    uniqueSpeakers.add(item.speaker_name)
     citations.push({
       speaker_name: item.speaker_name,
       citation,
       statement_id: item.id,
-    });
-  });
-  return citations.slice(0, 4); // Return only top 5 unique citations
+    })
+  })
+  return citations.slice(0, 4) // Return only top 5 unique citations
 }
 interface PointWithStatements {
-  id: number;
-  topic: string;
-  official_point: string;
-  official_topic: string;
-  summary_main: SummaryMain;
-  summary_tldr: string;
-  voting_numbers: number[];
-  print_numbers: number[];
+  id: number
+  topic: string
+  official_point: string
+  official_topic: string
+  summary_main: SummaryMain
+  summary_tldr: string
+  voting_numbers: number[]
+  print_numbers: number[]
   proceeding_day: {
-    date: string;
+    date: string
     proceeding: {
-      number: number;
-    };
-  };
+      number: number
+    }
+  }
   statements: {
-    id: number;
-    speaker_name: string;
-    text: string;
-    number_source: number;
-    number_sequence: number;
+    id: number
+    speaker_name: string
+    text: string
+    number_source: number
+    number_sequence: number
     statement_ai: {
-      summary_tldr: string;
-      yt_sec: string;
-      citations: string[];
-      topic_attitude: Record<string, number>;
-      speaker_rating: Record<string, number>;
-    };
-  }[];
+      summary_tldr: string
+      yt_sec: string
+      citations: string[]
+      topic_attitude: Record<string, number>
+      speaker_rating: Record<string, number>
+    }
+  }[]
 }
 export async function getPointDetails(
   id: number,
   showAllStatements = false
 ): Promise<PointWithStatements> {
-  const supabase = createClient();
+  const supabase = createClient()
   const { data } = await (
     await supabase
   )
-    .from("proceeding_point_ai")
+    .from('proceeding_point_ai')
     .select(
       `
       id,
@@ -193,8 +200,8 @@ export async function getPointDetails(
       )
     `
     )
-    .eq("id", id)
-    .single();
+    .eq('id', id)
+    .single()
   const transformedData = {
     ...data,
     // summary_main: JSON.parse(data?.summary_main || "{}"),
@@ -206,67 +213,67 @@ export async function getPointDetails(
             ? true
             : (statement as { number_source: number }).number_source !== 0
         ) || [],
-  };
-  return transformedData as unknown as PointWithStatements;
+  }
+  return transformedData as unknown as PointWithStatements
 }
 
 interface AdjacentPoint {
-  id: number;
+  id: number
   proceeding_day: {
-    date: string;
-  };
+    date: string
+  }
 }
 
 interface AdjacentPointsResponse {
-  prev: AdjacentPoint | null;
-  next: AdjacentPoint | null;
+  prev: AdjacentPoint | null
+  next: AdjacentPoint | null
 }
 
 export async function getAdjacentPoints(
   pointId: number,
   proceedingId: number
 ): Promise<AdjacentPointsResponse> {
-  const supabase = createClient();
+  const supabase = createClient()
 
   const { data: currentPoint } = await (await supabase)
-    .from("proceeding_point_ai")
-    .select("id, proceeding_day!inner(proceeding_id, date)")
-    .eq("id", pointId)
-    .single();
+    .from('proceeding_point_ai')
+    .select('id, proceeding_day!inner(proceeding_id, date)')
+    .eq('id', pointId)
+    .single()
 
-  if (!currentPoint) return { prev: null, next: null };
+  if (!currentPoint) return { prev: null, next: null }
 
   const { data: prevPoint } = await (await supabase)
-    .from("proceeding_point_ai")
-    .select("id, proceeding_day!inner(date)")
-    .eq("proceeding_day.proceeding_id", proceedingId)
-    .lt("id", pointId)
-    .order("id", { ascending: false })
+    .from('proceeding_point_ai')
+    .select('id, proceeding_day!inner(date)')
+    .eq('proceeding_day.proceeding_id', proceedingId)
+    .lt('id', pointId)
+    .order('id', { ascending: false })
     .limit(1)
-    .single();
+    .single()
 
   const { data: nextPoint } = await (await supabase)
-    .from("proceeding_point_ai")
-    .select("id, proceeding_day!inner(date)")
-    .eq("proceeding_day.proceeding_id", proceedingId)
-    .gt("id", pointId)
-    .order("id", { ascending: true })
+    .from('proceeding_point_ai')
+    .select('id, proceeding_day!inner(date)')
+    .eq('proceeding_day.proceeding_id', proceedingId)
+    .gt('id', pointId)
+    .order('id', { ascending: true })
     .limit(1)
-    .single();
+    .single()
 
   return {
     prev: (prevPoint as unknown as AdjacentPoint) || null,
     next: (nextPoint as unknown as AdjacentPoint) || null,
-  };
+  }
 }
 
 interface RelatedPoint {
-  id: number;
-  official_point: string;
+  id: number
+  official_point: string
   proceeding_day: {
-    proceeding_id: number;
-    date: string;
-  };
+    proceeding_id: number
+    date: string
+  }
 }
 
 export async function getRelatedPoint(
@@ -274,11 +281,11 @@ export async function getRelatedPoint(
   officialPoint: string,
   proceedingId: number
 ): Promise<RelatedPoint | null> {
-  const supabase = createClient();
+  const supabase = createClient()
   const { data } = await (
     await supabase
   )
-    .from("proceeding_point_ai")
+    .from('proceeding_point_ai')
     .select(
       `
       id,
@@ -289,38 +296,38 @@ export async function getRelatedPoint(
       )
     `
     )
-    .eq("official_point", officialPoint)
-    .eq("proceeding_day.proceeding_id", proceedingId)
-    .order("proceeding_day(date)", { ascending: true })
-    .neq("id", pointId)
+    .eq('official_point', officialPoint)
+    .eq('proceeding_day.proceeding_id', proceedingId)
+    .order('proceeding_day(date)', { ascending: true })
+    .neq('id', pointId)
     .limit(1)
-    .single();
-  return data as unknown as RelatedPoint;
+    .single()
+  return data as unknown as RelatedPoint
 }
 
 export interface ProceedingWithDays {
-  id: number;
-  number: number;
-  title: string;
-  dates: string[];
+  id: number
+  number: number
+  title: string
+  dates: string[]
   proceeding_day: Array<{
-    id: number;
-    date: string;
+    id: number
+    date: string
     proceeding_point_ai: Array<{
-      voting_numbers: number[];
-      id: number;
-      topic: string;
-      summary_tldr: string;
-    }>;
-  }>;
+      voting_numbers: number[]
+      id: number
+      topic: string
+      summary_tldr: string
+    }>
+  }>
 }
 
 export async function getProceedings(): Promise<ProceedingWithDays[]> {
-  const supabase = createClient();
+  const supabase = createClient()
   const { data } = await (
     await supabase
   )
-    .from("proceeding")
+    .from('proceeding')
     .select(
       `
       id,
@@ -340,43 +347,43 @@ export async function getProceedings(): Promise<ProceedingWithDays[]> {
       )
     `
     )
-    .order("number", { ascending: false });
+    .order('number', { ascending: false })
 
-  return data || [];
+  return data || []
 }
 
 export interface ProceedingWithDetails {
-  id: number;
-  number: number;
-  title: string;
-  dates: string[];
+  id: number
+  number: number
+  title: string
+  dates: string[]
   proceeding_day: Array<{
-    id: number;
-    date: string;
+    id: number
+    date: string
     proceeding_point_ai: Array<{
-      id: number;
-      topic: string;
-      summary_tldr: string;
-      voting_numbers: number[];
+      id: number
+      topic: string
+      summary_tldr: string
+      voting_numbers: number[]
       statements: Array<{
-        id: number;
-        speaker_name: string;
+        id: number
+        speaker_name: string
         statement_ai?: {
-          speaker_rating?: Record<string, number>;
-        };
-      }>;
-    }>;
-  }>;
+          speaker_rating?: Record<string, number>
+        }
+      }>
+    }>
+  }>
 }
 
 export async function getProceedingDetails(
   number: number
 ): Promise<ProceedingWithDetails> {
-  const supabase = createClient();
+  const supabase = createClient()
   const { data } = await (
     await supabase
   )
-    .from("proceeding")
+    .from('proceeding')
     .select(
       `
       id,
@@ -404,49 +411,49 @@ export async function getProceedingDetails(
       )
     `
     )
-    .eq("number", number)
-    .single();
+    .eq('number', number)
+    .single()
 
-  return data as unknown as ProceedingWithDetails;
+  return data as unknown as ProceedingWithDetails
 }
 
 interface ProceedingDayDetails {
-  id: number;
-  date: string;
+  id: number
+  date: string
   proceeding: {
-    id: number;
-    number: number;
-    title: string;
-  };
+    id: number
+    number: number
+    title: string
+  }
   proceeding_point_ai: Array<{
-    id: number;
-    topic: string;
-    summary_tldr: string;
-    voting_numbers: number[];
-    print_numbers: number[];
+    id: number
+    topic: string
+    summary_tldr: string
+    voting_numbers: number[]
+    print_numbers: number[]
     statements: Array<{
       statement: {
-        id: number;
-        speaker_name: string;
+        id: number
+        speaker_name: string
         statement_ai?: {
-          speaker_rating?: Record<string, number>;
-          citations?: string[];
-          summary_tldr?: string;
-        };
-      };
-    }>;
-  }>;
+          speaker_rating?: Record<string, number>
+          citations?: string[]
+          summary_tldr?: string
+        }
+      }
+    }>
+  }>
 }
 
 export async function getProceedingDayDetails(
   number: number,
   date: string
 ): Promise<ProceedingDayDetails> {
-  const supabase = createClient();
+  const supabase = createClient()
   const { data } = await (
     await supabase
   )
-    .from("proceeding_day")
+    .from('proceeding_day')
     .select(
       `
       id,
@@ -476,41 +483,41 @@ export async function getProceedingDayDetails(
       )
     `
     )
-    .eq("proceeding.number", number)
-    .eq("date", date)
-    .single();
+    .eq('proceeding.number', number)
+    .eq('date', date)
+    .single()
 
-  return data as unknown as ProceedingDayDetails;
+  return data as unknown as ProceedingDayDetails
 }
 
 export interface SearchPointResult {
-  id: number;
-  topic: string;
-  summary_tldr: string;
+  id: number
+  topic: string
+  summary_tldr: string
   proceeding_day: {
-    date: string;
+    date: string
     proceeding: {
-      number: number;
-    };
-  };
+      number: number
+    }
+  }
 }
 // TODO TODO TODO ADD ORDERING BY using ts_rank_cd
 export async function searchPoints(
   query: string
 ): Promise<SearchPointResult[]> {
-  const supabase = createClient();
+  const supabase = createClient()
 
   // Convert multiple words into a format that PostgreSQL full-text search can understand
   const formattedQuery = query
     .trim()
     .split(/\s+/)
-    .map((word) => word + ":*")
-    .join(" & ");
+    .map((word) => word + ':*')
+    .join(' & ')
 
   const { data } = await (
     await supabase
   )
-    .from("proceeding_point_ai")
+    .from('proceeding_point_ai')
     .select(
       `
     id,
@@ -524,36 +531,36 @@ export async function searchPoints(
     )
     `
     )
-    .textSearch("search_tsv", formattedQuery, {
-      config: "pl_ispell",
+    .textSearch('search_tsv', formattedQuery, {
+      config: 'pl_ispell',
     })
-    .limit(20);
+    .limit(20)
 
-  return (data as unknown as SearchPointResult[]) || [];
+  return (data as unknown as SearchPointResult[]) || []
 }
 
 interface PrintRelatedPoint {
-  id: number;
-  topic: string;
-  summary_tldr: string;
+  id: number
+  topic: string
+  summary_tldr: string
   proceeding_day: {
-    date: string;
+    date: string
     proceeding: {
-      number: number;
-    };
-  };
-  print_numbers: number[];
+      number: number
+    }
+  }
+  print_numbers: number[]
 }
 
 export async function getPointsByPrintNumbers(
   printNumbers: string[]
 ): Promise<PrintRelatedPoint[]> {
-  const supabase = createClient();
+  const supabase = createClient()
 
   const { data } = await (
     await supabase
   )
-    .from("proceeding_point_ai")
+    .from('proceeding_point_ai')
     .select(
       `
       id,
@@ -568,8 +575,8 @@ export async function getPointsByPrintNumbers(
       )
     `
     )
-    .overlaps("print_numbers", printNumbers)
-    .order("id", { ascending: false });
+    .overlaps('print_numbers', printNumbers)
+    .order('id', { ascending: false })
 
-  return (data as unknown as PrintRelatedPoint[]) || [];
+  return (data as unknown as PrintRelatedPoint[]) || []
 }
