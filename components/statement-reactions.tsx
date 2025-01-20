@@ -1,23 +1,23 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Button } from "./ui/button";
-import { LoginDialog } from "./login-dialog";
-import { useSupabaseSession } from "@/lib/hooks/use-supabase-session";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { SmilePlus } from "lucide-react";
+} from '@/components/ui/popover'
+import { useSupabaseSession } from '@/lib/hooks/use-supabase-session'
+import { SmilePlus } from 'lucide-react'
+import { useState } from 'react'
+import { LoginDialog } from './login-dialog'
+import { Button } from './ui/button'
 
 const REACTIONS = [
-  { emoji: "👍", label: "Popieram" },
-  { emoji: "👎", label: "Nie popieram" },
-  { emoji: "😮", label: "Zaskoczenie" },
-  { emoji: "❤️", label: "Świetne" },
-  { emoji: "😂", label: "Zabawne" },
-];
+  { emoji: '👍', label: 'Popieram' },
+  { emoji: '👎', label: 'Nie popieram' },
+  { emoji: '😮', label: 'Zaskoczenie' },
+  { emoji: '❤️', label: 'Świetne' },
+  { emoji: '😂', label: 'Zabawne' },
+]
 
 // Mock reaction counts
 const mockReactionCounts: Record<string, number> = REACTIONS.reduce(
@@ -26,49 +26,49 @@ const mockReactionCounts: Record<string, number> = REACTIONS.reduce(
     [emoji]: Math.floor(Math.random() * 50),
   }),
   {}
-);
+)
 
 interface StatementReactionsProps {
-  statementId: number;
+  statementId: number
 }
 
 export function StatementReactions({ statementId }: StatementReactionsProps) {
-  console.log("🚀 ~ StatementReactions ~ statementId:", statementId);
-  const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const { session } = useSupabaseSession();
+  console.log('🚀 ~ StatementReactions ~ statementId:', statementId)
+  const [selectedReaction, setSelectedReaction] = useState<string | null>(null)
+  const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const { session } = useSupabaseSession()
 
   const handleReactionClick = (emoji: string) => {
-    if (!session && process.env.NODE_ENV !== "development") {
-      setShowLoginDialog(true);
-      return;
+    if (!session && process.env.NODE_ENV !== 'development') {
+      setShowLoginDialog(true)
+      return
     }
 
     if (selectedReaction === emoji) {
-      setSelectedReaction(null);
+      setSelectedReaction(null)
     } else {
-      setSelectedReaction(emoji);
+      setSelectedReaction(emoji)
     }
-    setIsOpen(false); // Close popover after selection
-  };
+    setIsOpen(false) // Close popover after selection
+  }
 
   const handleReactionTriggerClick = () => {
-    if (!session && process.env.NODE_ENV !== "development") {
-      setShowLoginDialog(true);
-      return;
+    if (!session && process.env.NODE_ENV !== 'development') {
+      setShowLoginDialog(true)
+      return
     }
-  };
+  }
 
   // Calculate total reactions and top emojis
   const totalReactions = Object.values(mockReactionCounts).reduce(
     (a, b) => a + b,
     0
-  );
+  )
   const topTwoReactions = Object.entries(mockReactionCounts)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 2)
-    .map(([emoji]) => emoji);
+    .map(([emoji]) => emoji)
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -77,16 +77,16 @@ export function StatementReactions({ statementId }: StatementReactionsProps) {
           <Button
             variant="ghost"
             size="sm"
-            className={`group flex items-center gap-1 px-1.5 h-7 transition-all duration-200 hover:scale-105 ${
+            className={`group flex h-7 items-center gap-1 px-1.5 transition-all duration-200 hover:scale-105 ${
               !selectedReaction
-                ? "text-muted-foreground hover:text-foreground"
-                : "text-blue-500 hover:text-blue-600"
+                ? 'text-muted-foreground hover:text-foreground'
+                : 'text-blue-500 hover:text-blue-600'
             }`}
             onClick={handleReactionTriggerClick}
           >
             {selectedReaction ? (
               <>
-                <span className="text-lg animate-in zoom-in-50 duration-300">
+                <span className="text-lg duration-300 animate-in zoom-in-50">
                   {selectedReaction}
                 </span>
                 <span className="text-xs font-medium capitalize opacity-90">
@@ -100,12 +100,12 @@ export function StatementReactions({ statementId }: StatementReactionsProps) {
         </PopoverTrigger>
 
         {totalReactions > 0 && (
-          <div className="flex items-center gap-1 text-sm text-muted-foreground ">
-            <div className="flex -space-x-1 items-center">
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <div className="flex items-center -space-x-1">
               {topTwoReactions.map((emoji) => (
                 <span
                   key={emoji}
-                  className="text-base rounded-full h-5 w-5 flex items-center justify-center "
+                  className="flex h-5 w-5 items-center justify-center rounded-full text-base"
                 >
                   {emoji}
                 </span>
@@ -116,9 +116,9 @@ export function StatementReactions({ statementId }: StatementReactionsProps) {
         )}
       </div>
 
-      {(session || process.env.NODE_ENV === "development") && (
+      {(session || process.env.NODE_ENV === 'development') && (
         <PopoverContent
-          className="w-auto p-0.5 animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
+          className="w-auto p-0.5 duration-200 animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
           sideOffset={5}
           align="start"
           alignOffset={-5}
@@ -130,16 +130,16 @@ export function StatementReactions({ statementId }: StatementReactionsProps) {
                 variant="ghost"
                 className={`group px-1 py-0.5 transition-all duration-200 hover:scale-110 ${
                   selectedReaction === emoji
-                    ? "bg-blue-50 dark:bg-blue-950"
-                    : ""
+                    ? 'bg-blue-50 dark:bg-blue-950'
+                    : ''
                 }`}
                 onClick={() => handleReactionClick(emoji)}
               >
                 <span
                   className={`text-xl ${
                     selectedReaction === emoji
-                      ? "animate-in zoom-in-105 duration-200"
-                      : ""
+                      ? 'duration-200 animate-in zoom-in-105'
+                      : ''
                   }`}
                   title={`${label} (${mockReactionCounts[emoji]})`}
                 >
@@ -159,5 +159,5 @@ export function StatementReactions({ statementId }: StatementReactionsProps) {
         />
       )}
     </Popover>
-  );
+  )
 }

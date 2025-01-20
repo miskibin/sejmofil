@@ -1,22 +1,22 @@
-import { notFound } from "next/navigation";
-import { getProceedingDayDetails } from "@/lib/supabase/queries";
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import Link from "next/link";
-import StatCard from "@/components/stat-card";
-import { Badge } from "@/components/ui/badge";
+import StatCard from '@/components/stat-card'
+import { Badge } from '@/components/ui/badge'
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { getProceedingDayDetails } from '@/lib/supabase/queries'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
 
 interface PageProps {
   params: Promise<{
-    number: string;
-    date: string;
-  }>;
+    number: string
+    date: string
+  }>
 }
 
 export default async function ProceedingDayPage({ params }: PageProps) {
-  const { number, date } = await params;
-  const proceedingDay = await getProceedingDayDetails(parseInt(number), date);
+  const { number, date } = await params
+  const proceedingDay = await getProceedingDayDetails(parseInt(number), date)
 
-  if (!proceedingDay) notFound();
+  if (!proceedingDay) notFound()
 
   // Get all speakers from all points
   const allSpeakers = [
@@ -25,13 +25,13 @@ export default async function ProceedingDayPage({ params }: PageProps) {
         point.statements.map((s) => s.statement.speaker_name)
       )
     ),
-  ];
+  ]
 
   // Calculate statistics
   const totalStatements = proceedingDay.proceeding_point_ai.reduce(
     (acc, point) => acc + point.statements.length,
     0
-  );
+  )
 
   const averageEmotions = Math.round(
     proceedingDay.proceeding_point_ai.reduce(
@@ -44,7 +44,7 @@ export default async function ProceedingDayPage({ params }: PageProps) {
         ),
       0
     ) / totalStatements
-  );
+  )
 
   return (
     <div className="space-y-6">
@@ -55,22 +55,14 @@ export default async function ProceedingDayPage({ params }: PageProps) {
       </div>
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
         <StatCard
           title="Punkty"
           value={proceedingDay.proceeding_point_ai.length}
           category="Dzień"
         />
-        <StatCard
-          title="Wypowiedzi"
-          value={totalStatements}
-          category="Dzień"
-        />
-        <StatCard
-          title="Mówcy"
-          value={allSpeakers.length}
-          category="Dzień"
-        />
+        <StatCard title="Wypowiedzi" value={totalStatements} category="Dzień" />
+        <StatCard title="Mówcy" value={allSpeakers.length} category="Dzień" />
         <StatCard
           title="Emocjonalność"
           value={`${averageEmotions}/5`}
@@ -84,7 +76,7 @@ export default async function ProceedingDayPage({ params }: PageProps) {
           <CardWrapper
             key={point.id}
             title={`Punkt ${index + 1}`}
-            subtitle={point.topic.split(" | ")[1] || point.topic}
+            subtitle={point.topic.split(' | ')[1] || point.topic}
           >
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
@@ -109,7 +101,7 @@ export default async function ProceedingDayPage({ params }: PageProps) {
 
               <Link
                 href={`/proceedings/${number}/${date}/${point.id}`}
-                className="text-sm text-primary hover:underline block mt-4"
+                className="mt-4 block text-sm text-primary hover:underline"
               >
                 Zobacz szczegóły →
               </Link>
@@ -118,5 +110,5 @@ export default async function ProceedingDayPage({ params }: PageProps) {
         ))}
       </div>
     </div>
-  );
+  )
 }

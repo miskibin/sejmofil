@@ -1,56 +1,56 @@
-import { Vote, ThumbsUp, ThumbsDown } from "lucide-react";
-import { VotingResult as SimpleVoting } from "@/lib/queries/proceeding";
-import { VotingResult as DetailedVoting } from "@/lib/api/sejm";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { VotingDetailModal } from "../[number]/[date]/[id]/components/voting-detail-modal";
+import { Button } from '@/components/ui/button'
+import { VotingResult as DetailedVoting } from '@/lib/api/sejm'
+import { VotingResult as SimpleVoting } from '@/lib/queries/proceeding'
+import { ThumbsDown, ThumbsUp, Vote } from 'lucide-react'
+import { useState } from 'react'
+import { VotingDetailModal } from '../[number]/[date]/[id]/components/voting-detail-modal'
 
 type VotingProps = {
-  voting: SimpleVoting | DetailedVoting;
-  isDetailed?: boolean;
-  onLoadDetails?: () => void;
-};
+  voting: SimpleVoting | DetailedVoting
+  isDetailed?: boolean
+  onLoadDetails?: () => void
+}
 
-type VotingImportance = "high" | "low" | "normal";
+type VotingImportance = 'high' | 'low' | 'normal'
 
 export function VotingDisplay({
   voting,
   isDetailed,
   onLoadDetails,
 }: VotingProps) {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false)
 
   const getImportance = (topic: string): VotingImportance => {
-    if (topic.toLowerCase().includes("całością projektu")) return "high";
+    if (topic.toLowerCase().includes('całością projektu')) return 'high'
     if (
-      topic.toLowerCase().includes("poprawk") ||
-      topic.toLowerCase().includes("wniosek mniejszości") ||
-      topic.toLowerCase().includes("wnioski mniejszości")
+      topic.toLowerCase().includes('poprawk') ||
+      topic.toLowerCase().includes('wniosek mniejszości') ||
+      topic.toLowerCase().includes('wnioski mniejszości')
     )
-      return "low";
-    return "normal";
-  };
+      return 'low'
+    return 'normal'
+  }
 
-  const importance = getImportance(voting.topic);
+  const importance = getImportance(voting.topic)
 
   const yesVotes = isDetailed
-    ? (voting as DetailedVoting).votes.filter((v) => v.vote === "YES").length
-    : (voting as SimpleVoting).yes;
+    ? (voting as DetailedVoting).votes.filter((v) => v.vote === 'YES').length
+    : (voting as SimpleVoting).yes
 
   const noVotes = isDetailed
-    ? (voting as DetailedVoting).votes.filter((v) => v.vote === "NO").length
-    : (voting as SimpleVoting).no;
+    ? (voting as DetailedVoting).votes.filter((v) => v.vote === 'NO').length
+    : (voting as SimpleVoting).no
 
   const buttonStyles = {
-    high: "bg-blue-50 hover:bg-blue-100 font-medium",
-    low: "opacity-60",
-    normal: "",
-  };
+    high: 'bg-blue-50 hover:bg-blue-100 font-medium',
+    low: 'opacity-60',
+    normal: '',
+  }
 
   const handleClick = async () => {
-    await onLoadDetails?.();
-    setShowModal(true);
-  };
+    await onLoadDetails?.()
+    setShowModal(true)
+  }
 
   return (
     <>
@@ -62,13 +62,13 @@ export function VotingDisplay({
         <div className="flex w-full items-center gap-1 text-xs text-muted-foreground">
           <Vote
             className={`h-3 w-3 flex-shrink-0 ${
-              importance === "high" ? "text-blue-500" : ""
+              importance === 'high' ? 'text-blue-500' : ''
             }`}
           />
-          <span className="truncate mr-1">{voting.topic}</span>
-          <span className="flex items-center gap-1 flex-shrink-0 ml-auto">
+          <span className="mr-1 truncate">{voting.topic}</span>
+          <span className="ml-auto flex flex-shrink-0 items-center gap-1">
             <ThumbsUp className="h-3 w-3 text-success" />
-            {yesVotes} - {noVotes}{" "}
+            {yesVotes} - {noVotes}{' '}
             <ThumbsDown className="h-3 w-3 text-destructive" />
           </span>
         </div>
@@ -82,5 +82,5 @@ export function VotingDisplay({
         />
       )}
     </>
-  );
+  )
 }

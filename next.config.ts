@@ -1,14 +1,14 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["api.sejm.gov.pl", "www.freepik.com","db.msulawiak.pl"],
+    domains: ['api.sejm.gov.pl', 'www.freepik.com', 'db.msulawiak.pl'],
     minimumCacheTTL: 480,
   },
   experimental: {
     // dynamicIO: true,
   },
-  output: 'standalone'
-};
+  output: 'standalone',
+}
 
-export default nextConfig;
+export default nextConfig

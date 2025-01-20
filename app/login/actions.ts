@@ -1,27 +1,27 @@
-"use server";
+'use server'
 
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
 
 export async function signInWithGitHub(formData: FormData) {
-  const supabase = await createClient();
-  const returnPath = formData.get("returnPath")?.toString() || "/";
+  const supabase = await createClient()
+  const returnPath = formData.get('returnPath')?.toString() || '/'
 
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "github",
+    provider: 'github',
     options: {
       redirectTo: `${
         process.env.NEXT_PUBLIC_SITE_URL
       }/auth/callback?next=${encodeURIComponent(returnPath)}`,
       skipBrowserRedirect: true,
     },
-  });
+  })
   if (error) {
-    console.error("Error signing in with GitHub:", error.message);
-    return;
+    console.error('Error signing in with GitHub:', error.message)
+    return
   }
   if (data.url) {
-    redirect(data.url); // use the redirect API for your server framework
+    redirect(data.url) // use the redirect API for your server framework
   }
 }
 

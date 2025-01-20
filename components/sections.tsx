@@ -1,29 +1,28 @@
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Topic, ProcessStage } from "@/lib/types/process";
+import { Badge } from '@/components/ui/badge'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { ProcessStage, Topic } from '@/lib/types/process'
 
-import { ChevronRight, User, ChevronDown, FileText, Users } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "./ui/collapsible";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
-import Markdown from "react-markdown";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Person } from "@/lib/types/person";
-import { Print } from "@/lib/types/print";
-import { Comment } from "@/lib/types/print";
+} from '@/components/ui/carousel'
+import { Person } from '@/lib/types/person'
+import { Comment, Print } from '@/lib/types/print'
+import { ChevronDown, ChevronRight, FileText, User, Users } from 'lucide-react'
+import Markdown from 'react-markdown'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from './ui/collapsible'
 export const AuthorsSection = ({
   authorsByClub,
 }: {
-  authorsByClub: Record<string, Person[]>;
+  authorsByClub: Record<string, Person[]>
 }) => {
   return (
     <Card className="w-full">
@@ -40,12 +39,12 @@ export const AuthorsSection = ({
                   <Badge variant="outline" className="px-3 py-1">
                     {club} ({authors.length})
                   </Badge>
-                  <CollapsibleTrigger className="hover:bg-accent rounded-full p-1">
+                  <CollapsibleTrigger className="rounded-full p-1 hover:bg-accent">
                     <ChevronDown className="h-4 w-4 transition-transform" />
                   </CollapsibleTrigger>
                 </div>
                 <CollapsibleContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
+                  <div className="grid grid-cols-1 gap-2 pl-2 md:grid-cols-2">
                     {authors.map((author) => (
                       <div
                         key={author.firstLastName}
@@ -65,7 +64,7 @@ export const AuthorsSection = ({
                     {club} ({authors.length})
                   </Badge>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
+                <div className="grid grid-cols-1 gap-2 pl-2 md:grid-cols-2">
                   {authors.map((author) => (
                     <div
                       key={author.firstLastName}
@@ -82,8 +81,8 @@ export const AuthorsSection = ({
         ))}
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
 export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
   <Card className="w-full">
@@ -96,10 +95,10 @@ export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
         {topics.map((topic) => (
           <div
             key={topic.name}
-            className="flex flex-col gap-2 border-primary/10 rounded-md p-3 bg-primary/5"
+            className="flex flex-col gap-2 rounded-md border-primary/10 bg-primary/5 p-3"
           >
             <span className="font-medium text-primary">{topic.name}</span>
-            {topic.description.startsWith("{")
+            {topic.description.startsWith('{')
               ? JSON.parse(topic.description)[topic.name]
               : topic.description}
           </div>
@@ -107,7 +106,7 @@ export const TopicsSection = ({ topics }: { topics: Topic[] }) => (
       </div>
     </CardContent>
   </Card>
-);
+)
 
 export const RelatedPrintsSection = ({ prints }: { prints: Print[] }) => (
   <Card className="w-full">
@@ -120,25 +119,25 @@ export const RelatedPrintsSection = ({ prints }: { prints: Print[] }) => (
         <a
           href={`/processes/${print.number}`}
           key={print.number}
-          className="block p-3 border rounded-lg hover:bg-primary/5 transition-colors"
+          className="block rounded-lg border p-3 transition-colors hover:bg-primary/5"
         >
-          <div className="flex items-center justify-between mb-1">
+          <div className="mb-1 flex items-center justify-between">
             <Badge variant="outline">Nr {print.number}</Badge>
             <span className="text-xs text-muted-foreground">
               {print.documentType}
             </span>
           </div>
-          <h3 className="text-sm text-primary line-clamp-2">{print.title}</h3>
+          <h3 className="line-clamp-2 text-sm text-primary">{print.title}</h3>
         </a>
       ))}
     </CardContent>
   </Card>
-);
+)
 
 export const ProcessStagesSection = ({
   stages,
 }: {
-  stages: ProcessStage[];
+  stages: ProcessStage[]
 }) => (
   <Card className="w-full">
     <CardHeader>
@@ -150,24 +149,24 @@ export const ProcessStagesSection = ({
         {stages.map((stage, index) => (
           <div
             key={`${stage.stageName}-${stage.date}`}
-            className="flex items-start gap-4 relative"
+            className="relative flex items-start gap-4"
           >
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 {index + 1}
               </div>
               {index < stages.length - 1 && (
-                <div className="w-0.5 h-full bg-primary/30 absolute top-8 left-4 -z-10" />
+                <div className="absolute left-4 top-8 -z-10 h-full w-0.5 bg-primary/30" />
               )}
             </div>
             <div className="flex-1">
-              <div className="font-medium text-lg ">{stage.stageName}</div>
-              <div className="text-sm text-muted-foreground mb-2">
+              <div className="text-lg font-medium">{stage.stageName}</div>
+              <div className="mb-2 text-sm text-muted-foreground">
                 {stage.date}
               </div>
               {Array.isArray(stage.childStages) &&
                 stage.childStages.length > 0 && (
-                  <div className="ml-4 text-sm text-muted-foreground space-y-1">
+                  <div className="ml-4 space-y-1 text-sm text-muted-foreground">
                     {stage.childStages.map((child) => (
                       <div
                         key={`${child.stageName}-${index}`}
@@ -185,7 +184,7 @@ export const ProcessStagesSection = ({
       </div>
     </CardContent>
   </Card>
-);
+)
 
 // Add new TopicPrintsSection component
 export const TopicPrintsSection = ({ prints }: { prints: Print[] }) => (
@@ -201,9 +200,9 @@ export const TopicPrintsSection = ({ prints }: { prints: Print[] }) => (
             <a
               href={`/processes/${print.number}`}
               key={print.number}
-              className="block p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+              className="block rounded-lg border p-3 transition-colors hover:bg-accent/50"
             >
-              <div className="flex items-center justify-between mb-1">
+              <div className="mb-1 flex items-center justify-between">
                 <Badge variant="outline" className="flex items-center gap-1">
                   <FileText className="h-3 w-3" />
                   Nr {print.number}
@@ -212,7 +211,7 @@ export const TopicPrintsSection = ({ prints }: { prints: Print[] }) => (
                   {print.documentType}
                 </span>
               </div>
-              <h3 className="text-sm text-primary line-clamp-2">
+              <h3 className="line-clamp-2 text-sm text-primary">
                 {print.title}
               </h3>
             </a>
@@ -221,7 +220,7 @@ export const TopicPrintsSection = ({ prints }: { prints: Print[] }) => (
       </ScrollArea>
     </CardContent>
   </Card>
-);
+)
 
 // Add new SubjectsSection component
 export const SubjectsSection = ({ subjects }: { subjects: Person[] }) => (
@@ -232,11 +231,11 @@ export const SubjectsSection = ({ subjects }: { subjects: Person[] }) => (
     </CardHeader>
     <CardContent>
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {subjects.map((subject) => (
             <div
               key={subject.firstLastName}
-              className="flex items-center gap-2 p-2 rounded-md hover:bg-accent/50 transition-colors"
+              className="flex items-center gap-2 rounded-md p-2 transition-colors hover:bg-accent/50"
             >
               <Users className="h-4 w-4 text-primary" />
               <span className="text-sm">{subject.firstLastName}</span>
@@ -246,17 +245,17 @@ export const SubjectsSection = ({ subjects }: { subjects: Person[] }) => (
       </div>
     </CardContent>
   </Card>
-);
+)
 
 // Add new CommentsCarouselSection component
 export const CommentsCarouselSection = ({
   comments,
 }: {
-  comments: Comment[];
+  comments: Comment[]
 }) => {
-  if (comments.length === 0) return null;
+  if (comments.length === 0) return null
   return (
-    <Card className="w-full mt-8 shadow-none border-none">
+    <Card className="mt-8 w-full border-none shadow-none">
       <CardHeader>
         <CardTitle className="text-sm text-primary">Opinie</CardTitle>
         <h2 className="text-2xl font-semibold">
@@ -264,36 +263,36 @@ export const CommentsCarouselSection = ({
         </h2>
       </CardHeader>
       <CardContent>
-        <Carousel opts={{ align: "start" }} className="w-full">
+        <Carousel opts={{ align: 'start' }} className="w-full">
           <CarouselContent>
             {comments.map((comment, index) => (
               <CarouselItem
                 key={`${index}`}
                 className="md:basis-1/2 lg:basis-1/3"
               >
-                <div className="border rounded-lg p-4 h-full">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="h-full rounded-lg border p-4">
+                  <div className="mb-2 flex items-center justify-between">
                     <span className="font-medium text-primary">
                       {comment.author}
                     </span>
                     <Badge
                       variant={
-                        comment.sentiment === "Pozytywny"
-                          ? "default"
-                          : comment.sentiment === "Negatywny"
-                          ? "destructive"
-                          : "secondary"
+                        comment.sentiment === 'Pozytywny'
+                          ? 'default'
+                          : comment.sentiment === 'Negatywny'
+                            ? 'destructive'
+                            : 'secondary'
                       }
                     >
                       {comment.sentiment}
                     </Badge>
                   </div>
                   {comment.organization && (
-                    <span className="text-xs text-muted-foreground block mb-2">
+                    <span className="mb-2 block text-xs text-muted-foreground">
                       ({comment.organization})
                     </span>
                   )}
-                  <Markdown className="prose dark:prose-invert text-sm">
+                  <Markdown className="prose text-sm dark:prose-invert">
                     {comment.summary}
                   </Markdown>
                 </div>
@@ -305,5 +304,5 @@ export const CommentsCarouselSection = ({
         </Carousel>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
