@@ -1,19 +1,19 @@
-import { runQuery } from "../db/client";
-import { PrintShort } from "../types/print";
-import { ProcessStage } from "../types/process";
-import { VotingResult } from "./proceeding";
+import { runQuery } from '../db/client'
+import { PrintShort } from '../types/print'
+import { ProcessStage } from '../types/process'
+import { VotingResult } from './proceeding'
 
 interface Act {
-  ELI: string;
-  title: string;
-  announcementDate: string;
-  comment: string;
-  status: string;
-  address: string;
+  ELI: string
+  title: string
+  announcementDate: string
+  comment: string
+  status: string
+  address: string
 }
 
 interface ActResponse {
-  act: Act;
+  act: Act
 }
 
 export async function getAllProcessStages(
@@ -25,61 +25,61 @@ export async function getAllProcessStages(
       RETURN stage.stageName AS stageName,
              stage.date AS date,
              collect(childStage {.*}) AS childStages
-    `;
-  return runQuery<ProcessStage>(query, { processNumber });
+    `
+  return runQuery<ProcessStage>(query, { processNumber })
 }
 
 interface Committee {
-  code: string | null;
-  name: string;
+  code: string | null
+  name: string
 }
 
 interface Voting {
-  sitting: number;
-  votingNumber: number;
-  yes: number;
-  no: number;
+  sitting: number
+  votingNumber: number
+  yes: number
+  no: number
 }
 
 interface Stage {
-  name: string;
-  date: string | null;
-  number: string;
-  votings: Voting[];
-  comment: string | null;
-  act: string | null;
-  prints: PrintShort[];
+  name: string
+  date: string | null
+  number: string
+  votings: Voting[]
+  comment: string | null
+  act: string | null
+  prints: PrintShort[]
   childStages: {
-    name: string;
-    date: string | null;
-    number: string;
-  }[];
-  childPrints: PrintShort[];
-  childCommittees: Committee[];
+    name: string
+    date: string | null
+    number: string
+  }[]
+  childPrints: PrintShort[]
+  childCommittees: Committee[]
 }
 
 export interface ProcessDetailData {
-  title: string;
-  documentType: string;
-  description: string;
-  prints: PrintShort[][];
-  UE: string;
-  comments: string;
-  stages: Stage[];
+  title: string
+  documentType: string
+  description: string
+  prints: PrintShort[][]
+  UE: string
+  comments: string
+  stages: Stage[]
 }
 
 interface ProcessDetailResponse {
-  processData: ProcessDetailData;
+  processData: ProcessDetailData
 }
 export async function getProcessPrint(printNumber: string): Promise<string> {
   const query = `
     MATCH (print:Print {number: $printNumber})
     RETURN  print.processPrint AS processPrint
-  `;
+  `
   const res = await runQuery<{ processPrint: number[] }>(query, {
     printNumber,
-  });
-  return String(res[0]?.processPrint[0]);
+  })
+  return String(res[0]?.processPrint[0])
 }
 export async function getProcessDetails(
   processNumber: string
@@ -133,15 +133,15 @@ RETURN process {
         stages: stages,
         prints: [print IN allProcessPrints WHERE print IS NOT NULL]
     } AS processData
-`;
+`
 
   const resp = (await runQuery<ProcessDetailResponse>(query, {
     processNumber,
-  })) as ProcessDetailResponse[];
-  return resp[0]?.processData;
+  })) as ProcessDetailResponse[]
+  return resp[0]?.processData
 }
 interface PrintResponse {
-  p: PrintShort;
+  p: PrintShort
 }
 export async function getLatestPrints(
   limit: number = 10
@@ -156,10 +156,10 @@ export async function getLatestPrints(
     }
     ORDER BY p.documentDate DESC
     LIMIT 10
-  `;
+  `
 
-  const res = await runQuery<PrintResponse>(query, { limit });
-  return res.map((r) => r.p);
+  const res = await runQuery<PrintResponse>(query, { limit })
+  return res.map((r) => r.p)
 }
 
 export async function getPrintsByTopic(
@@ -176,10 +176,10 @@ export async function getPrintsByTopic(
     }
     ORDER BY p.documentDate DESC
     LIMIT 40
-  `;
+  `
 
-  const res = await runQuery<PrintResponse>(query, { topicName, limit });
-  return res.map((r) => r.p);
+  const res = await runQuery<PrintResponse>(query, { topicName, limit })
+  return res.map((r) => r.p)
 }
 
 export async function getActsForProcess(processNumber: string): Promise<Act[]> {
@@ -194,10 +194,10 @@ export async function getActsForProcess(processNumber: string): Promise<Act[]> {
       address: a.address
     } as act
     ORDER BY a.announcementDate DESC
-  `;
+  `
 
-  const res = await runQuery<ActResponse>(query, { processNumber });
-  return res.map((r) => r.act);
+  const res = await runQuery<ActResponse>(query, { processNumber })
+  return res.map((r) => r.act)
 }
 
 export async function getProcessVotings(processNumber: string) {
@@ -216,12 +216,12 @@ export async function getProcessVotings(processNumber: string) {
       } as voting
     }
     RETURN voting
-  `;
+  `
 
   const res = await runQuery<{ voting: VotingResult }>(query, {
     processNumber,
-  });
-  return res.map((r) => r.voting);
+  })
+  return res.map((r) => r.voting)
 }
 
 export async function getSimilarPrints(
@@ -245,8 +245,8 @@ export async function getSimilarPrints(
     } as p
     ORDER BY similarity DESC
     LIMIT 3
-  `;
+  `
 
-  const res = await runQuery<PrintResponse>(query, { printNumber });
-  return res.map((r) => r.p);
+  const res = await runQuery<PrintResponse>(query, { printNumber })
+  return res.map((r) => r.p)
 }

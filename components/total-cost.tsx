@@ -1,55 +1,55 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import { Watch } from "lucide-react";
+'use client'
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { Watch } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 const SejmCostCounter = () => {
-  const dailyBudget = 849600000 / 365;
-  const [cost, setCost] = useState(0);
+  const dailyBudget = 849600000 / 365
+  const [cost, setCost] = useState(0)
   const [startTime, setStartTime] = useState(() => {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    return now;
-  });
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    return now
+  })
 
   useEffect(() => {
     const calcCost = () => {
-      const now = new Date();
-      const elapsedTime = now.getTime() - startTime.getTime();
-      const msInDay = 1000 * 60 * 60 * 24;
-      const dayFraction = elapsedTime / msInDay;
-      return dailyBudget * dayFraction;
-    };
+      const now = new Date()
+      const elapsedTime = now.getTime() - startTime.getTime()
+      const msInDay = 1000 * 60 * 60 * 24
+      const dayFraction = elapsedTime / msInDay
+      return dailyBudget * dayFraction
+    }
 
-    const updateCost = () => setCost(calcCost());
-    updateCost();
-    const interval = setInterval(updateCost, 100);
-    return () => clearInterval(interval);
-  }, [startTime]);
+    const updateCost = () => setCost(calcCost())
+    updateCost()
+    const interval = setInterval(updateCost, 100)
+    return () => clearInterval(interval)
+  }, [startTime])
 
   const formatCost = (val: number) =>
-    new Intl.NumberFormat("pl-PL", {
-      style: "currency",
-      currency: "PLN",
+    new Intl.NumberFormat('pl-PL', {
+      style: 'currency',
+      currency: 'PLN',
       maximumFractionDigits: 0,
-    }).format(val);
+    }).format(val)
 
   const handleReset = () => {
-    const now = new Date();
-    setStartTime(now);
-    setCost(0);
-  };
+    const now = new Date()
+    setStartTime(now)
+    setCost(0)
+  }
 
   const formatTimeString = (date: Date) => {
     return date.getHours() === 0 &&
       date.getMinutes() === 0 &&
       date.getSeconds() === 0
-      ? "Od początku dnia"
+      ? 'Od początku dnia'
       : `od ${date.getHours()}:${String(date.getMinutes()).padStart(
           2,
-          "0"
-        )}:${String(date.getSeconds()).padStart(2, "0")}`;
-  };
+          '0'
+        )}:${String(date.getSeconds()).padStart(2, '0')}`
+  }
 
   return (
     <CardWrapper
@@ -63,9 +63,9 @@ const SejmCostCounter = () => {
       headerIcon={
         <button
           onClick={handleReset}
-          className="hover:opacity-80 transition-opacity"
+          className="transition-opacity hover:opacity-80"
         >
-          <Watch className="h-5 w-5  text-white " />
+          <Watch className="h-5 w-5 text-white" />
         </button>
       }
       showSource={true}
@@ -75,7 +75,7 @@ const SejmCostCounter = () => {
         {formatCost(cost)}
       </p>
     </CardWrapper>
-  );
-};
+  )
+}
 
-export default SejmCostCounter;
+export default SejmCostCounter

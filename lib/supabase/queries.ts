@@ -21,7 +21,9 @@ export async function getEnvoyStatementDetails(name: string) {
     `
     )
     .eq('speaker_name', name)
+    .eq('speaker_name', name)
 
+  return statementData || []
   return statementData || []
 }
 export async function getStatementCombinedDetails(
@@ -58,7 +60,6 @@ interface TopicCount {
   proceeding_id: number
   date: string
   count: number
-  uuid: string
 }
 
 export async function getTopDiscussedTopics(
@@ -112,6 +113,7 @@ export async function getLatestCitizations(
   const citations: CitationWithPerson[] = []
 
   data.forEach((item) => {
+    if (uniqueSpeakers.has(item.speaker_name)) return
     if (uniqueSpeakers.has(item.speaker_name)) return
 
     const citation = (item.statement_ai as unknown as { citations: string[] })

@@ -21,8 +21,8 @@ export default async function RecentPoints() {
               <Link
                 href={`/proceedings/${topic.proceeding_id}/${topic.date}/${topic.id}`}
               >
-                <div className="flex gap-x-3 items-start">
-                  <span className="font-semibold text-white flex items-center justify-center bg-primary min-w-10 min-h-10 w-10 h-10 text-center rounded-lg">
+                <div className="flex items-start gap-x-3">
+                  <span className="flex h-10 min-h-10 w-10 min-w-10 items-center justify-center rounded-lg bg-primary text-center font-semibold text-white">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <div className="flex-1">

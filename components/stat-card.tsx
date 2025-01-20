@@ -1,12 +1,12 @@
-import { CardWrapper } from "@/components/ui/card-wrapper";
+import { CardWrapper } from '@/components/ui/card-wrapper'
 
 interface StatCardProps {
-  title: string;
-  value: number | string;
-  category: string;
-  sourceDescription?: string;
-  sourceUrls?: string[];
-  headerIcon?: React.ReactNode;
+  title: string
+  value: number | string
+  category: string
+  sourceDescription?: string
+  sourceUrls?: string[]
+  headerIcon?: React.ReactNode
 }
 
 export default function StatCard({
@@ -30,5 +30,5 @@ export default function StatCard({
     >
       <p className="text-3xl font-bold">{value}</p>
     </CardWrapper>
-  );
+  )
 }
