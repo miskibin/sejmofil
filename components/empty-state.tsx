@@ -1,13 +1,13 @@
-import Image from "next/image";
+import Image from 'next/image'
 export const EmptyState = ({
   text,
   image,
 }: {
-  text?: string;
-  image: string;
+  text?: string
+  image: string
 }) => (
-  <div className="text-center pb-6">
-    <div className="flex justify-center items-center mb-4">
+  <div className="pb-6 text-center">
+    <div className="mb-4 flex items-center justify-center">
       <Image
         src={image}
         width={300}
@@ -17,4 +17,4 @@ export const EmptyState = ({
     </div>
     {text && <p className="text-gray-500">{text}</p>}
   </div>
-);
+)

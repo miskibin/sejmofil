@@ -1,54 +1,54 @@
-import { searchPrints } from "@/lib/queries/print";
-import { searchPersons } from "@/lib/queries/person";
-import { PrintCard } from "@/components/print-card";
-import { EnvoyCard } from "@/components/envoy-card";
-import { searchPoints } from "@/lib/supabase/queries";
-import { PointCard } from "@/components/point-card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users2, FileText, Calendar } from "lucide-react";
+import { EnvoyCard } from '@/components/envoy-card'
+import { PointCard } from '@/components/point-card'
+import { PrintCard } from '@/components/print-card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { searchPersons } from '@/lib/queries/person'
+import { searchPrints } from '@/lib/queries/print'
+import { searchPoints } from '@/lib/supabase/queries'
+import { Calendar, FileText, Users2 } from 'lucide-react'
 
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q: string }>;
+  searchParams: Promise<{ q: string }>
 }) {
-  const { q: query } = await searchParams;
+  const { q: query } = await searchParams
 
   if (!query) {
     return (
       <div className="container mx-auto mt-20 px-4">
-        <h1 className="text-2xl font-bold mb-4">Wyszukiwarka</h1>
+        <h1 className="mb-4 text-2xl font-bold">Wyszukiwarka</h1>
         <p>Wprowadź tekst aby wyszukać druki sejmowe lub posłów.</p>
       </div>
-    );
+    )
   }
 
   const [prints, persons, points] = await Promise.all([
     searchPrints(query),
     searchPersons(query),
     searchPoints(query),
-  ]);
+  ])
 
   const hasResults =
-    prints.length > 0 || persons.length > 0 || points.length > 0;
+    prints.length > 0 || persons.length > 0 || points.length > 0
 
   if (!hasResults) {
     return (
       <div className="container mx-auto mt-20 px-4">
-        <h1 className="text-2xl font-bold mb-4">
+        <h1 className="mb-4 text-2xl font-bold">
           Wyniki wyszukiwania dla: {query}
         </h1>
         <p>Nie znaleziono wyników dla podanego zapytania.</p>
       </div>
-    );
+    )
   }
 
   const defaultTab =
-    points.length > 0 ? "points" : persons.length > 0 ? "persons" : "prints";
+    points.length > 0 ? 'points' : persons.length > 0 ? 'persons' : 'prints'
 
   return (
     <div className="container mx-auto mt-20 px-4">
-      <h1 className="text-2xl font-bold mb-8">
+      <h1 className="mb-8 text-2xl font-bold">
         Wyniki wyszukiwania dla: {query}
       </h1>
 
@@ -111,5 +111,5 @@ export default async function SearchPage({
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

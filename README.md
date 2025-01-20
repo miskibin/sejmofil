@@ -10,6 +10,7 @@ Sejmofil to inicjatywa non-profit, której celem jest wspieranie demokracji w Po
 ## 🚀 Szybki Start
 
 ### Wymagania
+
 - Node.js 18+
 - npm
 - Discord (aby otrzymać plik .env)
@@ -17,12 +18,14 @@ Sejmofil to inicjatywa non-profit, której celem jest wspieranie demokracji w Po
 ### Instalacja
 
 1. Sklonuj repozytorium
+
 ```bash
 git clone https://github.com/miskibin/sejmofil.git
 cd sejmofil
 ```
 
 2. Zainstaluj zależności
+
 ```bash
 npm install
 ```
@@ -30,6 +33,7 @@ npm install
 3. **Ważne**: Dołącz do [naszego Discorda](https://discord.com/invite/zH2J3z5Wbf) i poproś zespół o plik `.env`
 
 4. Uruchom aplikację
+
 ```bash
 pnpm dev
 ```
@@ -67,11 +71,9 @@ sejmofront/
 - GitHub: [miskibin/sejmofil](https://github.com/miskibin/sejmofil)
 - YouTube: [@sejm-stats](https://www.youtube.com/@sejm-stats)
 
-
 ---
 
 Zrobione z ❤️ dla polskiej demokracji
-
 
 # Baza danych
 
