@@ -5,12 +5,15 @@ import { redirect } from "next/navigation";
 
 export async function signInWithGitHub(formData: FormData) {
   const supabase = await createClient();
-  const returnPath = formData.get('returnPath')?.toString() || '/';
+  const returnPath = formData.get("returnPath")?.toString() || "/";
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(returnPath)}`,
+      redirectTo: `${
+        process.env.NEXT_PUBLIC_SITE_URL
+      }/auth/callback?next=${encodeURIComponent(returnPath)}`,
+      skipBrowserRedirect: true,
     },
   });
   if (error) {
@@ -24,4 +27,3 @@ export async function signInWithGitHub(formData: FormData) {
 
 // Remove signup function since we're using only GitHub auth
 // Remove signup function since we're using only GitHub auth
-
