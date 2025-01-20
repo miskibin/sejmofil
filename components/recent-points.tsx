@@ -1,9 +1,9 @@
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import { getTopDiscussedTopics } from "@/lib/supabase/queries";
-import Link from "next/link";
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { getTopDiscussedTopics } from '@/lib/supabase/queries'
+import Link from 'next/link'
 
 export default async function RecentPoints() {
-  const topics = await getTopDiscussedTopics(7);
+  const topics = await getTopDiscussedTopics(7)
 
   return (
     <CardWrapper
@@ -14,10 +14,10 @@ export default async function RecentPoints() {
     >
       <div className="space-y-5 py-4">
         {topics.map((topic, index) => {
-          const [category, title] = topic.topic.split(" | ");
+          const [category, title] = topic.topic.split(' | ')
 
           return (
-            <div key={index + topic.id} className="space-y-1">
+            <div key={topic.uuid} className="space-y-1">
               <Link
                 href={`/proceedings/${topic.proceeding_id}/${topic.date}/${topic.id}`}
               >
@@ -34,9 +34,9 @@ export default async function RecentPoints() {
                 </div>
               </Link>
             </div>
-          );
+          )
         })}
       </div>
     </CardWrapper>
-  );
+  )
 }
