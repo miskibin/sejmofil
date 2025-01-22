@@ -4,7 +4,7 @@ import { PrintCard } from '@/components/print-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { searchPersons } from '@/lib/queries/person'
 import { searchPrints } from '@/lib/queries/print'
-import { searchPoints } from '@/lib/supabase/queries'
+import { searchPoints } from '@/lib/supabase/searchPoints'
 import { Calendar, FileText, Users2 } from 'lucide-react'
 
 export default async function SearchPage({

@@ -1,5 +1,5 @@
 import { CardWrapper } from '@/components/ui/card-wrapper'
-import { getTopDiscussedTopics } from '@/lib/supabase/queries'
+import { getTopDiscussedTopics } from '@/lib/supabase/getTopDiscussedTopics'
 import Link from 'next/link'
 
 export default async function RecentPoints() {

@@ -1,6 +1,6 @@
-import { ProceedingWithDetails } from '@/lib/supabase/queries'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { ProceedingWithDetails } from './supabase/getProceedingDetails'
 import { ProceedingDates } from './types/process'
 
 export function cn(...inputs: ClassValue[]) {

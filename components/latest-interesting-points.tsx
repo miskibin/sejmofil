@@ -1,4 +1,4 @@
-import { getProceedingDetails } from '@/lib/supabase/queries'
+import { getProceedingDetails } from '@/lib/supabase/getProceedingDetails'
 import { sortPointsByImportance, truncateText } from '@/lib/utils'
 import { Sparkles } from 'lucide-react'
 import Link from 'next/link'
