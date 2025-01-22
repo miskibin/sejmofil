@@ -52,8 +52,7 @@ export function CardWrapper({
           <Image
             src={imageSrc}
             alt=""
-            className="h-full w-full rounded-t-lg object-cover"
-            objectFit="cover"
+            className="h-full w-full rounded-t-lg"
             width={500}
             height={300}
           />

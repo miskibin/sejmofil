@@ -124,9 +124,9 @@ export function EnvoyCard({
               <Image
                 src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${envoy.id}.jpeg`}
                 alt={fullName}
-                fill
-                sizes="60px"
-                className="rounded-lg object-cover"
+                width={64}
+                height={80}
+                className="rounded-lg"
                 loading="lazy"
               />
               {medalColor && (

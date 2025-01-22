@@ -3,12 +3,13 @@
 import Image from 'next/image'
 import { useState } from 'react'
 
-interface ImageWithFallbackProps {
+type ImageWithFallbackProps = {
   src: string
   alt: string
   fallbackSrc: string
   fill?: boolean
   className?: string
+  sizes?: string
 }
 
 export function ImageWithFallback({

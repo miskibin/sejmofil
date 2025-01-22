@@ -96,8 +96,8 @@ export default async function PlebiscytCard() {
               src={politician.image}
               alt={politician.name}
               width={48}
-              height={48}
-              className="rounded-full"
+              height={60}
+              className="size-auto"
             />
           </Link>
         ))}
