@@ -50,7 +50,8 @@ export const PointCard = ({
           alt={point.topic}
           fallbackSrc="/default.jpg"
           fill
-          className="object-cover blur-[2px] transition-all duration-500 group-hover:scale-110 group-hover:blur-0"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="blur-[2px] transition-all duration-500 group-hover:scale-110 group-hover:blur-0"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent transition-all duration-300" />
 
