@@ -1,6 +1,6 @@
 import { VotingResult } from '@/lib/api/sejm'
 import { getVotingResultsByNumbrs } from '@/lib/queries/proceeding'
-import { getProceedings } from '@/lib/supabase/queries'
+import { getProceedings } from '@/lib/supabase/getProceedings'
 import { Metadata } from 'next'
 import { ProceedingsList } from './proceedings-list'
 import { ProceedingPoint } from './types'

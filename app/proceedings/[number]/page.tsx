@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge'
-import { getProceedingDetails } from '@/lib/supabase/queries'
+import { getProceedingDetails } from '@/lib/supabase/getProceedingDetails'
 import { sortPointsByImportance } from '@/lib/utils'
 import { notFound } from 'next/navigation'
 import { PointCard } from './components/point-card'

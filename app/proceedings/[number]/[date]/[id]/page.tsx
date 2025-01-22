@@ -8,11 +8,9 @@ import {
   getLatestStageAndPerformer,
   getPrintsByNumbersAndVotings,
 } from '@/lib/queries/print'
-import {
-  getAdjacentPoints,
-  getPointDetails,
-  getRelatedPoint,
-} from '@/lib/supabase/queries'
+import { getAdjacentPoints } from '@/lib/supabase/getAdjacentPoints'
+import { getPointDetails } from '@/lib/supabase/getPointDetails'
+import { getRelatedPoint } from '@/lib/supabase/getRelatedPoint'
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 import { Metadata } from 'next'
 import Link from 'next/link'

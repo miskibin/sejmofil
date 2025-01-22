@@ -8,7 +8,7 @@ import {
   getEnvoySpeeches,
 } from '@/lib/queries/person'
 import { getEnvoyPrints, getEnvoySubjectPrints } from '@/lib/queries/print'
-import { getStatementCombinedDetails } from '@/lib/supabase/queries'
+import { getStatementCombinedDetails } from '@/lib/supabase/getStatementCombinedDetails'
 import { truncateText } from '@/lib/utils'
 import { Sparkles } from 'lucide-react'
 import { Metadata } from 'next'

@@ -1,7 +1,7 @@
 import StatCard from '@/components/stat-card'
 import { Badge } from '@/components/ui/badge'
 import { CardWrapper } from '@/components/ui/card-wrapper'
-import { getProceedingDayDetails } from '@/lib/supabase/queries'
+import { getProceedingDayDetails } from '@/lib/supabase/getProceedingDayDetails'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
