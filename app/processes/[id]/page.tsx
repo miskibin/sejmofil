@@ -11,7 +11,7 @@ import {
   getProcessVotings,
   getSimilarPrints,
 } from '@/lib/queries/process'
-import { getPointsByPrintNumbers } from '@/lib/supabase/queries'
+import { getPointsByPrintNumbers } from '@/lib/supabase/getPointsByPrintNumbers'
 import { cn } from '@/lib/utils'
 import { BookOpen, FileText, Sparkles, Vote } from 'lucide-react'
 import Link from 'next/link'
@@ -19,7 +19,6 @@ import { notFound } from 'next/navigation'
 import { FaRegFilePdf } from 'react-icons/fa'
 import ReactMarkdown from 'react-markdown'
 import LegislativeTimeline from '../components/stepper'
-
 type Comment = {
   sentiment: 'Neutralny' | 'Pozytywny' | 'Negatywny'
   summary: string
