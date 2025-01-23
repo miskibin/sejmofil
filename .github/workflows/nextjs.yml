@@ -6,14 +6,17 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-  NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: test
+    env:
+      DB_URI: ${{ secrets.DB_URI }}
+      DB_USER: ${{ secrets.DB_USER }}
+      NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
 
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +46,8 @@ jobs:
       #     run: npm run typecheck
 
       - name: Build
+        env:
+          NEXT_PUBLIC_ENVIRONMENT: test
         run: npm run build
 
       # Uncomment if you have tests
