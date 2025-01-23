@@ -58,5 +58,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-output
-          path: .next
+          path: |
+            .next/
+            public/
+            package.json
+            next.config.js
           retention-days: 7
+          if-no-files-found: error
