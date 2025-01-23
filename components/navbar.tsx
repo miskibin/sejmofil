@@ -1,10 +1,7 @@
 'use client'
 
-import { LoginDialog } from '@/components/login-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { createClient } from '@/utils/supabase/client'
-import { User } from '@supabase/supabase-js'
 import { Menu, Newspaper, Search } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -27,24 +24,6 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [user, setUser] = useState<User | null>(null)
-  const supabase = createClient()
-
-  useEffect(() => {
-    // Get initial user state
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-    })
-
-    // Listen for auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -89,10 +68,6 @@ export default function Navbar() {
 
   const handleLinkClick = () => {
     setIsSidebarOpen(false)
-  }
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
   }
 
   return (
@@ -166,26 +141,10 @@ export default function Navbar() {
             O Projekcie
           </Button>
         </Link>
-        {user ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-            onClick={handleSignOut}
-          >
-            <Avatar className="h-8 w-8 md:h-10 md:w-10">
-              <AvatarImage
-                src={user.user_metadata.avatar_url}
-                alt={user.user_metadata.user_name || 'User'}
-              />
-              <AvatarFallback>
-                {(user.user_metadata.user_name || 'User')[0]}
-              </AvatarFallback>
-            </Avatar>
-          </Button>
-        ) : (
-          <LoginDialog />
-        )}
+        <Avatar className="h-8 w-8 md:h-10 md:w-10">
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
       </div>
     </nav>
   )
