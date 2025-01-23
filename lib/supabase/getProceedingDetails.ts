@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 
-type ProceedingWithDetails = {
+export type ProceedingWithDetails = {
   id: number
   number: number
   title: string

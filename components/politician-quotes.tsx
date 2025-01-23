@@ -1,6 +1,6 @@
 import { CardWrapper } from '@/components/ui/card-wrapper'
 import { getIdsFromNames } from '@/lib/queries/person'
-import { getLatestCitizations } from '@/lib/supabase/CitationWithPerson'
+import { getLatestCitizations } from '@/lib/supabase/getLatestCitizations'
 import { truncateText } from '@/lib/utils'
 import { Sparkles } from 'lucide-react'
 import Image from 'next/image'
