@@ -4,7 +4,8 @@ import { CardWrapper } from '@/components/ui/card-wrapper'
 import { VotingList } from '@/components/voting-list'
 import Image from 'next/image'
 import { DiscussionEntries } from '../../proceedings/[number]/[date]/[id]/components/discussion-entries'
-import { mockSpeakerClubs, mockStatements, mockVotings } from './mock-data'
+import { article, mockSpeakerClubs, mockStatements, mockVotings } from './mock-data'
+import ReactMarkdown from 'react-markdown'
 
 export default function SocialStylePage() {
   return (
@@ -13,10 +14,10 @@ export default function SocialStylePage() {
       <div className="relative">
         <div className="container mx-auto max-w-6xl px-4 py-8">
           <h1 className="mb-2 text-4xl font-bold">
-            Reforma systemu azylowego w Polsce
+          Polska prezydencja w Radzie UE pod znakiem bezpieczeństwa. Opozycja krytykuje brak konkretów
           </h1>
           <p className="text-xl text-muted-foreground">
-            Analiza kluczowej debaty parlamentarnej
+          8 stycznia 2025, Sejm RP
           </p>
         </div>
 
@@ -42,41 +43,10 @@ export default function SocialStylePage() {
               title="Szczegóły"
               subtitle="Analiza proponowanych zmian"
             >
-              <article className="prose prose-sm max-w-none dark:prose-invert">
-                <p className="lead text-lg font-medium text-foreground">
-                  Sejm rozpoczął prace nad kompleksową reformą systemu
-                  azylowego, która ma na celu fundamentalną przebudowę procesu
-                  przyjmowania i rozpatrywania wniosków o ochronę międzynarodową
-                  w Polsce.
-                </p>
-                <p>
-                  Proponowane zmiany zakładają utworzenie specjalnej komisji
-                  weryfikacyjnej, wprowadzenie nowych procedur przyspieszonych
-                  oraz modernizację systemu identyfikacji. Reforma ma
-                  odpowiedzieć na rosnące wyzwania migracyjne i dostosować
-                  polskie prawo do standardów europejskich.
-                </p>
-                <p>Kluczowe elementy reformy obejmują:</p>
-                <ul>
-                  <li>
-                    Utworzenie Centrum Procedur Azylowych z oddziałami w każdym
-                    województwie
-                  </li>
-                  <li>
-                    Wprowadzenie 60-dniowego terminu na rozpatrzenie wniosku w
-                    trybie przyspieszonym
-                  </li>
-                  <li>Cyfryzację procesu składania i weryfikacji dokumentów</li>
-                  <li>
-                    Wzmocnienie współpracy międzynarodowej w zakresie
-                    weryfikacji tożsamości
-                  </li>
-                </ul>
-                <p>
-                  Dyskusja w Sejmie koncentruje się głównie wokół kwestii
-                  bezpieczeństwa, efektywności procedur oraz zgodności
-                  proponowanych rozwiązań z prawem międzynarodowym.
-                </p>
+              <article className="prose prose-sm max-w-none">
+                <ReactMarkdown>
+                {article}
+               </ReactMarkdown>
               </article>
               <div className="mt-6 flex items-center justify-between border-t pt-4">
                 <StatementReactions statementId={1} />
