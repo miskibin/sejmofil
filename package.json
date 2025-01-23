@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "typecheck": "tsc --noEmit",
     "lint": "next lint",
     "prettier": "prettier . --write",
     "husky:prepare": "pnpm husky && pnpm husky:add-precommit && pnpm husky:add-prepush",
