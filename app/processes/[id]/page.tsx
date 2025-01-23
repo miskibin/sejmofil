@@ -14,6 +14,7 @@ import {
 import { getPointsByPrintNumbers } from '@/lib/supabase/getPointsByPrintNumbers'
 import { cn } from '@/lib/utils'
 import { BookOpen, FileText, Sparkles, Vote } from 'lucide-react'
+import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { FaRegFilePdf } from 'react-icons/fa'
@@ -24,6 +25,20 @@ type Comment = {
   summary: string
   author: string
   organization: string
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const processId = id.includes('-') ? id : await getProcessPrint(id)
+  const processDetails = await getProcessDetails(processId)
+  return {
+    title: processDetails?.title,
+    description: processDetails?.description,
+  }
 }
 
 function constructActUrl(eli: string) {
@@ -56,7 +71,7 @@ export default async function ProcessPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const processId = await getProcessPrint(id)
+  const processId = id.includes('-') ? id : await getProcessPrint(id)
   const processDetails = await getProcessDetails(processId)
   if (!processDetails) notFound()
 
