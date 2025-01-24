@@ -7,6 +7,7 @@ import StatCard from '@/components/stat-card'
 import TotalBreaks from '@/components/total-breaks'
 import SejmCostCounter from '@/components/total-cost'
 import TotalProceedingDays from '@/components/total-proceeding-days'
+import { Alert } from '@/components/ui/alert'
 import { CardWrapper } from '@/components/ui/card-wrapper'
 import { getProceedingDates } from '@/lib/queries/proceeding'
 import { getNextProceedingDate, getTimeUntilNextProceeding } from '@/lib/utils'
@@ -20,6 +21,8 @@ export default async function Home() {
   const timeUntil = getTimeUntilNextProceeding(nextDate)
   return (
     <>
+      <Alert>Strona w rozwoju. wróć w Lutym</Alert>
+
       <div className="mb-4 mt-16 sm:mb-8">
         <h1 className="px-2 text-2xl font-semibold">
           {nextDate ? (
