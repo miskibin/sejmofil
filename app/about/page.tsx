@@ -51,7 +51,7 @@ const sections = [
 
       Projekt **nie wspiera żadnej partii politycznej**, koncentrując się na dostarczaniu obiektywnych danych i analiz. *Kiedy obywatele mają dostęp do rzetelnych informacji, mogą podejmować świadome decyzje.*
 
-      Cały kod projektu jest [dostępny na GitHubie](https://github.com/your-repo), a metodologia analizy jest w pełni transparentna.
+      Cały kod projektu jest [dostępny na GitHubie](${SOCIAL_LINKS.GITHUB}), a metodologia analizy jest w pełni transparentna.
     `,
     image: '/goals.svg',
   },
