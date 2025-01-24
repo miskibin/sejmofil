@@ -1,53 +1,30 @@
-// middleware.ts (Updated)
+'use server'
 import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { cookies } from 'next/headers'
 
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: new Headers(request.headers),
-    },
-  })
+export async function createClient() {
+  const cookieStore = await cookies()
 
-  const supabase = createServerClient(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        // Use async cookie handling for Next.js 15
-        getAll: async () => {
-          const cookies = request.cookies.getAll()
-          return cookies.map((c) => ({ name: c.name, value: c.value }))
+        getAll() {
+          return cookieStore.getAll()
         },
-        setAll: (cookiesToSet) => {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            // Only modify RESPONSE cookies, not request
-            response.cookies.set(name, value, options)
-          })
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
         },
       },
     }
   )
-
-  try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
-
-    // Handle auth callback route first
-    if (request.nextUrl.pathname.startsWith('/auth/callback')) {
-      return response
-    }
-
-    // if (!user && !request.nextUrl.pathname.startsWith('/login')) {
-    //   return NextResponse.redirect(new URL('/login', request.url))
-    // }
-  } catch (error) {
-    console.error('Middleware auth error:', error)
-    // Handle failed auth check gracefully
-    return NextResponse.next()
-  }
-
-  return response
 }
