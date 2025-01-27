@@ -6,7 +6,7 @@ import { Menu, Newspaper, Search } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { LoginDialog } from './login-dialog'
 import {
   Sheet,
   SheetContent,
@@ -141,10 +141,7 @@ export default function Navbar() {
             O Projekcie
           </Button>
         </Link>
-        <Avatar className="h-8 w-8 md:h-10 md:w-10">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        <LoginDialog />
       </div>
     </nav>
   )
