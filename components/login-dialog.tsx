@@ -5,14 +5,16 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Github, Lock } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
-interface LoginDialogProps {
+type LoginDialogProps = {
   trigger?: React.ReactNode
   message?: string
   defaultOpen?: boolean
@@ -26,6 +28,20 @@ export function LoginDialog({
   onOpenChange,
 }: LoginDialogProps) {
   const currentPath = usePathname()
+  const router = useRouter()
+
+  useEffect(() => {
+    const returnPath = sessionStorage.getItem('returnPath')
+    if (returnPath) {
+      router.push(returnPath)
+      sessionStorage.removeItem('returnPath')
+    }
+  }, [])
+
+  function handleLogin() {
+    sessionStorage.setItem('returnPath', currentPath)
+    signInWithGitHub()
+  }
 
   return (
     <Dialog defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
@@ -38,15 +54,15 @@ export function LoginDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Zaloguj się</DialogTitle>
-          {message && (
-            <p className="text-sm text-muted-foreground">{message}</p>
-          )}
+          <DialogTitle>Logowanie</DialogTitle>
+          <DialogDescription>
+            {message || 'Zaloguj się aby uzyskać dostęp do wszystkich funkcji'}
+          </DialogDescription>
         </DialogHeader>
         <form className="space-y-4">
           <input type="hidden" name="returnPath" value={currentPath} />
           <Button
-            formAction={signInWithGitHub}
+            formAction={handleLogin}
             className="flex w-full items-center gap-2"
             variant="outline"
           >
