@@ -1,8 +1,8 @@
+import { CardWrapper } from '@/components/ui/card-wrapper'
 import { getProceedingDetails } from '@/lib/supabase/getProceedingDetails'
-import { sortPointsByImportance, truncateText } from '@/lib/utils'
+import { cn, sortPointsByImportance, truncateText } from '@/lib/utils'
 import { Sparkles } from 'lucide-react'
 import Link from 'next/link'
-import { CardWrapper } from './ui/card-wrapper'
 
 async function getLatestPoints() {
   const proceeding = await getProceedingDetails(26) // Latest proceeding number
@@ -18,11 +18,19 @@ async function getLatestPoints() {
   return sortPointsByImportance(points).slice(0, 2)
 }
 
-export default async function LatestInterestingPoints() {
+type LatestInterestingPointsProps = {
+  className?: string
+  dataUmamiEvent?: string
+}
+
+export async function LatestInterestingPoints({
+  className,
+  dataUmamiEvent,
+}: LatestInterestingPointsProps) {
   const points = await getLatestPoints()
 
   return (
-    <>
+    <div className={cn(className)} data-umami-event={dataUmamiEvent}>
       {points.map((point) => {
         const imageUrl = `https://db.msulawiak.pl/storage/v1/object/public/${point.proceedingNumber}_${point.dayNumber}/image${point.pointIndex}.jpg`
 
@@ -49,6 +57,6 @@ export default async function LatestInterestingPoints() {
           </Link>
         )
       })}
-    </>
+    </div>
   )
 }
