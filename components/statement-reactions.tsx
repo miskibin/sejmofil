@@ -33,7 +33,6 @@ interface StatementReactionsProps {
 }
 
 export function StatementReactions({ statementId }: StatementReactionsProps) {
-  console.log('🚀 ~ StatementReactions ~ statementId:', statementId)
   const [selectedReaction, setSelectedReaction] = useState<string | null>(null)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
