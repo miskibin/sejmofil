@@ -74,8 +74,13 @@ export function ProceedingsList({
     proceeding,
     day,
   }: PointRenderProps) => {
-    const pointNumber = point.official_point?.split('.')[0]
-    const points = pointsByNumber[pointNumber] || []
+    const pointNumbers = point.official_point
+      ? point.official_point.split(' i ').map((num) => num.split('.')[0].trim())
+      : []
+    const points =
+      pointNumbers.length > 0
+        ? pointNumbers.flatMap((num) => pointsByNumber[num] || [])
+        : []
     const lastIndex = points.length - 1
     const currentIndex = points.findIndex((p) => p.id === point.id)
     const isInterrupted = points.length > 1 && currentIndex < lastIndex
@@ -101,7 +106,11 @@ export function ProceedingsList({
         >
           <div className="break-words text-sm">
             <span className="text-muted-foreground">
-              {point.official_point ? `${pointNumber}.` : <i>(Bez numeru)</i>}
+              {point.official_point ? (
+                pointNumbers.join(' i ') + '.'
+              ) : (
+                <i>(Bez numeru)</i>
+              )}
             </span>{' '}
             <span>{point.topic.split(' | ')[1] || point.topic}</span>{' '}
             {isInterrupted && (
@@ -132,9 +141,13 @@ export function ProceedingsList({
       (acc, day) => {
         day.proceeding_point_ai.forEach((point) => {
           if (point.official_point) {
-            const number = point.official_point.split('.')[0]
-            if (!acc[number]) acc[number] = []
-            acc[number].push({ ...point, date: day.date })
+            const numbers = point.official_point
+              .split(' i ')
+              .map((num) => num.split('.')[0].trim())
+            numbers.forEach((number) => {
+              if (!acc[number]) acc[number] = []
+              acc[number].push({ ...point, date: day.date })
+            })
           }
         })
         return acc

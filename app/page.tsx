@@ -21,7 +21,7 @@ export default async function Home() {
   const timeUntil = getTimeUntilNextProceeding(nextDate)
   return (
     <>
-      <Alert>Strona w rozwoju. wróć w Lutym</Alert>
+      <Alert>Strona w rozwoju. wróć za 2 tygodnie</Alert>
 
       <div className="mb-4 mt-16 sm:mb-8">
         <h1 className="px-2 text-2xl font-semibold">
