@@ -77,14 +77,20 @@ export function ProceedingsList({
     const pointNumbers = point.official_point
       ? point.official_point.split(' i ').map((num) => num.split('.')[0].trim())
       : []
-    const points =
-      pointNumbers.length > 0
-        ? pointNumbers.flatMap((num) => pointsByNumber[num] || [])
-        : []
-    const lastIndex = points.length - 1
-    const currentIndex = points.findIndex((p) => p.id === point.id)
-    const isInterrupted = points.length > 1 && currentIndex < lastIndex
-    const isContinuation = points.length > 1 && currentIndex === lastIndex
+
+    const isInterruptedOrContinued = pointNumbers.some((num) => {
+      const pointsForNumber = pointsByNumber[num] || []
+      const lastIndex = pointsForNumber.length - 1
+      const currentIndex = pointsForNumber.findIndex((p) => p.id === point.id)
+      return pointsForNumber.length > 1 && currentIndex < lastIndex
+    })
+
+    const isContinuation = pointNumbers.some((num) => {
+      const pointsForNumber = pointsByNumber[num] || []
+      const lastIndex = pointsForNumber.length - 1
+      const currentIndex = pointsForNumber.findIndex((p) => p.id === point.id)
+      return pointsForNumber.length > 1 && currentIndex === lastIndex
+    })
 
     return (
       <div
@@ -113,7 +119,7 @@ export function ProceedingsList({
               )}
             </span>{' '}
             <span>{point.topic.split(' | ')[1] || point.topic}</span>{' '}
-            {isInterrupted && (
+            {isInterruptedOrContinued && (
               <span className="italic text-destructive">(przerwano)</span>
             )}
             {isContinuation && (
