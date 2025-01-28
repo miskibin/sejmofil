@@ -22,6 +22,7 @@ export function StatementReactions({ statementId }: { statementId: number }) {
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!statementId) return
@@ -46,13 +47,19 @@ export function StatementReactions({ statementId }: { statementId: number }) {
       return
     }
 
-    await toggleReaction(statementId, userId, emoji)
+    const result = await toggleReaction(statementId, userId, emoji)
+    if (!result.success) {
+      setError(result.error ?? null)
+      return
+    }
+
     const [newReactions] = await Promise.all([
       getReactions(statementId),
       setSelectedEmoji(selectedEmoji === emoji ? null : emoji)
     ])
     setReactions(newReactions)
     setIsOpen(false)
+    setError(null)
   }
 
   const totalReactions = reactions.reduce((sum, { count }) => sum + count, 0)
@@ -97,6 +104,12 @@ export function StatementReactions({ statementId }: { statementId: number }) {
           </div>
         )}
       </div>
+
+      {error && (
+        <div className="absolute bottom-full left-0 mb-2 text-xs text-red-500 whitespace-nowrap">
+          {error}
+        </div>
+      )}
 
       <PopoverContent
         className="w-auto p-0.5 duration-200 animate-in fade-in-0 zoom-in-95"
