@@ -36,9 +36,8 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: DO NOT REMOVE auth.getUser()
 
   const {
-    data: { user },
+    data: {  },
   } = await supabase.auth.getUser()
-  console.debug(user)
 
   // Allow access to auth callback route
   if (request.nextUrl.pathname.startsWith('/auth/callback')) {
