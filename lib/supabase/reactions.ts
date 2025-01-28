@@ -11,6 +11,9 @@ export type ReactionCount = {
   count: number
 }
 
+const COOLDOWN_MS = 500 // Dummy cooldown for now full implementation here: https://github.com/miskibin/sejmofil/issues/15
+let lastReactionTime = 0
+
 export async function getReactions(statementId: number): Promise<ReactionCount[]> {
   const { data } = await createClient()
     .rpc('get_reaction_counts', { statement_id: statementId })
@@ -27,30 +30,46 @@ export async function getUserReaction(statementId: number, userId: string): Prom
   return data?.emoji || null
 }
 
-export async function toggleReaction(statementId: number, userId: string, emoji: string): Promise<boolean> {
+export async function toggleReaction(
+  statementId: number, 
+  userId: string, 
+  emoji: string
+): Promise<{ success: boolean; error?: string }> {
+  const now = Date.now()
+  if (now - lastReactionTime < COOLDOWN_MS) {
+    return {
+      success: false,
+      error: 'Reakcje można zmieniać co 0.5 sekundy'
+    }
+  }
+
   const supabase = createClient()
-  const existing = await getUserReaction(statementId, userId)
+  try {
+    const existing = await getUserReaction(statementId, userId)
 
-  if (existing === emoji) {
-    const { error } = await supabase
-      .from('reactions')
-      .delete()
-      .eq('statement_id', statementId)
-      .eq('user_id', userId)
-    return !error
+    if (existing === emoji) {
+      await supabase
+        .from('reactions')
+        .delete()
+        .eq('statement_id', statementId)
+        .eq('user_id', userId)
+    } else {
+      if (existing) {
+        await supabase
+          .from('reactions')
+          .delete()
+          .eq('statement_id', statementId)
+          .eq('user_id', userId)
+      }
+      await supabase
+        .from('reactions')
+        .insert([{ statement_id: statementId, user_id: userId, emoji }])
+    }
+
+    lastReactionTime = now
+    return { success: true }
+  } catch (error) {
+    console.error('Reaction error:', error)
+    return { success: false, error: 'Failed to update reaction' }
   }
-
-  if (existing) {
-    await supabase
-      .from('reactions')
-      .delete()
-      .eq('statement_id', statementId)
-      .eq('user_id', userId)
-  }
-
-  const { error } = await supabase
-    .from('reactions')
-    .insert([{ statement_id: statementId, user_id: userId, emoji }])
-  
-  return !error
 }
