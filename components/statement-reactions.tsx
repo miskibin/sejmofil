@@ -1,8 +1,15 @@
 'use client'
 
 import { useSupabaseSession } from '@/lib/hooks/use-supabase-session'
-import { ReactionCount, getReactions, getUserReaction, toggleReaction } from '@/lib/supabase/reactions'
-import { useEffect, useState } from 'react'
+import {
+  ReactionCount,
+  getReactions,
+  getUserReaction,
+  toggleReaction,
+  updateReactionCounts,
+  OptimisticReaction,
+} from '@/lib/supabase/reactions'
+import { useEffect, useState, useTransition, useOptimistic } from 'react'
 import { SmilePlus } from 'lucide-react'
 import { LoginDialog } from './login-dialog'
 import { Button } from './ui/button'
@@ -23,19 +30,36 @@ export function StatementReactions({ statementId }: { statementId: number }) {
   const [isOpen, setIsOpen] = useState(false)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const [optimisticReactions, addOptimisticReaction] = useOptimistic<
+    ReactionCount[],
+    OptimisticReaction
+  >(reactions, (state, optimisticValue) => {
+    const newState = updateReactionCounts(state, optimisticValue)
+    return newState
+  })
+
+  const [optimisticUserReaction, addOptimisticUserReaction] = useOptimistic<
+    string | null,
+    OptimisticReaction
+  >(selectedEmoji, (_, optimisticValue) =>
+    optimisticValue.type === 'add' ? optimisticValue.emoji : null
+  )
 
   useEffect(() => {
     if (!statementId) return
-    
+
     const load = async () => {
       const [reactionData, userReaction] = await Promise.all([
         getReactions(statementId),
-        session?.user?.id ? getUserReaction(statementId, session.user.id) : null
+        session?.user?.id
+          ? getUserReaction(statementId, session.user.id)
+          : null,
       ])
       setReactions(reactionData)
       setSelectedEmoji(userReaction)
     }
-    
+
     load()
   }, [statementId, session?.user?.id])
 
@@ -47,39 +71,79 @@ export function StatementReactions({ statementId }: { statementId: number }) {
       return
     }
 
-    const result = await toggleReaction(statementId, userId, emoji)
-    if (!result.success) {
-      setError(result.error ?? null)
-      return
-    }
+    startTransition(async () => {
+      const isAdding = optimisticUserReaction !== emoji
+      const isSwitch = isAdding && optimisticUserReaction !== null
 
-    const [newReactions] = await Promise.all([
-      getReactions(statementId),
-      setSelectedEmoji(selectedEmoji === emoji ? null : emoji)
-    ])
-    setReactions(newReactions)
-    setIsOpen(false)
-    setError(null)
+      if (isSwitch) {
+        // First remove old reaction
+        addOptimisticReaction({
+          type: 'remove',
+          emoji: optimisticUserReaction,
+          statementId,
+          userId,
+        })
+      }
+
+      // Then add new reaction or remove existing one
+      addOptimisticUserReaction({
+        type: isAdding ? 'add' : 'remove',
+        emoji,
+        statementId,
+        userId,
+      })
+
+      addOptimisticReaction({
+        type: isAdding ? 'add' : 'remove',
+        emoji,
+        statementId,
+        userId,
+      })
+
+      const result = await toggleReaction(statementId, userId, emoji)
+
+      if (result.success) {
+        const [newReactions, newUserReaction] = await Promise.all([
+          getReactions(statementId),
+          getUserReaction(statementId, userId),
+        ])
+        setReactions(newReactions)
+        setSelectedEmoji(newUserReaction)
+      } else {
+        setError(result.error || 'Failed to update reaction')
+      }
+    })
   }
 
-  const totalReactions = reactions.reduce((sum, { count }) => sum + count, 0)
-  const topEmojis = reactions.slice(0, 2).map(r => r.emoji)
+  // In the render section, use optimistic states instead of regular states
+  const totalReactions = optimisticReactions.reduce(
+    (sum, { count }) => sum + count,
+    0
+  )
+  const topEmojis = optimisticReactions.slice(0, 2).map((r) => r.emoji)
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <div className="flex items-center gap-1.5">
+      <div
+        className={`flex items-center gap-1.5 ${isPending ? 'opacity-50' : ''}`}
+      >
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
             className={`group flex h-7 items-center gap-1 px-1.5 transition-all duration-200 hover:scale-105 
-              ${selectedEmoji ? 'text-blue-500 hover:text-blue-600' : 'text-muted-foreground hover:text-foreground'}`}
+              ${optimisticUserReaction ? 'text-blue-500 hover:text-blue-600' : 'text-muted-foreground hover:text-foreground'}`}
           >
-            {selectedEmoji ? (
+            {optimisticUserReaction ? (
               <>
-                <span className="text-lg duration-300 animate-in zoom-in-50">{selectedEmoji}</span>
+                <span className="text-lg duration-300 animate-in zoom-in-50">
+                  {optimisticUserReaction}
+                </span>
                 <span className="text-xs font-medium capitalize opacity-90">
-                  {REACTIONS.find(r => r.emoji === selectedEmoji)?.label}
+                  {
+                    REACTIONS.find((r) => r.emoji === optimisticUserReaction)
+                      ?.label
+                  }
                 </span>
               </>
             ) : (
@@ -122,12 +186,15 @@ export function StatementReactions({ statementId }: { statementId: number }) {
             <Button
               key={emoji}
               variant="ghost"
-              className={`group px-1 py-0.5 transition-all duration-200 hover:scale-110 ${
+              className={`group px-1 py-0.5 transition-all duration-200 hover:scale-105 ${
                 selectedEmoji === emoji ? 'bg-blue-50 dark:bg-blue-950' : ''
               }`}
               onClick={() => handleReactionClick(emoji)}
             >
-              <span className="text-xl" title={`${label} (${reactions.find(r => r.emoji === emoji)?.count || 0})`}>
+              <span
+                className="text-xl"
+                title={`${label} (${reactions.find((r) => r.emoji === emoji)?.count || 0})`}
+              >
                 {emoji}
               </span>
             </Button>
