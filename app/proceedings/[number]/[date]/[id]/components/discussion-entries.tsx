@@ -261,6 +261,8 @@ export function DiscussionEntries({
 
                 {/* Footer with reactions */}
                 <div className="mt-2 flex items-center justify-between">
+                <StatementReactions statementId={statement.id} />
+
                   <Link
                     href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${proceedingNumber}/${proceedingDate}/transcripts/${statement.number_source}`}
                     target="_blank"
@@ -268,7 +270,6 @@ export function DiscussionEntries({
                   >
                     całość <ExternalLink className="h-3 w-3" />
                   </Link>
-                  <StatementReactions statementId={statement.id} />
                 </div>
               </div>
             </div>
