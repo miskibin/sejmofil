@@ -12,21 +12,35 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from '@/components/ui/dialog'
-import { Github, Lock } from 'lucide-react'
+import { Github, Lock, Mail } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { FaGoogle } from 'react-icons/fa'
 
 type LoginDialogProps = {
   trigger?: React.ReactNode
   message?: string
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
+}
+
+// Add signInWithGoogle action
+async function signInWithGoogle() {
+  const supabase = createClient()
+  await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  })
 }
 
 export function LoginDialog({
@@ -42,12 +56,16 @@ export function LoginDialog({
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       setUser(user)
     }
     getUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
@@ -79,8 +97,8 @@ export function LoginDialog({
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
-            <Image 
-              src={user.user_metadata.avatar_url} 
+            <Image
+              src={user.user_metadata.avatar_url}
               alt="User avatar"
               height={32}
               width={32}
@@ -91,8 +109,8 @@ export function LoginDialog({
         <PopoverContent className="w-48">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 p-2">
-              <Image 
-                src={user.user_metadata.avatar_url} 
+              <Image
+                src={user.user_metadata.avatar_url}
                 alt="User avatar"
                 height={32}
                 width={32}
@@ -148,7 +166,31 @@ export function LoginDialog({
             <Github className="h-5 w-5" />
             Zaloguj się przez GitHub
           </Button>
+          <Button
+            onClick={() => signInWithGoogle()}
+            className="flex w-full items-center gap-2"
+            variant="outline"
+            type="button"
+          >
+            <FaGoogle className="h-5 w-5" />
+            Zaloguj się przez Google
+          </Button>
         </form>
+        <DialogFooter className="mt-4 flex-col items-center gap-2 sm:flex-row sm:gap-4">
+          <div className="text-xs text-muted-foreground">
+            Logując się akceptujesz{' '}
+            <Link
+              href="/terms-of-service"
+              className="underline hover:text-primary"
+            >
+              regulamin
+            </Link>{' '}
+            oraz{' '}
+            <Link href="/privacy" className="underline hover:text-primary">
+              politykę prywatności
+            </Link>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
