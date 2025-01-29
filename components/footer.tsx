@@ -40,10 +40,9 @@ const socialLinks = [
 ]
 
 const navLinks = [
-  { name: 'Procesy Sejmowe', url: '/procesy' },
-  { name: 'Posłowie', url: '/poslowie' },
-  { name: 'Posiedzenia sejmu', url: '/posiedzenia' },
-]
+  { name: 'Polityka Prywatności', url: '/privacy' },
+  { name: 'Regulamin', url: '/terms-of-service' },
+] 
 
 export async function Footer() {
   const { version, url } = await getLatestVersion()
@@ -81,7 +80,7 @@ export async function Footer() {
 
           {/* Navigation Links */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-primary">Odkryj</h3>
+            <h3 className="font-semibold text-primary">Dokumenty</h3>
             <ul className="space-y-2">
               {navLinks.map(({ name, url }) => (
                 <li key={url}>
