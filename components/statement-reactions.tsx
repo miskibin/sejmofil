@@ -131,7 +131,7 @@ export function StatementReactions({ statementId }: { statementId: number }) {
           <Button
             variant="ghost"
             size="sm"
-            className={`group flex h-7 items-center gap-1 px-1.5 transition-all duration-200 hover:scale-105 
+            className={`group flex h-7 items-center gap-1 px-1.5 transition-all duration-200 hover:scale-x-105 
               ${optimisticUserReaction ? 'text-blue-500 hover:text-blue-600' : 'text-muted-foreground hover:text-foreground'}`}
           >
             {optimisticUserReaction ? (
