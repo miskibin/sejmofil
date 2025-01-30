@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     domains: [
       'api.sejm.gov.pl',
       'www.freepik.com',
+      'facebook.com',
       'db.msulawiak.pl',
       'avatars.githubusercontent.com',
       'lh3.googleusercontent.com',
