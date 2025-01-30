@@ -1,6 +1,6 @@
 'use client'
 
-import { signInWithGitHub } from '@/app/login/actions'
+import { signInWithGitHub, signInWithGoogle } from '@/app/login/actions'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import { User } from '@supabase/supabase-js'
@@ -23,24 +23,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { FaGoogle } from 'react-icons/fa'
+import { FaFacebook, FaGoogle } from 'react-icons/fa'
 
 type LoginDialogProps = {
   trigger?: React.ReactNode
   message?: string
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
-}
-
-// Add signInWithGoogle action
-async function signInWithGoogle() {
-  const supabase = createClient()
-  await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
-    },
-  })
 }
 
 export function LoginDialog({
@@ -80,9 +69,9 @@ export function LoginDialog({
     }
   }, [])
 
-  function handleLogin() {
+  function handleLogin(loginFunction: () => Promise<void>) {
     sessionStorage.setItem('returnPath', currentPath)
-    signInWithGitHub()
+    loginFunction()
   }
 
   async function handleLogout() {
@@ -159,7 +148,12 @@ export function LoginDialog({
         <form className="space-y-4">
           <input type="hidden" name="returnPath" value={currentPath} />
           <Button
-            formAction={handleLogin}
+            type="button"
+            onClick={() =>
+              supabase.auth.signInWithOAuth({
+                provider: 'github',
+              })
+            }
             className="flex w-full items-center gap-2"
             variant="outline"
           >
@@ -167,13 +161,30 @@ export function LoginDialog({
             Zaloguj się przez GitHub
           </Button>
           <Button
-            onClick={() => signInWithGoogle()}
+            type="button"
+            onClick={() =>
+              supabase.auth.signInWithOAuth({
+                provider: 'google',
+              })
+            }
             className="flex w-full items-center gap-2"
             variant="outline"
-            type="button"
           >
             <FaGoogle className="h-5 w-5" />
             Zaloguj się przez Google
+          </Button>
+          <Button
+            type="button"
+            onClick={() =>
+              supabase.auth.signInWithOAuth({
+                provider: 'facebook',
+              })
+            }
+            className="flex w-full items-center gap-2"
+            variant="outline"
+          >
+            <FaFacebook className="h-5 w-5" />
+            Zaloguj się przez facebook
           </Button>
         </form>
         <DialogFooter className="mt-4 flex-col items-center gap-2 sm:flex-row sm:gap-4">
