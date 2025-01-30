@@ -24,7 +24,7 @@ const REACTIONS = [
 ] as const
 
 export function StatementReactions({ statementId }: { statementId: number }) {
-  const { session } = useSupabaseSession()
+  const { user } = useSupabaseSession()
   const [reactions, setReactions] = useState<ReactionCount[]>([])
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -54,19 +54,17 @@ export function StatementReactions({ statementId }: { statementId: number }) {
     const load = async () => {
       const [reactionData, userReaction] = await Promise.all([
         getReactions(statementId),
-        session?.user?.id
-          ? getUserReaction(statementId, session.user.id)
-          : null,
+        user?.id ? getUserReaction(statementId, user.id) : null,
       ])
       setReactions(reactionData)
       setSelectedEmoji(userReaction)
     }
 
     load()
-  }, [statementId, session?.user?.id])
+  }, [statementId, user?.id])
 
   const handleReactionClick = async (emoji: string) => {
-    const userId = session?.user?.id
+    const userId = user?.id
     if (!userId) {
       setShowLoginDialog(true)
       setIsOpen(false)
