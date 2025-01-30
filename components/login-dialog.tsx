@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/popover'
 import { FaFacebook, FaGithub, FaGoogle, FaShieldAlt } from 'react-icons/fa'
 import { cn } from '@/lib/utils'
-
+import { OAuthResponse } from '@supabase/supabase-js'
 type LoginDialogProps = {
   trigger?: React.ReactNode
   message?: string
@@ -68,7 +68,7 @@ export function LoginDialog({
     }
   }, [])
 
-  function handleLogin(loginFunction: () => Promise<void>) {
+  function handleLogin(loginFunction: () => Promise<OAuthResponse>) {
     sessionStorage.setItem('returnPath', currentPath)
     loginFunction()
   }
@@ -129,7 +129,7 @@ export function LoginDialog({
   }
 
   return (
-    <Credenza onOpenChange={onOpenChange}>
+    <Credenza onOpenChange={onOpenChange} open={defaultOpen}>
       <CredenzaTrigger asChild>
         {trigger || (
           <Button variant="ghost" size="icon" className="rounded-full">
@@ -158,9 +158,11 @@ export function LoginDialog({
             <Button
               type="button"
               onClick={() =>
-                supabase.auth.signInWithOAuth({
-                  provider: 'github',
-                })
+                handleLogin(() =>
+                  supabase.auth.signInWithOAuth({
+                    provider: 'github',
+                  })
+                )
               }
               className="w-full bg-[#24292e] hover:bg-[#1a1e22] text-white transition-all duration-300"
               variant="link"
@@ -171,9 +173,11 @@ export function LoginDialog({
             <Button
               type="button"
               onClick={() =>
-                supabase.auth.signInWithOAuth({
-                  provider: 'google',
-                })
+                handleLogin(() =>
+                  supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                  })
+                )
               }
               className="w-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 shadow-sm transition-all duration-300"
               variant="link"
@@ -183,9 +187,11 @@ export function LoginDialog({
             </Button>
             <Button
               onClick={() =>
-                supabase.auth.signInWithOAuth({
-                  provider: 'facebook',
-                })
+                handleLogin(() =>
+                  supabase.auth.signInWithOAuth({
+                    provider: 'facebook',
+                  })
+                )
               }
               className="w-full bg-[#5865F2]  text-white transition-all duration-300"
               variant="link"
