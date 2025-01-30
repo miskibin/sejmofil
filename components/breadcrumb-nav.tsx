@@ -19,6 +19,7 @@ const urlToPolishName: { [key: string]: string } = {
   'terms-of-service': 'regulamin',
   search: 'Wyszukiwarka',
   points: 'Punkty porządku dziennego',
+  profile: 'Profil',
   proceedings: 'Posiedzenia',
 
   // Add more mappings as needed

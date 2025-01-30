@@ -4,88 +4,63 @@ import { useSupabaseSession } from '@/lib/hooks/use-supabase-session'
 import { createClient } from '@/utils/supabase/client'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { CalendarDays, MessageCircle, ThumbsUp, User } from 'lucide-react'
+import { CalendarDays, ThumbsUp, User } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { formatDistance } from 'date-fns'
 import { pl } from 'date-fns/locale'
+import { ChartContainer } from '@/components/ui/chart'
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
-type UserReactionWithStatement = {
+type ReactionStats = Array<{
   emoji: string
-  statement: {
-    id: number
-    text: string
-    speaker_name: string
-    official_topic: string
-    statement_ai?: {
-      topic: string
-      summary_tldr: string
-    }
-  }
-}
+  count: number
+}>
 
 export default function ProfilePage() {
   const { user } = useSupabaseSession()
-  const [reactionStats, setReactionStats] = useState({
-    totalReactions: 0,
-    mostUsedEmoji: '👍',
-    latestReactions: [] as UserReactionWithStatement[],
-  })
+  const [stats, setStats] = useState<ReactionStats>([])
   const supabase = createClient()
 
   useEffect(() => {
     if (!user?.id) return
 
-    const loadUserActivity = async () => {
-      const { data: statsData, error } = await supabase
+    const loadStats = async () => {
+      const { data } = await supabase
         .from('reactions')
-        .select(
-          `
-          emoji,
-          statement:statement (
-            id,
-            text,
-            speaker_name,
-            official_topic,
-            statement_ai (
-              topic,
-              summary_tldr
-            )
-          )
-        `
-        )
+        .select('emoji')
         .eq('user_id', user.id)
-        .limit(5)
-      console.log( error)
-      if (statsData) {
-        const emojiCounts = statsData.reduce(
-          (acc, { emoji }) => {
-            acc[emoji] = (acc[emoji] || 0) + 1
-            return acc
-          },
-          {} as Record<string, number>
-        )
 
-        const mostUsedEmoji =
-          Object.entries(emojiCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ||
-          '👍'
-
-        setReactionStats({
-          totalReactions: statsData.length,
-          mostUsedEmoji,
-          latestReactions: statsData as unknown as UserReactionWithStatement[],
+      if (data) {
+        const counts: Record<string, number> = {}
+        data.forEach(({ emoji }) => {
+          counts[emoji] = (counts[emoji] || 0) + 1
         })
+
+        setStats(
+          Object.entries(counts)
+            .map(([emoji, count]) => ({ emoji, count }))
+            .sort((a, b) => b.count - a.count)
+        )
       }
     }
 
-    loadUserActivity()
+    loadStats()
   }, [user?.id])
 
   if (!user) return null
 
+  const totalReactions = stats.reduce((sum, { count }) => sum + count, 0)
+
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="grid gap-8 md:grid-cols-2">
-        {/* User Profile Card */}
+      <div className="grid gap-8">
         <Card>
           <CardHeader className="flex flex-row items-center gap-4">
             <Avatar className="h-16 w-16">
@@ -110,68 +85,85 @@ export default function ProfilePage() {
           </CardHeader>
         </Card>
 
-        {/* Reaction Stats Card */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ThumbsUp className="h-5 w-5" />
-              Statystyki reakcji
+              Twoje reakcje ({totalReactions})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Wszystkie reakcje
-                </p>
-                <p className="text-2xl font-bold">
-                  {reactionStats.totalReactions}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Najczęstsza reakcja
-                </p>
-                <p className="text-2xl">{reactionStats.mostUsedEmoji}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity Card */}
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5" />
-              Ostatnie reakcje
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {reactionStats.latestReactions.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-4 p-4 rounded-lg border"
-                >
-                  <span className="text-2xl">{item.emoji}</span>
-                  <div className="flex-1 space-y-1">
-                    <p className="font-medium">{item.statement.speaker_name}</p>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {item.statement.text}
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-
-                      {item.statement.statement_ai?.topic && (
-                        <>
-                          <span>•</span>
-                          <span>{item.statement.statement_ai.topic}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {stats.length > 0 ? (
+              <ChartContainer
+                className="h-[350px] w-full"
+                config={{
+                  // Required chart configuration
+                  type: {
+                    label: 'Bar',
+                    color: 'hsl(var(--primary))',
+                  },
+                  value: {
+                    label: 'Liczba reakcji',
+                  },
+                  item: {
+                    label: 'Reakcja',
+                  },
+                 
+                }}
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={stats}
+                    layout="vertical"
+                    margin={{
+                      top: 5,
+                      right: 30,
+                      left: 40,
+                      bottom: 5,
+                    }}
+                  >
+                    <XAxis type="number" />
+                    <YAxis
+                      type="category"
+                      dataKey="emoji"
+                      tickLine={false}
+                      axisLine={false}
+                      width={50}
+                      tick={{ fontSize: 20 }}
+                    />
+                    <Tooltip
+                      cursor={{ fill: 'hsl(var(--muted))', opacity: 0.1 }}
+                      content={({ active, payload }) => {
+                        if (active && payload?.length) {
+                          return (
+                            <div className="rounded-lg border bg-background p-2 shadow-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">
+                                  {payload[0].payload.emoji}
+                                </span>
+                                <span className="font-bold">
+                                  {payload[0].value} reakcji
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        }
+                        return null
+                      }}
+                    />
+                    <Bar
+                      dataKey="count"
+                      fill="hsl(var(--primary))"
+                      radius={[0, 4, 4, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">
+                Nie masz jeszcze żadnych reakcji
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
