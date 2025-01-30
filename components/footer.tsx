@@ -44,6 +44,11 @@ const navLinks = [
   { name: 'Regulamin', url: '/terms-of-service' },
 ] 
 
+const aboutLinks = [
+  { name: 'O projekcie', url: '/about' },
+  { name: 'Kontakt', url: '/contact' },
+]
+
 export async function Footer() {
   const { version, url } = await getLatestVersion()
 
@@ -72,10 +77,20 @@ export async function Footer() {
             </Link>
           </div>
 
-          {/* Mission Section - Hidden on mobile */}
           <div className="hidden space-y-4 md:block">
-            <h3 className="font-semibold text-primary">Nasza Misja</h3>
-            <p className="text-sm text-gray-600">TBD</p>
+            <h3 className="font-semibold text-primary">O nas</h3>
+            <ul className="space-y-2">
+              {aboutLinks.map(({ name, url }) => (
+                <li key={url}>
+                  <Link
+                    href={url}
+                    className="text-sm text-gray-600 transition-colors hover:text-primary"
+                  >
+                    {name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Navigation Links */}
