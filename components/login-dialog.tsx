@@ -24,6 +24,8 @@ import {
 import { FaFacebook, FaGithub, FaGoogle, FaShieldAlt } from 'react-icons/fa'
 import { cn } from '@/lib/utils'
 import { OAuthResponse } from '@supabase/supabase-js'
+import { Separator } from '@/components/ui/separator'
+
 type LoginDialogProps = {
   trigger?: React.ReactNode
   message?: string
@@ -94,30 +96,33 @@ export function LoginDialog({
             />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-48">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 p-2">
-              <Image
-                src={user.user_metadata.avatar_url || '/placeholder.svg'}
-                alt="User avatar"
-                height={32}
-                width={32}
-                className="h-8 w-8 rounded-full"
-              />
-              <span className="text-sm font-medium">
+        <PopoverContent className="w-56 p-2" side="bottom" align="end">
+          <div className="flex flex-col space-y-1">
+            {/* User Info */}
+            <div className="mb-2 px-2 py-1.5">
+              <div className="truncate text-sm font-medium">
                 {user.user_metadata.preferred_username || user.email}
-              </span>
+              </div>
+              <div className="truncate text-xs text-muted-foreground">
+                {user.email}
+              </div>
             </div>
+            
+            <Separator className="my-1" />
+            
+            {/* Actions */}
             <Button
               variant="ghost"
-              className="w-full justify-start"
+              size="sm"
+              className="w-full justify-start text-sm"
               onClick={() => router.push('/profile')}
             >
               Profil
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start text-destructive"
+              size="sm"
+              className="w-full justify-start text-sm text-destructive hover:text-destructive"
               onClick={handleLogout}
             >
               Wyloguj się
