@@ -46,6 +46,8 @@ export function StatementReactions({ statementId }: { statementId: number }) {
     optimisticValue.type === 'add' ? optimisticValue.emoji : null
   )
 
+  const [showReactionsList, setShowReactionsList] = useState(false)
+
   useEffect(() => {
     if (!statementId) return
 
@@ -153,19 +155,31 @@ export function StatementReactions({ statementId }: { statementId: number }) {
         </PopoverTrigger>
 
         {totalReactions > 0 && (
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <div className="flex items-center -space-x-1">
-              {topEmojis.map((emoji) => (
-                <span
-                  key={emoji}
-                  className="flex h-5 w-5 items-center justify-center rounded-full text-base"
-                >
-                  {emoji}
-                </span>
+          <Popover open={showReactionsList} onOpenChange={setShowReactionsList}>
+            <PopoverTrigger asChild>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground cursor-pointer">
+                <div className="flex items-center -space-x-1">
+                  {topEmojis.map((emoji) => (
+                    <span
+                      key={emoji}
+                      className="flex h-5 w-5 items-center justify-center rounded-full text-base"
+                    >
+                      {emoji}
+                    </span>
+                  ))}
+                </div>
+                <span className="text-xs">{totalReactions}</span>
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-2 bg-white border rounded shadow-lg">
+              {optimisticReactions.map(({ emoji, count }) => (
+                <div key={emoji} className="flex items-center gap-2">
+                  <span className="text-lg">{emoji}</span>
+                  <span className="text-sm">{count}</span>
+                </div>
               ))}
-            </div>
-            <span className="text-xs">{totalReactions}</span>
-          </div>
+            </PopoverContent>
+          </Popover>
         )}
       </div>
 
