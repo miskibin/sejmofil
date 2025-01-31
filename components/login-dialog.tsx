@@ -107,9 +107,9 @@ export function LoginDialog({
                 {user.email}
               </div>
             </div>
-            
+
             <Separator className="my-1" />
-            
+
             {/* Actions */}
             <Button
               variant="ghost"
