@@ -22,12 +22,17 @@ export type PrintShort = {
 }
 
 export type PrintListItem = {
-  title: string
+  topicName: any
   number: string
+  title: string
+  summary: string
+  type: string
+  date: string
+  status: string
+  categories: string[]
   processPrint: string[]
-  topicName: string
-  topicDescription: string
 }
+
 export type Comment = {
   sentiment: 'Neutralny' | 'Pozytywny' | 'Negatywny'
   summary: string

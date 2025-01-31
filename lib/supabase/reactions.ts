@@ -1,10 +1,11 @@
 import { createClient } from '@/utils/supabase/client'
 
 export type Reaction = {
-    statement_id: number
-    user_id: string
-    emoji: string
-    }
+  target_id: string
+  target_type: 'statement' | 'process'
+  user_id: string
+  emoji: string
+}
 
 export type ReactionCount = {
   emoji: string
@@ -14,24 +15,35 @@ export type ReactionCount = {
 export type OptimisticReaction = {
   type: 'add' | 'remove'
   emoji: string
-  statementId: number
+  targetId: number
+  targetType: 'statement' | 'process'
   userId: string
 }
 
 const COOLDOWN_MS = 500 // Dummy cooldown for now full implementation here: https://github.com/miskibin/sejmofil/issues/15
 let lastReactionTime = 0
 
-export async function getReactions(statementId: number): Promise<ReactionCount[]> {
-  const { data } = await createClient()
-    .rpc('get_reaction_counts', { statement_id: statementId })
+export async function getReactions(
+  targetId: number,
+  targetType: 'statement' | 'process'
+): Promise<ReactionCount[]> {
+  const { data, error } = await createClient().rpc('get_reaction_counts', {
+    target_id: targetId,
+    target_type: targetType,
+  })
   return data || []
 }
 
-export async function getUserReaction(statementId: number, userId: string): Promise<string | null> {
-  const { data } = await createClient()
-    .from('reactions')
+export async function getUserReaction(
+  targetId: number,
+  targetType: 'statement' | 'process',
+  userId: string
+): Promise<string | null> {
+  const { data, error } = await createClient()
+    .from('reaction') // Changed from 'reactions' to 'reaction'
     .select('emoji')
-    .eq('statement_id', statementId)
+    .eq('target_id', targetId)
+    .eq('target_type', targetType)
     .eq('user_id', userId)
     .single()
   return data?.emoji || null
@@ -41,18 +53,18 @@ export function updateReactionCounts(
   counts: ReactionCount[],
   reaction: OptimisticReaction
 ): ReactionCount[] {
-  const existingIndex = counts.findIndex(c => c.emoji === reaction.emoji)
-  
+  const existingIndex = counts.findIndex((c) => c.emoji === reaction.emoji)
+
   if (reaction.type === 'add') {
     if (existingIndex >= 0) {
-      return counts.map((c, i) => 
+      return counts.map((c, i) =>
         i === existingIndex ? { ...c, count: c.count + 1 } : c
       )
     }
     return [...counts, { emoji: reaction.emoji, count: 1 }]
   } else {
     if (existingIndex >= 0) {
-      return counts.map((c, i) => 
+      return counts.map((c, i) =>
         i === existingIndex ? { ...c, count: Math.max(0, c.count - 1) } : c
       )
     }
@@ -61,39 +73,47 @@ export function updateReactionCounts(
 }
 
 export async function toggleReaction(
-  statementId: number, 
-  userId: string, 
+  targetId: number,
+  targetType: 'statement' | 'process',
+  userId: string,
   emoji: string
 ): Promise<{ success: boolean; error?: string }> {
   const now = Date.now()
   if (now - lastReactionTime < COOLDOWN_MS) {
     return {
       success: false,
-      error: 'Reakcje można zmieniać co 0.5 sekundy'
+      error: 'Reakcje można zmieniać co 0.5 sekundy',
     }
   }
 
   const supabase = createClient()
   try {
-    const existing = await getUserReaction(statementId, userId)
+    const existing = await getUserReaction(targetId, targetType, userId)
 
     if (existing === emoji) {
       await supabase
-        .from('reactions')
+        .from('reaction') // Changed from 'reactions' to 'reaction'
         .delete()
-        .eq('statement_id', statementId)
+        .eq('target_id', targetId)
+        .eq('target_type', targetType)
         .eq('user_id', userId)
     } else {
       if (existing) {
         await supabase
-          .from('reactions')
+          .from('reaction') // Changed from 'reactions' to 'reaction'
           .delete()
-          .eq('statement_id', statementId)
+          .eq('target_id', targetId)
+          .eq('target_type', targetType)
           .eq('user_id', userId)
       }
-      await supabase
-        .from('reactions')
-        .insert([{ statement_id: statementId, user_id: userId, emoji }])
+      await supabase.from('reaction').insert([
+        {
+          target_id: targetId,
+          target_type: targetType,
+          user_id: userId,
+          emoji,
+        },
+      ])
     }
 
     lastReactionTime = now

@@ -53,8 +53,8 @@ export function StatementReactions({ statementId }: { statementId: number }) {
 
     const load = async () => {
       const [reactionData, userReaction] = await Promise.all([
-        getReactions(statementId),
-        user?.id ? getUserReaction(statementId, user.id) : null,
+        getReactions(statementId, 'statement'),
+        user?.id ? getUserReaction(statementId, 'statement', user.id) : null,
       ])
       setReactions(reactionData)
       setSelectedEmoji(userReaction)
@@ -80,7 +80,8 @@ export function StatementReactions({ statementId }: { statementId: number }) {
         addOptimisticReaction({
           type: 'remove',
           emoji: optimisticUserReaction,
-          statementId,
+          targetId: statementId,
+          targetType: 'statement',
           userId,
         })
       }
@@ -89,23 +90,30 @@ export function StatementReactions({ statementId }: { statementId: number }) {
       addOptimisticUserReaction({
         type: isAdding ? 'add' : 'remove',
         emoji,
-        statementId,
+        targetId: statementId,
+        targetType: 'statement',
         userId,
       })
 
       addOptimisticReaction({
         type: isAdding ? 'add' : 'remove',
         emoji,
-        statementId,
+        targetId: statementId,
+        targetType: 'statement',
         userId,
       })
 
-      const result = await toggleReaction(statementId, userId, emoji)
+      const result = await toggleReaction(
+        statementId,
+        'statement',
+        userId,
+        emoji
+      )
 
       if (result.success) {
         const [newReactions, newUserReaction] = await Promise.all([
-          getReactions(statementId),
-          getUserReaction(statementId, userId),
+          getReactions(statementId, 'statement'),
+          getUserReaction(statementId, 'statement', userId),
         ])
         setReactions(newReactions)
         setSelectedEmoji(newUserReaction)
