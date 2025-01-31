@@ -146,7 +146,7 @@ export default function ProcessSearchPage({
                     <ReactMarkdown>
                       {truncateText(
                         print.summary || '',
-                        window.innerWidth < 640 ? 300 : 600
+                        600
                       )}
                     </ReactMarkdown>
                   </div>
