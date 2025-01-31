@@ -148,14 +148,19 @@ export async function getLatestPrints(
 ): Promise<PrintShort[]> {
   const query = `
     MATCH (p:Print)
+    WHERE p.short_title IS NOT NULL
     RETURN p {
       number: p.number,
-      title: p.title,
+      title: p.short_title,
       documentDate: p.documentDate,
-      processPrint: p.processPrint
+      processPrint: p.processPrint,
+      summary: p.summary,
+      type: p.documentType,
+      category: p.category,
+      status: p.status
     }
     ORDER BY p.documentDate DESC
-    LIMIT 10
+    LIMIT $limit
   `
 
   const res = await runQuery<PrintResponse>(query, { limit })
@@ -168,14 +173,19 @@ export async function getPrintsByTopic(
 ): Promise<PrintShort[]> {
   const query = `
     MATCH (p:Print)-[:REFERS_TO]->(t:Topic {name: $topicName})
+    WHERE p.short_title IS NOT NULL
     RETURN p {
       number: p.number,
-      title: p.title,
+      title: p.short_title,
       documentDate: p.documentDate,
-      processPrint: p.processPrint
+      processPrint: p.processPrint,
+      summary: p.summary,
+      type: p.documentType,
+      category: p.category,
+      status: p.status
     }
     ORDER BY p.documentDate DESC
-    LIMIT 40
+    LIMIT $limit
   `
 
   const res = await runQuery<PrintResponse>(query, { topicName, limit })

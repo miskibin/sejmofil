@@ -83,14 +83,26 @@ export async function getSimmilarPrints(
   return result.map((record) => record.print)
 }
 
-export async function getAllPrints(): Promise<PrintListItem[]> {
+export async function getAllProcessPrints(): Promise<PrintListItem[]> {
   const query = `
-      MATCH (print:Print)-[:REFERS_TO]->(topic:Topic)
-      RETURN print.number AS number, 
-             print.title AS title,
-              print.processPrint AS processPrint,
-             topic.name AS topicName, 
-             topic.description AS topicDescription
+      MATCH (print:Print)-[:IS_SOURCE_OF]->(process:Process)
+      WHERE print.short_title IS NOT NULL
+      WITH print, process
+      MATCH (print)-[:REFERS_TO]->(topic:Topic)
+      WITH print, process, collect(DISTINCT topic.name) as topics
+      MATCH (process)-[:HAS]->(stage:Stage)
+      WITH print, process, topics, stage
+      ORDER BY stage.number DESC
+      WITH print, process, topics, collect(stage)[0] as lastStage
+      RETURN DISTINCT
+             print.number AS number, 
+             print.short_title AS title,
+             print.summary AS summary,
+             process.documentType AS type,
+             print.documentDate AS date,
+             lastStage.stageName AS status,
+             topics AS categories,
+             print.processPrint AS processPrint
     `
   return runQuery<PrintListItem>(query)
 }
@@ -225,11 +237,15 @@ export async function getLatestStageAndPerformer(printNumber: string): Promise<{
 export async function searchPrints(searchQuery: string): Promise<PrintShort[]> {
   const query = `
     CALL db.index.fulltext.queryNodes("print_content", $searchQuery) YIELD node, score
+    WHERE node.short_title IS NOT NULL
     RETURN node {
       number: node.number,
-      title: node.title,
+      title: node.short_title,
       documentDate: node.documentDate,
-      summary: node.summary
+      summary: node.summary,
+      type: node.documentType,
+      category: node.category,
+      status: node.status
     } as print,
     score
     ORDER BY score DESC
