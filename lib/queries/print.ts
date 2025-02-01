@@ -83,28 +83,61 @@ export async function getSimmilarPrints(
   return result.map((record) => record.print)
 }
 
-export async function getAllProcessPrints(): Promise<PrintListItem[]> {
+export async function getAllProcessPrints(
+  skip: number = 0,
+  limit: number = 20,
+  filters?: {
+    dateFrom?: string;
+    dateTo?: string;
+    categories?: string[];
+    documentTypes?: string[];
+    status?: string;
+  }
+): Promise<PrintListItem[]> {
+  const conditions = [
+    'print.short_title IS NOT NULL',
+    filters?.dateFrom && `process.changeDate >= datetime($dateFrom)`,
+    filters?.dateTo && `process.changeDate <= datetime($dateTo)`,
+    filters?.documentTypes?.length && 'process.documentType IN $documentTypes',
+    filters?.status && 'lastStage.stageName = $status'
+  ].filter(Boolean)
+
   const query = `
       MATCH (print:Print)-[:IS_SOURCE_OF]->(process:Process)
-      WHERE print.short_title IS NOT NULL
       WITH print, process
       MATCH (print)-[:REFERS_TO]->(topic:Topic)
       WITH print, process, collect(DISTINCT topic.name) as topics
+      ${filters?.categories?.length ? 'WHERE ANY(cat IN $categories WHERE cat IN topics)' : ''}
       MATCH (process)-[:HAS]->(stage:Stage)
       WITH print, process, topics, stage
       ORDER BY stage.number DESC
       WITH print, process, topics, collect(stage)[0] as lastStage
+      WHERE ${conditions.join(' AND ')}
+      WITH print, process, topics, lastStage
+      ORDER BY process.changeDate DESC
+      SKIP toInteger($skip)
+      LIMIT toInteger($limit)
       RETURN DISTINCT
              print.number AS number, 
              print.short_title AS title,
              print.summary AS summary,
              process.documentType AS type,
              print.documentDate AS date,
+             process.changeDate AS changeDate,
              lastStage.stageName AS status,
              topics AS categories,
              print.processPrint AS processPrint
     `
-  return runQuery<PrintListItem>(query)
+
+  return runQuery<PrintListItem>(query, { 
+    skip, 
+    limit, 
+    dateFrom: filters?.dateFrom,
+    dateTo: filters?.dateTo,
+    categories: filters?.categories?.filter(c => c !== 'wszystkie'),
+    documentTypes: filters?.documentTypes,
+    status: filters?.status
+  })
 }
 
 export async function getPrint(number: string): Promise<Print | null> {
@@ -253,4 +286,14 @@ export async function searchPrints(searchQuery: string): Promise<PrintShort[]> {
   `
   const result = await runQuery<{ print: PrintShort }>(query, { searchQuery })
   return result.map((record) => record.print)
+}
+ 
+export async function getAllTopics(): Promise<{ name: string; count: number }[]> {
+  const query = `
+    MATCH (topic:Topic)<-[:REFERS_TO]-(print:Print)
+    WITH topic.name as name, count(print) as count
+    RETURN name, count
+    ORDER BY count DESC
+  `
+  return runQuery<{ name: string; count: number }>(query)
 }
