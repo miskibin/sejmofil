@@ -91,30 +91,25 @@ export async function getAllProcessPrints(
     dateTo?: string;
     categories?: string[];
     documentTypes?: string[];
-    status?: string;
   }
 ): Promise<PrintListItem[]> {
-  const conditions = [
-    'print.short_title IS NOT NULL',
-    filters?.dateFrom && `process.changeDate >= datetime($dateFrom)`,
-    filters?.dateTo && `process.changeDate <= datetime($dateTo)`,
-    filters?.documentTypes?.length && 'process.documentType IN $documentTypes',
-    filters?.status && 'lastStage.stageName = $status'
-  ].filter(Boolean)
+  const conditions = ['print.short_title IS NOT NULL']
+
+  if (filters?.dateFrom) conditions.push(`process.changeDate >= datetime($dateFrom)`)
+  if (filters?.dateTo) conditions.push(`process.changeDate <= datetime($dateTo)`)
+  if (filters?.documentTypes?.length) conditions.push(`process.documentType IN $documentTypes`)
 
   const query = `
       MATCH (print:Print)-[:IS_SOURCE_OF]->(process:Process)
+      WHERE ${conditions.join(' AND ')}
       WITH print, process
       MATCH (print)-[:REFERS_TO]->(topic:Topic)
       WITH print, process, collect(DISTINCT topic.name) as topics
       ${filters?.categories?.length ? 'WHERE ANY(cat IN $categories WHERE cat IN topics)' : ''}
       MATCH (process)-[:HAS]->(stage:Stage)
       WITH print, process, topics, stage
-      ORDER BY stage.number DESC
+      ORDER BY stage.number DESC, process.changeDate DESC
       WITH print, process, topics, collect(stage)[0] as lastStage
-      WHERE ${conditions.join(' AND ')}
-      WITH print, process, topics, lastStage
-      ORDER BY process.changeDate DESC
       SKIP toInteger($skip)
       LIMIT toInteger($limit)
       RETURN DISTINCT
@@ -129,14 +124,18 @@ export async function getAllProcessPrints(
              print.processPrint AS processPrint
     `
 
+  console.log('Query params:', { 
+    skip, 
+    limit, 
+    ...filters,
+    categories: filters?.categories?.filter(c => c !== 'wszystkie')
+  })
+
   return runQuery<PrintListItem>(query, { 
     skip, 
     limit, 
-    dateFrom: filters?.dateFrom,
-    dateTo: filters?.dateTo,
-    categories: filters?.categories?.filter(c => c !== 'wszystkie'),
-    documentTypes: filters?.documentTypes,
-    status: filters?.status
+    ...filters,
+    categories: filters?.categories?.filter(c => c !== 'wszystkie')
   })
 }
 
