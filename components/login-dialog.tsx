@@ -98,10 +98,9 @@ export function LoginDialog({
         </PopoverTrigger>
         <PopoverContent className="w-56 p-2" side="bottom" align="end">
           <div className="flex flex-col space-y-1">
-            {/* User Info */}
             <div className="mb-2 px-2 py-1.5">
               <div className="truncate text-sm font-medium">
-                {user.user_metadata.preferred_username || user.email}
+                {user.user_metadata.name || ''}
               </div>
               <div className="truncate text-xs text-muted-foreground">
                 {user.email}
