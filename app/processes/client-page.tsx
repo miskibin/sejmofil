@@ -65,7 +65,7 @@ export default function ProcessSearchPage({
     })
 
     return Array.from(countMap.entries())
-      .filter(([_, data]) => data.count >= 5)
+      .filter(([_, data]) => data.count >= 3)
       .sort((a, b) => b[1].count - a[1].count)
       .map(([name, data]) => ({ name, ...data }))
   }, [prints])
