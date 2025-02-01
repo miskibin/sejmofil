@@ -151,24 +151,13 @@ export default function ProcessClientPage({
   return (
     <div className="space-y-4">
       <div className="mb-8 space-y-4 p-3">
-        <div className="flex flex-col gap-4">
-          <Input
-            placeholder="Szukaj projektów ustawy..."
-            value={filters.searchTerm}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, searchTerm: e.target.value }))
-            }
-            className="flex-1"
-          />
-
-          <FilterBar
-            filters={filters}
-            setFilters={setFilters}
-            topics={commonTopics}
-            hiddenCount={hiddenCount}
-            onShowMore={() => setShowAllTopics(true)}
-          />
-        </div>
+        <FilterBar
+          filters={filters}
+          setFilters={setFilters}
+          topics={commonTopics}
+          hiddenCount={hiddenCount}
+          onShowMore={() => setShowAllTopics(true)}
+        />
       </div>
 
       {/* Loader */}
@@ -188,7 +177,12 @@ export default function ProcessClientPage({
             <Card className="overflow-hidden">
               <div className="flex flex-col sm:flex-row sm:gap-6">
                 <div className="flex-1 p-4 space-y-3">
-                  <h2 className="font-semibold">{print.title}</h2>
+                  <div>
+                    <h2 className="font-semibold">{print.short_title || ''}</h2>
+                    <p className="mt-1 text-xs text-gray-600">
+                      {print.number}: {print.title}
+                    </p>
+                  </div>
                   <div className="prose-sm">
                     <ReactMarkdown>
                       {truncateText(print.summary || '', 600)}

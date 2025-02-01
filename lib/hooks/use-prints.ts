@@ -6,7 +6,6 @@ import { getRandomPhoto } from '../utils/photos'
 import { DocumentType } from '../constants'
 
 export interface PrintsFilters {
-  searchTerm: string
   selectedCategory: string
   selectedTypes: DocumentType[]
   dateFrom?: Date // TO DO - use this
@@ -19,7 +18,6 @@ export function usePrints(
 ) {
   const [showAllTopics, setShowAllTopics] = useState(false)
   const [filters, setFilters] = useState<PrintsFilters>({
-    searchTerm: '',
     selectedTypes: [],
     selectedCategory: 'wszystkie',
   })
@@ -44,13 +42,7 @@ export function usePrints(
               : undefined,
         })
 
-        return filters.searchTerm
-          ? data.filter((print) =>
-              print.title
-                .toLowerCase()
-                .includes(filters.searchTerm.toLowerCase())
-            )
-          : data
+        return data
       },
       getNextPageParam: (lastPage, allPages) => {
         const hasMore = lastPage.length >= 20
