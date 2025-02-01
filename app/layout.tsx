@@ -4,6 +4,7 @@ import Navbar from '@/components/navbar'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import QueryProvider from '@/lib/providers/query-provider'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -76,15 +77,17 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} bg-neutral-50 antialiased`}>
-        <Navbar />
-        <main className="container mx-auto mt-4 max-w-7xl p-1 sm:p-6 lg:p-12 2xl:max-w-[1400px]">
-          <Breadcrumbs />
+        <QueryProvider>
+          <Navbar />
+          <main className="container mx-auto mt-4 max-w-7xl p-1 sm:p-6 lg:p-12 2xl:max-w-[1400px]">
+            <Breadcrumbs />
 
-          <div className="mt-8 min-h-screen">{children}</div>
-        </main>
-        <hr className="mx-4 my-8" />
+            <div className="mt-8 min-h-screen">{children}</div>
+          </main>
+          <hr className="mx-4 my-8" />
 
-        <Footer />
+          <Footer />
+        </QueryProvider>
       </body>
     </html>
   )

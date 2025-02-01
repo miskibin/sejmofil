@@ -1,11 +1,9 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Search } from 'lucide-react'
+import { Search, Calendar as CalendarIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { PrintListItem } from '@/lib/types/print'
-import { getRandomPhoto } from '@/lib/utils/photos'
 import ReactMarkdown from 'react-markdown'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -16,60 +14,114 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { useInView } from 'react-intersection-observer'
+import { format } from 'date-fns'
+import { Calendar } from '@/components/ui/calendar'
+import { useEffect } from 'react'
+import { usePrints } from '@/lib/hooks/use-prints'
 
 const DOCUMENT_TYPES = ['projekt ustawy', 'projekt uchwały', 'wniosek']
 
-export default function ProcessSearchPage({
-  prints = [],
+export default function ProcessClientPage({
+  initialPrints,
+  initialTopics,
 }: {
-  prints: PrintListItem[]
+  initialPrints: PrintListItem[]
+  initialTopics: { name: string; count: number }[]
 }) {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('wszystkie')
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: '100px',
+  })
 
-  const categories = useMemo(() => {
-    const categoryCount = new Map<string, number>()
-    prints.forEach((print) => {
-      print.categories?.forEach((category) => {
-        categoryCount.set(category, (categoryCount.get(category) || 0) + 1)
-      })
-    })
+  const { 
+    prints, 
+    photoUrls, 
+    filters, 
+    setFilters, 
+    fetchNextPage, 
+    hasNextPage,
+    isLoading,
+    isFetching,
+  } = usePrints(initialPrints, initialTopics)
 
-    const sortedCategories = Array.from(categoryCount.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([category]) => category)
-
-    return ['wszystkie', ...sortedCategories]
-  }, [prints])
-
-  const photoUrls = useMemo(() => {
-    return prints.reduce(
-      (acc, print) => {
-        acc[print.number] = getRandomPhoto(print.number)
-        return acc
-      },
-      {} as Record<string, string>
-    )
-  }, [prints])
-
-  const filteredPrints = prints.filter(
-    (print) =>
-      print.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (selectedCategory === 'wszystkie' ||
-        print.categories.includes(selectedCategory)) &&
-      (selectedTypes.length === 0 || selectedTypes.includes(print.type))
-  )
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetching) {
+      console.log('Loading more...', { hasNextPage, inView, isFetching })
+      fetchNextPage()
+    }
+  }, [inView, hasNextPage, isFetching, fetchNextPage])
 
   return (
-    <div className="container px-4 py-6 sm:px-6">
+    <div>
+      <div className="sticky top-0 z-10 bg-white p-4 flex flex-row gap-4 items-center">
+        <input
+          type="text"
+          placeholder="Search..."
+          className="flex-1"
+          value={filters.searchTerm}
+          onChange={(e) => setFilters((prev) => ({ ...prev, searchTerm: e.target.value }))}
+        />
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={`w-[200px] justify-start text-left font-normal ${!filters.dateFrom && 'text-muted-foreground'}`}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {filters.dateFrom ? (
+                format(filters.dateFrom, 'PPP')
+              ) : (
+                <span>Pick a date from</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={filters.dateFrom}
+              onSelect={(date) =>
+                setFilters((prev) => ({ ...prev, dateFrom: date }))
+              }
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={`w-[200px] justify-start text-left font-normal ${!filters.dateTo && 'text-muted-foreground'}`}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {filters.dateTo ? (
+                format(filters.dateTo, 'PPP')
+              ) : (
+                <span>Pick a date to</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={filters.dateTo}
+              onSelect={(date) =>
+                setFilters((prev) => ({ ...prev, dateTo: date }))
+              }
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative w-full sm:flex-1 sm:min-w-[300px]">
           <Input
             placeholder="Szukaj projektów ustawy..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={filters.searchTerm}
+            onChange={(e) => setFilters((prev) => ({ ...prev, searchTerm: e.target.value }))}
             className="pl-10"
           />
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -84,7 +136,7 @@ export default function ProcessSearchPage({
                 className="h-10 w-full sm:w-auto sm:min-w-[140px] justify-between"
               >
                 Typ dokumentu{' '}
-                {selectedTypes.length ? `(${selectedTypes.length})` : ''}
+                {filters.selectedTypes.length ? `(${filters.selectedTypes.length})` : ''}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-2" align="end">
@@ -93,17 +145,17 @@ export default function ProcessSearchPage({
                   <button
                     key={type}
                     onClick={() =>
-                      setSelectedTypes(
-                        selectedTypes.includes(type)
-                          ? selectedTypes.filter((t) => t !== type)
-                          : [...selectedTypes, type]
-                      )
-                    }
+                      setFilters((prev) => ({
+                        ...prev,
+                        selectedTypes: prev.selectedTypes.includes(type)
+                          ? prev.selectedTypes.filter((t) => t !== type)
+                          : [...prev.selectedTypes, type]
+                      }))} 
                     className="flex w-full items-center gap-2 rounded-sm px-2 py-1 text-sm hover:bg-primary/20"
                   >
                     <div
                       className={`h-3 w-3 rounded-sm border ${
-                        selectedTypes.includes(type)
+                        filters.selectedTypes.includes(type)
                           ? 'bg-primary border-primary'
                           : 'border-muted-foreground'
                       }`}
@@ -116,11 +168,11 @@ export default function ProcessSearchPage({
           </Popover>
 
           <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
+            {filters.categories.map((category) => (
               <Button
                 key={category}
-                variant={selectedCategory === category ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory(category)}
+                variant={filters.selectedCategory === category ? 'default' : 'outline'}
+                onClick={() => setFilters((prev) => ({ ...prev, selectedCategory: category }))}
                 size="sm"
                 className="h-10 flex-shrink-0"
               >
@@ -131,8 +183,8 @@ export default function ProcessSearchPage({
         </div>
       </div>
 
-      <div className="grid gap-4">
-        {filteredPrints.map((print) => (
+      <div className="grid gap-6 p-4">
+        {prints.map((print) => (
           <Link
             key={print.number}
             href={`/processes/${print.number}`}
@@ -144,22 +196,23 @@ export default function ProcessSearchPage({
                   <h2 className="font-semibold">{print.title}</h2>
                   <div className="prose-sm">
                     <ReactMarkdown>
-                      {truncateText(
-                        print.summary || '',
-                        600
-                      )}
+                      {truncateText(print.summary || '', 600)}
                     </ReactMarkdown>
                   </div>
                   <div className="text-sm text-muted-foreground">
                     <div className="flex flex-wrap gap-x-2">
-                      <span>{new Date(print.date).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(print.date).toLocaleDateString()}
+                      </span>
                       <span>•</span>
                       <span>{print.type}</span>
                       <span>•</span>
                       <span>{print.categories.join(', ')}</span>
                     </div>
                     {print.status && (
-                      <div className="mt-1 text-primary">{print.status}</div>
+                      <div className="mt-1 text-primary">
+                        {print.status}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -176,7 +229,12 @@ export default function ProcessSearchPage({
             </Card>
           </Link>
         ))}
+        {(isLoading || isFetching) && (
+          <div className="text-center py-4">Loading...</div>
+        )}
       </div>
+
+      <div ref={ref} className="h-20" />
     </div>
   )
 }
