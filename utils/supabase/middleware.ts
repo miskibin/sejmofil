@@ -2,16 +2,12 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
-  console.log(
-    '[Middleware] Starting updateSession for path:',
-    request.nextUrl.pathname
-  )
+
 
   let supabaseResponse = NextResponse.next({
     request,
   })
 
-  console.log('[Middleware] Creating Supabase client...')
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -19,17 +15,11 @@ export async function updateSession(request: NextRequest) {
       cookies: {
         getAll() {
           const cookies = request.cookies.getAll()
-          console.log(
-            '[Middleware] Getting all cookies:',
-            cookies.map((c) => c.name)
-          )
+       
           return cookies
         },
         setAll(cookiesToSet) {
-          console.log(
-            '[Middleware] Setting cookies:',
-            cookiesToSet.map((c) => c.name)
-          )
+         
           cookiesToSet.forEach(({ name, value, options }) =>
             request.cookies.set(name, value)
           )
@@ -48,7 +38,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  console.log('[Middleware] User found:', user ? 'yes' : 'no')
 
   return supabaseResponse
 }

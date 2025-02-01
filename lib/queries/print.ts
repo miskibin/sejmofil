@@ -88,21 +88,27 @@ export async function getAllProcessPrints(): Promise<PrintListItem[]> {
       MATCH (print:Print)-[:IS_SOURCE_OF]->(process:Process)
       WHERE print.short_title IS NOT NULL
       WITH print, process
-      MATCH (print)-[:REFERS_TO]->(topic:Topic)
+      OPTIONAL MATCH (print)-[:REFERS_TO]->(topic:Topic)
       WITH print, process, collect(DISTINCT topic.name) as topics
+      OPTIONAL MATCH (print)-[:REFERS_TO]->(org:Organization)
+      WITH print, process, topics, collect(DISTINCT org.name) as organizations, process.changeDate as changeDate
       MATCH (process)-[:HAS]->(stage:Stage)
-      WITH print, process, topics, stage
+      WITH print, process, topics, organizations, stage, changeDate
       ORDER BY stage.number DESC
-      WITH print, process, topics, collect(stage)[0] as lastStage
+      WITH print, process, topics, organizations, collect(stage)[0] as lastStage, changeDate
       RETURN DISTINCT
              print.number AS number, 
-             print.short_title AS title,
+             print.short_title AS short_title,
+             print.title AS title,
              print.summary AS summary,
              process.documentType AS type,
              print.documentDate AS date,
+             changeDate AS changeDate,
              lastStage.stageName AS status,
              topics AS categories,
+             organizations AS organizations,
              print.processPrint AS processPrint
+      ORDER BY changeDate DESC
     `
   return runQuery<PrintListItem>(query)
 }

@@ -22,12 +22,14 @@ export type PrintShort = {
 }
 
 export type PrintListItem = {
+  organizations: any
   topicName: any
   number: string
   title: string
   summary: string
   type: string
   date: string
+  short_title?: string
   status: string
   categories: string[]
   processPrint: string[]
