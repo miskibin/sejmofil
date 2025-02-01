@@ -25,6 +25,7 @@ export type PrintListItem = {
   topicName: any
   number: string
   title: string
+  short_title?: string
   summary: string
   type: string
   date: string

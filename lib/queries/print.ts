@@ -114,7 +114,8 @@ export async function getAllProcessPrints(
       LIMIT toInteger($limit)
       RETURN DISTINCT
              print.number AS number, 
-             print.short_title AS title,
+             print.short_title AS short_title,
+             print.title AS title,
              print.summary AS summary,
              process.documentType AS type,
              print.documentDate AS date,
