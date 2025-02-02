@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 
 const DOCUMENT_TYPES = [
   'projekt ustawy',
@@ -82,9 +83,19 @@ export default function ProcessSearchPage({
   }, [searchTerm, selectedCategories, selectedTypes])
 
   const filteredPrints = prints.filter((print) => {
-    const matchesSearch = print.title
+    const searchableText = [
+      print.title,
+      print.short_title,
+      print.processDescription,
+      print.summary,
+    ]
+      .filter(Boolean)
+      .join(' ')
       .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+
+    const matchesSearch = searchTerm
+      ? searchableText.includes(searchTerm.toLowerCase())
+      : true
 
     const matchesCategories =
       selectedCategories.length === 0 ||
@@ -128,6 +139,22 @@ export default function ProcessSearchPage({
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  const getAuthorBadges = (print: PrintListItem) => {
+    if (print.title.includes('Prezydium Sejmu')) {
+      return [<Badge key="prezydium" variant="default" className="bg-primary">Prezydium Sejmu</Badge>]
+    }
+    
+    if (print.title.includes('Obywatelski')) {
+      return [<Badge key="obywatele" variant="default" className="bg-primary">Obywatele</Badge>]
+    }
+
+    return print.authorClubs.map((clubId) => (
+      <Badge key={clubId} variant="default" className="bg-primary">
+        {clubId}
+      </Badge>
+    ))
+  }
 
   return (
     <div className="container px-4 py-6 sm:px-6">
@@ -245,9 +272,14 @@ export default function ProcessSearchPage({
               <div className="flex flex-col sm:flex-row sm:gap-6">
                 <div className="flex-1 p-4 space-y-3">
                   <div className="space-y-1">
-                    <h2 className="font-semibold">{print.short_title}</h2>
+                    <div className="flex items-center gap-2">
+                      <h2 className="font-semibold">{print.short_title}</h2>
+                      <div className="flex gap-1">
+                        {getAuthorBadges(print)}
+                      </div>
+                    </div>
                     <p className="text-sm text-muted-foreground">
-                      {print.title}
+                      {print.processDescription || print.title}
                     </p>
                   </div>
                   <div className="prose-sm">
@@ -263,6 +295,7 @@ export default function ProcessSearchPage({
                       <span>•</span>
                       <span>{print.categories.join(', ')}</span>
                     </div>
+                  
                     {print.status && (
                       <div className="mt-1 text-primary">{print.status}</div>
                     )}

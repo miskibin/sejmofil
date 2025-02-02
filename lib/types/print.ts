@@ -22,8 +22,6 @@ export type PrintShort = {
 }
 
 export type PrintListItem = {
-  organizations: any
-  topicName: any
   number: string
   title: string
   summary: string
@@ -32,7 +30,10 @@ export type PrintListItem = {
   short_title?: string
   status: string
   categories: string[]
+  organizations: string[]
   processPrint: string[]
+  processDescription?: string  // changed from processComment
+  authorClubs: string[]       // changed from { id: string; name: string }[]
 }
 
 export type Comment = {

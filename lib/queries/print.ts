@@ -92,10 +92,14 @@ export async function getAllProcessPrints(): Promise<PrintListItem[]> {
       WITH print, process, collect(DISTINCT topic.name) as topics
       OPTIONAL MATCH (print)-[:REFERS_TO]->(org:Organization)
       WITH print, process, topics, collect(DISTINCT org.name) as organizations, process.changeDate as changeDate
+      OPTIONAL MATCH (author:Person)-[:AUTHORED]->(print)
+      OPTIONAL MATCH (author)-[:BELONGS_TO]->(club:Club)
+      WITH print, process, topics, organizations, changeDate, 
+           collect(DISTINCT club.id) as authorClubs
       MATCH (process)-[:HAS]->(stage:Stage)
-      WITH print, process, topics, organizations, stage, changeDate
+      WITH print, process, topics, organizations, stage, changeDate, authorClubs
       ORDER BY stage.number DESC
-      WITH print, process, topics, organizations, collect(stage)[0] as lastStage, changeDate
+      WITH print, process, topics, organizations, collect(stage)[0] as lastStage, changeDate, authorClubs
       RETURN DISTINCT
              print.number AS number, 
              print.short_title AS short_title,
@@ -107,7 +111,9 @@ export async function getAllProcessPrints(): Promise<PrintListItem[]> {
              lastStage.stageName AS status,
              topics AS categories,
              organizations AS organizations,
-             print.processPrint AS processPrint
+             print.processPrint AS processPrint,
+             process.description AS processDescription,
+             authorClubs
       ORDER BY changeDate DESC
     `
   return runQuery<PrintListItem>(query)
