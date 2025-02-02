@@ -22,6 +22,7 @@ export type PrintShort = {
 }
 
 export type PrintListItem = {
+  topicName: any
   number: string
   title: string
   summary: string
