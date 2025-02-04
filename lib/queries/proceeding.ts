@@ -29,6 +29,29 @@ export async function getProceedingDates(): Promise<ProceedingDates[]> {
   return result
 }
 
+export async function getProceedingPoints() {
+  const query = `
+    MATCH (p:Proceeding)-[:HAS_DAY]->(d:ProceedingDay)-[:HAS_POINT]->(point:ProceedingPoint)
+    OPTIONAL MATCH (point)-[:HAS_VOTING]->(v:Voting)
+    WITH p, d, point, collect(v) as votings
+    RETURN {
+      id: point.id,
+      type: point.type,
+      title: point.title,
+      summary: point.summary,
+      description: point.description,
+      proceedingNumber: p.number,
+      date: d.date,
+      votingNumbers: [v in votings | v.votingNumber],
+      votesFor: reduce(total = 0, v IN votings | total + v.yes),
+      commentCount: point.commentCount,
+      interestedCount: point.interestedCount
+    } ORDER BY d.date DESC LIMIT 10
+  `
+
+  return runQuery(query)
+}
+
 export interface VotingResult {
   votingNumber: number
   topic: string
