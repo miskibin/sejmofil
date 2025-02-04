@@ -81,37 +81,23 @@ export default async function EnvoyDetail({
         </CredenzaTitle>
       </CredenzaHeader>
       <CredenzaBody>
-        {committees.length > 0 ? (
-          <div className="space-y-3">
-            {committees.map((committee, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-start justify-between gap-2 rounded-lg bg-gray-50 p-4 sm:flex-row sm:items-center"
-              >
-                <span className="font-medium text-gray-900">
-                  {committee.name}
+        <div className="space-y-3">
+          {committees.map((committee, index) => (
+            <div
+              key={index}
+              className="flex flex-col items-start justify-between gap-2 rounded-lg bg-gray-50 p-4 sm:flex-row sm:items-center"
+            >
+              <span className="font-medium text-gray-900">
+                {committee.name}
+              </span>
+              {committee.role && (
+                <span className="rounded-md bg-primary/20 px-2 py-1 text-sm text-muted-foreground">
+                  {committee.role}
                 </span>
-                {committee.role && (
-                  <span className="rounded-md bg-primary/20 px-2 py-1 text-sm text-muted-foreground">
-                    {committee.role}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="pb-6 text-center">
-            <div className="mb-4 flex justify-center">
-              <Image
-                src="/empty.svg"
-                width={333}
-                height={333}
-                alt="No committees"
-              />
+              )}
             </div>
-            <p className="text-gray-500">Brak członkostwa w komisjach</p>
-          </div>
-        )}
+          ))}
+        </div>
       </CredenzaBody>
     </CredenzaContent>
   )
