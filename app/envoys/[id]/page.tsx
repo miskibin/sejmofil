@@ -23,6 +23,7 @@ import {
   CredenzaBody,
 } from '@/components/ui/credenza'
 import { getStatementCombinedDetails } from '@/lib/supabase/getStatementCombinedDetails'
+import { TruncateSection } from '@/components/ui/truncate-section'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({
@@ -149,9 +150,11 @@ export default async function EnvoyDetail({
                 }
                 showGradient={false}
               >
-                <p className="whitespace-pre-wrap leading-relaxed text-gray-700">
-                  {truncateText(info.biography, 800)}
-                </p>
+                <TruncateSection height={200}>
+                  <p className="whitespace-pre-wrap leading-relaxed text-gray-700">
+                    {info.biography}
+                  </p>
+                </TruncateSection>
               </CardWrapper>
             </div>
           )}
