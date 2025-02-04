@@ -15,7 +15,6 @@ import { Sparkles } from 'lucide-react'
 import { FaWikipediaW } from 'react-icons/fa'
 import Link from 'next/link'
 import { ProfileCard } from './profile-card'
-import Image from 'next/image'
 import { Metadata } from 'next'
 import {
   CredenzaContent,
