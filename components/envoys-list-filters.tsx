@@ -1,71 +1,71 @@
-"use client";
+'use client'
 
-import { Input } from "@/components/ui/input";
-import { getDistrictFromPostalCode } from "@/lib/utils/districts";
-import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Filter } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { getDistrictFromPostalCode } from '@/lib/utils/districts'
+import { Filter } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 
-export type ActivityStatus = "active" | "inactive" | "all";
-type ProfessionCount = { name: string; count: number };
+export type ActivityStatus = 'active' | 'inactive' | 'all'
+type ProfessionCount = { name: string; count: number }
 export type SortField =
-  | "votes"
-  | "absents"
-  | "statements"
-  | "interruptions"
-  | "none"
-  | null;
+  | 'votes'
+  | 'absents'
+  | 'statements'
+  | 'interruptions'
+  | 'none'
+  | null
 
 interface EnvoysListFiltersProps {
-  clubs: string[];
-  professions: ProfessionCount[];
-  onSearchChange: (value: string) => void;
-  onClubChange: (value: string) => void;
-  onActivityChange: (value: ActivityStatus) => void;
-  onDistrictChange: (value: string | null) => void;
-  onProfessionsChange: (value: string[]) => void;
-  selectedProfessions: string[];
-  onSortChange: (field: SortField) => void;
+  clubs: string[]
+  professions: ProfessionCount[]
+  onSearchChange: (value: string) => void
+  onClubChange: (value: string) => void
+  onActivityChange: (value: ActivityStatus) => void
+  onDistrictChange: (value: string | null) => void
+  onProfessionsChange: (value: string[]) => void
+  selectedProfessions: string[]
+  onSortChange: (field: SortField) => void
 }
 
 interface FilterButtonConfig {
-  label: string;
-  placeholder: string;
-  type: "select" | "postal" | "professions";
-  onChange: (value: string) => void;
-  options?: { value: string; label: string }[];
-  defaultValue?: string;
-  badge?: string | number;
+  label: string
+  placeholder: string
+  type: 'select' | 'postal' | 'professions'
+  onChange: (value: string) => void
+  options?: { value: string; label: string }[]
+  defaultValue?: string
+  badge?: string | number
 }
 
 const RANKING_OPTIONS = {
-  none: "Alfabetycznie",
-  votes: "Liczba głosów",
-  absents: "Liczba nieobecności",
-  statements: "Liczba wypowiedzi",
-  interruptions: "Liczba okrzyków",
-} as const;
+  none: 'Alfabetycznie',
+  votes: 'Liczba głosów',
+  absents: 'Liczba nieobecności',
+  statements: 'Liczba wypowiedzi',
+  interruptions: 'Liczba okrzyków',
+} as const
 
 const STATUS_OPTIONS = {
-  active: "Tylko aktywni",
-  inactive: "Tylko nieaktywni",
-  all: "Wszyscy",
-} as const;
+  active: 'Tylko aktywni',
+  inactive: 'Tylko nieaktywni',
+  all: 'Wszyscy',
+} as const
 
 export function EnvoysListFilters({
   clubs,
@@ -78,51 +78,51 @@ export function EnvoysListFilters({
   selectedProfessions,
   onSortChange,
 }: EnvoysListFiltersProps) {
-  const searchParams = useSearchParams();
-  const [currentDistrict, setCurrentDistrict] = useState<string | null>(null);
-  const [professionFilter, setProfessionFilter] = useState("");
-  const [isFiltersVisible, setIsFiltersVisible] = useState(false);
+  const searchParams = useSearchParams()
+  const [currentDistrict, setCurrentDistrict] = useState<string | null>(null)
+  const [professionFilter, setProfessionFilter] = useState('')
+  const [isFiltersVisible, setIsFiltersVisible] = useState(false)
 
   const handlePostalCode = (value: string) => {
-    let clean = value.replace(/[^0-9]/g, "").slice(0, 6);
-    if (clean.length > 2) clean = clean.slice(0, 2) + "-" + clean.slice(2);
+    let clean = value.replace(/[^0-9]/g, '').slice(0, 6)
+    if (clean.length > 2) clean = clean.slice(0, 2) + '-' + clean.slice(2)
     const district =
-      clean.replace("-", "").length >= 2
-        ? getDistrictFromPostalCode(clean.replace("-", ""))
-        : null;
-    setCurrentDistrict(district);
-    onDistrictChange(district);
-    return clean;
-  };
+      clean.replace('-', '').length >= 2
+        ? getDistrictFromPostalCode(clean.replace('-', ''))
+        : null
+    setCurrentDistrict(district)
+    onDistrictChange(district)
+    return clean
+  }
 
   const toggleProfession = (profName: string) => {
     onProfessionsChange(
       selectedProfessions.includes(profName)
         ? selectedProfessions.filter((p) => p !== profName)
         : [...selectedProfessions, profName]
-    );
-  };
+    )
+  }
 
   const filteredProfessions = professions.filter((prof) =>
     prof.name.toLowerCase().includes(professionFilter.toLowerCase())
-  );
+  )
 
   const filterButtonConfigs: FilterButtonConfig[] = [
     {
-      label: "Klub parlamentarny",
-      placeholder: "Wybierz klub",
-      type: "select",
+      label: 'Klub parlamentarny',
+      placeholder: 'Wybierz klub',
+      type: 'select',
       onChange: (value) => onClubChange(value),
       options: [
-        { value: "all", label: "Wszystkie kluby" },
+        { value: 'all', label: 'Wszystkie kluby' },
         ...clubs.map((club) => ({ value: club, label: club })),
       ],
     },
     {
-      label: "Status posła",
-      placeholder: "Wybierz status",
-      type: "select",
-      defaultValue: "active",
+      label: 'Status posła',
+      placeholder: 'Wybierz status',
+      type: 'select',
+      defaultValue: 'active',
       onChange: (value) => onActivityChange(value as ActivityStatus),
       options: Object.entries(STATUS_OPTIONS).map(([value, label]) => ({
         value,
@@ -130,16 +130,16 @@ export function EnvoysListFilters({
       })),
     },
     {
-      label: "Okręg wyborczy",
-      placeholder: "Kod pocztowy",
-      type: "postal",
+      label: 'Okręg wyborczy',
+      placeholder: 'Kod pocztowy',
+      type: 'postal',
       onChange: handlePostalCode,
       badge: currentDistrict ? `okręg: ${currentDistrict}` : undefined,
     },
     {
-      label: "Zawód",
-      placeholder: "Wybierz zawody",
-      type: "professions",
+      label: 'Zawód',
+      placeholder: 'Wybierz zawody',
+      type: 'professions',
       onChange: toggleProfession,
       badge: selectedProfessions.length || undefined,
       options: filteredProfessions.map((prof) => ({
@@ -147,32 +147,32 @@ export function EnvoysListFilters({
         label: prof.name,
       })),
     },
-  ];
+  ]
 
-  const currentRanking = searchParams?.get("ranking");
+  const currentRanking = searchParams?.get('ranking')
   const rankingLabel =
-    currentRanking && currentRanking !== "none"
+    currentRanking && currentRanking !== 'none'
       ? RANKING_OPTIONS[currentRanking as keyof typeof RANKING_OPTIONS]
-      : null;
+      : null
 
   return (
-    <div className="space-y-4 p-3 mb-8">
-      <div className="flex gap-2 items-center">
+    <div className="mb-8 space-y-4 p-3">
+      <div className="flex items-center gap-2">
         <Input
           placeholder="Szukaj posła lub funkcji..."
-          className="flex-1 md:flex-none md:w-48"
+          className="flex-1 md:w-48 md:flex-none"
           onChange={(e) => onSearchChange(e.target.value)}
         />
         <div className="flex items-center gap-2">
           <Select
-            defaultValue={searchParams?.get("ranking") || "none"}
+            defaultValue={searchParams?.get('ranking') || 'none'}
             onValueChange={(value) => onSortChange(value as SortField)}
           >
             <SelectTrigger className="w-36">
               <SelectValue placeholder="Sortowanie">
                 {RANKING_OPTIONS[
-                  searchParams?.get("ranking") as keyof typeof RANKING_OPTIONS
-                ] || "Alfabetycznie"}
+                  searchParams?.get('ranking') as keyof typeof RANKING_OPTIONS
+                ] || 'Alfabetycznie'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -189,7 +189,7 @@ export function EnvoysListFilters({
             onClick={() => setIsFiltersVisible(!isFiltersVisible)}
             className="flex items-center gap-2"
           >
-            <Filter className={isFiltersVisible ? "text-white" : ""} />
+            <Filter className={isFiltersVisible ? 'text-white' : ''} />
             <span className="hidden md:inline">Filtry</span>
           </Button>
           {rankingLabel && (
@@ -202,7 +202,7 @@ export function EnvoysListFilters({
 
       {isFiltersVisible && (
         <>
-          <div className="flex flex-col md:flex-row flex-wrap gap-4">
+          <div className="flex flex-col flex-wrap gap-4 md:flex-row">
             {filterButtonConfigs.map(
               ({
                 label,
@@ -217,7 +217,7 @@ export function EnvoysListFilters({
                   <label className="text-sm font-medium text-muted-foreground">
                     {label}
                   </label>
-                  {type === "select" && (
+                  {type === 'select' && (
                     <Select
                       defaultValue={defaultValue}
                       onValueChange={onChange}
@@ -234,7 +234,7 @@ export function EnvoysListFilters({
                       </SelectContent>
                     </Select>
                   )}
-                  {type === "postal" && (
+                  {type === 'postal' && (
                     <div className="flex items-center gap-2">
                       <Input
                         placeholder={placeholder}
@@ -252,13 +252,13 @@ export function EnvoysListFilters({
                       )}
                     </div>
                   )}
-                  {type === "professions" && (
+                  {type === 'professions' && (
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-9 w-[180px] border-dashed justify-between"
+                          className="h-9 w-[180px] justify-between border-dashed"
                         >
                           {placeholder}
                           {badge && (
@@ -289,7 +289,7 @@ export function EnvoysListFilters({
                           />
                           <div className="max-h-[300px] overflow-y-auto">
                             {filteredProfessions.length === 0 ? (
-                              <p className="text-sm text-center py-4 text-muted-foreground">
+                              <p className="py-4 text-center text-sm text-muted-foreground">
                                 Nie znaleziono zawodów
                               </p>
                             ) : (
@@ -298,18 +298,18 @@ export function EnvoysListFilters({
                                   <button
                                     key={prof.name}
                                     onClick={() => toggleProfession(prof.name)}
-                                    className="flex items-center gap-2 px-2 py-1.5 hover:bg-primary/20 rounded-sm text-sm"
+                                    className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-primary/20"
                                   >
                                     <div
                                       className={`flex h-4 w-4 items-center justify-center rounded-sm border border-primary ${
                                         selectedProfessions.includes(prof.name)
-                                          ? "bg-primary text-primary-foreground"
-                                          : "opacity-50"
+                                          ? 'bg-primary text-primary-foreground'
+                                          : 'opacity-50'
                                       }`}
                                     >
                                       {selectedProfessions.includes(
                                         prof.name
-                                      ) && "✓"}
+                                      ) && '✓'}
                                     </div>
                                     <span className="flex-grow text-left">
                                       {prof.name}
@@ -330,9 +330,9 @@ export function EnvoysListFilters({
               )
             )}
           </div>
-          {searchParams?.get("ranking") !== "none" &&
-            searchParams?.get("ranking") && (
-              <p className="text-sm text-muted-foreground mt-2 italic">
+          {searchParams?.get('ranking') !== 'none' &&
+            searchParams?.get('ranking') && (
+              <p className="mt-2 text-sm italic text-muted-foreground">
                 * ranking dotyczy wszystkich posłów 10 kadencji (włącznie z
                 nieaktywnymi)
               </p>
@@ -340,5 +340,5 @@ export function EnvoysListFilters({
         </>
       )}
     </div>
-  );
+  )
 }

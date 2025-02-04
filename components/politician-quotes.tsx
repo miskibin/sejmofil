@@ -1,26 +1,26 @@
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import Image from "next/image";
-import { Sparkles } from "lucide-react";
-import { getLatestCitizations } from "@/lib/supabase/queries";
-import { getIdsFromNames } from "@/lib/queries/person";
-import Link from "next/link";
-import { truncateText } from "@/lib/utils";
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { getIdsFromNames } from '@/lib/queries/person'
+import { getLatestCitizations } from '@/lib/supabase/getLatestCitizations'
+import { truncateText } from '@/lib/utils'
+import { Sparkles } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export default async function PoliticianQuotes() {
-  const citations = await getLatestCitizations(2);
+  const citations = await getLatestCitizations(2)
   const envoys = await getIdsFromNames(
     citations.map((citation) => citation.speaker_name)
-  );
+  )
   const combined = citations.map((citation, index) => ({
     ...citation,
     envoy_id: envoys[index],
-  }));
+  }))
   return (
     <CardWrapper
       title="Ciekawostki"
       subtitle="Cytaty"
       showGradient={true}
-      headerIcon={<Sparkles className="w-4 h-4 m-1 text-white " fill="white" />}
+      headerIcon={<Sparkles className="h-5 w-5 text-primary" fill="#76052a" />}
     >
       <div className="space-y-4">
         {combined.map((quote, index) => (
@@ -46,5 +46,5 @@ export default async function PoliticianQuotes() {
         ))}
       </div>
     </CardWrapper>
-  );
+  )
 }

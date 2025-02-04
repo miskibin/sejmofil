@@ -1,29 +1,29 @@
-"use client";
+'use client'
 
-import { useState, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Search, CalendarDays, Timer, Vote } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Proceeding, PointRenderProps, ProceedingPoint } from "./types";
+} from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { Input } from '@/components/ui/input'
+import { CalendarDays, Search, Timer, Vote } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useCallback, useMemo, useState } from 'react'
+import { PointRenderProps, Proceeding, ProceedingPoint } from './types'
 
 export function ProceedingsList({
   proceedings,
 }: {
-  proceedings: Proceeding[];
+  proceedings: Proceeding[]
 }) {
-  const router = useRouter();
-  const [isNavigating, setIsNavigating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [openSections, setOpenSections] = useState<string[]>([]);
+  const router = useRouter()
+  const [isNavigating, setIsNavigating] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [openSections, setOpenSections] = useState<string[]>([])
 
   const filteredProceedings = useMemo(
     () =>
@@ -43,30 +43,30 @@ export function ProceedingsList({
             }))
             .filter((proc) => proc.proceeding_day.length > 0),
     [proceedings, searchTerm]
-  );
+  )
 
   const handleSearch = useCallback(
     (value: string) => {
-      setSearchTerm(value);
+      setSearchTerm(value)
       setOpenSections(
         value.length >= 2
           ? filteredProceedings.flatMap((proc) =>
               proc.proceeding_day.map((day) => `day-${day.id}`)
             )
           : []
-      );
+      )
     },
     [filteredProceedings]
-  );
+  )
 
   const handlePointClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string
   ) => {
-    e.preventDefault();
-    setIsNavigating(true);
-    router.push(href);
-  };
+    e.preventDefault()
+    setIsNavigating(true)
+    router.push(href)
+  }
 
   const renderPoint = ({
     point,
@@ -74,22 +74,33 @@ export function ProceedingsList({
     proceeding,
     day,
   }: PointRenderProps) => {
-    const pointNumber = point.official_point?.split(".")[0];
-    const points = pointsByNumber[pointNumber] || [];
-    const lastIndex = points.length - 1;
-    const currentIndex = points.findIndex((p) => p.id === point.id);
-    const isInterrupted = points.length > 1 && currentIndex < lastIndex;
-    const isContinuation = points.length > 1 && currentIndex === lastIndex;
+    const pointNumbers = point.official_point
+      ? point.official_point.split(' i ').map((num) => num.split('.')[0].trim())
+      : []
+
+    const isInterruptedOrContinued = pointNumbers.some((num) => {
+      const pointsForNumber = pointsByNumber[num] || []
+      const lastIndex = pointsForNumber.length - 1
+      const currentIndex = pointsForNumber.findIndex((p) => p.id === point.id)
+      return pointsForNumber.length > 1 && currentIndex < lastIndex
+    })
+
+    const isContinuation = pointNumbers.some((num) => {
+      const pointsForNumber = pointsByNumber[num] || []
+      const lastIndex = pointsForNumber.length - 1
+      const currentIndex = pointsForNumber.findIndex((p) => p.id === point.id)
+      return pointsForNumber.length > 1 && currentIndex === lastIndex
+    })
 
     return (
       <div
         key={point.id}
-        className="relative pl-2 sm:pl-6 border-l hover:border-primary"
+        className="relative border-l pl-2 hover:border-primary sm:pl-6"
       >
         <Link
           href={`/proceedings/${proceeding.number}/${day.date}/${point.id}`}
           className={`hover:text-primary ${
-            isNavigating ? "pointer-events-none opacity-50" : ""
+            isNavigating ? 'pointer-events-none opacity-50' : ''
           }`}
           onClick={(e) =>
             handlePointClick(
@@ -99,17 +110,21 @@ export function ProceedingsList({
           }
           prefetch={false}
         >
-          <div className="text-sm break-words">
+          <div className="break-words text-sm">
             <span className="text-muted-foreground">
-              {point.official_point ? `${pointNumber}.` : <i>(Bez numeru)</i>}
-            </span>{" "}
-            <span>{point.topic.split(" | ")[1] || point.topic}</span>{" "}
-            {isInterrupted && (
-              <span className="text-destructive italic">(przerwano)</span>
+              {point.official_point ? (
+                pointNumbers.join(' i ') + '.'
+              ) : (
+                <i>(Bez numeru)</i>
+              )}
+            </span>{' '}
+            <span>{point.topic.split(' | ')[1] || point.topic}</span>{' '}
+            {isInterruptedOrContinued && (
+              <span className="italic text-destructive">(przerwano)</span>
             )}
             {isContinuation && (
-              <span className="text-primary italic">(kontynuacja)</span>
-            )}{" "}
+              <span className="italic text-primary">(kontynuacja)</span>
+            )}{' '}
             {(point.votingResults?.length ?? 0) > 0 && (
               <Badge
                 variant="outline"
@@ -122,22 +137,29 @@ export function ProceedingsList({
           </div>
         </Link>
       </div>
-    );
-  };
+    )
+  }
 
   const getPointsByNumber = (
     proceeding: Proceeding
   ): Record<string, ProceedingPoint[]> =>
-    proceeding.proceeding_day.reduce((acc, day) => {
-      day.proceeding_point_ai.forEach((point) => {
-        if (point.official_point) {
-          const number = point.official_point.split(".")[0];
-          if (!acc[number]) acc[number] = [];
-          acc[number].push({ ...point, date: day.date });
-        }
-      });
-      return acc;
-    }, {} as Record<string, ProceedingPoint[]>);
+    proceeding.proceeding_day.reduce(
+      (acc, day) => {
+        day.proceeding_point_ai.forEach((point) => {
+          if (point.official_point) {
+            const numbers = point.official_point
+              .split(' i ')
+              .map((num) => num.split('.')[0].trim())
+            numbers.forEach((number) => {
+              if (!acc[number]) acc[number] = []
+              acc[number].push({ ...point, date: day.date })
+            })
+          }
+        })
+        return acc
+      },
+      {} as Record<string, ProceedingPoint[]>
+    )
 
   return (
     <div className="space-y-4">
@@ -150,30 +172,30 @@ export function ProceedingsList({
             onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="mt-2 text-sm text-muted-foreground">
           {searchTerm.length < 2
-            ? "Wpisz minimum 2 znaki aby wyszukać"
-            : !filteredProceedings.length && "Brak wyników"}
+            ? 'Wpisz minimum 2 znaki aby wyszukać'
+            : !filteredProceedings.length && 'Brak wyników'}
         </p>
       </div>
 
       {(searchTerm.length < 2 ? proceedings : filteredProceedings).map(
         (proceeding) => {
-          const pointsByNumber = getPointsByNumber(proceeding);
+          const pointsByNumber = getPointsByNumber(proceeding)
           Object.values(pointsByNumber).forEach((points) =>
             points.sort(
               (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
             )
-          );
+          )
 
           return (
             <CardWrapper
               key={proceeding.number}
               title={`${new Date(proceeding.dates[0]).toLocaleDateString(
-                "pl-PL"
+                'pl-PL'
               )} - ${new Date(
                 proceeding.dates[proceeding.dates.length - 1]
-              ).toLocaleDateString("pl-PL")}`}
+              ).toLocaleDateString('pl-PL')}`}
               subtitle={`Posiedzenie ${proceeding.number}`}
               showGradient={false}
             >
@@ -189,15 +211,13 @@ export function ProceedingsList({
                         <CalendarDays className="h-4 w-4 text-muted-foreground" />
                         <span>
                           {`${new Date(day.date).toLocaleDateString(
-                            "pl-PL"
+                            'pl-PL'
                           )} - ${new Date(
                             proceeding.dates[proceeding.dates.length - 1]
-                          ).toLocaleDateString("pl-PL")}`}
+                          ).toLocaleDateString('pl-PL')}`}
                         </span>
                         {!day.proceeding_point_ai?.length && (
-                          <Badge variant={"destructive"}>
-                            brak danych
-                          </Badge>
+                          <Badge variant={'destructive'}>brak danych</Badge>
                         )}
                         {day.proceeding_point_ai.some(
                           (p) => p.votingResults?.length
@@ -206,7 +226,7 @@ export function ProceedingsList({
                             variant="outline"
                             className="flex items-center gap-1"
                           >
-                            <Vote className=" ms-1 h-3 w-3" /> Głosowań:{" "}
+                            <Vote className="ms-1 h-3 w-3" /> Głosowań:{' '}
                             <span>
                               {day.proceeding_point_ai.reduce(
                                 (acc, p) =>
@@ -236,8 +256,8 @@ export function ProceedingsList({
                         )}
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pt-2 pb-4">
-                      <div className="space-y-3 ml-2 sm:ml-6 border-l">
+                    <AccordionContent className="pb-4 pt-2">
+                      <div className="ml-2 space-y-3 border-l sm:ml-6">
                         {day.proceeding_point_ai?.map((point) =>
                           renderPoint({
                             point,
@@ -252,9 +272,9 @@ export function ProceedingsList({
                 ))}
               </Accordion>
             </CardWrapper>
-          );
+          )
         }
       )}
     </div>
-  );
+  )
 }

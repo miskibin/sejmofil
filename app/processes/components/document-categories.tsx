@@ -1,12 +1,12 @@
-import { Clock, Zap, Shield, PiggyBank } from "lucide-react";
-import { DocumentCategoryCard } from "./document-category-card";
-import { PrintShort } from "@/lib/types/print";
+import { PrintShort } from '@/lib/types/print'
+import { Clock, PiggyBank, Shield, Zap } from 'lucide-react'
+import { DocumentCategoryCard } from './document-category-card'
 
 interface DocumentCategoriesProps {
-  latestPrints: PrintShort[];
-  energyPrints: PrintShort[];
-  immunityPrints: PrintShort[];
-  taxPrints: PrintShort[];
+  latestPrints: PrintShort[]
+  energyPrints: PrintShort[]
+  immunityPrints: PrintShort[]
+  taxPrints: PrintShort[]
 }
 
 export function DocumentCategories({
@@ -16,7 +16,7 @@ export function DocumentCategories({
   taxPrints,
 }: DocumentCategoriesProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <DocumentCategoryCard
         title="Najnowsze druki"
         subtitle="Ostatnio dodane dokumenty"
@@ -42,5 +42,5 @@ export function DocumentCategories({
         prints={taxPrints}
       />
     </div>
-  );
+  )
 }

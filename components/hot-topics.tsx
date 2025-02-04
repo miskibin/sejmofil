@@ -1,41 +1,41 @@
-import { Sparkles } from "lucide-react";
-import { CardWrapper } from "@/components/ui/card-wrapper";
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { Sparkles } from 'lucide-react'
 
 interface NewsItem {
-  id: string;
-  title: string;
-  date: string;
-  category: string;
+  id: string
+  title: string
+  date: string
+  category: string
 }
 
 export default function HotTopics() {
   const news: NewsItem[] = [
     {
-      id: "01",
-      title: "Prokuratoria Generalna RP podsumowuje rok 2022: jakie są wyniki?",
-      date: "04 Dec 2024",
-      category: "Obrady",
+      id: '01',
+      title: 'Prokuratoria Generalna RP podsumowuje rok 2022: jakie są wyniki?',
+      date: '04 Dec 2024',
+      category: 'Obrady',
     },
     {
-      id: "02",
+      id: '02',
       title:
-        "Sprawozdanie o stanie mienia Skarbu Państwa: co wiemy o finansach publicznych?",
-      date: "04 Dec 2024",
-      category: "Obrady",
+        'Sprawozdanie o stanie mienia Skarbu Państwa: co wiemy o finansach publicznych?',
+      date: '04 Dec 2024',
+      category: 'Obrady',
     },
     {
-      id: "03",
-      title: "Burzliwa debata wokół aborcji: nowe projekty ustaw w Sejmie",
-      date: "04 Dec 2024",
-      category: "Obrady",
+      id: '03',
+      title: 'Burzliwa debata wokół aborcji: nowe projekty ustaw w Sejmie',
+      date: '04 Dec 2024',
+      category: 'Obrady',
     },
     {
-      id: "04",
-      title: "Burzliwa debata wokół aborcji: nowe projekty ustaw ",
-      date: "04 Dec 2024",
-      category: "Obrady",
+      id: '04',
+      title: 'Burzliwa debata wokół aborcji: nowe projekty ustaw ',
+      date: '04 Dec 2024',
+      category: 'Obrady',
     },
-  ];
+  ]
 
   return (
     <CardWrapper
@@ -56,23 +56,23 @@ export default function HotTopics() {
       ...
       }}"
       subtitle="Gorące tematy"
-      headerIcon={<Sparkles className="w-4 h-4 m-1 text-white " fill="white" />}
+      headerIcon={<Sparkles className="h-5 w-5 text-primary" fill="#76052a" />}
     >
-      <div className="space-y-4 ">
+      <div className="space-y-4 blur-sm">
         {news.slice(0, 4).map((item) => (
           <div key={item.id} className="space-y-1">
-            <div className="flex gap-3 items-center">
-              <span className="font-semibold text-white flex items-center justify-center bg-primary min-w-10 min-h-10 w-10 h-10 text-center rounded-lg">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 min-h-10 w-10 min-w-10 items-center justify-center rounded-lg bg-primary text-center font-semibold text-white">
                 {item.id}
               </span>
               <h3 className="font-medium">{item.title}</h3>
             </div>
-            <div className="text-sm text-muted-foreground pl-8">
+            <div className="pl-8 text-sm text-muted-foreground">
               {item.date}
             </div>
           </div>
         ))}
       </div>
     </CardWrapper>
-  );
+  )
 }

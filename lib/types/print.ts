@@ -1,36 +1,45 @@
 export type Print = {
-  attachments: string[];
-  changeDate: string;
-  deliveryDate: string;
-  documentDate: string;
-  number: string;
-  processPrint: string[];
-  summary: string;
-  term: number;
-  title: string;
-  documentType?: string;
-};
+  attachments: string[]
+  changeDate: string
+  deliveryDate: string
+  documentDate: string
+  number: string
+  processPrint: string[]
+  summary: string
+  term: number
+  title: string
+  documentType?: string
+}
 
 export type PrintShort = {
-  documentDate: string;
-  number: string;
-  summary: string;
-  title: string;
-  processPrint: string[];
-  attachments: string[];
-  similarity?: number;
-};
+  documentDate: string
+  number: string
+  summary: string
+  title: string
+  processPrint: string[]
+  attachments: string[]
+  similarity?: number
+}
 
 export type PrintListItem = {
-  title: string;
-  number: string;
-  processPrint: string[];
-  topicName: string;
-  topicDescription: string;
-};
+  topicName: any
+  number: string
+  title: string
+  summary: string
+  type: string
+  date: string
+  short_title?: string
+  status: string
+  categories: string[]
+  organizations: string[]
+  processPrint: string[]
+  processDescription?: string  // changed from processComment
+  authorClubs: string[]       // changed from { id: string; name: string }[]
+}
+
 export type Comment = {
-  sentiment: "Neutralny" | "Pozytywny" | "Negatywny";
-  summary: string;
-  author: string;
-  organization: string;
-};
+  sentiment: 'Neutralny' | 'Pozytywny' | 'Negatywny'
+  summary: string
+  author: string
+  organization: string
+}

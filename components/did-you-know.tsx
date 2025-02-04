@@ -1,18 +1,18 @@
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import { Sparkles } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { CardWrapper } from '@/components/ui/card-wrapper'
 import {
-  getPersonWithMostInterruptions,
   getPersonWithMostAbsents,
+  getPersonWithMostInterruptions,
   getPersonWithMostStatements,
-} from "@/lib/queries/person";
+} from '@/lib/queries/person'
+import { Sparkles } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export default async function PlebiscytCard() {
-  const mostInterruptions = (await getPersonWithMostInterruptions()) || 0;
-  const mostAbsents = await getPersonWithMostAbsents();
-  const leastAbsents = await getPersonWithMostAbsents(true);
-  const mostStatements = await getPersonWithMostStatements();
+  const mostInterruptions = (await getPersonWithMostInterruptions()) || 0
+  const mostAbsents = await getPersonWithMostAbsents()
+  const leastAbsents = await getPersonWithMostAbsents(true)
+  const mostStatements = await getPersonWithMostStatements()
   const politicians = [
     {
       ...mostAbsents,
@@ -52,17 +52,17 @@ export default async function PlebiscytCard() {
       image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostInterruptions.id}.jpeg`,
     },
     {
-      name: "Donald Tusk",
-      id: "400",
+      name: 'Donald Tusk',
+      id: '400',
       count: 42,
       mainStat: {
         value: 42,
         url: `/envoys?ranking=votes`,
-        displayText: "Wypowiedzi: 42",
+        displayText: 'Wypowiedzi: 42',
       },
       image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/400.jpeg`,
     },
-  ];
+  ]
 
   return (
     <CardWrapper
@@ -74,15 +74,15 @@ export default async function PlebiscytCard() {
       subtitle="Czy wiesz, że?"
       showMoreLink="/envoys"
       showGradient={true}
-      headerIcon={<Sparkles className="w-4 h-4 m-1 text-white " fill="white" />}
+      headerIcon={<Sparkles className="h-5 w-5 text-primary" fill="#76052a" />}
     >
-      <div className="space-y-2 ">
+      <div className="space-y-2">
         {politicians.map((politician) => (
           <Link
             href={politician.mainStat.url}
             key={politician.id}
             prefetch={true}
-            className="flex items-center justify-between hover:bg-primary/5 p-2 rounded-lg transition-colors"
+            className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-primary/5"
           >
             <div className="space-y-1">
               <p className="text-sm font-semibold text-primary">
@@ -96,12 +96,12 @@ export default async function PlebiscytCard() {
               src={politician.image}
               alt={politician.name}
               width={48}
-              height={48}
-              className="rounded-full"
+              height={60}
+              className="size-auto"
             />
           </Link>
         ))}
       </div>
     </CardWrapper>
-  );
+  )
 }
