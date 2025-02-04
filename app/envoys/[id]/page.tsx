@@ -60,6 +60,19 @@ export default async function EnvoyDetail({
     info.firstLastName
   )
 
+  const printsDetails = (
+    <CredenzaContent className="max-w-[98vw] sm:max-w-2xl  p-4 rounded-lg sm:p-6">
+      <CredenzaHeader className="space-y-4 text-wrap">
+        <CredenzaTitle className="text-lg sm:text-xl text-start leading-tight">
+          Druki autorskie
+        </CredenzaTitle>
+      </CredenzaHeader>
+      <CredenzaBody>
+        <PrintList prints={prints} />
+      </CredenzaBody>
+    </CredenzaContent>
+  )
+
   const commisionsDetails = (
     <CredenzaContent className="max-w-[98vw] sm:max-w-2xl  p-4 rounded-lg sm:p-6">
       <CredenzaHeader className="space-y-4 text-wrap">
@@ -128,13 +141,6 @@ export default async function EnvoyDetail({
               )}
             />
           </CardWrapper>
-          <CardWrapper
-            title="Współatorstwo"
-            subtitle="Druki sejmowe"
-            showGradient={false}
-          >
-            <PrintList prints={prints} />
-          </CardWrapper>
           <CardWrapper title="Druki" subtitle="Wzmianki" showGradient={false}>
             <PrintList prints={subjectPrints} />
           </CardWrapper>
@@ -175,6 +181,7 @@ export default async function EnvoyDetail({
               title="Druki autorskie"
               value={prints.length}
               category="Legislacja"
+              detailsModalContent={prints.length ? printsDetails : undefined}
             />
             <StatCard
               title="Komisje"
