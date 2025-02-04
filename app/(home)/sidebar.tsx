@@ -2,8 +2,42 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { getPersonWithMostAbsents, getPersonWithMostInterruptions, getPersonWithMostStatements } from '@/lib/queries/person'
+import { getProceedingDates } from '@/lib/queries/proceeding'
+import { getNextProceedingDate, getTimeUntilNextProceeding, truncateText } from '@/lib/utils'
+import { getLatestCitizations } from '@/lib/supabase/getLatestCitizations'
+import { getTopDiscussedTopics } from '@/lib/supabase/getTopDiscussedTopics'
 
-export default function Sidebar() {
+export default async function Sidebar() {
+  // Fetch all required data
+  const proceedings = await getProceedingDates()
+  const nextDate = getNextProceedingDate(proceedings)
+  const timeUntil = getTimeUntilNextProceeding(nextDate)
+  
+  const mostInterruptions = await getPersonWithMostAbsents() // TODO WAIT FOR DB
+  const mostAbsents = await getPersonWithMostAbsents()
+  const mostStatements = await getPersonWithMostStatements()
+  const citations = await getLatestCitizations(2)
+  const topTopics = await getTopDiscussedTopics(8)
+
+  const politicians = [
+    {
+      name: mostAbsents.name,
+      stat: `Nieobecności: ${mostAbsents.count}`,
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostAbsents.id}.jpeg`
+    },
+    {
+      name: mostStatements.name,
+      stat: `Wypowiedzi: ${mostStatements.count}`,
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostStatements.id}.jpeg`
+    },
+    {
+      name: mostInterruptions.name,
+      stat: `Przerwał/a: ${mostInterruptions.count} razy`,
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostInterruptions.id}.jpeg`
+    }
+  ]
+
   return (
     <div className="w-80 space-y-12 text-card-foreground/80">
       {/* Poznaj Sejmofil */}
@@ -21,63 +55,55 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Topics */}
+      {/* Updated Topics section with real data */}
       <div className="space-y-4">
         <h2 className="text-lg text-muted-foreground">Popularne Tematy</h2>
         <div className="flex flex-wrap gap-2">
-          {[
-            'Gospodarka',
-            'Edukacja',
-            'Służba Zdrowia',
-            'Mieszkalnictwo',
-            'Polityka Społeczna',
-            'Rynek Pracy',
-            'Imigracja',
-            'Unia Europejska',
-          ].map((tag) => (
+          {topTopics.map((topic) => (
             <span
-              key={tag}
+              key={topic.uuid}
               className="px-4 py-2 bg-card rounded-full text-sm"
             >
-              {tag}
+              {topic.topic}
             </span>
           ))}
         </div>
         <Link
-          href="#"
+          href="/topics"
           className="block text-sm text-primary hover:text-primary/80"
         >
           Zobacz więcej tematów
         </Link>
       </div>
 
-      {/* Upcoming Sessions */}
+      {/* Updated Upcoming Sessions with real data */}
       <div className="space-y-4">
         <div className="space-y-1">
           <h2 className="text-lg text-muted-foreground">
             Najbliższe obrady sejmu
           </h2>
           <p className="text-sm">
-            za <span className="text-primary">16 godz 28 min</span>
+            {nextDate ? (
+              timeUntil === '0' ? (
+                'Obrady trwają'
+              ) : (
+                <>za <span className="text-primary">{timeUntil}</span></>
+              )
+            ) : (
+              'Brak zaplanowanych obrad'
+            )}
           </p>
         </div>
       </div>
 
-      {/* Did you know */}
+      {/* Updated Did you know section with real data */}
       <div className="space-y-6">
         <h2 className="text-lg text-muted-foreground">Czy Wiesz, że?</h2>
         <div className="space-y-6">
-          {[
-            { name: 'Donald Tusk', stat: 'Przekłną 2 razy' },
-            {
-              name: 'Andrzej Duda',
-              stat: 'Ma 40% Frekwencję na Posiedzeniach',
-            },
-            { name: 'Sasin', stat: 'Jakaś statystyka 20' },
-          ].map((item) => (
+          {politicians.map((item) => (
             <div key={item.name} className="flex items-start gap-3">
               <Avatar className="w-8 h-8">
-                <AvatarImage src="/placeholder.svg" />
+                <AvatarImage src={item.image} />
                 <AvatarFallback>{item.name[0]}</AvatarFallback>
               </Avatar>
               <div className="space-y-1">
@@ -91,33 +117,24 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Quotes */}
+      {/* Updated Quotes section with real data */}
       <div className="space-y-6">
         <h2 className="text-lg text-muted-foreground">Cytaty</h2>
         <div className="space-y-6">
-          {[
-            {
-              author: 'Abraham Braun',
-              quote:
-                'Web Design Trends 2025 worth knowing as a website designer or developer. While AI is popular for graphics design, I still prefer website designs that are hand crafted and designed',
-            },
-            {
-              author: 'Abraham Braun',
-              quote:
-                "If you haven't tried creating staggered animations in GSAP",
-            },
-          ].map((item, index) => (
+          {citations.map((citation, index) => (
             <div key={index} className="flex items-start gap-3">
               <Avatar className="w-8 h-8">
-                <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback>{item.author[0]}</AvatarFallback>
+                <AvatarImage 
+                  src={`https://api.sejm.gov.pl/sejm/term10/MP/${citation.statement_id}/photo`} 
+                />
+                <AvatarFallback>{citation.speaker_name[0]}</AvatarFallback>
               </Avatar>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">
-                  {item.author}
+                  {citation.speaker_name}
                 </div>
                 <p className="text-base text-card-foreground/60 line-clamp-3">
-                  {item.quote}
+                  {truncateText(citation.citation, 100)}
                 </p>
               </div>
             </div>
