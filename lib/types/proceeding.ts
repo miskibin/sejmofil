@@ -46,3 +46,31 @@ export interface ProceedingDayBase {
 export interface PointsByNumberMap {
   [key: string]: ProceedingPointExtended[]
 }
+
+export interface ProceedingPointWithDay {
+  id: number
+  topic: string
+  summary_tldr: string
+  voting_numbers: number[]
+  proceeding_day: {
+    date: string
+    proceeding: {
+      number: number
+      title: string
+    }
+  }
+}
+
+export interface LatestPointsResult {
+  category: string
+  title: string
+  description: string
+  likes: string
+  comments: string
+  interested: string
+  imageUrl: string
+  pointId: number
+  proceedingNumber: number
+  date: string
+  votingNumbers: number[]
+}
