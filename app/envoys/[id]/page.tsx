@@ -9,7 +9,6 @@ import {
 } from '@/lib/queries/person'
 import { notFound } from 'next/navigation'
 import { getEnvoyPrints, getEnvoySubjectPrints } from '@/lib/queries/print'
-import { getStatementCombinedDetails } from '@/lib/supabase/queries'
 import { SpeakerRatingChart } from './speaker-rating-chart'
 import { truncateText } from '@/lib/utils'
 import { Sparkles } from 'lucide-react'
@@ -24,6 +23,7 @@ import {
   CredenzaTitle,
   CredenzaBody,
 } from '@/components/ui/credenza'
+import { getStatementCombinedDetails } from '@/lib/supabase/getStatementCombinedDetails'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({
