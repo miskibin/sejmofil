@@ -7,9 +7,12 @@ interface ArticlesSectionProps {
 }
 
 export default function ArticlesSection({ posts }: ArticlesSectionProps) {
+  // Get unique categories from posts
+  const uniqueCategories = Array.from(new Set(posts.map(post => post.category)))
+
   return (
     <div className="space-y-6">
-      <ArticlesNav />
+      <ArticlesNav categories={uniqueCategories} />
       <div className="space-y-4">
         {posts.map((post) => (
           <>
