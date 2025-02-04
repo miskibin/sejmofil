@@ -1,66 +1,82 @@
+import { EmptyState } from '@/components/empty-state'
+import { Badge } from '@/components/ui/badge'
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { VotingList } from '@/components/voting-list'
+import { getPrintComments } from '@/lib/queries/print'
 import {
-  getProcessDetails,
   getActsForProcess,
+  getProcessDetails,
+  getProcessPrint,
   getProcessVotings,
   getSimilarPrints,
-} from "@/lib/queries/process";
-import { notFound } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
-import ReactMarkdown from "react-markdown";
-import LegislativeTimeline from "../components/stepper";
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import { Timer, FileText, Sparkles } from "lucide-react";
-import { FaRegFilePdf } from "react-icons/fa";
-import Link from "next/link";
-import { getPrintComments } from "@/lib/queries/print";
-import { cn } from "@/lib/utils";
-import { EmptyState } from "@/components/empty-state";
-import { VotingList } from "@/components/voting-list";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Vote } from "lucide-react";
-
+} from '@/lib/queries/process'
+import { getPointsByPrintNumbers } from '@/lib/supabase/getPointsByPrintNumbers'
+import { cn } from '@/lib/utils'
+import { BookOpen, FileText, Sparkles, Vote } from 'lucide-react'
+import { Metadata } from 'next'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { FaRegFilePdf } from 'react-icons/fa'
+import ReactMarkdown from 'react-markdown'
+import LegislativeTimeline from '../components/stepper'
 type Comment = {
-  sentiment: "Neutralny" | "Pozytywny" | "Negatywny";
-  summary: string;
-  author: string;
-  organization: string;
-};
-
-function constructActUrl(eli: string) {
-  const baseUrl = `https://api.sejm.gov.pl/eli/acts`;
-  return `${baseUrl}/${eli}/text.pdf`;
+  sentiment: 'Neutralny' | 'Pozytywny' | 'Negatywny'
+  summary: string
+  author: string
+  organization: string
 }
 
-const CommentBadge = ({ sentiment }: { sentiment: Comment["sentiment"] }) => {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const processId = id.includes('-') ? id : await getProcessPrint(id)
+  const processDetails = await getProcessDetails(processId)
+  return {
+    title: processDetails?.title,
+    description: processDetails?.description,
+  }
+}
+
+function constructActUrl(eli: string) {
+  const baseUrl = `https://api.sejm.gov.pl/eli/acts`
+  return `${baseUrl}/${eli}/text.pdf`
+}
+
+const CommentBadge = ({ sentiment }: { sentiment: Comment['sentiment'] }) => {
   const variants = {
-    Neutralny: "bg-gray-100 text-gray-800",
-    Pozytywny: "bg-green-100 text-green-800",
-    Negatywny: "bg-red-100 text-red-800",
-  };
+    Neutralny: 'bg-gray-100 text-gray-800',
+    Pozytywny: 'bg-green-100 text-green-800',
+    Negatywny: 'bg-red-100 text-red-800',
+  }
 
   return (
     <span
       className={cn(
-        "px-2 py-1 rounded-full text-xs font-medium",
+        'rounded-full px-2 py-1 text-xs font-medium',
         variants[sentiment]
       )}
     >
       {sentiment}
     </span>
-  );
-};
+  )
+}
 
 export default async function ProcessPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }) {
-  const { id } = await params;
-  const processDetails = await getProcessDetails(id);
-  if (!processDetails) notFound();
+  const { id } = await params
+  const processId = id.includes('-') ? id : await getProcessPrint(id)
+  const processDetails = await getProcessDetails(processId)
+  if (!processDetails) notFound()
 
   // Get the source print for this process or find a print from stages
-  const sourcePrint = processDetails.prints.flat()[0];
+  const sourcePrint = processDetails.prints.flat()[0]
   const stagePrint = !sourcePrint
     ? processDetails.stages
         .flatMap((stage) => [
@@ -68,33 +84,39 @@ export default async function ProcessPage({
           ...(stage.childPrints || []),
         ])
         .find((print) => print?.number)
-    : null;
+    : null
 
-  const printNumber = sourcePrint?.number || stagePrint?.number;
+  const printNumber = sourcePrint?.number || stagePrint?.number
 
   const [acts, votings, similarPrints] = await Promise.all([
-    getActsForProcess(id),
-    getProcessVotings(id),
+    getActsForProcess(processId),
+    getProcessVotings(processId),
     printNumber ? getSimilarPrints(printNumber) : Promise.resolve([]),
-  ]);
+  ])
 
-  const comments = await getPrintComments(id);
+  const comments = await getPrintComments(processId)
 
   // Flatten the nested prints array
-  const allPrints = processDetails.prints.flat();
+  const allPrints = processDetails.prints.flat()
+
+  // Get print numbers from all prints
+  const printNumbers = allPrints.map((print) => print.number)
+
+  // Fetch related proceeding points
+  const relatedPoints = await getPointsByPrintNumbers(printNumbers)
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto space-y-6 py-6">
       {/* Header Section */}
       <div className="space-y-4">
         <div>
-          <h1 className="text-2xl font-semibold mb-2">
+          <h1 className="mb-2 text-2xl font-semibold">
             {processDetails.documentType}
           </h1>
-          <h2 className="text-lg text-muted-foreground leading-tight mb-4">
+          <h2 className="mb-4 text-lg leading-tight text-muted-foreground">
             {processDetails.title}
           </h2>
-          {processDetails.UE === "YES" && (
+          {processDetails.UE === 'YES' && (
             <Badge variant="secondary">Projekt UE</Badge>
           )}
         </div>
@@ -103,14 +125,14 @@ export default async function ProcessPage({
       </div>
 
       {/* Bento Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-min">
+      <div className="grid auto-rows-min grid-cols-1 gap-6 md:grid-cols-4">
         {/* Timeline - Spans full width */}
         <div className="md:col-span-2">
           <CardWrapper
             title="Przebieg procesu legislacyjnego"
-            headerIcon={<Timer className="h-5 w-5 text-primary" />}
+            className="h-full"
           >
-            <div className="max-w-4xl mx-auto">
+            <div className="mx-auto max-w-4xl">
               <LegislativeTimeline data={processDetails} />
             </div>
           </CardWrapper>
@@ -118,23 +140,29 @@ export default async function ProcessPage({
 
         {/* Right side - Tabbed content */}
         <div className="md:col-span-2">
-          <CardWrapper className="min-h-96 h-full">
+          <CardWrapper className="h-full min-h-96">
             <Tabs defaultValue="prints" className="w-full">
               <TabsList className="w-full">
                 <TabsTrigger value="prints" className="flex-1">
-                  <FileText className="w-4 h-4 mr-2" />
+                  <FileText className="mr-2 h-4 w-4" />
                   <span className="hidden sm:inline">Druki</span>
                 </TabsTrigger>
                 {acts.length > 0 && (
                   <TabsTrigger value="acts" className="flex-1">
-                    <BookOpen className="w-4 h-4 mr-2" />
+                    <BookOpen className="mr-2 h-4 w-4" />
                     <span className="hidden sm:inline">Dokumenty</span>
                   </TabsTrigger>
                 )}
                 {votings.length > 0 && (
                   <TabsTrigger value="votings" className="flex-1">
-                    <Vote className="w-4 h-4 mr-2" />
+                    <Vote className="mr-2 h-4 w-4" />
                     <span className="hidden sm:inline">Głosowania</span>
+                  </TabsTrigger>
+                )}
+                {relatedPoints.length > 0 && (
+                  <TabsTrigger value="points" className="flex-1">
+                    <FileText className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Punkty obrad</span>
                   </TabsTrigger>
                 )}
               </TabsList>
@@ -145,14 +173,14 @@ export default async function ProcessPage({
                     {allPrints.map((print) => (
                       <div
                         key={print.number}
-                        className="bg-gray-50 rounded-lg p-4 space-y-4"
+                        className="space-y-4 rounded-lg bg-gray-50 p-4"
                       >
                         {/* Print Header */}
-                        <div className="flex justify-between items-start gap-2">
+                        <div className="flex items-start justify-between gap-2">
                           <h4 className="text-sm font-medium">{print.title}</h4>
-                          <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          <span className="whitespace-nowrap text-xs text-muted-foreground">
                             {new Date(print.documentDate).toLocaleDateString(
-                              "pl-PL"
+                              'pl-PL'
                             )}
                           </span>
                         </div>
@@ -166,7 +194,7 @@ export default async function ProcessPage({
 
                         {/* Print Comments */}
                         {comments.length > 0 && (
-                          <div className="space-y-3 mt-4">
+                          <div className="mt-4 space-y-3">
                             <h5 className="text-sm font-medium text-muted-foreground">
                               Opinie ({comments.length})
                             </h5>
@@ -174,9 +202,9 @@ export default async function ProcessPage({
                               {comments.map((comment, idx) => (
                                 <div
                                   key={idx}
-                                  className="bg-white p-3 rounded-lg space-y-2"
+                                  className="space-y-2 rounded-lg bg-white p-3"
                                 >
-                                  <div className="flex justify-between items-start gap-2">
+                                  <div className="flex items-start justify-between gap-2">
                                     <span className="text-sm font-medium">
                                       {comment.organization}
                                     </span>
@@ -204,9 +232,9 @@ export default async function ProcessPage({
                                 href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/prints/${print.number}/${attachment}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="flex items-center gap-2 text-sm text-primary bg-white p-2 rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
+                                className="flex items-center gap-2 rounded-lg bg-white p-2 text-sm text-primary shadow-sm transition-colors hover:bg-gray-50"
                               >
-                                <FaRegFilePdf className="h-6 w-6 inline mx-2" />
+                                <FaRegFilePdf className="mx-2 inline h-6 w-6" />
                                 {attachment}
                               </Link>
                             ))}
@@ -226,7 +254,7 @@ export default async function ProcessPage({
                     {acts.map((act) => (
                       <div
                         key={act.ELI}
-                        className="bg-gray-50 rounded-lg p-4 space-y-2"
+                        className="space-y-2 rounded-lg bg-gray-50 p-4"
                       >
                         <Badge variant="outline" className="me-2">
                           {act.ELI}
@@ -234,7 +262,7 @@ export default async function ProcessPage({
                         <Badge variant="outline" className="me-2">
                           Ogłoszono: {act.announcementDate}
                         </Badge>
-                        <div className="flex justify-between items-start gap-2">
+                        <div className="flex items-start justify-between gap-2">
                           <h4 className="text-sm font-medium">{act.title}</h4>
                         </div>
                         <Link
@@ -256,6 +284,32 @@ export default async function ProcessPage({
                   <VotingList votings={votings} />
                 </TabsContent>
               )}
+
+              {relatedPoints.length > 0 && (
+                <TabsContent value="points" className="mt-4">
+                  <div className="space-y-4">
+                    {relatedPoints.map((point) => (
+                      <Link
+                        key={point.id}
+                        href={`/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/${point.id}`}
+                        className="block space-y-2 rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="text-sm font-medium">{point.topic}</h4>
+                          <span className="whitespace-nowrap text-xs text-muted-foreground">
+                            {new Date(
+                              point.proceeding_day.date
+                            ).toLocaleDateString('pl-PL')}
+                          </span>
+                        </div>
+                        {point.summary_tldr && (
+                          <span className="">{point.summary_tldr}</span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </TabsContent>
+              )}
             </Tabs>
           </CardWrapper>
         </div>
@@ -267,7 +321,7 @@ export default async function ProcessPage({
           <CardWrapper
             title="Podobne"
             headerIcon={
-              <Sparkles className="w-4 h-4 m-1 text-white " fill="white" />
+              <Sparkles className="h-5 w-5 text-primary" fill="#76052a" />
             }
           >
             <div className="divide-y divide-gray-100">
@@ -276,17 +330,17 @@ export default async function ProcessPage({
                   key={print.number}
                   prefetch={true}
                   href={`/processes/${print.processPrint}`}
-                  className="block py-3 hover:bg-gray-50 transition-colors"
+                  className="block py-3 transition-colors hover:bg-gray-50"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <span className="text-primary font-medium">
+                      <span className="font-medium text-primary">
                         {print.number}
                       </span>
                       <span className="">
-                        {print.title.includes("w sprawie")
-                          ? "Druk dot. " +
-                            print.title.split("w sprawie")[1].trim()
+                        {print.title.includes('w sprawie')
+                          ? 'Druk dot. ' +
+                            print.title.split('w sprawie')[1].trim()
                           : print.title}
                       </span>
                     </div>
@@ -298,5 +352,5 @@ export default async function ProcessPage({
         </div>
       )}
     </div>
-  );
+  )
 }

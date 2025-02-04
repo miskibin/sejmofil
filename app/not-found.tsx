@@ -1,11 +1,11 @@
-import { CardWrapper } from "@/components/ui/card-wrapper";
-import Link from "next/link";
-import { AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { Button } from '@/components/ui/button'
+import { CardWrapper } from '@/components/ui/card-wrapper'
+import { AlertCircle } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 export default function NotFound() {
   return (
-    <main className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8 min-h-[80vh] flex items-center justify-center">
+    <main className="container mx-auto flex min-h-[80vh] max-w-7xl items-center justify-center p-4 sm:p-6 lg:p-8">
       <CardWrapper
         title="Błąd 404"
         subtitle="Strona nie została znaleziona"
@@ -14,8 +14,14 @@ export default function NotFound() {
         className="max-w-lg"
         headerIcon={<AlertCircle className="h-6 w-6 text-primary" />}
       >
-        <div className="flex flex-col items-center text-center space-y-6">
-        <Image src="/empty.svg" alt="404" className="m-4" width={300} height={300} />
+        <div className="flex flex-col items-center space-y-6 text-center">
+          <Image
+            src="/empty.svg"
+            alt="404"
+            className="m-4"
+            width={300}
+            height={300}
+          />
           <p className="text-muted-foreground">
             Przepraszamy, ale strona której szukasz nie istnieje lub została
             przeniesiona.
@@ -27,5 +33,5 @@ export default function NotFound() {
         </div>
       </CardWrapper>
     </main>
-  );
+  )
 }

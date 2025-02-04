@@ -1,20 +1,20 @@
-import { notFound } from "next/navigation";
-import { getProceedingDetails } from "@/lib/supabase/queries";
-import { Badge } from "@/components/ui/badge";
-import { PointCard } from "./components/point-card";
-import { sortPointsByImportance } from "@/lib/utils";
+import { Badge } from '@/components/ui/badge'
+import { getProceedingDetails } from '@/lib/supabase/getProceedingDetails'
+import { sortPointsByImportance } from '@/lib/utils'
+import { notFound } from 'next/navigation'
+import { PointCard } from './components/point-card'
 
-export const dynamic = "force-dynamic";
-export const revalidate = 3600; // Revalidate every hour
+export const dynamic = 'force-dynamic'
+export const revalidate = 3600 // Revalidate every hour
 
 export default async function ProceedingPage({
   params,
 }: {
-  params: Promise<{ number: string }>;
+  params: Promise<{ number: string }>
 }) {
-  const { number } = await params;
-  const proceeding = await getProceedingDetails(parseInt(number));
-  if (!proceeding) notFound();
+  const { number } = await params
+  const proceeding = await getProceedingDetails(parseInt(number))
+  if (!proceeding) notFound()
 
   // Calculate importance score for each point
   const points = sortPointsByImportance(
@@ -26,26 +26,26 @@ export default async function ProceedingPage({
         pointIndex,
       }))
     )
-  );
+  )
 
   // Create sections of 7 cards each (1 large + 2 medium + 4 small)
-  const sections = [];
+  const sections = []
   for (let i = 0; i < points.length; i += 7) {
     const section = {
       large: points[i],
       medium: points.slice(i + 1, i + 3),
       small: points.slice(i + 3, i + 7),
-    };
+    }
     // Only add section if it has at least a large card
     if (section.large) {
       // Ensure medium and small arrays are always of correct length
       section.medium = section.medium.concat(
         Array(2 - section.medium.length).fill(null)
-      );
+      )
       section.small = section.small.concat(
         Array(4 - section.small.length).fill(null)
-      );
-      sections.push(section);
+      )
+      sections.push(section)
     }
   }
 
@@ -57,7 +57,7 @@ export default async function ProceedingPage({
         <div className="flex flex-wrap gap-2">
           {proceeding.dates.map((date) => (
             <Badge key={date} variant="outline">
-              {new Date(date).toLocaleDateString("pl-PL")}
+              {new Date(date).toLocaleDateString('pl-PL')}
             </Badge>
           ))}
         </div>
@@ -69,7 +69,7 @@ export default async function ProceedingPage({
           <div key={sectionIndex} className="space-y-6">
             {/* Large Featured Card */}
             <div className="grid grid-cols-12 gap-6">
-              <div className="col-span-12 lg:col-span-8 h-full">
+              <div className="col-span-12 h-full lg:col-span-8">
                 <PointCard
                   point={section.large}
                   proceedingNumber={proceeding.number}
@@ -81,7 +81,7 @@ export default async function ProceedingPage({
               </div>
 
               {/* Medium Cards */}
-              <div className="col-span-12 lg:col-span-4 grid grid-cols-1 gap-6">
+              <div className="col-span-12 grid grid-cols-1 gap-6 lg:col-span-4">
                 {section.medium.map(
                   (point, idx) =>
                     point && (
@@ -124,5 +124,5 @@ export default async function ProceedingPage({
         ))}
       </div>
     </div>
-  );
+  )
 }
