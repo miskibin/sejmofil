@@ -160,7 +160,7 @@ export async function getLatestPrints(
       status: p.status
     }
     ORDER BY p.documentDate DESC
-    LIMIT $limit
+    LIMIT toInteger($limit)
   `
 
   const res = await runQuery<PrintResponse>(query, { limit })
@@ -185,7 +185,7 @@ export async function getPrintsByTopic(
       status: p.status
     }
     ORDER BY p.documentDate DESC
-    LIMIT $limit
+    LIMIT toInteger($limit)
   `
 
   const res = await runQuery<PrintResponse>(query, { topicName, limit })
