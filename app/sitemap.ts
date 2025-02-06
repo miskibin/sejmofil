@@ -15,7 +15,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Get envoys and processes from Neo4j
   const envoys = await getAllEnvoys()
   const prints = await getLatestPrints(1000) // Get a large number to cover most processes
-  const processIds = [...new Set(prints.map(p => p.processPrint?.[0]).filter(Boolean))]
+  const processIds = [
+    ...new Set(prints.map((p) => p.processPrint?.[0]).filter(Boolean)),
+  ]
 
   // Static routes
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -58,16 +60,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   // Dynamic routes for proceedings (from Supabase)
-  const proceedingRoutes = proceedings?.flatMap((proceeding) =>
-    proceeding.proceeding_day?.flatMap((day) =>
-      day.proceeding_point_ai?.map((point) => ({
-        url: `${baseUrl}/proceedings/${proceeding.number}/${day.date}/${point.id}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      }))
-    )
-  ) || []
+  const proceedingRoutes =
+    proceedings?.flatMap((proceeding) =>
+      proceeding.proceeding_day?.flatMap((day) =>
+        day.proceeding_point_ai?.map((point) => ({
+          url: `${baseUrl}/proceedings/${proceeding.number}/${day.date}/${point.id}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        }))
+      )
+    ) || []
 
   // Dynamic routes for envoys (from Neo4j)
   const envoyRoutes = envoys.map((envoy) => ({
@@ -85,5 +88,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  return [...staticRoutes, ...proceedingRoutes, ...envoyRoutes, ...processRoutes]
+  return [
+    ...staticRoutes,
+    ...proceedingRoutes,
+    ...envoyRoutes,
+    ...processRoutes,
+  ]
 }

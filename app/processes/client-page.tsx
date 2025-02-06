@@ -5,7 +5,6 @@ import { Search, ChevronDown } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { PrintListItem } from '@/lib/types/print'
-import { getRandomPhoto } from '@/lib/utils/photos'
 import ReactMarkdown from 'react-markdown'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -116,7 +115,8 @@ export default function ProcessSearchPage({
   const photoUrls = useMemo(() => {
     return prints.reduce(
       (acc, print) => {
-        acc[print.number] = getRandomPhoto(print.number)
+        acc[print.number] =
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/processes/${print.number}.jpg`
         return acc
       },
       {} as Record<string, string>
@@ -142,11 +142,19 @@ export default function ProcessSearchPage({
 
   const getAuthorBadges = (print: PrintListItem) => {
     if (print.title.includes('Prezydium Sejmu')) {
-      return [<Badge key="prezydium" variant="default" className="bg-primary">Prezydium Sejmu</Badge>]
+      return [
+        <Badge key="prezydium" variant="default" className="bg-primary">
+          Prezydium Sejmu
+        </Badge>,
+      ]
     }
-    
+
     if (print.title.includes('Obywatelski')) {
-      return [<Badge key="obywatele" variant="default" className="bg-primary">Obywatele</Badge>]
+      return [
+        <Badge key="obywatele" variant="default" className="bg-primary">
+          Obywatele
+        </Badge>,
+      ]
     }
 
     return print.authorClubs.map((clubId) => (
@@ -171,7 +179,11 @@ export default function ProcessSearchPage({
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 justify-between border-dashed">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 justify-between border-dashed"
+            >
               Typ dokumentu
               {selectedTypes.length > 0 && (
                 <>
@@ -274,13 +286,11 @@ export default function ProcessSearchPage({
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <h2 className="font-semibold">{print.short_title}</h2>
-                      <div className="flex gap-1">
-                        {getAuthorBadges(print)}
-                      </div>
+                      <div className="flex gap-1">{getAuthorBadges(print)}</div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    {/* <p className="text-xs text-muted-foreground">
                       {print.processDescription || print.title}
-                    </p>
+                    </p> */}
                   </div>
                   <div className="prose-sm">
                     <ReactMarkdown>
@@ -295,7 +305,7 @@ export default function ProcessSearchPage({
                       <span>•</span>
                       <span>{print.categories.join(', ')}</span>
                     </div>
-                  
+
                     {print.status && (
                       <div className="mt-1 text-primary">{print.status}</div>
                     )}
