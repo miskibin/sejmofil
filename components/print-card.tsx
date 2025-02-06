@@ -10,7 +10,7 @@ interface PrintCardProps {
 export function PrintCard({ print, searchQuery }: PrintCardProps) {
   return (
     <SearchResultCard
-      href={`/prints/${print.number}`}
+      href={`/processes/${print.number}`}
       title={print.title}
       content={print.summary}
       date={print.documentDate}
