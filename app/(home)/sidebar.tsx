@@ -2,18 +2,31 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { getPersonWithMostAbsents, getPersonWithMostInterruptions, getPersonWithMostStatements } from '@/lib/queries/person'
+import {
+  getPersonWithMostAbsents,
+  getPersonWithMostInterruptions,
+  getPersonWithMostStatements,
+} from '@/lib/queries/person'
 import { getProceedingDates } from '@/lib/queries/proceeding'
-import { getNextProceedingDate, getTimeUntilNextProceeding, truncateText } from '@/lib/utils'
+import {
+  getNextProceedingDate,
+  getTimeUntilNextProceeding,
+  truncateText,
+} from '@/lib/utils'
 import { getLatestCitizations } from '@/lib/supabase/getLatestCitizations'
 import { getTopDiscussedTopics } from '@/lib/supabase/getTopDiscussedTopics'
+import { createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
+import { SidebarAuthSection } from '@/components/sidebar-auth-section'
+import { useSupabaseSession } from '@/lib/hooks/use-supabase-session'
 
 export default async function Sidebar() {
+
   // Fetch all required data
   const proceedings = await getProceedingDates()
   const nextDate = getNextProceedingDate(proceedings)
   const timeUntil = getTimeUntilNextProceeding(nextDate)
-  
+
   const mostInterruptions = await getPersonWithMostAbsents() // TODO WAIT FOR DB
   const mostAbsents = await getPersonWithMostAbsents()
   const mostStatements = await getPersonWithMostStatements()
@@ -24,35 +37,26 @@ export default async function Sidebar() {
     {
       name: mostAbsents.name,
       stat: `Nieobecności: ${mostAbsents.count}`,
-      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostAbsents.id}.jpeg`
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostAbsents.id}.jpeg`,
     },
     {
       name: mostStatements.name,
       stat: `Wypowiedzi: ${mostStatements.count}`,
-      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostStatements.id}.jpeg`
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostStatements.id}.jpeg`,
     },
     {
       name: mostInterruptions.name,
       stat: `Przerwał/a: ${mostInterruptions.count} razy`,
-      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostInterruptions.id}.jpeg`
-    }
+      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostInterruptions.id}.jpeg`,
+    },
   ]
 
   return (
     <div className="w-80 space-y-12 text-card-foreground/80">
       {/* Poznaj Sejmofil */}
       <div className="space-y-2">
-        <h2 className="text-lg text-muted-foreground">Poznaj Sejmofil</h2>
-        <div className="space-y-4">
-          <h3 className="text-3xl font-semibold leading-tight">
-            Komentuj poczynania{' '}
-            <span className="text-primary">polskich polityków</span>
-          </h3>
-          <Button className="rounded-full">
-            Zaloguj się
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
+        <h2 className="text-lg text-muted-foreground">Poznaj nas</h2>
+        <SidebarAuthSection />
       </div>
 
       {/* Updated Topics section with real data */}
@@ -87,7 +91,9 @@ export default async function Sidebar() {
               timeUntil === '0' ? (
                 'Obrady trwają'
               ) : (
-                <>za <span className="text-primary">{timeUntil}</span></>
+                <>
+                  za <span className="text-primary">{timeUntil}</span>
+                </>
               )
             ) : (
               'Brak zaplanowanych obrad'
@@ -124,8 +130,8 @@ export default async function Sidebar() {
           {citations.map((citation, index) => (
             <div key={index} className="flex items-start gap-3">
               <Avatar className="w-8 h-8">
-                <AvatarImage 
-                  src={`https://api.sejm.gov.pl/sejm/term10/MP/${citation.statement_id}/photo`} 
+                <AvatarImage
+                  src={`https://api.sejm.gov.pl/sejm/term10/MP/${citation.statement_id}/photo`}
                 />
                 <AvatarFallback>{citation.speaker_name[0]}</AvatarFallback>
               </Avatar>
@@ -147,10 +153,12 @@ export default async function Sidebar() {
         <h2 className="text-2xl font-semibold">
           Chcesz więcej <span className="text-primary">Statystyk?</span>
         </h2>
-        <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-full justify-between">
-          Dashboard
-          <ArrowRight className="w-4 h-4" />
-        </Button>
+        <Link href="/dashboard">
+          <Button className="w-full bg-primary hover:bg-primary/90 mt-3 text-primary-foreground rounded-full justify-between">
+            Przejdź do panelu
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </Link>
       </div>
     </div>
   )

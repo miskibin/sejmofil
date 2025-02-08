@@ -74,3 +74,14 @@ export interface LatestPointsResult {
   date: string
   votingNumbers: number[]
 }
+
+export interface Vote {
+  user_id: string
+  point_id: number
+  vote_type: 'up' | 'down'
+}
+
+export interface VoteCount {
+  upvotes: number
+  downvotes: number
+}
