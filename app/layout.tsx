@@ -4,6 +4,7 @@ import Navbar from '@/components/navbar'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({
   variable: '--font-inter',
@@ -77,7 +78,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} bg-neutral-50 antialiased`}>
         <Navbar />
-        <main className="container mx-auto mt-4 max-w-7xl p-1 sm:p-6 lg:p-12 2xl:max-w-[1400px]">
+        <main className="container mx-auto mt-8 sm:mt-4 max-w-7xl p-1 sm:p-6 lg:p-12 2xl:max-w-[1400px]">
           <Breadcrumbs />
 
           <div className="mt-8 min-h-screen">{children}</div>
@@ -85,6 +86,7 @@ export default function RootLayout({
         <hr className="mx-4 my-8" />
 
         <Footer />
+        <Toaster />
       </body>
     </html>
   )

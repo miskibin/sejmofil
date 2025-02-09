@@ -55,7 +55,7 @@ export default function ArticlesSection({
   }, [hasMore, loadMore])
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-12">
       <ArticlesNav {...{ categories: allCategories, activeSort: sort, isLoading }} />
       <div className="space-y-2 md:space-y-4">
         {isLoading 

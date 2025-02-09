@@ -1,7 +1,6 @@
 import { createClient } from '@/utils/supabase/client'
 import { Vote, VoteCount } from '@/lib/types/proceeding'
 
-
 export async function getVoteCounts(pointId: number): Promise<VoteCount> {
   const { data, error } = await createClient().rpc('get_vote_counts', {
     point_id: pointId,
