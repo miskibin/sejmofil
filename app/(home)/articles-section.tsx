@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ArticlesNav from './articles-nav'
 import PostCard from './post-card'
 import { Skeleton } from "@/components/ui/skeleton"
 import type { LatestPointsResult } from '@/lib/types/proceeding'
 import { useInfiniteScroll } from '@/lib/hooks/use-infinite-scroll'
+import { cn } from '@/lib/utils'
 
 const ITEMS_PER_PAGE = 10
 
@@ -34,6 +35,7 @@ export default function ArticlesSection({
   allCategories: string[]
   isLoading?: boolean
 }) {
+  const [isTransitioning, setIsTransitioning] = useState(false)
   const [displayedPosts, hasMore, loadMore] = useInfiniteScroll(posts, ITEMS_PER_PAGE)
   const loadingRef = useRef<HTMLDivElement>(null)
 
@@ -56,16 +58,24 @@ export default function ArticlesSection({
 
   return (
     <div className="space-y-12">
-      <ArticlesNav {...{ categories: allCategories, activeSort: sort, isLoading }} />
-      <div className="space-y-2 md:space-y-4">
-        {isLoading 
+      <ArticlesNav 
+        categories={allCategories} 
+        activeSort={sort} 
+        isLoading={isLoading}
+        onTransition={setIsTransitioning} 
+      />
+      <div className={cn(
+        "space-y-2 md:space-y-4",
+        isTransitioning && "opacity-60 transition-opacity duration-200"
+      )}>
+        {(isLoading || isTransitioning)
           ? Array.from({ length: 3 }).map((_, i) => (
               <LoadingSkeleton key={i} />
             ))
           : displayedPosts.map((post) => (
               <div key={`${post.proceedingNumber}-${post.pointId}`}>
                 <PostCard {...post} />
-                <hr className="border-t border-gray-200" />
+                <hr className="border-t border-gray-200 mb-4" />
               </div>
             ))
         }

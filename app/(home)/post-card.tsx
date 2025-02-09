@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { truncateText } from '@/lib/utils'
 import { PostVoting } from '@/components/post-voting'
 import { useState } from 'react'
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 
 export default function PostCard({
@@ -29,11 +29,11 @@ export default function PostCard({
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault()
     setIsSharing(true)
-    
+
     const shareUrl = `${window.location.origin}/proceedings/${proceedingNumber}/${date}/${pointId}`
     const shareData = {
       title: title,
-      text: truncateText(description, 100),
+      text: truncateText(description, 200, true),
       url: shareUrl,
     }
 
@@ -43,16 +43,16 @@ export default function PostCard({
       } else {
         await navigator.clipboard.writeText(shareUrl)
         toast({
-          title: "Link skopiowany",
-          description: "Link został skopiowany do schowka",
+          title: 'Link skopiowany',
+          description: 'Link został skopiowany do schowka',
         })
       }
     } catch (error) {
       if (error instanceof Error && error.name !== 'AbortError') {
         toast({
-          variant: "destructive",
-          title: "Błąd",
-          description: "Nie udało się udostępnić",
+          variant: 'destructive',
+          title: 'Błąd',
+          description: 'Nie udało się udostępnić',
         })
       }
     } finally {
@@ -61,7 +61,7 @@ export default function PostCard({
   }
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-3 p-2 sm:p-4">
+    <div className="flex flex-col gap-4 sm:gap-3 py-2 sm:p-4">
       {/* Header and Image */}
       <div className="flex flex-col md:flex-row items-start gap-3 sm:gap-6">
         {/* Text content */}
@@ -83,26 +83,24 @@ export default function PostCard({
             href={`/proceedings/${proceedingNumber}/${date}/${pointId}`}
             className="block hover:opacity-80 transition-opacity"
           >
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2">
+            <h2 className="text-xl sm:text-2xl  font-semibold mb-2">
               {title}
             </h2>
           </Link>
           <p className="text-muted-foreground text-sm sm:text-base line-clamp-3 md:line-clamp-none">
-            {truncateText(description, 240, true)}
+            {truncateText(description, 320, true)}
           </p>
         </div>
-        
+
         {/* Image */}
-        <div className="relative rounded-lg overflow-hidden bg-muted w-full md:w-[200px] lg:w-[300px] order-1 md:order-2">
-          <div className="aspect-video">
-            <Image
-              src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}
-              alt={title}
-              className="object-cover"
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 200px, 300px"
-            />
-          </div>
+        <div className="relative rounded-lg overflow-hidden bg-muted w-full md:w-[200px] lg:w-[300px] aspect-[16/10] shrink-0 order-1 md:order-2">
+          <Image
+            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}
+            alt={title}
+            className="object-cover object-center hover:scale-105 transition-transform duration-300"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 200px, 300px"
+          />
         </div>
       </div>
 
@@ -113,14 +111,14 @@ export default function PostCard({
           <MessageSquare className="w-4 h-4" />
           {comments} komentarzy
         </span>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="sm:ml-auto"
           onClick={handleShare}
           disabled={isSharing}
         >
-          <Share2 className={cn("w-4 h-4", isSharing && "animate-pulse")} />
+          <Share2 className={cn('w-4 h-4', isSharing && 'animate-pulse')} />
           <span className="hidden sm:inline ml-2">
             {isSharing ? 'Udostępnianie...' : 'Udostępnij'}
           </span>

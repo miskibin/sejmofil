@@ -80,7 +80,7 @@ export default async function PlebiscytCard() {
         {politicians.map((politician) => (
           <Link
             href={politician.mainStat.url}
-            key={politician.id}
+            key={politician.id + politician.mainStat.value}
             prefetch={true}
             className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-primary/5"
           >

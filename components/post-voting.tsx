@@ -69,11 +69,11 @@ export function PostVoting({
             className={cn(
               userVote === type
                 ? type === 'up'
-                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                  : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-white'
+                  : 'bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-white'
                 : type === 'up'
                   ? 'bg-primary/10 hover:bg-primary/20'
-                  : 'bg-destructive/10 hover:bg-destructive/20',
+                  : 'bg-destructive/10 hover:bg-destructive/20 ',
               isVoting && 'opacity-50'
             )}
             onClick={(e) => {
@@ -93,7 +93,7 @@ export function PostVoting({
       <LoginDialog
         defaultOpen={showLoginDialog}
         onOpenChange={setShowLoginDialog}
-        trigger={<></>}
+        trigger={<span></span>}
         message="Zaloguj się aby oddać głos"
       />
     </>

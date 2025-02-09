@@ -65,7 +65,6 @@ export default async function Sidebar() {
     <div className="w-80 space-y-12 text-card-foreground/80">
       {/* Poznaj Sejmofil */}
       <div className="space-y-2">
-        <h2 className="text-lg text-muted-foreground">Poznaj nas</h2>
         <SidebarAuthSection />
       </div>
 
@@ -94,16 +93,16 @@ export default async function Sidebar() {
       {/* Updated Upcoming Sessions with real data */}
       <div className="space-y-4">
         <div className="space-y-1">
-          <h2 className="text-lg text-muted-foreground">
+          <h2 className="text-lg text-muted-foreground ">
             Najbliższe obrady sejmu
           </h2>
-          <p className="text-sm">
+          <p className="">
             {nextDate ? (
               timeUntil === '0' ? (
                 'Obrady trwają'
               ) : (
                 <>
-                  za <span className="text-primary">{timeUntil}</span>
+                  za <span className="text-primary  font-bold">{timeUntil}</span>
                 </>
               )
             ) : (
