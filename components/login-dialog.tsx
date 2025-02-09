@@ -82,7 +82,7 @@ export function LoginDialog({
     }
   }
 
-  if (user) {
+  if (user && !trigger) {
     return (
       <Popover>
         <PopoverTrigger asChild>

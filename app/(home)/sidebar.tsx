@@ -21,7 +21,6 @@ import { SidebarAuthSection } from '@/components/sidebar-auth-section'
 import { useSupabaseSession } from '@/lib/hooks/use-supabase-session'
 
 export default async function Sidebar() {
-
   // Fetch all required data
   const proceedings = await getProceedingDates()
   const nextDate = getNextProceedingDate(proceedings)
@@ -31,7 +30,18 @@ export default async function Sidebar() {
   const mostAbsents = await getPersonWithMostAbsents()
   const mostStatements = await getPersonWithMostStatements()
   const citations = await getLatestCitizations(2)
-  const topTopics = await getTopDiscussedTopics(8)
+  const topTopics = [
+    'Koronawirus',
+    'Obrady',
+    'Pandemia',
+    'Prawo',
+    'Polityka',
+    'Sejm',
+    'Rząd',
+    'Kryzys',
+    'Zdrowie',
+    'Edukacja',
+  ]
 
   const politicians = [
     {
@@ -65,10 +75,11 @@ export default async function Sidebar() {
         <div className="flex flex-wrap gap-2">
           {topTopics.map((topic) => (
             <span
-              key={topic.uuid}
-              className="px-4 py-2 bg-card rounded-full text-sm"
+              key={topic}
+              className="px-4 py-2 bg-card
+               text-sm"
             >
-              {topic.topic}
+              {topic}
             </span>
           ))}
         </div>
@@ -154,7 +165,7 @@ export default async function Sidebar() {
           Chcesz więcej <span className="text-primary">Statystyk?</span>
         </h2>
         <Link href="/dashboard">
-          <Button className="w-full bg-primary hover:bg-primary/90 mt-3 text-primary-foreground rounded-full justify-between">
+          <Button className="w-full bg-primary hover:bg-primary/90 mt-3 text-primary-foreground  justify-between">
             Przejdź do panelu
             <ArrowRight className="w-4 h-4" />
           </Button>

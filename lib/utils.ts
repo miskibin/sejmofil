@@ -6,8 +6,18 @@ import { ProceedingDates } from './types/process'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-export const truncateText = (text: string, maxLength: number) =>
-  text.length > maxLength ? text.slice(0, maxLength - 1) + '…' : text
+export const truncateText = (
+  text: string,
+  maxLength: number,
+  words: boolean = false
+) => {
+  if (text.length <= maxLength) return text;
+  if (!words) return text.slice(0, maxLength - 1) + '…';
+  
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return lastSpace === -1 ? truncated + '…' : truncated.slice(0, lastSpace) + '…';
+}
 
 export function getNextProceedingDate(
   proceedings: ProceedingDates[]
