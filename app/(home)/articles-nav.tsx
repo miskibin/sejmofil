@@ -1,6 +1,6 @@
 "use client"
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useTransition } from 'react'
+import { useCallback, useTransition, useEffect } from 'react'
 import {
   Carousel,
   CarouselContent,
@@ -12,15 +12,21 @@ import {
 export default function ArticlesNav({ 
   categories, 
   activeSort, 
-  isLoading: parentLoading 
+  isLoading: parentLoading,
+  onTransition 
 }: { 
   categories: string[]
   activeSort: string
   isLoading?: boolean
+  onTransition?: (isPending: boolean) => void
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
+
+  useEffect(() => {
+    onTransition?.(isPending)
+  }, [isPending, onTransition])
 
   const navItems = [
     ['Dla Ciebie', 'foryou'],
