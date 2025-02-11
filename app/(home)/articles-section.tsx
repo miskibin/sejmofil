@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import ArticlesNav from './articles-nav'
 import PostCard from './post-card'
 import { Skeleton } from "@/components/ui/skeleton"
@@ -36,7 +36,25 @@ export default function ArticlesSection({
   isLoading?: boolean
 }) {
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [displayedPosts, hasMore, loadMore] = useInfiniteScroll(posts, ITEMS_PER_PAGE)
+  
+  // Reset transition state when posts change
+  useEffect(() => {
+    setIsTransitioning(false)
+  }, [posts])
+
+  // Filter posts client-side based on sort
+  const filteredPosts = useMemo(() => {
+    if (sort === 'popular') {
+      return [...posts].sort((a, b) => Number(b.likes) - Number(a.likes))
+    } else if (sort.startsWith('category-')) {
+      const category = decodeURIComponent(sort.replace('category-', ''))
+      return posts.filter(post => post.category.toLowerCase() === category.toLowerCase())
+    }
+    // For 'latest' and 'foryou', keep original order
+    return posts
+  }, [posts, sort])
+
+  const [displayedPosts, hasMore, loadMore] = useInfiniteScroll(filteredPosts, ITEMS_PER_PAGE)
   const loadingRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -60,13 +78,12 @@ export default function ArticlesSection({
     <div className="space-y-12">
       <ArticlesNav 
         categories={allCategories} 
-        activeSort={sort} 
-        isLoading={isLoading}
-        onTransition={setIsTransitioning} 
+        activeSort={sort}
+        onTransitionChange={setIsTransitioning}
       />
       <div className={cn(
         "space-y-2 md:space-y-4",
-        isTransitioning && "opacity-60 transition-opacity duration-200"
+        (isLoading || isTransitioning) && "opacity-60 transition-opacity duration-200"
       )}>
         {(isLoading || isTransitioning)
           ? Array.from({ length: 3 }).map((_, i) => (
@@ -74,7 +91,10 @@ export default function ArticlesSection({
             ))
           : displayedPosts.map((post) => (
               <div key={`${post.proceedingNumber}-${post.pointId}`}>
-                <PostCard {...post} />
+                <PostCard 
+                  {...post}
+                  key={post.pointId} 
+                />
                 <hr className="border-t border-gray-200 mb-4" />
               </div>
             ))
