@@ -9,7 +9,7 @@ import { LoginDialog } from './login-dialog'
 
 export function PostVoting({
   pointId,
-  initialVotes,
+  initialVotes = { upvotes: 0, downvotes: 0 },
 }: {
   pointId: number
   initialVotes: { upvotes: number; downvotes: number }
