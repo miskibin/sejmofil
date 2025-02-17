@@ -4,6 +4,12 @@ CREATE SCHEMA IF NOT EXISTS "auth";
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
+-- CreateExtension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
+
+-- CreateExtension
+CREATE EXTENSION IF NOT EXISTS "vector";
+
 -- CreateEnum
 CREATE TYPE "auth"."aal_level" AS ENUM ('aal1', 'aal2', 'aal3');
 
@@ -184,18 +190,8 @@ CREATE TABLE "public"."proceeding_point_ai" (
     "number_sequence" INTEGER,
     "voting_numbers" INTEGER[],
     "print_numbers" TEXT[],
-    "search_tsv" tsvector DEFAULT (setweight(to_tsvector('pl_ispell'::regconfig, COALESCE(topic, ''::text)), 'A'::"char") || setweight(to_tsvector('pl_ispell'::regconfig, COALESCE(summary_tldr, ''::text)), 'B'::"char")),
 
     CONSTRAINT "proceeding_point_ai_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."reaction" (
-    "user_id" UUID NOT NULL,
-    "target_id" INTEGER NOT NULL,
-    "target_type" TEXT,
-    "emoji" TEXT NOT NULL,
-    "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CreateTable
@@ -359,13 +355,7 @@ CREATE UNIQUE INDEX "proceeding_unique_term_number" ON "public"."proceeding"("te
 CREATE UNIQUE INDEX "unique_proceeding_day" ON "public"."proceeding_day"("proceeding_id", "day_no");
 
 -- CreateIndex
-CREATE INDEX "idx_proceeding_point_ai_search_tsv" ON "public"."proceeding_point_ai" USING GIN ("search_tsv");
-
--- CreateIndex
 CREATE UNIQUE INDEX "proceeding_point_ai_unique" ON "public"."proceeding_point_ai"("proceeding_day_id", "number_sequence");
-
--- CreateIndex
-CREATE UNIQUE INDEX "reaction_user_id_target_id_target_type_key" ON "public"."reaction"("user_id", "target_id", "target_type");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "statement_unique_per_day" ON "public"."statement"("proceeding_day_id", "number_sequence", "number_source");

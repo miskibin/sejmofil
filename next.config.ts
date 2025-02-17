@@ -1,7 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    domains: [
+      "api.sejm.gov.pl",
+      "www.freepik.com",
+      "facebook.com",
+      "db.msulawiak.pl",
+      "platform-lookaside.fbsbx.com",
+      "avatars.githubusercontent.com",
+      "lh3.googleusercontent.com",
+    ],
+    minimumCacheTTL: 480,
+  },
 };
 
 export default nextConfig;

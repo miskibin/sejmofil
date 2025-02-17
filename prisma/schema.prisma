@@ -1,12 +1,13 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  previewFeatures = ["fullTextSearchPostgres", "multiSchema", "postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  schemas  = ["auth", "public"]
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions"), vector]
+  schemas    = ["auth", "public"]
 }
 
 model p25vid1 {
@@ -19,6 +20,7 @@ model p25vid1 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p25vid1_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p25vid1_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -32,6 +34,7 @@ model p25vid2 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p25vid2_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p25vid2_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -45,6 +48,7 @@ model p25vid3 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p25vid3_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p25vid3_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -58,6 +62,7 @@ model p26vid1 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p26vid1_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p26vid1_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -71,6 +76,7 @@ model p26vid2 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p26vid2_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p26vid2_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -84,6 +90,7 @@ model p26vid3 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p26vid3_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p26vid3_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -97,6 +104,7 @@ model p27vid1 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p27vid1_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p27vid1_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -110,6 +118,7 @@ model p27vid2 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p27vid2_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p27vid2_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -123,6 +132,7 @@ model p27vid3 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p27vid3_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p27vid3_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -136,6 +146,7 @@ model p28vid1 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p28vid1_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p28vid1_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -149,6 +160,7 @@ model p28vid2 {
 
   @@index([segment_text_clean(ops: raw("gin_trgm_ops"))], map: "p28vid2_segment_text_clean_trgm_idx", type: Gin)
   @@index([segment_text(ops: raw("gin_trgm_ops"))], map: "p28vid2_segment_text_trgm_idx", type: Gin)
+  @@ignore
   @@schema("public")
 }
 
@@ -178,7 +190,7 @@ model proceeding_day {
 }
 
 model proceeding_point_ai {
-  id                 Int                      @id @default(autoincrement())
+  id                 Int                  @id @default(autoincrement())
   proceeding_day_id  Int
   official_point     String
   official_topic     String
@@ -188,28 +200,11 @@ model proceeding_point_ai {
   number_sequence    Int?
   voting_numbers     Int[]
   print_numbers      String[]
-  search_tsv         Unsupported("tsvector")? @default(dbgenerated("(setweight(to_tsvector('pl_ispell'::regconfig, COALESCE(topic, ''::text)), 'A'::\"char\") || setweight(to_tsvector('pl_ispell'::regconfig, COALESCE(summary_tldr, ''::text)), 'B'::\"char\"))"))
-  proceeding_day     proceeding_day           @relation(fields: [proceeding_day_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_proceeding_day_ai")
+  proceeding_day     proceeding_day       @relation(fields: [proceeding_day_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_proceeding_day_ai")
   statement_to_point statement_to_point[]
   tag_to_point       tag_to_point[]
 
   @@unique([proceeding_day_id, number_sequence], map: "proceeding_point_ai_unique")
-  @@index([search_tsv], map: "idx_proceeding_point_ai_search_tsv", type: Gin)
-  @@schema("public")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model reaction {
-  user_id     String    @db.Uuid
-  target_id   Int
-  target_type String?
-  emoji       String
-  created_at  DateTime? @default(now()) @db.Timestamp(6)
-
-  @@unique([user_id, target_id, target_type])
-  @@ignore
   @@schema("public")
 }
 
@@ -307,6 +302,7 @@ model tmp_emo {
   peak_db          Float?
   clap_audio_event String?
 
+  @@ignore
   @@schema("public")
 }
 
