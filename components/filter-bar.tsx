@@ -1,3 +1,5 @@
+"use client";
+
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useTransition, useEffect } from "react";
 import {
@@ -48,7 +50,7 @@ export default function FilterBar({
   );
 
   return (
-    <div className="relative w-full max-w-full md:max-w-4xl">
+    <div className="w-full">
       <Carousel opts={{ align: "start", dragFree: true }}>
         <CarouselContent className="-ml-1 sm:-ml-2 md:-ml-4">
           {navItems.map(([label, value]) => (

@@ -13,7 +13,7 @@ export default function SidebarCard({
 }: SidebarCardProps) {
   return (
     <Card
-      className={`rounded-2xl border border-border bg-card shadow-sm p-4 ${className}`}
+      className={`rounded-2xl border border-border bg-inherit shadow-none p-4 ${className}`}
     >
       {children}
     </Card>

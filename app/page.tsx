@@ -50,6 +50,83 @@ export default function ExamplePage() {
       comments: 15,
       timestamp: "20:42",
     },
+    {
+      id: 2,
+      author: "Andrzej Duda",
+      authorImage: "/api/placeholder/32/32",
+      content:
+        "Zrób proszę. Ja sam generuję te fotki i wiem, że czasem mogą być zdjebane",
+      subtext: "Wypełnienie społeczeństwa stróg za rząd więzienne",
+      likes: 89,
+      comments: 15,
+      timestamp: "20:42",
+    },
+    {
+      id: 2,
+      author: "Andrzej Duda",
+      authorImage: "/api/placeholder/32/32",
+      content:
+        "Zrób proszę. Ja sam generuję te fotki i wiem, że czasem mogą być zdjebane",
+      subtext: "Wypełnienie społeczeństwa stróg za rząd więzienne",
+      likes: 89,
+      comments: 15,
+      timestamp: "20:42",
+    },
+    {
+      id: 2,
+      author: "Andrzej Duda",
+      authorImage: "/api/placeholder/32/32",
+      content:
+        "Zrób proszę. Ja sam generuję te fotki i wiem, że czasem mogą być zdjebane",
+      subtext: "Wypełnienie społeczeństwa stróg za rząd więzienne",
+      likes: 89,
+      comments: 15,
+      timestamp: "20:42",
+    },
+    {
+      id: 2,
+      author: "Andrzej Duda",
+      authorImage: "/api/placeholder/32/32",
+      content:
+        "Zrób proszę. Ja sam generuję te fotki i wiem, że czasem mogą być zdjebane",
+      subtext: "Wypełnienie społeczeństwa stróg za rząd więzienne",
+      likes: 89,
+      comments: 15,
+      timestamp: "20:42",
+    },
+    {
+      id: 2,
+      author: "Andrzej Duda",
+      authorImage: "/api/placeholder/32/32",
+      content:
+        "Zrób proszę. Ja sam generuję te fotki i wiem, że czasem mogą być zdjebane",
+      subtext: "Wypełnienie społeczeństwa stróg za rząd więzienne",
+      likes: 89,
+      comments: 15,
+      timestamp: "20:42",
+    },
+    {
+      id: 2,
+      author: "Andrzej Duda",
+      authorImage: "/api/placeholder/32/32",
+      content:
+        "Zrób proszę. Ja sam generuję te fotki i wiem, że czasem mogą być zdjebane",
+      subtext: "Wypełnienie społeczeństwa stróg za rząd więzienne",
+      likes: 89,
+      comments: 15,
+      timestamp: "20:42",
+    },
+    {
+      id: 2,
+      author: "Andrzej Duda",
+      authorImage: "/api/placeholder/32/32",
+      content:
+        "Zrób proszę. Ja sam generuję te fotki i wiem, że czasem mogą być zdjebane",
+      subtext: "Wypełnienie społeczeństwa stróg za rząd więzienne",
+      likes: 89,
+      comments: 15,
+      timestamp: "20:42",
+    },
   ];
 
   return (
@@ -61,6 +138,16 @@ export default function ExamplePage() {
       }
       sidebar={
         <div className="space-y-4">
+          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Magni
+          consectetur dolorum earum dicta ipsam ea eligendi. Earum molestiae
+          cumque vel sapiente eum facilis. Repellat odio ad quo, quisquam nemo
+          dolore! Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio
+          quasi modi aliquam consequuntur sint sit officiis, exercitationem
+          quia. Nemo, magni delectus. Saepe aspernatur, veritatis explicabo
+          ipsam ipsa sint expedita accusantium. Lorem ipsum, dolor sit amet
+          consectetur adipisicing elit. Iure minus cumque quos magni distinctio
+          illo nulla soluta cupiditate inventore ex quaerat asperiores eaque,
+          sunt rerum. Consequatur obcaecati fuga eum saepe?
           <SidebarCard>
             <SidebarCardHeader
               title="Poznaj Sejmotłi"
@@ -72,7 +159,6 @@ export default function ExamplePage() {
               onTagClick={(tag) => console.log("Tag clicked:", tag)}
             />
           </SidebarCard>
-
           <SidebarCard>
             <SidebarCardHeader
               title="Najbliższe obrady sejmu"
