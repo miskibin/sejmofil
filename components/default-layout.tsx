@@ -25,8 +25,7 @@ export default function PageLayout({
 
         {/* Sidebar */}
         <aside className="col-span-2">
-          {/* If your sidebar is short, add a test height to see sticky in action */}
-          <div className="sticky bottom-0">{sidebar}</div>
+          <div className="sticky top-24">{sidebar}</div>
         </aside>
       </div>
     </div>

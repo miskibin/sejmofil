@@ -31,17 +31,15 @@ export default function FilterBar({
     onTransition?.(isPending);
   }, [isPending, onTransition]);
 
-  const navItems = [
-    ...categories.map((category) => [
-      category,
-      `category-${encodeURIComponent(category.toLowerCase())}`,
-    ]),
-  ] as const;
+  const navItems = categories.map((category) => ({
+    label: category,
+    value: encodeURIComponent(category.toLowerCase()),
+  }));
 
   const handleSort = useCallback(
     (value: string) => {
       startTransition(() => {
-        const params = new URLSearchParams(searchParams.toString());
+        const params = new URLSearchParams(searchParams?.toString() || "");
         params.set("sort", value);
         router.push(`?${params.toString()}`, { scroll: false });
       });
@@ -53,7 +51,7 @@ export default function FilterBar({
     <div className="w-full">
       <Carousel opts={{ align: "start", dragFree: true }}>
         <CarouselContent className="-ml-1 sm:-ml-2 md:-ml-4">
-          {navItems.map(([label, value]) => (
+          {navItems.map(({ label, value }) => (
             <CarouselItem
               key={value}
               className="pl-1 sm:pl-2 md:pl-4 basis-auto"
@@ -62,17 +60,17 @@ export default function FilterBar({
                 onClick={() => handleSort(value)}
                 disabled={isPending}
                 className={`px-2 sm:px-3 py-1 sm:py-2 text-sm font-medium transition-colors hover:text-primary whitespace-nowrap ${
-                  activeSort === value
-                    ? "text-primary"
+                  decodeURIComponent(value) === activeSort
+                    ? "text-primary "
                     : "text-muted-foreground"
-                } ${isPending ? "opacity-50 " : ""}`}
+                } ${isPending ? "opacity-50" : ""}`}
               >
                 {label}
               </button>
             </CarouselItem>
           ))}
         </CarouselContent>
-        <div className="hidden sm:block *:bg-neutral-50 ">
+        <div className="hidden sm:block *:bg-neutral-50">
           <CarouselPrevious />
           <CarouselNext />
         </div>
