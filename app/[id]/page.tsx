@@ -1,6 +1,9 @@
+import { CardWrapper } from "@/components/card-wrapper";
 import { TopicAttitudeChart } from "@/components/charts/topic-attitiude";
 import { EmptyState } from "@/components/empty-state";
+import { VotingList } from "@/components/voting-list";
 import { getClubAndIdsByNames } from "@/lib/neo4j/person";
+import { getVotingResultsByNumbrs } from "@/lib/neo4j/voting";
 import { getPointDetails } from "@/lib/queries/pointDetails";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -68,7 +71,13 @@ export default async function PointDetail({
   }));
 
   console.log("🚀 ~ point:", point);
-  // point.statements foreache statement_ai.topic_attitiude.score
+  const simpleVotingResults =
+    point.voting_numbers?.length > 0
+      ? await getVotingResultsByNumbrs(
+          point.proceeding_day.proceeding.number,
+          point.voting_numbers
+        )
+      : [];
   return (
     <>
       {chartData.length >= 7 ? (
@@ -79,6 +88,16 @@ export default async function PointDetail({
           image="/empty.svg"
         />
       )}
+      {/* Voting section */}
+      <div className="col-span-full lg:col-span-6">
+        <CardWrapper
+          title="Głosowania"
+          className="h-full"
+          subtitle="Wyniki głosowań"
+        >
+          <VotingList votings={simpleVotingResults} />
+        </CardWrapper>
+      </div>
     </>
   );
 }
