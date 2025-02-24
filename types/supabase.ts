@@ -92,6 +92,33 @@ export type Database = {
         }
         Relationships: []
       }
+      p29vid1: {
+        Row: {
+          end_time: number | null
+          id: string
+          segment_text: string | null
+          segment_text_clean: string | null
+          start_time: number | null
+          words: Json | null
+        }
+        Insert: {
+          end_time?: number | null
+          id?: string
+          segment_text?: string | null
+          segment_text_clean?: string | null
+          start_time?: number | null
+          words?: Json | null
+        }
+        Update: {
+          end_time?: number | null
+          id?: string
+          segment_text?: string | null
+          segment_text_clean?: string | null
+          start_time?: number | null
+          words?: Json | null
+        }
+        Relationships: []
+      }
       proceeding: {
         Row: {
           dates: string[]
@@ -122,18 +149,21 @@ export type Database = {
           day_no: number
           id: number
           proceeding_id: number
+          yt_link: string | null
         }
         Insert: {
           date: string
           day_no: number
           id?: number
           proceeding_id: number
+          yt_link?: string | null
         }
         Update: {
           date?: string
           day_no?: number
           id?: number
           proceeding_id?: number
+          yt_link?: string | null
         }
         Relationships: [
           {
@@ -438,6 +468,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_votes: {
+        Row: {
+          created_at: string
+          id: number
+          target_id: number
+          target_type: Database["public"]["Enums"]["vote_target"]
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          target_id: number
+          target_type: Database["public"]["Enums"]["vote_target"]
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          target_id?: number
+          target_type?: Database["public"]["Enums"]["vote_target"]
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -525,12 +582,24 @@ export type Database = {
           category_count: number
         }[]
       }
-      get_vote_counts: {
-        Args: {
-          point_id: number
-        }
-        Returns: Json
-      }
+      get_vote_counts:
+        | {
+            Args: {
+              p_target_type: Database["public"]["Enums"]["vote_target"]
+              p_target_ids: number[]
+            }
+            Returns: {
+              target_id: number
+              upvotes: number
+              downvotes: number
+            }[]
+          }
+        | {
+            Args: {
+              point_id: number
+            }
+            Returns: Json
+          }
       gtrgm_compress: {
         Args: {
           "": unknown
@@ -738,7 +807,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      vote_target: "process" | "print" | "person"
     }
     CompositeTypes: {
       [_ in never]: never

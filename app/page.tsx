@@ -6,7 +6,7 @@ import { useSupabaseSession } from "@/lib/auth";
 import PageLayout from "@/components/default-layout";
 import FilterBar from "@/components/filter-bar";
 import PostCard from "@/components/post-card";
-import { getProceedingPoints, getTopCategories } from "@/lib/queries";
+import { getProceedingPoints, getTopCategories } from "@/lib/queries/home";
 import { ProceedingPointWithRelations } from "@/types/custom";
 import { BASE_CATEGORIES, SortCategory } from "@/lib/constants";
 

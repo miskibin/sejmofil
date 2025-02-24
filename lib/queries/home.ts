@@ -1,7 +1,7 @@
 "use server";
 import { ProceedingPointWithRelations } from "@/types/custom";
 import { SortCategory } from "@/lib/constants";
-import supabase from "./supabaseClient";
+import supabase from "../supabaseClient";
 
 export async function getTopCategories() {
   const { data, error } = await supabase.rpc("get_top_post_categories");

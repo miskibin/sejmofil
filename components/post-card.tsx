@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { truncateText, cn } from "@/lib/utils";
-import { updateVote } from "@/lib/queries";
+import { updateVote } from "@/lib/queries/home";
 
 type VoteType = 1 | -1 | null;
 
@@ -114,17 +114,14 @@ export default function PostCard({
               {formattedDate}
             </span>
           </div>
-          <Link href={`/proceedings/${proceedingNumber}/${date}/${pointId}`}>
+          <Link href={`${pointId}`}>
             <h2 className="text-xl font-semibold mb-2">{postTitle}</h2>
           </Link>
           <p className="text-sm text-muted-foreground line-clamp-3">
             {truncateText(description, 320, true)}
           </p>
         </div>
-        <Link
-          href={`/proceedings/${proceedingNumber}/${date}/${pointId}`}
-          className="w-full md:w-[200px] lg:w-[300px]"
-        >
+        <Link href={`${pointId}`} className="w-full md:w-[200px] lg:w-[300px]">
           <div className="relative rounded-lg overflow-hidden bg-muted aspect-[16/10]">
             <Image
               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${rawDate}/${pointId}.jpg`}
