@@ -7,6 +7,9 @@ import { getVotingResultsByNumbrs } from "@/lib/neo4j/voting";
 import { getPointDetails } from "@/lib/queries/pointDetails";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import PageLayout from "@/components/default-layout";
+import CommentSection from "./components/comment-section";
 
 export async function generateMetadata({}: {
   params: Promise<{ id: number }>;
@@ -16,6 +19,28 @@ export async function generateMetadata({}: {
     description: `Analiza punktu obrad w Sejmie.`,
   };
 }
+
+const comments = [
+  {
+    id: "1",
+    author: "Marcin Józefaciuk",
+    content:
+      "Poseł Marcin Józefaciuk uczcił pamięć Dawida Nowaka, ratownika medycznego i działacza charytatywnego, który po śmierci podarował swoje organy, dając szansę na życie sześciu osobom. Poseł podkreślił jego zaangażowanie w pomoc innym i poświęcenie. Dawid był jednym z tych ludzi, którzy nie tylko mówią o pomocy, lecz także przede wszystkim działają.",
+    timestamp: "30sek temu",
+    likes: 6,
+    dislikes: 21,
+    replies: [
+      {
+        id: "2",
+        author: "Gracek Platon",
+        content: "Zabij się pod człowieku Edit(Ratio)",
+        timestamp: "21min temu",
+        likes: 6,
+        dislikes: 21,
+      },
+    ],
+  },
+];
 
 export default async function PointDetail({
   params,
@@ -79,25 +104,67 @@ export default async function PointDetail({
         )
       : [];
   return (
-    <>
-      {chartData.length >= 7 ? (
-        <TopicAttitudeChart data={chartData} />
-      ) : (
-        <EmptyState
-          text="Za mało danych do wyświetlenia analizy klubów"
-          image="/empty.svg"
-        />
-      )}
-      {/* Voting section */}
-      <div className="col-span-full lg:col-span-6">
-        <CardWrapper
-          title="Głosowania"
-          className="h-full"
-          subtitle="Wyniki głosowań"
-        >
-          <VotingList votings={simpleVotingResults} />
-        </CardWrapper>
-      </div>
-    </>
+    <PageLayout
+      filterBar={null}
+      sidebar={<div className="space-y-4 py-24 bg-amber-100" />}
+      content={
+        <>
+          <CardWrapper
+            title="Analiza AI"
+            className="h-full"
+            subtitle="Stosunek do tematu"
+            tabs={[
+              {
+                value: "statystyki",
+                label: "Statystyki",
+                content:
+                  chartData.length >= 7 ? (
+                    <TopicAttitudeChart data={chartData} />
+                  ) : (
+                    <EmptyState
+                      text="Za mało danych do wyświetlenia analizy klubów"
+                      image="/empty.svg"
+                    />
+                  ),
+              },
+              {
+                value: "stanowiska",
+                label: "Stanowiska",
+                content: (
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown>
+                      {point.summary_main.key_positions}
+                    </ReactMarkdown>
+                  </div>
+                ),
+              },
+              {
+                value: "kwestie-sporne",
+                label: "Kwestie Sporne",
+                content: (
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown>
+                      {point.summary_main.unresolved}
+                    </ReactMarkdown>
+                  </div>
+                ),
+              },
+            ]}
+            defaultTab="statystyki"
+          />
+          {/* Voting section */}
+          <div className="col-span-full lg:col-span-6">
+            <CardWrapper
+              title="Głosowania"
+              className="h-full"
+              subtitle="Wyniki głosowań"
+            >
+              <VotingList votings={simpleVotingResults} />
+            </CardWrapper>
+          </div>
+          <CommentSection comments={comments} totalComments={139} />;
+        </>
+      }
+    />
   );
 }
