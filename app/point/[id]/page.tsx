@@ -162,7 +162,12 @@ export default async function PointDetail({
               <VotingList votings={simpleVotingResults} />
             </CardWrapper>
           </div>
-          <CommentSection comments={comments} totalComments={139} />;
+          <CommentSection
+            comments={comments}
+            totalComments={139}
+            pointDetails={point}
+            speakerClubs={speakerClubs}
+          />
         </>
       }
     />

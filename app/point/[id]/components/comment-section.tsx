@@ -1,8 +1,12 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, ThumbsUp, ThumbsDown, ChevronDown } from "lucide-react";
 import CardWrapper from "@/components/card-wrapper";
+import { SejmDiscussion } from "./sejm-discussion";
+import { PointWithStatements } from "@/types/custom";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Comment {
   id: string;
@@ -18,12 +22,37 @@ interface Comment {
 interface CommentSectionProps {
   comments: Comment[];
   totalComments: number;
+  pointDetails: PointWithStatements;
+  speakerClubs: { name: string; club: string; id: number }[];
 }
 
 export function CommentSection({
   comments,
   totalComments,
+  pointDetails,
+  speakerClubs,
 }: CommentSectionProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [filterMode, setFilterMode] = useState<string>("featured");
+
+  // Get unique clubs for filter options
+  const uniqueClubs = Array.from(
+    new Set(speakerClubs.map((s) => s.club))
+  ).filter(Boolean);
+
+  // Handle filter change
+  const handleFilterChange = (tabValue: string, option: string) => {
+    setFilterMode(option);
+    const params = new URLSearchParams(searchParams?.toString() || "");
+    if (option === "all") {
+      params.set("showAll", "true");
+    } else {
+      params.delete("showAll");
+    }
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
   const CommentContent = () => (
     <div className="space-y-6">
       {/* Comment Input */}
@@ -118,6 +147,17 @@ export function CommentSection({
     </div>
   );
 
+  // Define filter options for the discussion tab
+  const discussionTabOptions = [
+    { value: "featured", label: "Najciekawsze" },
+    { value: "normal", label: "Chronologicznie" },
+    { value: "all", label: "Wszystkie" },
+    ...uniqueClubs.map((club) => ({
+      value: club,
+      label: `Tylko ${club}`,
+    })),
+  ];
+
   return (
     <CardWrapper
       title={`Komentarze (${totalComments})`}
@@ -130,19 +170,21 @@ export function CommentSection({
         {
           value: "dyskusja",
           label: "Dyskusja Sejmowa",
-          content: <div>Dyskusja Sejmowa content</div>,
-        },
-        {
-          value: "najciekawsze",
-          label: (
-            <div className="flex items-center gap-1">
-              Najciekawsze
-              <ChevronDown className="w-4 h-4" />
-            </div>
+          content: (
+            <SejmDiscussion
+              statements={pointDetails.statements}
+              speakerClubs={speakerClubs}
+              proceedingNumber={pointDetails.proceeding_day.proceeding.number}
+              proceedingDate={pointDetails.proceeding_day.date}
+              filterMode={filterMode}
+              onFilterChange={setFilterMode}
+            />
           ),
-          content: <div>Najciekawsze content</div>,
+          options: discussionTabOptions,
         },
       ]}
+      onTabOptionSelect={handleFilterChange}
+      activeTabOption={filterMode}
     />
   );
 }

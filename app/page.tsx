@@ -145,9 +145,9 @@ export default function HomePage() {
             )
           ) : (
             <div className="text-center py-10">
-              <p className="text-lg font-medium">No posts found</p>
+              <p className="text-lg font-medium">Nic tu nie ma 😥</p>
               <p className="text-muted-foreground">
-                Try a different filter or check back later
+                Spróbuj zmienić filtry lub wróć później
               </p>
             </div>
           )}
