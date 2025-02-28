@@ -39,6 +39,7 @@ export async function getAllEnvoys(): Promise<EnvoyShort[]> {
       club: p.club,
       firstName: p.firstName,
       id: p.id,
+      birthDate: p.birthDate,
       districtName: p.districtName,
       absents: p.absents,
       lastName: p.lastName,

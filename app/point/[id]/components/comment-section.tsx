@@ -43,10 +43,10 @@ export function CommentSection({
               Grzecznej dyskusji
             </p>
             <div className="flex gap-2">
-              <Button variant="outline" className="text-gray-500">
+              <Button variant="outline" size={"sm"}>
                 Anuluj
               </Button>
-              <Button className="bg-primary text-white hover:bg-primary/90">
+              <Button size={"sm"} variant={"default"}>
                 Skomentuj
               </Button>
             </div>

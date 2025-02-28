@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 
 interface TabItem {
   value: string;
-  label: string;
+  label: string | ReactNode;
   content: ReactNode;
 }
 
