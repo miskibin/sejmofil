@@ -17,6 +17,8 @@ import {
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
+import { PostVoting } from '@/components/post-voting'
+import type { ProcessVoteCount } from '@/lib/supabase/processVotes'
 
 const DOCUMENT_TYPES = [
   'projekt ustawy',
@@ -34,10 +36,15 @@ const ITEMS_PER_PAGE = 10
 
 type FilterType = 'topics' | 'organizations' | 'types'
 
+// Update PrintListItem type to include votes
+interface PrintListItemWithVotes extends PrintListItem {
+  votes?: ProcessVoteCount
+}
+
 export default function ProcessSearchPage({
   prints = [],
 }: {
-  prints: PrintListItem[]
+  prints: PrintListItemWithVotes[]
 }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [showAllFilters, setShowAllFilters] = useState(false)
@@ -273,56 +280,66 @@ export default function ProcessSearchPage({
         )}
       </div>
 
-      <div className="grid gap-4">
+      <div className="space-y-4">
         {displayedPrints.map((print) => (
-          <Link
-            key={print.number}
-            href={`/processes/${print.number}`}
-            className="block transition-opacity hover:opacity-90"
-          >
-            <Card className="overflow-hidden">
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="flex-1 p-4 space-y-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h2 className="font-semibold">{print.short_title}</h2>
-                      <div className="flex gap-1">{getAuthorBadges(print)}</div>
-                    </div>
-                    {/* <p className="text-xs text-muted-foreground">
-                      {print.processDescription || print.title}
-                    </p> */}
-                  </div>
-                  <div className="prose-sm">
-                    <ReactMarkdown>
-                      {truncateText(print.summary || '', 500)}
-                    </ReactMarkdown>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    <div className="flex flex-wrap gap-x-2">
-                      <span>{new Date(print.date).toLocaleDateString()}</span>
-                      <span>•</span>
-                      <span>{print.type}</span>
-                      <span>•</span>
-                      <span>{print.categories.join(', ')}</span>
-                    </div>
-
-                    {print.status && (
-                      <div className="mt-1 text-primary">{print.status}</div>
-                    )}
-                  </div>
+          <Card key={print.number} className="overflow-hidden group">
+            <div className="flex flex-col sm:flex-row sm:gap-6">
+              <div className="flex-1 p-4 space-y-3">
+                <div className="flex items-center gap-2 flex-wrap mb-2">
+                  <span className="text-primary text-sm font-medium flex items-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full" />
+                    {print.type}
+                  </span>
+                  <span className="text-muted-foreground text-sm">•</span>
+                  <span className="text-muted-foreground text-sm">
+                    {new Date(print.date).toLocaleDateString('pl-PL', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </span>
+                  <div className="flex gap-1">{getAuthorBadges(print)}</div>
                 </div>
-                <div className="relative h-[200px] sm:h-auto sm:w-[300px]">
+
+                <Link href={`/processes/${print.number}`} className="block group-hover:opacity-80">
+                  <h2 className="text-xl font-semibold mb-2">{print.short_title}</h2>
+                  <div className="prose-sm text-muted-foreground">
+                    <ReactMarkdown>{truncateText(print.summary || '', 200)}</ReactMarkdown>
+                  </div>
+                </Link>
+
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mt-4">
+                  <PostVoting 
+                    pointId={parseInt(print.number)} // Ensure number is passed as integer
+                    initialVotes={print.votes || { upvotes: 0, downvotes: 0 }}
+                  />
+                  <div className="flex items-center gap-2">
+                    <span>{print.categories.join(', ')}</span>
+                  </div>
+                  {print.status && (
+                    <Badge variant="outline" className="ml-auto">
+                      {print.status}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              <Link
+                href={`/processes/${print.number}`}
+                className="relative h-[200px] sm:h-auto sm:w-[300px]"
+              >
+                <div className="relative w-full h-full">
                   <Image
                     src={photoUrls[print.number]}
                     alt={print.title}
                     fill
-                    className="object-cover"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, 300px"
                   />
                 </div>
-              </div>
-            </Card>
-          </Link>
+              </Link>
+            </div>
+          </Card>
         ))}
       </div>
     </div>
