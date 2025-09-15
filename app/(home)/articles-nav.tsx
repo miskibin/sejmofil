@@ -1,6 +1,6 @@
 "use client"
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useTransition, useEffect } from 'react'
+import { useCallback, useState, useTransition } from 'react'
 import {
   Carousel,
   CarouselContent,
@@ -11,22 +11,16 @@ import {
 
 export default function ArticlesNav({ 
   categories, 
-  activeSort, 
-  isLoading: parentLoading,
-  onTransition 
+  activeSort,
+  onTransitionChange
 }: { 
   categories: string[]
   activeSort: string
-  isLoading?: boolean
-  onTransition?: (isPending: boolean) => void
+  onTransitionChange?: (isTransitioning: boolean) => void
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
-
-  useEffect(() => {
-    onTransition?.(isPending)
-  }, [isPending, onTransition])
 
   const navItems = [
     ['Dla Ciebie', 'foryou'],
@@ -44,7 +38,8 @@ export default function ArticlesNav({
       params.set('sort', value)
       router.push(`?${params.toString()}`, { scroll: false })
     })
-  }, [router, searchParams])
+    onTransitionChange?.(true)
+  }, [router, searchParams, onTransitionChange])
 
   return (
     <div className="relative w-full max-w-full md:max-w-4xl">
@@ -54,10 +49,10 @@ export default function ArticlesNav({
             <CarouselItem key={value} className="pl-1 sm:pl-2 md:pl-4 basis-auto">
               <button
                 onClick={() => handleSort(value)}
-                disabled={parentLoading || isPending}
+                disabled={isPending}
                 className={`px-2 sm:px-3 py-1 sm:py-2 text-sm font-medium transition-colors hover:text-primary whitespace-nowrap ${
                   activeSort === value ? 'text-primary' : 'text-muted-foreground'
-                } ${(parentLoading || isPending) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                } ${isPending ? 'opacity-50 ' : ''}`}
               >
                 {label}
               </button>

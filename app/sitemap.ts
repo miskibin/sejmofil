@@ -3,14 +3,26 @@ import { MetadataRoute } from 'next'
 import { getAllEnvoys } from '@/lib/queries/person'
 import { getLatestPrints } from '@/lib/queries/process'
 
+type ProceedingWithDays = {
+  number: number
+  proceeding_day?: Array<{
+    date: string
+    proceeding_point_ai?: Array<{ id: number }>
+  }>
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sejmofil.pl'
   const supabase = createClient()
 
   // Get proceedings from Supabase
-  const { data: proceedings } = await (await supabase)
+  const { data: proceedings, error } = await (await supabase)
     .from('proceeding')
     .select('number, proceeding_day!inner(date, proceeding_point_ai(id))')
+
+  if (error) {
+    console.error('Error fetching proceedings for sitemap:', error)
+  }
 
   // Get envoys and processes from Neo4j
   const envoys = await getAllEnvoys()
@@ -51,19 +63,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.9,
     },
-    {
-      url: `${baseUrl}/search`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
   ]
 
-  // Dynamic routes for proceedings (from Supabase)
+  // Dynamic routes for proceedings
   const proceedingRoutes =
-    proceedings?.flatMap((proceeding) =>
-      proceeding.proceeding_day?.flatMap((day) =>
-        day.proceeding_point_ai?.map((point) => ({
+    (proceedings as ProceedingWithDays[])?.flatMap((proceeding) =>
+      (proceeding.proceeding_day ?? []).flatMap((day) =>
+        (day.proceeding_point_ai ?? []).map((point) => ({
           url: `${baseUrl}/proceedings/${proceeding.number}/${day.date}/${point.id}`,
           lastModified: new Date(),
           changeFrequency: 'weekly' as const,

@@ -162,7 +162,7 @@ export async function getEnvoyPrints(
   RETURN print {
     number: print.number,
     title: print.title,
-    documentData: print.documentData,
+    documentDate: print.documentDate,
     summary: print.summary
   } as print
   ORDER BY print.documentDate DESC
@@ -181,7 +181,7 @@ export async function getEnvoySubjectPrints(
       RETURN print {
         number: print.number,
         title: print.title,
-        documentData: print.documentData,
+        documentDate: print.documentDate,
         summary: print.summary
       } as print
       ORDER BY print.documentDate DESC

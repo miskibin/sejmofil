@@ -83,9 +83,7 @@ export default function PostCard({
             href={`/proceedings/${proceedingNumber}/${date}/${pointId}`}
             className="block hover:opacity-80 transition-opacity"
           >
-            <h2 className="text-xl sm:text-2xl  font-semibold mb-2">
-              {title}
-            </h2>
+            <h2 className="text-xl sm:text-2xl  font-semibold mb-2">{title}</h2>
           </Link>
           <p className="text-muted-foreground text-sm sm:text-base line-clamp-3 md:line-clamp-none">
             {truncateText(description, 320, true)}
@@ -110,6 +108,9 @@ export default function PostCard({
         <span className="flex items-center gap-2">
           <MessageSquare className="w-4 h-4" />
           {comments} komentarzy
+        </span>
+        <span className="text-muted ">
+          {new Date(date).toLocaleDateString()}
         </span>
         <Button
           variant="ghost"
