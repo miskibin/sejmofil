@@ -19,10 +19,9 @@ export default function PostCard({
   proceedingNumber,
   date,
   votingNumbers,
-  votes = { upvotes: 0, downvotes: 0 },
+  initialVotes = { upvotes: 0, downvotes: 0 },
 }: {
   [key: string]: any // We're getting these props from the database anyway
-  votes?: { upvotes: number; downvotes: number }
 }) {
   const hasVotes = Boolean(votingNumbers && votingNumbers.length > 0)
   const [isSharing, setIsSharing] = useState(false)
@@ -61,24 +60,18 @@ export default function PostCard({
     }
   }
 
-  // Format date to display
-  const formattedDate = new Date(date).toLocaleDateString('pl-PL', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-
   return (
     <div className="flex flex-col gap-4 sm:gap-3 py-2 sm:p-4">
+      {/* Header and Image */}
       <div className="flex flex-col md:flex-row items-start gap-3 sm:gap-6">
+        {/* Text content */}
         <div className="flex-1 min-w-0 order-2 md:order-1">
+          {/* Category and badges */}
           <div className="flex items-center gap-2 flex-wrap mb-2">
             <span className="text-primary text-sm font-medium flex items-center gap-2">
               <span className="w-2 h-2 bg-primary rounded-full" />
               {category}
             </span>
-            <span className="text-muted-foreground text-sm">•</span>
-            <span className="text-muted-foreground text-sm">{formattedDate}</span>
             {hasVotes && (
               <Badge variant="secondary" className="gap-1">
                 <Vote className="h-3 w-3" />
@@ -90,34 +83,34 @@ export default function PostCard({
             href={`/proceedings/${proceedingNumber}/${date}/${pointId}`}
             className="block hover:opacity-80 transition-opacity"
           >
-            <h2 className="text-xl sm:text-2xl font-semibold mb-2">{title}</h2>
+            <h2 className="text-xl sm:text-2xl  font-semibold mb-2">{title}</h2>
           </Link>
-          <p className="text-muted-foreground text-sm sm:text-base line-clamp-3">
+          <p className="text-muted-foreground text-sm sm:text-base line-clamp-3 md:line-clamp-none">
             {truncateText(description, 320, true)}
           </p>
         </div>
 
-        <Link
-          href={`/proceedings/${proceedingNumber}/${date}/${pointId}`}
-          className="block w-full md:w-[200px] lg:w-[300px] order-1 md:order-2"
-        >
-          <div className="relative rounded-lg overflow-hidden bg-muted aspect-[16/10]">
-            <Image
-              src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}
-              alt={title}
-              className="object-cover object-center hover:scale-105 transition-transform duration-300"
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 200px, 300px"
-            />
-          </div>
-        </Link>
+        {/* Image */}
+        <div className="relative rounded-lg overflow-hidden bg-muted w-full md:w-[200px] lg:w-[300px] aspect-[16/10] shrink-0 order-1 md:order-2">
+          <Image
+            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}
+            alt={title}
+            className="object-cover object-center hover:scale-105 transition-transform duration-300"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 200px, 300px"
+          />
+        </div>
       </div>
 
+      {/* Actions */}
       <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-        <PostVoting pointId={pointId} initialVotes={votes} />
+        <PostVoting pointId={pointId} initialVotes={initialVotes} />
         <span className="flex items-center gap-2">
           <MessageSquare className="w-4 h-4" />
           {comments} komentarzy
+        </span>
+        <span className="text-muted ">
+          {new Date(date).toLocaleDateString()}
         </span>
         <Button
           variant="ghost"

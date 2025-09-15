@@ -1,15 +1,15 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import { ArrowUp } from 'lucide-react'
-import { useCallback, useState, useEffect } from 'react'
-import { toggleVote, getUserVote, getVoteCounts } from '@/lib/supabase/votes'
+import { useCallback, useState } from 'react'
+import { toggleVote } from '@/lib/supabase/votes'
 import { cn } from '@/lib/utils'
 import { useSupabaseSession } from '@/lib/hooks/use-supabase-session'
 import { LoginDialog } from './login-dialog'
 
 export function PostVoting({
   pointId,
-  initialVotes = { upvotes: 0, downvotes: 0 },
+  initialVotes,
 }: {
   pointId: number
   initialVotes: { upvotes: number; downvotes: number }
@@ -19,20 +19,6 @@ export function PostVoting({
   const [isVoting, setIsVoting] = useState(false)
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
-
-  useEffect(() => {
-    if (user) {
-      Promise.all([getUserVote(pointId, user.id), getVoteCounts(pointId)]).then(
-        ([vote, counts]) => {
-          setUserVote(vote)
-          setVotes(counts)
-        }
-      )
-    } else {
-      // When not logged in, just fetch vote counts
-      getVoteCounts(pointId).then((counts) => setVotes(counts))
-    }
-  }, [pointId, user])
 
   const handleVote = useCallback(
     async (voteType: 'up' | 'down') => {
@@ -48,14 +34,23 @@ export function PostVoting({
         const result = await toggleVote(pointId, user.id, voteType)
         if (result.success) {
           setUserVote((prev) => (prev === voteType ? null : voteType))
-          const newCounts = await getVoteCounts(pointId)
+          const newCounts = {
+            upvotes:
+              votes.upvotes +
+              (voteType === 'up' ? 1 : 0) -
+              (userVote === 'up' ? 1 : 0),
+            downvotes:
+              votes.downvotes +
+              (voteType === 'down' ? 1 : 0) -
+              (userVote === 'down' ? 1 : 0),
+          }
           setVotes(newCounts)
         }
       } finally {
         setIsVoting(false)
       }
     },
-    [user, pointId, isVoting]
+    [user, pointId, isVoting, votes, userVote]
   )
 
   return (
