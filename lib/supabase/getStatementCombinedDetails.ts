@@ -6,7 +6,7 @@ export async function getStatementCombinedDetails(
 ): Promise<StatementCombined[]> {
   const supabase = createClient()
 
-  const { data } = await (
+  const { data, error } = await (
     await supabase
   )
     .from('statement')
@@ -24,6 +24,11 @@ export async function getStatementCombinedDetails(
     )
     .eq('speaker_name', name)
     .not('number_source', 'eq', 0)
+
+  if (error) {
+    console.error('Error fetching statement combined details:', error)
+    return []
+  }
 
   if (!data) return []
   return data as unknown as StatementCombined[]
