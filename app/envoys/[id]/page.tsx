@@ -75,8 +75,7 @@ export default async function EnvoyDetail({
             <SpeakerRatingChart
               speakerRatings={statementsCombined
                 .filter((statement) => statement.statement_ai?.speaker_rating)
-                .map((statement) => statement.statement_ai.speaker_rating)
-              }
+                .map((statement) => statement.statement_ai.speaker_rating)}
             />
           </CardWrapper>
           <CardWrapper
@@ -184,43 +183,40 @@ export default async function EnvoyDetail({
               showGradient={false}
             >
               <div className="space-y-4">
-                {statementsCombined.slice(0, 5).map((statement, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
-                  >
-                    {/* Topic */}
-                    <h3 className="mb-3 text-sm font-semibold text-gray-800">
-                      {statement.official_topic}
-                    </h3>
-
-                    {/* Summary */}
-                    <div className="mb-3">
-                      <p className="text-sm text-gray-700">
-                        {statement.statement_ai.summary_tldr}
-                      </p>
-                    </div>
-
-                    {/* Citations */}
-                    {statement.statement_ai.citations?.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-xs font-medium text-gray-500">
-                          Cytaty:
-                        </h4>
-                        {statement.statement_ai.citations.map(
-                          (citation, citationIdx) => (
-                            <p
-                              key={citationIdx}
-                              className="border-l-2 border-primary/30 pl-3 text-sm italic text-gray-600"
-                            >
-                              {citation}
-                            </p>
-                          )
+                {statementsCombined
+                  .filter((statement) => statement.statement_ai?.summary_tldr)
+                  .slice(0, 5)
+                  .map((statement, idx) => {
+                    const ai = statement.statement_ai!
+                    return (
+                      <div
+                        key={idx}
+                        className="rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
+                      >
+                        <h3 className="mb-3 text-sm font-semibold text-gray-800">
+                          {statement.official_topic}
+                        </h3>
+                        <p className="mb-3 text-sm text-gray-700">
+                          {ai.summary_tldr}
+                        </p>
+                        {ai.citations?.length > 0 && (
+                          <div className="space-y-2">
+                            <h4 className="text-xs font-medium text-gray-500">
+                              Cytaty:
+                            </h4>
+                            {ai.citations.map((citation, citationIdx) => (
+                              <p
+                                key={citationIdx}
+                                className="border-l-2 border-primary/30 pl-3 text-sm italic text-gray-600"
+                              >
+                                {citation}
+                              </p>
+                            ))}
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
-                ))}
+                    )
+                  })}
               </div>
             </CardWrapper>
           </div>
