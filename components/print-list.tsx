@@ -22,7 +22,9 @@ export function PrintList({ prints }: PrintListProps) {
           <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
             <span>Druk nr {print.number}</span>
             <span>
-              {new Date(print.documentDate).toLocaleDateString('pl-PL')}
+              {print.documentDate && !isNaN(Date.parse(print.documentDate))
+                ? new Date(print.documentDate).toLocaleDateString('pl-PL')
+                : 'Brak daty'}
             </span>
           </div>
         </Link>

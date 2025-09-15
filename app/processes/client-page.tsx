@@ -130,7 +130,16 @@ export default function ProcessSearchPage({
     )
   }, [prints])
 
-  const displayedPrints = filteredPrints.slice(0, currentPage * ITEMS_PER_PAGE)
+  // Sort filtered prints by date (newest first)
+  const sortedFilteredPrints = useMemo(() => {
+    return filteredPrints.sort((a, b) => {
+      const dateA = new Date(a.date || '1900-01-01')
+      const dateB = new Date(b.date || '1900-01-01')
+      return dateB.getTime() - dateA.getTime() // Newest first
+    })
+  }, [filteredPrints])
+
+  const displayedPrints = sortedFilteredPrints.slice(0, currentPage * ITEMS_PER_PAGE)
 
   // Intersection Observer for infinite scroll
   const onScroll = () => {
