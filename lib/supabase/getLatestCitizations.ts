@@ -11,7 +11,7 @@ export async function getLatestCitizations(
 ): Promise<CitationWithPerson[]> {
   const supabase = createClient()
 
-  const { data } = await (
+  const { data, error } = await (
     await supabase
   )
     .from('statement')
@@ -28,14 +28,19 @@ export async function getLatestCitizations(
     .not('statement_ai.citations', 'eq', '{}')
     .order('id', { ascending: false })
     .limit(number)
+    
+  if (error) {
+    console.error('Error fetching latest citations:', error)
+    return []
+  }
+  
   if (!data) return []
 
   // Process and flatten citations, keeping only unique speakers
   const uniqueSpeakers = new Set<string>()
   const citations: CitationWithPerson[] = []
 
-  data.forEach((item) => {
-    if (uniqueSpeakers.has(item.speaker_name)) return
+  data.forEach((item: any) => {
     if (uniqueSpeakers.has(item.speaker_name)) return
 
     const citation = (item.statement_ai as unknown as { citations: string[] })
@@ -49,5 +54,5 @@ export async function getLatestCitizations(
       statement_id: item.id,
     })
   })
-  return citations.slice(0, 4) // Return only top 5 unique citations
+  return citations.slice(0, 4) // Return only top 4 unique citations
 }

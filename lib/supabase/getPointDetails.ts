@@ -37,7 +37,7 @@ export async function getPointDetails(
   showAllStatements = false
 ): Promise<PointWithStatements> {
   const supabase = createClient()
-  const { data } = await (
+  const { data, error } = await (
     await supabase
   )
     .from('proceeding_point_ai')
@@ -77,16 +77,23 @@ export async function getPointDetails(
     )
     .eq('id', id)
     .single()
+
+  if (error) {
+    console.error('Error fetching point details:', error)
+    throw new Error(`Failed to fetch point details: ${error.message}`)
+  }
+
+  if (!data) {
+    throw new Error('Point not found')
+  }
   const transformedData = {
-    ...data,
+    ...(data as any),
     // summary_main: JSON.parse(data?.summary_main || "{}"),
     statements:
-      data?.statements
-        .map((item: { statement: unknown }) => item.statement)
-        .filter((statement) =>
-          showAllStatements
-            ? true
-            : (statement as { number_source: number }).number_source !== 0
+      (data as any)?.statements
+        ?.map((item: { statement: any }) => item.statement)
+        ?.filter((statement: any) =>
+          showAllStatements ? true : statement?.number_source !== 0
         ) || [],
   }
   return transformedData as unknown as PointWithStatements

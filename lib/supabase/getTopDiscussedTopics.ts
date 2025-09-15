@@ -13,12 +13,17 @@ export async function getTopDiscussedTopics(
   limit: number
 ): Promise<TopicCount[]> {
   const supabase = createClient()
-  const { data } = await (await supabase)
+  const { data, error } = await (await supabase)
     .rpc('get_top_discussed_topics')
     .limit(limit)
 
+  if (error) {
+    console.error('Error fetching top discussed topics:', error)
+    return []
+  }
+
   const topicsWithUUID =
-    data?.map((topic: TopicCount) => ({
+    (data as TopicCount[])?.map((topic: TopicCount) => ({
       ...topic,
       uuid: crypto.randomUUID(),
     })) || []

@@ -27,11 +27,9 @@ export async function getReactions(
   targetId: number,
   targetType: 'statement' | 'process'
 ): Promise<ReactionCount[]> {
-  const { data, error } = await createClient().rpc('get_reaction_counts', {
-    target_id: targetId,
-    target_type: targetType,
-  })
-  return data || []
+  // TODO: Implement reaction functionality when database schema is ready
+  console.warn('Reaction functionality not yet implemented in database')
+  return []
 }
 
 export async function getUserReaction(
@@ -39,14 +37,9 @@ export async function getUserReaction(
   targetType: 'statement' | 'process',
   userId: string
 ): Promise<string | null> {
-  const { data, error } = await createClient()
-    .from('reaction') // Changed from 'reactions' to 'reaction'
-    .select('emoji')
-    .eq('target_id', targetId)
-    .eq('target_type', targetType)
-    .eq('user_id', userId)
-    .single()
-  return data?.emoji || null
+  // TODO: Implement reaction functionality when database schema is ready
+  console.warn('Reaction functionality not yet implemented in database')
+  return null
 }
 
 export function updateReactionCounts(
@@ -78,48 +71,7 @@ export async function toggleReaction(
   userId: string,
   emoji: string
 ): Promise<{ success: boolean; error?: string }> {
-  const now = Date.now()
-  if (now - lastReactionTime < COOLDOWN_MS) {
-    return {
-      success: false,
-      error: 'Reakcje można zmieniać co 0.5 sekundy',
-    }
-  }
-
-  const supabase = createClient()
-  try {
-    const existing = await getUserReaction(targetId, targetType, userId)
-
-    if (existing === emoji) {
-      await supabase
-        .from('reaction') // Changed from 'reactions' to 'reaction'
-        .delete()
-        .eq('target_id', targetId)
-        .eq('target_type', targetType)
-        .eq('user_id', userId)
-    } else {
-      if (existing) {
-        await supabase
-          .from('reaction') // Changed from 'reactions' to 'reaction'
-          .delete()
-          .eq('target_id', targetId)
-          .eq('target_type', targetType)
-          .eq('user_id', userId)
-      }
-      await supabase.from('reaction').insert([
-        {
-          target_id: targetId,
-          target_type: targetType,
-          user_id: userId,
-          emoji,
-        },
-      ])
-    }
-
-    lastReactionTime = now
-    return { success: true }
-  } catch (error) {
-    console.error('Reaction error:', error)
-    return { success: false, error: 'Failed to update reaction' }
-  }
+  // TODO: Implement reaction functionality when database schema is ready
+  console.warn('Reaction functionality not yet implemented in database')
+  return { success: false, error: 'Reaction functionality not yet implemented' }
 }
