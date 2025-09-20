@@ -4,36 +4,49 @@ import { MessageSquare, Share2, Vote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { truncateText } from '@/lib/utils'
+import { truncateText, cn } from '@/lib/utils'
 import { PostVoting } from '@/components/post-voting'
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 
 export default function PostCard({
   category,
   title,
   description,
-  comments,
+  comments = 0,
   pointId,
   proceedingNumber,
   date,
   votingNumbers,
   votes = { upvotes: 0, downvotes: 0 },
 }: {
-  [key: string]: any // We're getting these props from the database anyway
-  votes?: { upvotes: number; downvotes: number }
+  category: string
+  title: string
+  description: string
+  comments?: number
+  pointId: number
+  proceedingNumber: string
+  date: string
+  votingNumbers?: any[]
+  votes?: { upvotes: number; downvotes: 0 }
 }) {
-  const hasVotes = Boolean(votingNumbers && votingNumbers.length > 0)
+  const hasVotes = Boolean(votingNumbers?.length)
   const [isSharing, setIsSharing] = useState(false)
+  
+  const postUrl = `/proceedings/${proceedingNumber}/${date}/${pointId}`
+  const formattedDate = new Date(date).toLocaleDateString('pl-PL', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault()
     setIsSharing(true)
 
-    const shareUrl = `${window.location.origin}/proceedings/${proceedingNumber}/${date}/${pointId}`
+    const shareUrl = `${window.location.origin}${postUrl}`
     const shareData = {
-      title: title,
+      title,
       text: truncateText(description, 200, true),
       url: shareUrl,
     }
@@ -61,13 +74,6 @@ export default function PostCard({
     }
   }
 
-  // Format date to display
-  const formattedDate = new Date(date).toLocaleDateString('pl-PL', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-
   return (
     <div className="flex flex-col gap-4 sm:gap-3 py-2 sm:p-4">
       <div className="flex flex-col md:flex-row items-start gap-3 sm:gap-6">
@@ -82,14 +88,11 @@ export default function PostCard({
             {hasVotes && (
               <Badge variant="secondary" className="gap-1">
                 <Vote className="h-3 w-3" />
-                {votingNumbers?.length}
+                {votingNumbers!.length}
               </Badge>
             )}
           </div>
-          <Link
-            href={`/proceedings/${proceedingNumber}/${date}/${pointId}`}
-            className="block hover:opacity-80 transition-opacity"
-          >
+          <Link href={postUrl} className="block hover:opacity-80 transition-opacity">
             <h2 className="text-xl sm:text-2xl font-semibold mb-2">{title}</h2>
           </Link>
           <p className="text-muted-foreground text-sm sm:text-base line-clamp-3">
@@ -97,10 +100,7 @@ export default function PostCard({
           </p>
         </div>
 
-        <Link
-          href={`/proceedings/${proceedingNumber}/${date}/${pointId}`}
-          className="block w-full md:w-[200px] lg:w-[300px] order-1 md:order-2"
-        >
+        <Link href={postUrl} className="block w-full md:w-[200px] lg:w-[300px] order-1 md:order-2">
           <div className="relative rounded-lg overflow-hidden bg-muted aspect-[16/10]">
             <Image
               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}

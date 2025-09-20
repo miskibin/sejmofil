@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { Search, ChevronDown } from 'lucide-react'
+import { Search } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { PrintListItem } from '@/lib/types/print'
@@ -34,9 +34,6 @@ const DOCUMENT_TYPES = [
 
 const ITEMS_PER_PAGE = 10
 
-type FilterType = 'topics' | 'organizations' | 'types'
-
-// Update PrintListItem type to include votes
 interface PrintListItemWithVotes extends PrintListItem {
   votes?: ProcessVoteCount
 }
@@ -57,18 +54,8 @@ export default function ProcessSearchPage({
     const countMap = new Map<string, { count: number; type: 'topic' | 'org' }>()
 
     prints.forEach((print) => {
-      print.categories?.forEach((cat) => {
-        countMap.set(cat, {
-          count: (countMap.get(cat)?.count || 0) + 1,
-          type: 'topic',
-        })
-      })
-      print.organizations?.forEach((org: string) => {
-        countMap.set(org, {
-          count: (countMap.get(org)?.count || 0) + 1,
-          type: 'org',
-        })
-      })
+      print.categories?.forEach((cat) => countMap.set(cat, { count: (countMap.get(cat)?.count || 0) + 1, type: 'topic' }))
+      print.organizations?.forEach((org: string) => countMap.set(org, { count: (countMap.get(org)?.count || 0) + 1, type: 'org' }))
     })
 
     return Array.from(countMap.entries())
@@ -83,61 +70,33 @@ export default function ProcessSearchPage({
     type.toLowerCase().includes(typeFilter.toLowerCase())
   )
 
-  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm, selectedCategories, selectedTypes])
 
-  const filteredPrints = prints.filter((print) => {
-    const searchableText = [
-      print.title,
-      print.short_title,
-      print.processDescription,
-      print.summary,
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
-
-    const matchesSearch = searchTerm
-      ? searchableText.includes(searchTerm.toLowerCase())
-      : true
-
-    const matchesCategories =
-      selectedCategories.length === 0 ||
-      selectedCategories.some((selected) => {
-        // Check if the selected item exists in either categories or organizations
-        return (
-          print.categories.includes(selected) ||
-          print.organizations.includes(selected)
-        )
-      })
-
-    const matchesTypes =
-      selectedTypes.length === 0 || selectedTypes.includes(print.type)
-
-    return matchesSearch && matchesCategories && matchesTypes
-  })
+  const filteredPrints = useMemo(() => {
+    return prints.filter((print) => {
+      const searchableText = [print.title, print.short_title, print.processDescription, print.summary].filter(Boolean).join(' ').toLowerCase()
+      const matchesSearch = searchTerm ? searchableText.includes(searchTerm.toLowerCase()) : true
+      const matchesCategories = selectedCategories.length === 0 || selectedCategories.some((selected) => print.categories.includes(selected) || print.organizations.includes(selected))
+      const matchesTypes = selectedTypes.length === 0 || selectedTypes.includes(print.type)
+      return matchesSearch && matchesCategories && matchesTypes
+    })
+  }, [prints, searchTerm, selectedCategories, selectedTypes])
 
   const photoUrls = useMemo(() => {
-    return prints.reduce(
-      (acc, print) => {
-        acc[print.number] =
-          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/processes/${print.number}.jpg`
-        return acc
-      },
-      {} as Record<string, string>
-    )
+    return prints.reduce((acc, print) => {
+      acc[print.number] = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/processes/${print.number}.jpg`
+      return acc
+    }, {} as Record<string, string>)
   }, [prints])
 
-  const displayedPrints = filteredPrints.slice(0, currentPage * ITEMS_PER_PAGE)
+  const displayedPrints = useMemo(() => {
+    return filteredPrints.slice(0, currentPage * ITEMS_PER_PAGE)
+  }, [filteredPrints, currentPage])
 
-  // Intersection Observer for infinite scroll
   const onScroll = () => {
-    if (
-      window.innerHeight + window.scrollY >=
-      document.body.offsetHeight - 1000
-    ) {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
       setCurrentPage((prev) => prev + 1)
     }
   }
@@ -149,19 +108,11 @@ export default function ProcessSearchPage({
 
   const getAuthorBadges = (print: PrintListItem) => {
     if (print.title.includes('Prezydium Sejmu')) {
-      return [
-        <Badge key="prezydium" variant="default" className="bg-primary">
-          Prezydium Sejmu
-        </Badge>,
-      ]
+      return [<Badge key="prezydium" variant="default" className="bg-primary">Prezydium Sejmu</Badge>]
     }
 
     if (print.title.includes('Obywatelski')) {
-      return [
-        <Badge key="obywatele" variant="default" className="bg-primary">
-          Obywatele
-        </Badge>,
-      ]
+      return [<Badge key="obywatele" variant="default" className="bg-primary">Obywatele</Badge>]
     }
 
     return print.authorClubs.map((clubId) => (
@@ -309,8 +260,8 @@ export default function ProcessSearchPage({
                 </Link>
 
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mt-4">
-                  <PostVoting 
-                    pointId={parseInt(print.number)} // Ensure number is passed as integer
+                  <PostVoting
+                    pointId={parseInt(print.number)}
                     initialVotes={print.votes || { upvotes: 0, downvotes: 0 }}
                   />
                   <div className="flex items-center gap-2">
