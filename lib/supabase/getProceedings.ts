@@ -4,6 +4,7 @@ import {
   ProceedingPointWithDay,
   LatestPointsResult,
 } from '@/lib/types/proceeding'
+import { Tables } from '@/utils/supabase/supabase'
 
 type ProceedingWithDays = {
   id: number
@@ -44,7 +45,7 @@ type ProceedingDayPoint = {
 
 export async function getProceedings(): Promise<ProceedingWithDays[]> {
   const supabase = createClient()
-  const { data } = await (
+  const { data, error } = await (
     await supabase
   )
     .from('proceeding')
@@ -69,6 +70,11 @@ export async function getProceedings(): Promise<ProceedingWithDays[]> {
     )
     .order('number', { ascending: false })
 
+  if (error) {
+    console.error('Error fetching proceedings:', error)
+    return []
+  }
+
   return data || []
 }
 
@@ -77,14 +83,19 @@ export async function getLatestProceedingPoints(
 ): Promise<LatestPointsResult[]> {
   const supabase = createClient()
 
-  const { data: voteCounts } = await (await supabase).rpc('get_all_vote_counts') as { data: VoteCount[] }
-  const votesByPointId = (voteCounts || []).reduce<Record<number, { upvotes: number; downvotes: number }>>(
-    (acc, vote) => {
-      acc[vote.point_id] = { upvotes: vote.upvotes, downvotes: vote.downvotes }
-      return acc
-    },
-    {}
-  )
+  const { data: voteCounts, error: voteError } = (await (
+    await supabase
+  ).rpc('get_all_vote_counts')) as { data: VoteCount[]; error: any }
+  if (voteError) {
+    console.error('Error fetching vote counts:', voteError)
+  }
+
+  const votesByPointId = (voteCounts || []).reduce<
+    Record<number, { upvotes: number; downvotes: number }>
+  >((acc, vote) => {
+    acc[vote.point_id] = { upvotes: vote.upvotes, downvotes: vote.downvotes }
+    return acc
+  }, {})
 
   let query = (await supabase)
     .from('proceeding_point_ai')
@@ -109,7 +120,15 @@ export async function getLatestProceedingPoints(
     query = query.ilike('topic', `${category}%`)
   }
 
-  const { data } = await query.limit(200) as { data: ProceedingDayPoint[] | null }
+  const { data, error } = (await query.limit(200)) as {
+    data: ProceedingDayPoint[] | null
+    error: any
+  }
+
+  if (error) {
+    console.error('Error fetching proceeding points:', error)
+    return []
+  }
 
   return (
     data?.map((point) => {
@@ -138,22 +157,30 @@ export async function getPopularProceedingPoints(): Promise<
 > {
   const supabase = createClient()
 
-  const { data: voteCounts } = await (await supabase).rpc('get_all_vote_counts') as { data: VoteCount[] }
-  const votesByPointId = (voteCounts || []).reduce<Record<number, { score: number; votes: { upvotes: number; downvotes: number } }>>(
-    (acc, vote) => {
-      acc[vote.point_id] = {
-        score: Number(vote.upvotes) - Number(vote.downvotes),
-        votes: {
-          upvotes: Number(vote.upvotes),
-          downvotes: Number(vote.downvotes),
-        },
-      }
-      return acc
-    },
-    {}
-  )
+  const { data: voteCounts, error: voteError } = (await (
+    await supabase
+  ).rpc('get_all_vote_counts')) as { data: VoteCount[]; error: any }
+  if (voteError) {
+    console.error('Error fetching vote counts for popular points:', voteError)
+  }
 
-  const { data: points } = await (
+  const votesByPointId = (voteCounts || []).reduce<
+    Record<
+      number,
+      { score: number; votes: { upvotes: number; downvotes: number } }
+    >
+  >((acc, vote) => {
+    acc[vote.point_id] = {
+      score: Number(vote.upvotes) - Number(vote.downvotes),
+      votes: {
+        upvotes: Number(vote.upvotes),
+        downvotes: Number(vote.downvotes),
+      },
+    }
+    return acc
+  }, {})
+
+  const { data: points, error } = (await (
     await supabase
   )
     .from('proceeding_point_ai')
@@ -172,7 +199,12 @@ export async function getPopularProceedingPoints(): Promise<
       )
     `
     )
-    .limit(200) as { data: ProceedingDayPoint[] | null }
+    .limit(200)) as { data: ProceedingDayPoint[] | null; error: any }
+
+  if (error) {
+    console.error('Error fetching popular proceeding points:', error)
+    return []
+  }
 
   const sortedPoints = (points || [])
     .sort(
@@ -206,14 +238,19 @@ export async function getPopularProceedingPoints(): Promise<
 
 export async function getAllCategories(): Promise<string[]> {
   const supabase = createClient()
-  const { data } = await (await supabase)
+  const { data, error } = await (await supabase)
     .from('proceeding_point_ai')
     .select('topic')
 
+  if (error) {
+    console.error('Error fetching categories:', error)
+    return []
+  }
+
   // Count occurrences of each category
   const categoryCount: Record<string, number> = {}
-  data?.forEach((point) => {
-    const category = point.topic.split(' | ')[0]
+  data?.forEach((point: any) => {
+    const category = point.topic?.split(' | ')[0]
     if (category) {
       categoryCount[category] = (categoryCount[category] || 0) + 1
     }

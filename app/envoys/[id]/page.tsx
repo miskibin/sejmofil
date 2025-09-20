@@ -73,9 +73,10 @@ export default async function EnvoyDetail({
             className="!ml-0 !pl-0"
           >
             <SpeakerRatingChart
-              speakerRatings={statementsCombined.map(
-                (statement) => statement.statement_ai.speaker_rating
-              )}
+              speakerRatings={statementsCombined
+                .filter((statement) => statement.statement_ai?.speaker_rating)
+                .map((statement) => statement.statement_ai.speaker_rating)
+              }
             />
           </CardWrapper>
           <CardWrapper

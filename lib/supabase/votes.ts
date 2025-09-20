@@ -5,7 +5,7 @@ export async function getVoteCounts(pointId: number): Promise<VoteCount> {
   try {
     const { data, error } = await createClient().rpc('get_vote_counts', {
       point_id: pointId,
-    })
+    } as any) // Using any temporarily due to type generation issues
     
     if (error) {
       console.error(`RPC error for get_vote_counts with pointId ${pointId}:`, error)
@@ -13,11 +13,11 @@ export async function getVoteCounts(pointId: number): Promise<VoteCount> {
     }
     
     // Handle different return formats from the function
-    if (Array.isArray(data) && data.length > 0) {
-      return data[0] || { upvotes: 0, downvotes: 0 }
+    if (Array.isArray(data) && (data as any).length > 0) {
+      return (data as any)[0] || { upvotes: 0, downvotes: 0 }
     }
     
-    return data || { upvotes: 0, downvotes: 0 }
+    return (data as any) || { upvotes: 0, downvotes: 0 }
   } catch (error) {
     console.error(`Failed to get vote counts for pointId ${pointId}:`, error);
     // Return default values on error to prevent UI breaking
@@ -43,7 +43,7 @@ export async function getUserVote(
     }
 
     // Validate vote_type value
-    const voteType = data?.vote_type
+    const voteType = (data as any)?.vote_type
     if (voteType && !['up', 'down'].includes(voteType)) {
       console.warn(`Invalid vote_type "${voteType}" for pointId ${pointId}, userId ${userId}`)
       return null
@@ -64,31 +64,23 @@ export async function toggleVote(
   try {
     const supabase = createClient()
     const existing = await getUserVote(pointId, userId)
-    
-    if (existing === voteType) {
-      // Remove vote if clicking the same vote type
-      const { error } = await supabase
-        .from('votes')
-        .delete()
-        .eq('point_id', pointId)
-        .eq('user_id', userId)
-      
-      if (error) throw error
-    } else {
-      // Insert or update vote (now that we have unique constraint)
-      const { error } = await supabase
-        .from('votes')
-        .upsert(
-          {
-            point_id: pointId,
-            user_id: userId,
-            vote_type: voteType,
-            created_at: new Date().toISOString()
-          },
-          { onConflict: 'point_id,user_id' }
-        )
-      
-      if (error) throw error
+
+    const { error } = await supabase.from('votes').upsert(
+      {
+        point_id: pointId,
+        user_id: userId,
+        vote_type: existing === voteType ? null : voteType,
+        created_at: new Date().toISOString(),
+      } as any,
+      {
+        // Using any temporarily due to type generation issues
+        onConflict: 'point_id,user_id',
+      }
+    )
+
+    if (error) {
+      console.error('Error updating vote:', error)
+      throw error
     }
     
     return { success: true }
