@@ -495,6 +495,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reactions: {
+        Row: {
+          id: number
+          target_id: number
+          target_type: string
+          user_id: string
+          emoji: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          target_id: number
+          target_type: string
+          user_id: string
+          emoji: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          target_id?: number
+          target_type?: string
+          user_id?: string
+          emoji?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       statement_min: {
