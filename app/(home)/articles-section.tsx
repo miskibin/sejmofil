@@ -93,6 +93,8 @@ export default function ArticlesSection({
               <div key={`${post.proceedingNumber}-${post.pointId}`}>
                 <PostCard 
                   {...post}
+                  comments={parseInt(post.comments) || 0}
+                  proceedingNumber={post.proceedingNumber.toString()}
                   key={post.pointId} 
                 />
                 <hr className="border-t border-gray-200 mb-4" />
