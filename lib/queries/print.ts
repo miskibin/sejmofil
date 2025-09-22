@@ -114,7 +114,11 @@ export async function getAllProcessPrints(): Promise<PrintListItem[]> {
              print.processPrint AS processPrint,
              process.description AS processDescription,
              authorClubs
-      ORDER BY changeDate DESC
+      ORDER BY 
+        CASE WHEN changeDate IS NULL THEN 1 ELSE 0 END,
+        changeDate DESC,
+        print.documentDate DESC,
+        toInteger(print.number) DESC
     `
   return runQuery<PrintListItem>(query)
 }

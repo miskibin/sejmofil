@@ -4,35 +4,49 @@ import { MessageSquare, Share2, Vote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { truncateText } from '@/lib/utils'
+import { truncateText, cn } from '@/lib/utils'
 import { PostVoting } from '@/components/post-voting'
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 
 export default function PostCard({
   category,
   title,
   description,
-  comments,
+  comments = 0,
   pointId,
   proceedingNumber,
   date,
   votingNumbers,
   initialVotes = { upvotes: 0, downvotes: 0 },
 }: {
-  [key: string]: any // We're getting these props from the database anyway
+  category: string
+  title: string
+  description: string
+  comments?: number
+  pointId: number
+  proceedingNumber: string
+  date: string
+  votingNumbers?: any[]
+  initialVotes?: { upvotes: number; downvotes: number }
 }) {
-  const hasVotes = Boolean(votingNumbers && votingNumbers.length > 0)
+  const hasVotes = Boolean(votingNumbers?.length)
   const [isSharing, setIsSharing] = useState(false)
+  
+  const postUrl = `/proceedings/${proceedingNumber}/${date}/${pointId}`
+  const formattedDate = new Date(date).toLocaleDateString('pl-PL', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault()
     setIsSharing(true)
 
-    const shareUrl = `${window.location.origin}/proceedings/${proceedingNumber}/${date}/${pointId}`
+    const shareUrl = `${window.location.origin}${postUrl}`
     const shareData = {
-      title: title,
+      title,
       text: truncateText(description, 200, true),
       url: shareUrl,
     }
@@ -75,15 +89,12 @@ export default function PostCard({
             {hasVotes && (
               <Badge variant="secondary" className="gap-1">
                 <Vote className="h-3 w-3" />
-                {votingNumbers?.length}
+                {votingNumbers!.length}
               </Badge>
             )}
           </div>
-          <Link
-            href={`/proceedings/${proceedingNumber}/${date}/${pointId}`}
-            className="block hover:opacity-80 transition-opacity"
-          >
-            <h2 className="text-xl sm:text-2xl  font-semibold mb-2">{title}</h2>
+          <Link href={postUrl} className="block hover:opacity-80 transition-opacity">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-2">{title}</h2>
           </Link>
           <p className="text-muted-foreground text-sm sm:text-base line-clamp-3 md:line-clamp-none">
             {truncateText(description, 320, true)}
@@ -91,15 +102,17 @@ export default function PostCard({
         </div>
 
         {/* Image */}
-        <div className="relative rounded-lg overflow-hidden bg-muted w-full md:w-[200px] lg:w-[300px] aspect-[16/10] shrink-0 order-1 md:order-2">
-          <Image
-            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}
-            alt={title}
-            className="object-cover object-center hover:scale-105 transition-transform duration-300"
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 200px, 300px"
-          />
-        </div>
+        <Link href={postUrl} className="block w-full md:w-[200px] lg:w-[300px] order-1 md:order-2">
+          <div className="relative rounded-lg overflow-hidden bg-muted aspect-[16/10] shrink-0">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}
+              alt={title}
+              className="object-cover object-center hover:scale-105 transition-transform duration-300"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 200px, 300px"
+            />
+          </div>
+        </Link>
       </div>
 
       {/* Actions */}
