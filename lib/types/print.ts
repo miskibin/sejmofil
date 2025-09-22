@@ -28,6 +28,7 @@ export type PrintListItem = {
   summary: string
   type: string
   date: string
+  changeDate?: string        // Add the missing changeDate field
   short_title?: string
   status: string
   categories: string[]

@@ -1,40 +1,59 @@
 import { createClient } from '@/utils/supabase/client'
-import { Vote, VoteCount } from '@/lib/types/proceeding'
+import { VoteCount } from '@/lib/types/proceeding'
 
 export async function getVoteCounts(pointId: number): Promise<VoteCount> {
-  const supabase = createClient()
-  const { data, error } = await supabase.rpc('get_vote_counts', {
-    point_id: pointId,
-  } as any) // Using any temporarily due to type generation issues
-
-  if (error) {
-    console.error('Error fetching vote counts:', error)
-    return { upvotes: 0, downvotes: 0 }
+  try {
+    const { data, error } = await createClient().rpc('get_vote_counts', {
+      point_id: pointId,
+    } as any) // Using any temporarily due to type generation issues
+    
+    if (error) {
+      console.error(`RPC error for get_vote_counts with pointId ${pointId}:`, error)
+      throw error
+    }
+    
+    // Handle different return formats from the function
+    if (Array.isArray(data) && (data as any).length > 0) {
+      return (data as any)[0] || { upvotes: 0, downvotes: 0 }
+    }
+    
+    return (data as any) || { upvotes: 0, downvotes: 0 }
+  } catch (error) {
+    console.error(`Failed to get vote counts for pointId ${pointId}:`, error);
+    // Return default values on error to prevent UI breaking
+    return { upvotes: 0, downvotes: 0 };
   }
-
-  // The RPC returns an array, we take the first element
-  const result = Array.isArray(data) ? data[0] : data
-  return result || { upvotes: 0, downvotes: 0 }
 }
 
 export async function getUserVote(
   pointId: number,
   userId: string
 ): Promise<'up' | 'down' | null> {
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('votes')
-    .select('vote_type')
-    .eq('point_id', pointId)
-    .eq('user_id', userId)
-    .maybeSingle()
+  try {
+    const { data, error } = await createClient()
+      .from('votes')
+      .select('vote_type')
+      .eq('point_id', pointId)
+      .eq('user_id', userId)
+      .maybeSingle()
 
-  if (error) {
-    console.error('Error fetching user vote:', error)
+    if (error) {
+      console.error(`Database error for getUserVote with pointId ${pointId}, userId ${userId}:`, error)
+      throw error
+    }
+
+    // Validate vote_type value
+    const voteType = (data as any)?.vote_type
+    if (voteType && !['up', 'down'].includes(voteType)) {
+      console.warn(`Invalid vote_type "${voteType}" for pointId ${pointId}, userId ${userId}`)
+      return null
+    }
+
+    return (voteType as 'up' | 'down') || null
+  } catch (error) {
+    console.error(`Failed to get user vote for pointId ${pointId}:`, error);
     return null
   }
-
-  return ((data as any)?.vote_type as 'up' | 'down') || null
 }
 
 export async function toggleVote(
@@ -42,9 +61,8 @@ export async function toggleVote(
   userId: string,
   voteType: 'up' | 'down'
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient()
-
   try {
+    const supabase = createClient()
     const existing = await getUserVote(pointId, userId)
 
     const { error } = await supabase.from('votes').upsert(
@@ -64,12 +82,13 @@ export async function toggleVote(
       console.error('Error updating vote:', error)
       throw error
     }
-
+    
     return { success: true }
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to update vote',
+    console.error(`Failed to toggle vote for pointId ${pointId}:`, error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to update vote' 
     }
   }
 }
