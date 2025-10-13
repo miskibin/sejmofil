@@ -2,6 +2,7 @@ import { runQuery } from '../db/client'
 import { PrintShort } from '../types/print'
 import { ProcessStage } from '../types/process'
 import { VotingResult } from './proceeding'
+import { cache } from 'react'
 
 interface Act {
   ELI: string
@@ -143,9 +144,10 @@ RETURN process {
 interface PrintResponse {
   p: PrintShort
 }
-export async function getLatestPrints(
+// Cache expensive getLatestPrints query
+export const getLatestPrints = cache(async (
   limit: number = 10
-): Promise<PrintShort[]> {
+): Promise<PrintShort[]> => {
   const query = `
     MATCH (p:Print)
     WHERE p.short_title IS NOT NULL
@@ -165,7 +167,7 @@ export async function getLatestPrints(
 
   const res = await runQuery<PrintResponse>(query, { limit })
   return res.map((r) => r.p)
-}
+})
 
 export async function getPrintsByTopic(
   topicName: string,

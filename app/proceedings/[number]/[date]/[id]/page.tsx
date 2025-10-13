@@ -25,8 +25,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getVotingResultsByNumbrs } from '@/lib/queries/proceeding'
 import { VotingList } from '../../../../../components/voting-list'
 import { PrintSection } from './components/print-section'
-export const dynamic = 'force-dynamic'
+
+// Use ISR instead of force-dynamic
 export const revalidate = 3600 // Revalidate every hour
+
 // Update the SummarySection component to handle null values
 const SummarySection = ({
   content,
