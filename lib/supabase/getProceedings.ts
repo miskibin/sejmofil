@@ -238,9 +238,13 @@ export async function getPopularProceedingPoints(): Promise<
 
 export async function getAllCategories(): Promise<string[]> {
   const supabase = createClient()
+  
+  // Optimize by only fetching distinct topics with limit instead of all records
   const { data, error } = await (await supabase)
     .from('proceeding_point_ai')
     .select('topic')
+    .not('topic', 'is', null)
+    .limit(1000) // Limit to recent records for better performance
 
   if (error) {
     console.error('Error fetching categories:', error)

@@ -78,9 +78,12 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} bg-neutral-50 antialiased`}>
-        {/* Google Analytics */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-094FXXHQDE" />
-        <Script id="google-analytics">
+        {/* Google Analytics - load asynchronously with afterInteractive strategy */}
+        <Script 
+          src="https://www.googletagmanager.com/gtag/js?id=G-094FXXHQDE"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

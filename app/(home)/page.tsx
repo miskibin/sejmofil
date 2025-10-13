@@ -7,6 +7,9 @@ import ArticlesSection from './articles-section'
 import Sidebar from './sidebar'
 import { Suspense } from 'react'
 
+// Enable ISR with revalidation every 5 minutes
+export const revalidate = 300
+
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
