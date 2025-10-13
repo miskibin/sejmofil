@@ -1,5 +1,6 @@
 import { runQuery } from '../db/client'
 import { ProceedingDates } from '../types/process'
+import { cache } from 'react'
 
 export async function getTotalProceedingDays(): Promise<number> {
   const query = `
@@ -14,7 +15,8 @@ export async function getTotalProceedingDays(): Promise<number> {
   return result[0]?.totalDays
 }
 
-export async function getProceedingDates(): Promise<ProceedingDates[]> {
+// Cache expensive getProceedingDates query
+export const getProceedingDates = cache(async (): Promise<ProceedingDates[]> => {
   const query = `
       MATCH (p:Proceeding)
       UNWIND p.proceeding_dates AS date
@@ -27,7 +29,7 @@ export async function getProceedingDates(): Promise<ProceedingDates[]> {
     query
   )
   return result
-}
+})
 
 export async function getProceedingPoints() {
   const query = `

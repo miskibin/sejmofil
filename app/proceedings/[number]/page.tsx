@@ -4,7 +4,7 @@ import { sortPointsByImportance } from '@/lib/utils'
 import { notFound } from 'next/navigation'
 import { PointCard } from './components/point-card'
 
-export const dynamic = 'force-dynamic'
+// Use ISR instead of force-dynamic
 export const revalidate = 3600 // Revalidate every hour
 
 export default async function ProceedingPage({

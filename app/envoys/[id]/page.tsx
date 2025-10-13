@@ -18,7 +18,9 @@ import { notFound } from 'next/navigation'
 import { FaWikipediaW } from 'react-icons/fa'
 import { ProfileCard } from './profile-card'
 import { SpeakerRatingChart } from './speaker-rating-chart'
-export const dynamic = 'force-dynamic'
+
+// Use ISR instead of force-dynamic
+export const revalidate = 3600 // Revalidate every hour
 
 export async function generateMetadata({
   params,
