@@ -13,8 +13,9 @@ import { getProceedingDates } from '@/lib/queries/proceeding'
 import { getNextProceedingDate, getTimeUntilNextProceeding } from '@/lib/utils'
 import { Code, Paintbrush, ScrollText } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
+// Use ISR instead of force-dynamic for better performance
 export const revalidate = 3600 // 1 hour
+
 export default async function Home() {
   const proceedings = await getProceedingDates()
   const nextDate = getNextProceedingDate(proceedings)
