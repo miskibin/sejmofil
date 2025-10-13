@@ -6,6 +6,7 @@ import {
   Person,
   RecordHolder,
 } from '../types/person'
+import { cache } from 'react'
 
 export async function getPrintAuthors(number: string): Promise<Person[]> {
   const query = `
@@ -31,7 +32,8 @@ export async function getEnvoyInfo(id: number): Promise<Envoy> {
   const result = await runQuery<{ envoy: Envoy }>(query, { id })
   return result[0].envoy
 }
-export async function getAllEnvoys(): Promise<EnvoyShort[]> {
+// Cache expensive getAllEnvoys query
+export const getAllEnvoys = cache(async (): Promise<EnvoyShort[]> => {
   const query = `
     MATCH (p:Person)
     WHERE p.club IS NOT NULL
@@ -50,7 +52,7 @@ export async function getAllEnvoys(): Promise<EnvoyShort[]> {
   `
   const result = await runQuery<{ envoy: EnvoyShort }>(query)
   return result.map((record) => record.envoy)
-}
+})
 
 export async function getEnvoyCommittees(
   id: number

@@ -14,7 +14,8 @@ import { Metadata } from 'next'
 import Image from 'next/image'
 import Script from 'next/script'
 
-export const dynamic = 'force-dynamic'
+// Static page - no need for force-dynamic
+export const revalidate = 86400 // Revalidate once per day
 
 export const metadata: Metadata = {
   title: 'O Projekcie',

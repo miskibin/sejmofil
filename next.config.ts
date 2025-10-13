@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
     // dynamicIO: true,
   },
   output: 'standalone',
+  // Enable gzip compression
+  compress: true,
+  // Optimize production builds
+  swcMinify: true,
+  // Enable React strict mode for better development
+  reactStrictMode: true,
 }
 
 export default nextConfig

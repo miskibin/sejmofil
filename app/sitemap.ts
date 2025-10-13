@@ -15,18 +15,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sejmofil.pl'
   const supabase = createClient()
 
-  // Get proceedings from Supabase
-  const { data: proceedings, error } = await (await supabase)
-    .from('proceeding')
-    .select('number, proceeding_day!inner(date, proceeding_point_ai(id))')
+  // Parallelize all data fetching for better performance
+  const [proceedingsResult, envoys, prints] = await Promise.all([
+    (await supabase)
+      .from('proceeding')
+      .select('number, proceeding_day!inner(date, proceeding_point_ai(id))')
+      .order('number', { ascending: false })
+      .limit(50), // Limit to recent proceedings only
+    getAllEnvoys(),
+    getLatestPrints(100), // Reduced from 1000 to 100 recent prints
+  ])
+
+  const { data: proceedings, error } = proceedingsResult
 
   if (error) {
     console.error('Error fetching proceedings for sitemap:', error)
   }
 
-  // Get envoys and processes from Neo4j
-  const envoys = await getAllEnvoys()
-  const prints = await getLatestPrints(1000) // Get a large number to cover most processes
   const processIds = [
     ...new Set(prints.map((p) => p.processPrint?.[0]).filter(Boolean)),
   ]

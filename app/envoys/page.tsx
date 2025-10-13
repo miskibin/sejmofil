@@ -5,7 +5,8 @@ import {
 } from '@/lib/queries/person'
 import { cache, Suspense } from 'react'
 import { EnvoysListClient } from './components/envoys-list-client'
-export const dynamic = 'force-dynamic'
+
+// Use ISR instead of force-dynamic for better performance
 export const revalidate = 3600 // 1 hour
 
 const getEnvoysData = cache(async () => {
