@@ -1,4 +1,4 @@
-# 🏛️ [Sejmofil](sejmofil.pl)
+# 🏛️ [Sejmofil](https://sejmofil.pl/)
 
 [![Discord](https://img.shields.io/discord/YOUR_DISCORD_ID?color=7289da&logo=discord&logoColor=white)](https://discord.com/invite/zH2J3z5Wbf)
 [![Patronite](https://img.shields.io/badge/wsparcie-Patronite-ff424d)](https://patronite.pl/sejm-stats)
