@@ -1,11 +1,9 @@
 # Sejmofil AI Coding Agent Instructions
 
 ## Project Overview
-
 Sejmofil is a **Polish parliamentary transparency platform** using AI to analyze Sejm (Polish Parliament) data. It's a non-profit initiative focused on increasing democratic transparency through data visualization and analysis.
 
 ## Tech Stack
-
 - **Framework**: Next.js 15 with App Router and Turbopack
 - **Database**: Supabase (PostgreSQL) + Neo4j for relationships
 - **UI**: Radix UI + Tailwind CSS + shadcn/ui components
@@ -16,21 +14,18 @@ Sejmofil is a **Polish parliamentary transparency platform** using AI to analyze
 ## Critical Architecture Patterns
 
 ### Data Layer Structure
-
 - **Primary Data**: Supabase handles parliamentary proceedings, votes, envoys, and AI-generated summaries
 - **Relationships**: Neo4j stores complex relationships between political entities
 - **Types**: Comprehensive TypeScript interfaces in `lib/types/proceeding.ts` define the data structure
 - **Queries**: Centralized in `lib/supabase/` with specific files per feature (e.g., `getProceedings.ts`, `votes.ts`)
 
 ### App Router Conventions
-
 - **Route Groups**: Use parentheses for organization without affecting URL structure (e.g., `(home)/page.tsx`)
 - **Server Components**: Default to server components; all data fetching happens server-side
 - **Parallel Data**: Use `Promise.all()` for concurrent data fetching in page components
 - **Search Params**: Always await searchParams and handle as Promise in Next.js 15
 
 ### Component Organization
-
 ```
 components/
 ├── ui/           # shadcn/ui base components
@@ -39,7 +34,6 @@ components/
 ```
 
 ### Data Fetching Pattern
-
 ```typescript
 // Standard pattern for pages
 export default async function Page({ searchParams }: PageProps) {
@@ -55,22 +49,19 @@ export default async function Page({ searchParams }: PageProps) {
 ## Development Workflow
 
 ### Environment Setup
-
 - **Critical**: Join Discord server to get `.env` file (contains Supabase keys)
 - **Start Command**: `pnpm dev` (uses Turbopack for faster builds)
-- **Scripts**:
+- **Scripts**: 
   - `pnpm typecheck` - Type checking without build
   - `pnpm prettier` - Format all files
   - `pnpm husky:prepare` - Setup git hooks (Windows PowerShell commands)
 
 ### Code Quality
-
 - **Linting**: ESLint + Prettier with `lint-staged` on pre-commit
 - **Formatting**: Prettier with `prettier-plugin-tailwindcss` for class sorting
 - **TypeScript**: Strict mode enabled, no `any` types allowed
 
 ### Docker Development
-
 - Multi-stage build with Node.js 23 Alpine
 - Environment variables injected at build time
 - Standalone output for minimal production images
@@ -78,7 +69,6 @@ export default async function Page({ searchParams }: PageProps) {
 ## Domain-Specific Patterns
 
 ### Parliamentary Data Structure
-
 ```typescript
 // Core entities relationship
 Proceeding → ProceedingDay → ProceedingPointAI
@@ -87,13 +77,11 @@ Proceeding → ProceedingDay → ProceedingPointAI
 ```
 
 ### Voting System
-
 - **User Reactions**: Upvotes/downvotes on proceeding points
 - **Vote Counts**: Aggregated in separate service (`processVotes.ts`)
 - **Real-time**: Client-side optimistic updates with server sync
 
 ### Search & Filtering
-
 - **Semantic Search**: AI-powered search across parliamentary content
 - **Category Filters**: Dynamic category system for proceeding points
 - **Sort Options**: 'foryou', 'popular', 'latest', and category-specific
@@ -101,7 +89,6 @@ Proceeding → ProceedingDay → ProceedingPointAI
 ## Component Patterns
 
 ### Page Structure
-
 ```typescript
 // Standard page layout
 <Navbar />
@@ -112,7 +99,6 @@ Proceeding → ProceedingDay → ProceedingPointAI
 ```
 
 ### Responsive Design
-
 - **Mobile-first**: Use `use-mobile.tsx` hook for responsive logic
 - **Breakpoints**: Tailwind default breakpoints
 - **Components**: Vaul for mobile drawers, Radix for desktop
@@ -120,13 +106,11 @@ Proceeding → ProceedingDay → ProceedingPointAI
 ## Integration Points
 
 ### External Services
-
 - **Sejm API**: Official Polish Parliament API (`api.sejm.gov.pl`)
 - **Image Sources**: Multiple allowed domains in `next.config.ts`
 - **Analytics**: Ready for integration (structure exists)
 
 ### Authentication Flow
-
 - **Supabase Auth**: SSR-enabled with middleware
 - **Session Management**: Automatic session refresh via middleware
 - **Protected Routes**: Use Supabase client in server components
