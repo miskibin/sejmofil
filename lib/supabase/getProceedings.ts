@@ -97,10 +97,8 @@ export async function getLatestProceedingPoints(
     return acc
   }, {})
 
-  let query = (await supabase)
-    .from('proceeding_point_ai')
-    .select(
-      `
+  let query = (await supabase).from('proceeding_point_ai').select(
+    `
       id,
       topic,
       summary_tldr,
@@ -113,14 +111,13 @@ export async function getLatestProceedingPoints(
         )
       )
     `
-    )
-    .order('id', { ascending: false })
+  )
 
   if (category) {
     query = query.ilike('topic', `${category}%`)
   }
 
-  const { data, error } = (await query.limit(200)) as {
+  const { data, error } = (await query.limit(500)) as {
     data: ProceedingDayPoint[] | null
     error: any
   }
@@ -130,8 +127,20 @@ export async function getLatestProceedingPoints(
     return []
   }
 
+  // Sort by date descending (newest first), then by id descending
+  const sortedData = (data || [])
+    .sort((a, b) => {
+      const dateA = new Date(a.proceeding_day.date).getTime()
+      const dateB = new Date(b.proceeding_day.date).getTime()
+      if (dateB !== dateA) {
+        return dateB - dateA
+      }
+      return b.id - a.id
+    })
+    .slice(0, 200) // Take top 200 after sorting
+
   return (
-    data?.map((point) => {
+    sortedData?.map((point) => {
       const [pointCategory, title] = point.topic.split(' | ')
       const votes = votesByPointId[point.id] || { upvotes: 0, downvotes: 0 }
       return {
@@ -199,18 +208,30 @@ export async function getPopularProceedingPoints(): Promise<
       )
     `
     )
-    .limit(200)) as { data: ProceedingDayPoint[] | null; error: any }
+    .limit(500)) as { data: ProceedingDayPoint[] | null; error: any }
 
   if (error) {
     console.error('Error fetching popular proceeding points:', error)
     return []
   }
 
+  // Sort by popularity (vote score) first, then by date for items with same score
   const sortedPoints = (points || [])
-    .sort(
-      (a, b) =>
-        (votesByPointId[b.id]?.score || 0) - (votesByPointId[a.id]?.score || 0)
-    )
+    .sort((a, b) => {
+      const scoreA = votesByPointId[a.id]?.score || 0
+      const scoreB = votesByPointId[b.id]?.score || 0
+
+      // Sort by score descending
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA
+      }
+
+      // For items with same score, sort by date (newest first)
+      const dateA = new Date(a.proceeding_day.date).getTime()
+      const dateB = new Date(b.proceeding_day.date).getTime()
+      return dateB - dateA
+    })
+    .slice(0, 200) // Take top 200 after sorting
     .map((point) => {
       const [category, title] = point.topic.split(' | ')
       const voteData = votesByPointId[point.id] || {
@@ -238,7 +259,7 @@ export async function getPopularProceedingPoints(): Promise<
 
 export async function getAllCategories(): Promise<string[]> {
   const supabase = createClient()
-  
+
   // Optimize by only fetching distinct topics with limit instead of all records
   const { data, error } = await (await supabase)
     .from('proceeding_point_ai')
