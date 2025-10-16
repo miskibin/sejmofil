@@ -6,22 +6,25 @@ export async function getVoteCounts(pointId: number): Promise<VoteCount> {
     const { data, error } = await createClient().rpc('get_vote_counts', {
       point_id: pointId,
     } as any) // Using any temporarily due to type generation issues
-    
+
     if (error) {
-      console.error(`RPC error for get_vote_counts with pointId ${pointId}:`, error)
+      console.error(
+        `RPC error for get_vote_counts with pointId ${pointId}:`,
+        error
+      )
       throw error
     }
-    
+
     // Handle different return formats from the function
     if (Array.isArray(data) && (data as any).length > 0) {
       return (data as any)[0] || { upvotes: 0, downvotes: 0 }
     }
-    
+
     return (data as any) || { upvotes: 0, downvotes: 0 }
   } catch (error) {
-    console.error(`Failed to get vote counts for pointId ${pointId}:`, error);
+    console.error(`Failed to get vote counts for pointId ${pointId}:`, error)
     // Return default values on error to prevent UI breaking
-    return { upvotes: 0, downvotes: 0 };
+    return { upvotes: 0, downvotes: 0 }
   }
 }
 
@@ -38,20 +41,25 @@ export async function getUserVote(
       .maybeSingle()
 
     if (error) {
-      console.error(`Database error for getUserVote with pointId ${pointId}, userId ${userId}:`, error)
+      console.error(
+        `Database error for getUserVote with pointId ${pointId}, userId ${userId}:`,
+        error
+      )
       throw error
     }
 
     // Validate vote_type value
     const voteType = (data as any)?.vote_type
     if (voteType && !['up', 'down'].includes(voteType)) {
-      console.warn(`Invalid vote_type "${voteType}" for pointId ${pointId}, userId ${userId}`)
+      console.warn(
+        `Invalid vote_type "${voteType}" for pointId ${pointId}, userId ${userId}`
+      )
       return null
     }
 
     return (voteType as 'up' | 'down') || null
   } catch (error) {
-    console.error(`Failed to get user vote for pointId ${pointId}:`, error);
+    console.error(`Failed to get user vote for pointId ${pointId}:`, error)
     return null
   }
 }
@@ -82,13 +90,13 @@ export async function toggleVote(
       console.error('Error updating vote:', error)
       throw error
     }
-    
+
     return { success: true }
   } catch (error) {
-    console.error(`Failed to toggle vote for pointId ${pointId}:`, error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Failed to update vote' 
+    console.error(`Failed to toggle vote for pointId ${pointId}:`, error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update vote',
     }
   }
 }

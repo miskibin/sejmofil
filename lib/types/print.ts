@@ -19,6 +19,9 @@ export type PrintShort = {
   processPrint: string[]
   attachments: string[]
   similarity?: number
+  type?: string
+  category?: string
+  status?: string
 }
 
 export type PrintListItem = {
@@ -28,14 +31,14 @@ export type PrintListItem = {
   summary: string
   type: string
   date: string
-  changeDate?: string        // Add the missing changeDate field
+  changeDate?: string // Add the missing changeDate field
   short_title?: string
   status: string
   categories: string[]
   organizations: string[]
   processPrint: string[]
-  processDescription?: string  // changed from processComment
-  authorClubs: string[]       // changed from { id: string; name: string }[]
+  processDescription?: string // changed from processComment
+  authorClubs: string[] // changed from { id: string; name: string }[]
 }
 
 export type Comment = {

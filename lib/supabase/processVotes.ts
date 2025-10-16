@@ -5,7 +5,9 @@ export type ProcessVoteCount = {
   downvotes: number
 }
 
-export async function getProcessVoteCounts(processId: number): Promise<ProcessVoteCount> {
+export async function getProcessVoteCounts(
+  processId: number
+): Promise<ProcessVoteCount> {
   const { data, error } = await createClient().rpc('get_process_vote_counts', {
     process_id: processId,
   } as any) // Using any temporarily due to type generation issues
@@ -18,7 +20,10 @@ export async function getProcessVoteCounts(processId: number): Promise<ProcessVo
   return data || { upvotes: 0, downvotes: 0 }
 }
 
-export async function getProcessUserVote(processId: number, userId: string): Promise<'up' | 'down' | null> {
+export async function getProcessUserVote(
+  processId: number,
+  userId: string
+): Promise<'up' | 'down' | null> {
   const { data, error } = await createClient()
     .from('process_votes')
     .select('vote_type')
@@ -43,7 +48,7 @@ export async function toggleProcessVote(
 
   try {
     const existing = await getProcessUserVote(processId, userId)
-    const vote_type = existing === voteType ? null : voteType;
+    const vote_type = existing === voteType ? null : voteType
 
     const { error } = await supabase.from('process_votes').upsert(
       {
