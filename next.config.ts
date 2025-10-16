@@ -19,8 +19,6 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   // Enable gzip compression
   compress: true,
-  // Optimize production builds
-  swcMinify: true,
   // Enable React strict mode for better development
   reactStrictMode: true,
 }
