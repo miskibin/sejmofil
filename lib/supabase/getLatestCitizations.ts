@@ -28,12 +28,12 @@ export async function getLatestCitizations(
     .not('statement_ai.citations', 'eq', '{}')
     .order('id', { ascending: false })
     .limit(number)
-
+    
   if (error) {
     console.error('Error fetching latest citations:', error)
     return []
   }
-
+  
   if (!data) return []
 
   // Process and flatten citations, keeping only unique speakers

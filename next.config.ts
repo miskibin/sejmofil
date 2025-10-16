@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
       'www.freepik.com',
       'facebook.com',
       'db.msulawiak.pl',
-      'platform-lookaside.fbsbx.com',
+      "platform-lookaside.fbsbx.com",
       'avatars.githubusercontent.com',
       'lh3.googleusercontent.com',
     ],
