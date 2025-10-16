@@ -79,7 +79,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} bg-neutral-50 antialiased`}>
         {/* Google Analytics - load asynchronously with afterInteractive strategy */}
-        <Script 
+        <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-094FXXHQDE"
           strategy="afterInteractive"
         />

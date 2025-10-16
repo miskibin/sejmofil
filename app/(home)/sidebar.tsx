@@ -73,13 +73,13 @@ export default async function Sidebar() {
         <h2 className="text-lg text-muted-foreground">Popularne Tematy</h2>
         <div className="flex flex-wrap gap-2">
           {topTopics.map((topic) => (
-            <span
+            <Link
               key={topic}
-              className="px-4 py-2 bg-card
-               text-sm"
+              href={`/topics/${encodeURIComponent(topic)}`}
+              className="px-4 py-2 bg-card text-sm hover:bg-primary/10 transition-colors cursor-pointer"
             >
               {topic}
-            </span>
+            </Link>
           ))}
         </div>
         <Link
@@ -102,7 +102,8 @@ export default async function Sidebar() {
                 'Obrady trwają'
               ) : (
                 <>
-                  za <span className="text-primary  font-bold">{timeUntil}</span>
+                  za{' '}
+                  <span className="text-primary  font-bold">{timeUntil}</span>
                 </>
               )
             ) : (

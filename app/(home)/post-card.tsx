@@ -32,7 +32,7 @@ export default function PostCard({
 }) {
   const hasVotes = Boolean(votingNumbers?.length)
   const [isSharing, setIsSharing] = useState(false)
-  
+
   const postUrl = `/proceedings/${proceedingNumber}/${date}/${pointId}`
   const formattedDate = new Date(date).toLocaleDateString('pl-PL', {
     year: 'numeric',
@@ -93,7 +93,10 @@ export default function PostCard({
               </Badge>
             )}
           </div>
-          <Link href={postUrl} className="block hover:opacity-80 transition-opacity">
+          <Link
+            href={postUrl}
+            className="block hover:opacity-80 transition-opacity"
+          >
             <h2 className="text-xl sm:text-2xl font-semibold mb-2">{title}</h2>
           </Link>
           <p className="text-muted-foreground text-sm sm:text-base line-clamp-3 md:line-clamp-none">
@@ -102,7 +105,10 @@ export default function PostCard({
         </div>
 
         {/* Image */}
-        <Link href={postUrl} className="block w-full md:w-[200px] lg:w-[300px] order-1 md:order-2">
+        <Link
+          href={postUrl}
+          className="block w-full md:w-[200px] lg:w-[300px] order-1 md:order-2"
+        >
           <div className="relative rounded-lg overflow-hidden bg-muted aspect-[16/10] shrink-0">
             <Image
               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}

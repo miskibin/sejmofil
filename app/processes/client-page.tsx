@@ -54,8 +54,18 @@ export default function ProcessSearchPage({
     const countMap = new Map<string, { count: number; type: 'topic' | 'org' }>()
 
     prints.forEach((print) => {
-      print.categories?.forEach((cat) => countMap.set(cat, { count: (countMap.get(cat)?.count || 0) + 1, type: 'topic' }))
-      print.organizations?.forEach((org: string) => countMap.set(org, { count: (countMap.get(org)?.count || 0) + 1, type: 'org' }))
+      print.categories?.forEach((cat) =>
+        countMap.set(cat, {
+          count: (countMap.get(cat)?.count || 0) + 1,
+          type: 'topic',
+        })
+      )
+      print.organizations?.forEach((org: string) =>
+        countMap.set(org, {
+          count: (countMap.get(org)?.count || 0) + 1,
+          type: 'org',
+        })
+      )
     })
 
     return Array.from(countMap.entries())
@@ -76,19 +86,40 @@ export default function ProcessSearchPage({
 
   const filteredPrints = useMemo(() => {
     return prints.filter((print) => {
-      const searchableText = [print.title, print.short_title, print.processDescription, print.summary].filter(Boolean).join(' ').toLowerCase()
-      const matchesSearch = searchTerm ? searchableText.includes(searchTerm.toLowerCase()) : true
-      const matchesCategories = selectedCategories.length === 0 || selectedCategories.some((selected) => print.categories.includes(selected) || print.organizations.includes(selected))
-      const matchesTypes = selectedTypes.length === 0 || selectedTypes.includes(print.type)
+      const searchableText = [
+        print.title,
+        print.short_title,
+        print.processDescription,
+        print.summary,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+      const matchesSearch = searchTerm
+        ? searchableText.includes(searchTerm.toLowerCase())
+        : true
+      const matchesCategories =
+        selectedCategories.length === 0 ||
+        selectedCategories.some(
+          (selected) =>
+            print.categories.includes(selected) ||
+            print.organizations.includes(selected)
+        )
+      const matchesTypes =
+        selectedTypes.length === 0 || selectedTypes.includes(print.type)
       return matchesSearch && matchesCategories && matchesTypes
     })
   }, [prints, searchTerm, selectedCategories, selectedTypes])
 
   const photoUrls = useMemo(() => {
-    return prints.reduce((acc, print) => {
-      acc[print.number] = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/processes/${print.number}.jpg`
-      return acc
-    }, {} as Record<string, string>)
+    return prints.reduce(
+      (acc, print) => {
+        acc[print.number] =
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/processes/${print.number}.jpg`
+        return acc
+      },
+      {} as Record<string, string>
+    )
   }, [prints])
 
   // Sort filtered prints by date (newest first)
@@ -100,10 +131,16 @@ export default function ProcessSearchPage({
     })
   }, [filteredPrints])
 
-  const displayedPrints = sortedFilteredPrints.slice(0, currentPage * ITEMS_PER_PAGE)
+  const displayedPrints = sortedFilteredPrints.slice(
+    0,
+    currentPage * ITEMS_PER_PAGE
+  )
 
   const onScroll = () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
+    if (
+      window.innerHeight + window.scrollY >=
+      document.body.offsetHeight - 1000
+    ) {
       setCurrentPage((prev) => prev + 1)
     }
   }
@@ -115,11 +152,19 @@ export default function ProcessSearchPage({
 
   const getAuthorBadges = (print: PrintListItem) => {
     if (print.title.includes('Prezydium Sejmu')) {
-      return [<Badge key="prezydium" variant="default" className="bg-primary">Prezydium Sejmu</Badge>]
+      return [
+        <Badge key="prezydium" variant="default" className="bg-primary">
+          Prezydium Sejmu
+        </Badge>,
+      ]
     }
 
     if (print.title.includes('Obywatelski')) {
-      return [<Badge key="obywatele" variant="default" className="bg-primary">Obywatele</Badge>]
+      return [
+        <Badge key="obywatele" variant="default" className="bg-primary">
+          Obywatele
+        </Badge>,
+      ]
     }
 
     return print.authorClubs.map((clubId) => (
@@ -253,16 +298,23 @@ export default function ProcessSearchPage({
                     {new Date(print.date).toLocaleDateString('pl-PL', {
                       year: 'numeric',
                       month: 'long',
-                      day: 'numeric'
+                      day: 'numeric',
                     })}
                   </span>
                   <div className="flex gap-1">{getAuthorBadges(print)}</div>
                 </div>
 
-                <Link href={`/processes/${print.number}`} className="block group-hover:opacity-80">
-                  <h2 className="text-xl font-semibold mb-2">{print.short_title}</h2>
+                <Link
+                  href={`/processes/${print.number}`}
+                  className="block group-hover:opacity-80"
+                >
+                  <h2 className="text-xl font-semibold mb-2">
+                    {print.short_title}
+                  </h2>
                   <div className="prose-sm text-muted-foreground">
-                    <ReactMarkdown>{truncateText(print.summary || '', 200)}</ReactMarkdown>
+                    <ReactMarkdown>
+                      {truncateText(print.summary || '', 200)}
+                    </ReactMarkdown>
                   </div>
                 </Link>
 

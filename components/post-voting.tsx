@@ -21,30 +21,30 @@ export function PostVoting({
   const [showLoginDialog, setShowLoginDialog] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
   // Use ref to track if data has been loaded from the server
   const hasLoadedData = useRef(false)
 
   // Load user vote and fetch updated counts
   useEffect(() => {
     let isMounted = true
-    
+
     async function loadData() {
       try {
         // Always start with initialVotes to prevent flickering
         if (!hasLoadedData.current) {
           setVotes(initialVotes)
         }
-        
+
         // Get vote counts from the database
         const counts = await getVoteCounts(pointId)
-        
+
         if (isMounted && counts) {
           // Only update if we have valid data and component is still mounted
           setVotes(counts)
           hasLoadedData.current = true
         }
-        
+
         // If user is logged in, get their vote
         if (user && isMounted) {
           const vote = await getUserVote(pointId, user.id)
@@ -61,9 +61,9 @@ export function PostVoting({
 
     setIsLoading(true)
     loadData()
-    
-    return () => { 
-      isMounted = false 
+
+    return () => {
+      isMounted = false
     }
   }, [pointId, user, initialVotes])
   const handleVote = useCallback(
@@ -79,35 +79,39 @@ export function PostVoting({
 
       setIsVoting(true)
       setError(null) // Clear any previous errors
-      
+
       try {
         // Optimistic update for better UX
         const optimisticVotes = { ...votes }
         const isRemovingVote = userVote === voteType
-        
+
         // Adjust vote counts optimistically
         if (isRemovingVote) {
-          optimisticVotes[`${voteType}votes` as keyof typeof optimisticVotes] -= 1
+          optimisticVotes[`${voteType}votes` as keyof typeof optimisticVotes] -=
+            1
         } else {
           // If changing vote type, decrease the other type
           if (userVote) {
-            optimisticVotes[`${userVote}votes` as keyof typeof optimisticVotes] -= 1
+            optimisticVotes[
+              `${userVote}votes` as keyof typeof optimisticVotes
+            ] -= 1
           }
-          optimisticVotes[`${voteType}votes` as keyof typeof optimisticVotes] += 1
+          optimisticVotes[`${voteType}votes` as keyof typeof optimisticVotes] +=
+            1
         }
-        
+
         // Update UI immediately
         setVotes(optimisticVotes)
         setUserVote(isRemovingVote ? null : voteType)
-        
+
         // Send to server
         const result = await toggleVote(pointId, user.id, voteType)
-        
+
         if (result.success) {
           // Get the actual counts from server to ensure consistency
           const serverCounts = await getVoteCounts(pointId)
           setVotes(serverCounts)
-          
+
           // Update user vote state based on the action
           if (isRemovingVote) {
             setUserVote(null)
@@ -126,7 +130,7 @@ export function PostVoting({
         // Handle unexpected errors
         console.error('Unexpected error in handleVote:', error)
         setError('An unexpected error occurred. Please try again.')
-        
+
         // Revert to server state
         try {
           const revertCounts = await getVoteCounts(pointId)
@@ -146,11 +150,7 @@ export function PostVoting({
   return (
     <>
       <div className="flex flex-col gap-2">
-        {error && (
-          <div className="text-xs text-red-500 px-2">
-            {error}
-          </div>
-        )}
+        {error && <div className="text-xs text-red-500 px-2">{error}</div>}
         <div className="flex gap-2">
           {['up', 'down'].map((type) => (
             <Button
@@ -178,7 +178,8 @@ export function PostVoting({
                 className={cn('w-4 h-4 mr-2', type === 'down' && 'rotate-180')}
               />
               <span>
-                {votes && votes[`${type}votes` as 'upvotes' | 'downvotes'] !== undefined
+                {votes &&
+                votes[`${type}votes` as 'upvotes' | 'downvotes'] !== undefined
                   ? votes[`${type}votes` as 'upvotes' | 'downvotes']
                   : 0}
               </span>

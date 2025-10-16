@@ -4,7 +4,12 @@ import { CardWrapper } from '@/components/ui/card-wrapper'
 import { VotingList } from '@/components/voting-list'
 import Image from 'next/image'
 import { DiscussionEntries } from '../../proceedings/[number]/[date]/[id]/components/discussion-entries'
-import { article, mockSpeakerClubs, mockStatements, mockVotings } from './mock-data'
+import {
+  article,
+  mockSpeakerClubs,
+  mockStatements,
+  mockVotings,
+} from './mock-data'
 import ReactMarkdown from 'react-markdown'
 
 export default function SocialStylePage() {
@@ -14,10 +19,11 @@ export default function SocialStylePage() {
       <div className="relative">
         <div className="container mx-auto max-w-6xl px-4 py-8">
           <h1 className="mb-2 text-4xl font-bold">
-          Polska prezydencja w Radzie UE pod znakiem bezpieczeństwa. Opozycja krytykuje brak konkretów
+            Polska prezydencja w Radzie UE pod znakiem bezpieczeństwa. Opozycja
+            krytykuje brak konkretów
           </h1>
           <p className="text-xl text-muted-foreground">
-          8 stycznia 2025, Sejm RP
+            8 stycznia 2025, Sejm RP
           </p>
         </div>
 
@@ -44,9 +50,7 @@ export default function SocialStylePage() {
               subtitle="Analiza proponowanych zmian"
             >
               <article className="prose prose-sm max-w-none">
-                <ReactMarkdown>
-                {article}
-               </ReactMarkdown>
+                <ReactMarkdown>{article}</ReactMarkdown>
               </article>
               <div className="mt-6 flex items-center justify-between border-t pt-4">
                 <StatementReactions statementId={1} />
