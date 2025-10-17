@@ -32,21 +32,18 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-  } catch (error) {
-    // Log the error but don't crash the middleware
-    // This can happen due to network issues, DNS resolution failures, or SSL problems
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(
-        '[Middleware] Supabase auth failed (continuing without auth):',
-        error instanceof Error ? error.message : error
-      )
-    }
-    // Continue with the request even if auth fails
-  }
+  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
+  // creating a new response object with NextResponse.next() make sure to:
+  // 1. Pass the request in it, like so:
+  //    const myNewResponse = NextResponse.next({ request })
+  // 2. Copy over the cookies from supabaseResponse.cookies, like so:
+  //    supabaseResponse.cookies.getAll().forEach((cookie) => {
+  //      myNewResponse.cookies.set(cookie)
+  //    })
+  // 3. Change the supabaseResponse object to your new response object and return it.
+
+  // Refreshing the auth token
+  await supabase.auth.getUser()
 
   return supabaseResponse
 }

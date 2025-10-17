@@ -169,30 +169,7 @@ export const getLatestPrints = cache(async (
   return res.map((r) => r.p)
 })
 
-export async function getPrintsByTopic(
-  topicName: string,
-  limit: number = 10
-): Promise<PrintShort[]> {
-  const query = `
-    MATCH (p:Print)-[:REFERS_TO]->(t:Topic {name: $topicName})
-    WHERE p.short_title IS NOT NULL
-    RETURN p {
-      number: p.number,
-      title: p.short_title,
-      documentDate: p.documentDate,
-      processPrint: p.processPrint,
-      summary: p.summary,
-      type: p.documentType,
-      category: p.category,
-      status: p.status
-    }
-    ORDER BY p.documentDate DESC
-    LIMIT toInteger($limit)
-  `
-
-  const res = await runQuery<PrintResponse>(query, { topicName, limit })
-  return res.map((r) => r.p)
-}
+// Moved to lib/queries/print.ts - use getPrintsByTopic from there
 
 export async function getActsForProcess(processNumber: string): Promise<Act[]> {
   const query = `
@@ -236,29 +213,4 @@ export async function getProcessVotings(processNumber: string) {
   return res.map((r) => r.voting)
 }
 
-export async function getSimilarPrints(
-  printNumber: string
-): Promise<PrintShort[]> {
-  const query = `
-    MATCH (sourcePrint:Print {number: $printNumber})
-    WITH sourcePrint
-    MATCH (otherPrint:Print)
-    WHERE otherPrint <> sourcePrint
-    WITH otherPrint, sourcePrint,
-         gds.similarity.cosine(sourcePrint.embedding, otherPrint.embedding) as similarity
-    WHERE similarity > 0.7
-    RETURN otherPrint {
-      number: otherPrint.number,
-      title: otherPrint.title,
-      documentDate: otherPrint.documentDate,
-      processPrint: otherPrint.processPrint,
-      summary: otherPrint.summary,
-      similarity: similarity
-    } as p
-    ORDER BY similarity DESC
-    LIMIT 3
-  `
-
-  const res = await runQuery<PrintResponse>(query, { printNumber })
-  return res.map((r) => r.p)
-}
+// Moved to lib/queries/print.ts - use getSimilarPrints from there
