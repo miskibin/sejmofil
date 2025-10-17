@@ -15,7 +15,6 @@ interface PageProps {
 }
 
 export default async function FeedPage({ searchParams }: PageProps) {
-  // Convert searchParams to string safely
   const params = await searchParams
   const sort = typeof params?.sort === 'string' ? params.sort : 'foryou'
 
