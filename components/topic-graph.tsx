@@ -1,47 +1,56 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Card } from './ui/card'
 
 interface TopicGraphProps {
   currentTopic: string
-  similarTopics: Array<{ name: string; description?: string }>
+  currentTopicId: string
+  similarTopics: Array<{ name: string; description?: string; id: string }>
 }
 
-export function TopicGraph({ currentTopic, similarTopics }: TopicGraphProps) {
+export function TopicGraph({
+  currentTopic,
+  currentTopicId,
+  similarTopics,
+}: TopicGraphProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [hoveredNode, setHoveredNode] = useState<string | null>(null)
+  const router = useRouter()
   const [colors, setColors] = useState<{
     primary: string
+    primaryForeground: string
     muted: string
     foreground: string
     border: string
   }>({
-    primary: '#6d28d9',
-    muted: '#f3f4f6',
-    foreground: '#1f2937',
-    border: '#e5e7eb',
+    primary: 'hsl(262.1 83.3% 57.8%)',
+    primaryForeground: 'hsl(210 40% 98%)',
+    muted: 'hsl(210 40% 96.1%)',
+    foreground: 'hsl(222.2 84% 4.9%)',
+    border: 'hsl(214.3 31.8% 91.4%)',
   })
-  
+
   // Get CSS variables on mount
   useEffect(() => {
     const root = document.documentElement
     const computedStyle = getComputedStyle(root)
-    
-    const getPrimaryColor = () => {
-      const hsl = computedStyle.getPropertyValue('--primary').trim()
-      if (hsl) {
-        const [h, s, l] = hsl.split(' ').map((v) => v.replace('%', ''))
-        return `hsl(${h}, ${s}%, ${l}%)`
-      }
-      return '#6d28d9'
+
+    const getHslValue = (variable: string, fallback: string) => {
+      const value = computedStyle.getPropertyValue(variable).trim()
+      return value ? `hsl(${value})` : fallback
     }
 
     setColors({
-      primary: getPrimaryColor(),
-      muted: '#f3f4f6',
-      foreground: '#1f2937',
-      border: '#e5e7eb',
+      primary: getHslValue('--primary', 'hsl(262.1 83.3% 57.8%)'),
+      primaryForeground: getHslValue(
+        '--primary-foreground',
+        'hsl(210 40% 98%)'
+      ),
+      muted: getHslValue('--muted', 'hsl(210 40% 96.1%)'),
+      foreground: getHslValue('--foreground', 'hsl(222.2 84% 4.9%)'),
+      border: getHslValue('--border', 'hsl(214.3 31.8% 91.4%)'),
     })
   }, [])
 
@@ -70,6 +79,7 @@ export function TopicGraph({ currentTopic, similarTopics }: TopicGraphProps) {
       name: string
       isCurrent: boolean
       radius: number
+      id?: string
     }> = [
       {
         x: centerX,
@@ -77,6 +87,7 @@ export function TopicGraph({ currentTopic, similarTopics }: TopicGraphProps) {
         name: currentTopic,
         isCurrent: true,
         radius: 40,
+        id: currentTopicId,
       },
     ]
 
@@ -92,6 +103,7 @@ export function TopicGraph({ currentTopic, similarTopics }: TopicGraphProps) {
         name: topic.name,
         isCurrent: false,
         radius: 28,
+        id: topic.id,
       })
     })
 
@@ -107,29 +119,39 @@ export function TopicGraph({ currentTopic, similarTopics }: TopicGraphProps) {
 
       // Draw connections with gradient
       for (let i = 1; i < nodes.length; i++) {
-        const targetX = nodes[0].x + (nodes[i].x - nodes[0].x) * animationProgress
-        const targetY = nodes[0].y + (nodes[i].y - nodes[0].y) * animationProgress
-          // Convert colors.primary (hsl or hex) to hsla for alpha
-          let colorStart = colors.primary
-          let colorEnd = colors.primary
-          // If hsl, convert to hsla
-          if (colorStart.startsWith('hsl(')) {
-            colorStart = colorStart.replace('hsl(', 'hsla(').replace(')', ', 0.4)')
-            colorEnd = colorEnd.replace('hsl(', 'hsla(').replace(')', ', 0.2)')
-          } else {
-            // fallback for hex
-            colorStart = colorStart + '66' // #RRGGBB66
-            colorEnd = colorEnd + '33'
+        const targetX =
+          nodes[0].x + (nodes[i].x - nodes[0].x) * animationProgress
+        const targetY =
+          nodes[0].y + (nodes[i].y - nodes[0].y) * animationProgress
+        // Convert hsl to hsla for canvas (needs comma-separated values)
+        const hslToHsla = (hsl: string, alpha: number) => {
+          const match = hsl.match(/hsl\(([^)]+)\)/)
+          if (match) {
+            // Convert space-separated to comma-separated for canvas
+            const values = match[1]
+              .trim()
+              .split(/\s+/)
+              .join(', ')
+            return `hsla(${values}, ${alpha})`
           }
-          const gradient = ctx.createLinearGradient(nodes[0].x, nodes[0].y, targetX, targetY)
-          gradient.addColorStop(0, colorStart)
-          gradient.addColorStop(1, colorEnd)
-          ctx.strokeStyle = gradient
-          ctx.lineWidth = 2
-          ctx.beginPath()
-          ctx.moveTo(nodes[0].x, nodes[0].y)
-          ctx.lineTo(targetX, targetY)
-          ctx.stroke()
+          return hsl
+        }
+        const colorStart = hslToHsla(colors.primary, 0.4)
+        const colorEnd = hslToHsla(colors.primary, 0.2)
+        const gradient = ctx.createLinearGradient(
+          nodes[0].x,
+          nodes[0].y,
+          targetX,
+          targetY
+        )
+        gradient.addColorStop(0, colorStart)
+        gradient.addColorStop(1, colorEnd)
+        ctx.strokeStyle = gradient
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        ctx.moveTo(nodes[0].x, nodes[0].y)
+        ctx.lineTo(targetX, targetY)
+        ctx.stroke()
       }
 
       // Draw nodes
@@ -147,91 +169,117 @@ export function TopicGraph({ currentTopic, similarTopics }: TopicGraphProps) {
           ctx.shadowBlur = 0
         }
 
-        // Node circle with gradient
-        if (node.isCurrent) {
-          // Helper to convert hsl() to hsla()
-          const hslaColor = (hsl: string, alpha: number) => {
-            if (hsl.startsWith('hsl(')) {
-              return hsl.replace('hsl(', 'hsla(').replace(')', `, ${alpha})`)
-            }
-            return hsl // fallback for hex
+        // Helper to convert hsl to canvas-compatible format
+        const hslToCanvasColor = (hsl: string) => {
+          const match = hsl.match(/hsl\(([^)]+)\)/)
+          if (match) {
+            // Convert space-separated to comma-separated for canvas
+            const values = match[1]
+              .trim()
+              .split(/\s+/)
+              .join(', ')
+            return `hsl(${values})`
           }
-          const gradient = ctx.createRadialGradient(
-            node.x, node.y, 0,
-            node.x, node.y, currentRadius
-          )
-          gradient.addColorStop(0, hslaColor(colors.primary, 1))
-          gradient.addColorStop(1, hslaColor(colors.primary, 0.7))
-          ctx.fillStyle = gradient
-        } else {
-          ctx.fillStyle = colors.muted
+          return hsl
         }
-        
-        ctx.beginPath()
-        ctx.arc(node.x, node.y, currentRadius, 0, Math.PI * 2)
-        ctx.fill()
 
-        // Node border
-        ctx.strokeStyle = node.isCurrent ? '#ffffff' : colors.border
-        ctx.lineWidth = 2
-        ctx.stroke()
+        const hslToHsla = (hsl: string, alpha: number) => {
+          const match = hsl.match(/hsl\(([^)]+)\)/)
+          if (match) {
+            const values = match[1]
+              .trim()
+              .split(/\s+/)
+              .join(', ')
+            return `hsla(${values}, ${alpha})`
+          }
+          return hsl
+        }
 
-        ctx.shadowBlur = 0
+        // Only draw circles for the current (central) topic
+        if (node.isCurrent) {
+          // Node circle with gradient
+          const gradient = ctx.createRadialGradient(
+            node.x,
+            node.y,
+            0,
+            node.x,
+            node.y,
+            currentRadius
+          )
+          gradient.addColorStop(0, hslToHsla(colors.primary, 1))
+          gradient.addColorStop(1, hslToHsla(colors.primary, 0.7))
+          ctx.fillStyle = gradient
 
-        // Text with better rendering: scale font to node radius and truncate long labels
-        ctx.fillStyle = node.isCurrent ? '#ffffff' : colors.foreground
-        // Compute a font size based on radius (clamped)
-        const baseFontSize = Math.max(9, Math.min(16, Math.floor(currentRadius * (node.isCurrent ? 0.28 : 0.30))))
-        const fontWeight = node.isCurrent ? 'bold ' : ''
-        ctx.font = `${fontWeight}${baseFontSize}px system-ui, -apple-system, sans-serif`
+          ctx.beginPath()
+          ctx.arc(node.x, node.y, currentRadius, 0, Math.PI * 2)
+          ctx.fill()
+
+          // Node border
+          ctx.strokeStyle = hslToCanvasColor(colors.primaryForeground)
+          ctx.lineWidth = 2
+          ctx.stroke()
+
+          ctx.shadowBlur = 0
+        }
+
+        // Text with proper wrapping and truncation
+        ctx.fillStyle = node.isCurrent
+          ? hslToCanvasColor(colors.primaryForeground)
+          : hslToCanvasColor(colors.foreground)
+        const baseFontSize = node.isCurrent ? 13 : 12
+        const fontWeight = node.isCurrent ? '600 ' : '500 '
+        ctx.font = `${fontWeight}${baseFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
 
-        const maxWidth = currentRadius * 1.6
-        const maxLines = node.isCurrent ? 3 : 2
-        const words = node.name.split(' ')
+        const maxWidth = node.isCurrent ? currentRadius * 1.8 : 120
+        const maxLines = node.isCurrent ? 2 : 3
+        const words = node.name.trim().split(' ')
         const lines: string[] = []
         let line = ''
 
-        for (let w = 0; w < words.length; w++) {
-          const word = words[w]
-          const testLine = line ? line + ' ' + word : word
+        for (const word of words) {
+          const testLine = line ? `${line} ${word}` : word
           const metrics = ctx.measureText(testLine)
-          if (metrics.width > maxWidth) {
-            if (line === '') {
-              // single long word: truncate it to fit
-              let truncated = word
-              while (ctx.measureText(truncated + '…').width > maxWidth && truncated.length > 0) {
-                truncated = truncated.slice(0, -1)
-              }
-              lines.push(truncated + '…')
-            } else {
-              lines.push(line)
-              line = word
-            }
-            if (lines.length === maxLines) {
-              // we've hit the max lines: squash the rest into the last line and truncate
-              const remaining = [line].concat(words.slice(w + 1)).filter(Boolean).join(' ')
-              let candidate = (lines[lines.length - 1] + ' ' + remaining).trim()
-              while (ctx.measureText(candidate + '…').width > maxWidth && candidate.length > 0) {
-                candidate = candidate.slice(0, -1)
-              }
-              lines[lines.length - 1] = candidate + '…'
-              line = ''
-              break
-            }
+
+          if (metrics.width > maxWidth && line !== '') {
+            lines.push(line)
+            line = word
           } else {
             line = testLine
           }
-        }
-        if (line && lines.length < maxLines) lines.push(line)
 
-        const lineHeight = Math.max(12, baseFontSize + 2)
+          if (lines.length >= maxLines) {
+            // Trim last line if needed
+            if (ctx.measureText(line).width > maxWidth) {
+              while (
+                ctx.measureText(line + '...').width > maxWidth &&
+                line.length > 0
+              ) {
+                line = line.slice(0, -1)
+              }
+              line = line.trim() + '...'
+            }
+            break
+          }
+        }
+
+        if (line && lines.length < maxLines) {
+          lines.push(line)
+        }
+
+        const lineHeight = baseFontSize + 4
         const startY = node.y - ((lines.length - 1) * lineHeight) / 2
 
         lines.forEach((textLine, idx) => {
           ctx.fillText(textLine, node.x, startY + idx * lineHeight)
         })
+
+        // Store text bounds for click detection (wider area for non-current nodes)
+        if (!node.isCurrent) {
+          const textHeight = lines.length * lineHeight
+          node.radius = Math.max(60, Math.max(maxWidth / 2, textHeight / 2))
+        }
       })
     }
 
@@ -261,8 +309,24 @@ export function TopicGraph({ currentTopic, similarTopics }: TopicGraphProps) {
       }
     }
 
+    const handleClick = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+
+      for (const node of nodes) {
+        const dx = x - node.x
+        const dy = y - node.y
+        if (Math.sqrt(dx * dx + dy * dy) <= node.radius && node.id) {
+          router.push(`/topics/${node.id}`)
+          break
+        }
+      }
+    }
+
     canvas.addEventListener('mousemove', handleMouseMove)
-    
+    canvas.addEventListener('click', handleClick)
+
     // Handle window resize
     const handleResize = () => {
       const rect = canvas.getBoundingClientRect()
@@ -271,29 +335,21 @@ export function TopicGraph({ currentTopic, similarTopics }: TopicGraphProps) {
       canvas.height = rect.height * dpr
       if (ctx) ctx.scale(dpr, dpr)
     }
-    
+
     window.addEventListener('resize', handleResize)
-    
+
     return () => {
       canvas.removeEventListener('mousemove', handleMouseMove)
+      canvas.removeEventListener('click', handleClick)
       window.removeEventListener('resize', handleResize)
     }
-  }, [currentTopic, similarTopics, hoveredNode, colors])
+  }, [currentTopic, currentTopicId, similarTopics, hoveredNode, colors, router])
 
   return (
-    <Card className="p-4">
-      <div className="mb-3">
-        <h3 className="text-sm font-semibold text-primary">Powiązane tematy</h3>
-        <p className="text-xs text-muted-foreground">
-          Graf semantycznych podobieństw
-        </p>
-      </div>
-      <canvas
-        ref={canvasRef}
-        className="h-[400px] w-full"
-        style={{ width: '100%', height: '400px' }}
-      />
-      
-    </Card>
+    <canvas
+      ref={canvasRef}
+      className="h-[400px] w-full"
+      style={{ width: '100%', height: '400px' }}
+    />
   )
 }
