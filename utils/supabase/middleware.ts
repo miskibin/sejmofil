@@ -32,9 +32,21 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+  } catch (error) {
+    // Log the error but don't crash the middleware
+    // This can happen due to network issues, DNS resolution failures, or SSL problems
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(
+        '[Middleware] Supabase auth failed (continuing without auth):',
+        error instanceof Error ? error.message : error
+      )
+    }
+    // Continue with the request even if auth fails
+  }
 
   return supabaseResponse
 }
