@@ -42,16 +42,14 @@ export async function getPrintsByTopic(
   const query = `
     MATCH (p:Print)-[:REFERS_TO]->(t:Topic {name: $topicName})
     WHERE p.short_title IS NOT NULL
-    RETURN p {
-      number: p.number,
-      title: p.short_title,
-      documentDate: p.documentDate,
-      processPrint: p.processPrint,
-      summary: p.summary,
-      type: p.documentType,
-      category: p.category,
-      status: p.status
-    }
+    RETURN p.number as number,
+           p.short_title as title,
+           p.documentDate as documentDate,
+           p.processPrint as processPrint,
+           p.summary as summary,
+           p.documentType as type,
+           p.category as category,
+           p.status as status
     ORDER BY p.documentDate DESC
     LIMIT toInteger($limit)
   `
@@ -115,25 +113,18 @@ export async function getSimilarTopics(
       AND otherTopic.embedding IS NOT NULL
     WITH otherTopic, sourceTopic,
          gds.similarity.cosine(sourceTopic.embedding, otherTopic.embedding) as similarity
-    WHERE similarity > 0.7
-    RETURN otherTopic {
-      id: otherTopic.name,
-      name: otherTopic.name,
-      description: otherTopic.description
-    } as topic,
-    similarity
+    WHERE similarity > 0.5
+    RETURN otherTopic.name as name,
+           otherTopic.description as description
     ORDER BY similarity DESC
     LIMIT toInteger($limit)
   `
 
-  const res = await runQuery<{ topic: TopicWithId; similarity: number }>(
-    query,
-    {
-      topicName,
-      limit,
-    }
-  )
-  return res.map((r) => r.topic)
+  const res = await runQuery<TopicWithId>(query, {
+    topicName,
+    limit,
+  })
+  return res
 }
 
 /**

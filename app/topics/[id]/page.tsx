@@ -1,18 +1,24 @@
 import { Badge } from '@/components/ui/badge'
 import { CardWrapper } from '@/components/ui/card-wrapper'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TopicGraph } from '@/components/topic-graph'
 import { getProceedingPointsByPrintNumbers } from '@/lib/supabase/getProceedingPointsByPrintNumbers'
 import {
-  getProcessesByTopic,
   getPrintsByTopic,
   getSimilarTopics,
   getTopicByName,
 } from '@/lib/queries/topic'
-import { BookOpen, FileText, Lightbulb, Sparkles } from 'lucide-react'
+import {
+  Calendar,
+  FileText,
+  Lightbulb,
+  MessageSquare,
+  Vote,
+  Network,
+} from 'lucide-react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import ReactMarkdown from 'react-markdown'
+import Markdown from 'react-markdown'
 
 export async function generateMetadata({
   params,
@@ -29,6 +35,8 @@ export async function generateMetadata({
   }
 }
 
+export const revalidate = 3600
+
 export default async function TopicPage({
   params,
 }: {
@@ -37,242 +45,238 @@ export default async function TopicPage({
   const { id } = await params
   const topicName = decodeURIComponent(id)
 
-  // Fetch all data in parallel
-  const [topic, processes, prints, similarTopics] = await Promise.all([
+  const [topic, prints, similarTopics] = await Promise.all([
     getTopicByName(topicName),
-    getProcessesByTopic(topicName, 10),
-    getPrintsByTopic(topicName, 20),
-    getSimilarTopics(topicName, 6),
+    getPrintsByTopic(topicName, 50),
+    getSimilarTopics(topicName, 5),
   ])
 
   if (!topic) {
     notFound()
   }
 
-  // Get proceeding points related to the prints
   const printNumbers = prints.map((p) => p.number)
-  const proceedingPoints = await getProceedingPointsByPrintNumbers(
-    printNumbers,
-    15
-  )
+  const points = await getProceedingPointsByPrintNumbers(printNumbers, 50)
 
   return (
     <div className="container mx-auto space-y-6 py-6">
-      {/* Header Section with gradient background */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-primary/10 via-primary/5 to-background p-8">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 p-8">
         <div className="relative z-10 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-primary/20 p-3">
+          <div className="flex items-start gap-4">
+            <div className="rounded-xl bg-primary/20 p-3">
               <Lightbulb className="h-8 w-8 text-primary" />
             </div>
-            <div>
+            <div className="flex-1 space-y-2">
               <Badge variant="secondary" className="mb-2">
                 Temat parlamentarny
               </Badge>
-              <h1 className="text-3xl font-bold">{topic.name}</h1>
+              <h1 className="text-4xl font-bold tracking-tight">
+                {topic.name}
+              </h1>
+              {topic.description && (
+                <p className="text-lg text-muted-foreground max-w-3xl">
+                  {topic.description}
+                </p>
+              )}
             </div>
           </div>
-          {topic.description && (
-            <p className="max-w-3xl text-lg text-muted-foreground">
-              {topic.description}
-            </p>
-          )}
         </div>
-        {/* Decorative gradient orbs */}
-        <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <CardWrapper className="flex flex-col items-center justify-center p-6 text-center">
-          <div className="text-4xl font-bold text-primary">
-            {processes.length}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Procesów legislacyjnych
+      {/* Stats */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <CardWrapper
+          title="Druki"
+          headerIcon={<FileText className="h-4 w-4 text-primary" />}
+          className="hover:border-primary/50 transition-all"
+        >
+          <div className="text-3xl font-bold">{prints.length}</div>
+        </CardWrapper>
+        <CardWrapper
+          title="Punkty obrad"
+          variant="inverted"
+          headerIcon={<MessageSquare className="h-4 w-4 text-primary" />}
+          className="hover:border-primary/50 transition-all"
+        >
+          <div className="text-3xl font-bold">{points.length}</div>
+        </CardWrapper>
+        <CardWrapper
+          title="Głosowania"
+          headerIcon={<Vote className="h-4 w-4 text-primary" />}
+          className="hover:border-primary/50 transition-all"
+        >
+          <div className="text-3xl font-bold">
+            {points.reduce(
+              (acc, p) => acc + (p.voting_numbers?.length || 0),
+              0
+            )}
           </div>
         </CardWrapper>
-        <CardWrapper className="flex flex-col items-center justify-center p-6 text-center">
-          <div className="text-4xl font-bold text-primary">
-            {proceedingPoints.length}
-          </div>
-          <div className="text-sm text-muted-foreground">Punktów obrad</div>
-        </CardWrapper>
-        <CardWrapper className="flex flex-col items-center justify-center p-6 text-center">
-          <div className="text-4xl font-bold text-primary">{prints.length}</div>
-          <div className="text-sm text-muted-foreground">Druków sejmowych</div>
+        <CardWrapper
+          title="Powiązane tematy"
+          headerIcon={<Network className="h-4 w-4 text-primary" />}
+          className="hover:border-primary/50 transition-all"
+        >
+          <div className="text-3xl font-bold">{similarTopics.length}</div>
         </CardWrapper>
       </div>
 
-      {/* Main Content - Bento Grid Layout */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Left Column - Processes and Proceedings */}
+      {/* Main Content Grid */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Processes Section */}
-          {processes.length > 0 && (
+          {/* Druki */}
+          {prints.length > 0 && (
             <CardWrapper
-              title="Procesy legislacyjne"
-              headerIcon={<BookOpen className="h-5 w-5 text-primary" />}
+              title="Druki sejmowe"
+              headerIcon={<FileText className="h-5 w-5" />}
+              showMoreLink={
+                prints.length > 5
+                  ? `/prints?topic=${encodeURIComponent(topic.name)}`
+                  : undefined
+              }
             >
-              <div className="space-y-4">
-                {processes.map((process) => (
-                  <Link
-                    key={process.number}
-                    href={`/processes/${process.number}`}
-                    className="block space-y-2 rounded-lg bg-gray-50 p-4 transition-all hover:bg-gray-100 hover:shadow-md"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            {process.documentType}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            Proces #{process.number}
-                          </span>
+              <div className="space-y-3">
+                {prints.slice(0, 5).map((print) => (
+                  <Link key={print.number} href={`/prints/${print.number}`}>
+                    <div className="flex items-start justify-between gap-4 space-y-2">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {print.type && (
+                            <Badge variant="outline">{print.type}</Badge>
+                          )}
                         </div>
-                        <h3 className="font-medium leading-tight">
-                          {process.title}
+                        <h3 className="font-semibold leading-tight group-hover:text-primary transition-colors">
+                          {print.title}
                         </h3>
-                        {process.description && (
-                          <p className="line-clamp-2 text-sm text-muted-foreground">
-                            {process.description}
-                          </p>
+                        {print.summary && (
+                          <div className="prose prose-sm max-w-none text-muted-foreground">
+                            <Markdown>
+                              {print.summary.split(' ').slice(0, 30).join(' ') +
+                                (print.summary.split(' ').length > 30
+                                  ? '...'
+                                  : '')}
+                            </Markdown>
+                          </div>
                         )}
                       </div>
-                      {process.changeDate && (
-                        <span className="whitespace-nowrap text-xs text-muted-foreground">
-                          {new Date(process.changeDate).toLocaleDateString(
+                      {print.documentDate && (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {new Date(print.documentDate).toLocaleDateString(
                             'pl-PL'
                           )}
-                        </span>
+                        </div>
                       )}
                     </div>
+                    <hr className="my-2 border-t" />
                   </Link>
                 ))}
               </div>
             </CardWrapper>
           )}
 
-          {/* Proceedings Section */}
-          {proceedingPoints.length > 0 && (
+          {/* Punkty Obrad */}
+          {points.length > 0 && (
             <CardWrapper
               title="Punkty obrad"
-              headerIcon={<FileText className="h-5 w-5 text-primary" />}
+              subtitle={`${points.length} punktów`}
+              headerIcon={<MessageSquare className="h-5 w-5" />}
+              showMoreLink={
+                points.length > 5
+                  ? `/proceedings?topic=${encodeURIComponent(topic.name)}`
+                  : undefined
+              }
             >
-              <div className="space-y-4">
-                {proceedingPoints.map((point) => (
+              <div className="space-y-3">
+                {points.slice(0, 5).map((point) => (
                   <Link
                     key={point.id}
-                    href={`/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/${point.id}`}
-                    className="block space-y-2 rounded-lg bg-gray-50 p-4 transition-all hover:bg-gray-100 hover:shadow-md"
+                    href={`/proceedings/${point.proceeding_day.proceeding.number}`}
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-1">
-                        <h3 className="font-medium leading-tight">
-                          {point.topic}
-                        </h3>
-                        {point.summary_tldr && (
-                          <p className="line-clamp-2 text-sm text-muted-foreground">
-                            {point.summary_tldr}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-2">
+                    <div className="flex items-start justify-between gap-4 space-y-2">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <Badge variant="secondary" className="text-xs">
                             {point.proceeding_day.proceeding.title}
                           </Badge>
-                          {point.voting_numbers &&
-                            point.voting_numbers.length > 0 && (
-                              <Badge variant="outline" className="text-xs">
-                                {point.voting_numbers.length} głosowań
-                              </Badge>
-                            )}
+                          {point.voting_numbers?.length > 0 && (
+                            <Badge variant="outline" className="text-xs">
+                              <Vote className="h-3 w-3 mr-1" />
+                              {point.voting_numbers.length} głosowań
+                            </Badge>
+                          )}
                         </div>
+                        <h3 className="font-semibold leading-tight group-hover:text-primary transition-colors">
+                          {point.topic}
+                        </h3>
+                        {point.summary_tldr && (
+                          <div className="prose prose-sm max-w-none text-muted-foreground">
+                            <Markdown>
+                              {point.summary_tldr
+                                .split(' ')
+                                .slice(0, 30)
+                                .join(' ') +
+                                (point.summary_tldr.split(' ').length > 30
+                                  ? '...'
+                                  : '')}
+                            </Markdown>
+                          </div>
+                        )}
                       </div>
-                      <span className="whitespace-nowrap text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
+                        <Calendar className="h-3.5 w-3.5" />
                         {new Date(point.proceeding_day.date).toLocaleDateString(
                           'pl-PL'
                         )}
-                      </span>
+                      </div>
                     </div>
+                    <hr className="my-2 border-t" />
                   </Link>
                 ))}
               </div>
             </CardWrapper>
           )}
         </div>
-
-        {/* Right Column - Similar Topics and Prints */}
+        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Similar Topics */}
+          {/* Graph Visualization */}
+          {similarTopics.length > 0 && (
+            <TopicGraph
+              currentTopic={topic.name}
+              similarTopics={similarTopics}
+            />
+          )}
+
+          {/* Similar Topics List */}
           {similarTopics.length > 0 && (
             <CardWrapper
               title="Podobne tematy"
-              headerIcon={
-                <Sparkles className="h-5 w-5 text-primary" fill="#76052a" />
-              }
-              subtitle="Na podstawie embeddings AI"
+              subtitle={`${similarTopics.length} tematów`}
+              headerIcon={<Network className="h-5 w-5" />}
             >
               <div className="space-y-3">
                 {similarTopics.map((similarTopic) => (
                   <Link
-                    key={similarTopic.id}
+                    key={similarTopic.name}
                     href={`/topics/${encodeURIComponent(similarTopic.name)}`}
-                    className="block space-y-1 rounded-lg bg-gray-50 p-3 transition-all hover:bg-gray-100 hover:shadow-md"
                   >
-                    <h4 className="font-medium">{similarTopic.name}</h4>
-                    {similarTopic.description && (
-                      <p className="line-clamp-2 text-xs text-muted-foreground">
-                        {similarTopic.description}
-                      </p>
-                    )}
-                  </Link>
-                ))}
-              </div>
-            </CardWrapper>
-          )}
-
-          {/* Related Prints */}
-          {prints.length > 0 && (
-            <CardWrapper
-              title="Druki sejmowe"
-              headerIcon={<FileText className="h-5 w-5 text-primary" />}
-            >
-              <div className="space-y-3">
-                {prints.slice(0, 10).map((print) => (
-                  <Link
-                    key={print.number}
-                    href={`/prints/${print.number}`}
-                    className="block space-y-1 rounded-lg bg-gray-50 p-3 transition-all hover:bg-gray-100 hover:shadow-md"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-primary">
-                            #{print.number}
-                          </span>
-                          {print.type && (
-                            <Badge variant="outline" className="text-xs">
-                              {print.type}
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="line-clamp-2 text-sm">{print.title}</p>
+                    <div className="flex items-start justify-between gap-4 space-y-2">
+                      <div className="flex-1 space-y-2">
+                        <h3 className="font-semibold leading-tight group-hover:text-primary transition-colors">
+                          {similarTopic.name}
+                        </h3>
+                        {similarTopic.description && (
+                          <p className="line-clamp-3 text-xs text-muted-foreground">
+                            {similarTopic.description}
+                          </p>
+                        )}
                       </div>
-                      {print.documentDate && (
-                        <span className="whitespace-nowrap text-xs text-muted-foreground">
-                          {new Date(print.documentDate).toLocaleDateString(
-                            'pl-PL'
-                          )}
-                        </span>
-                      )}
                     </div>
-                    {print.summary && (
-                      <div className="prose prose-sm max-w-none line-clamp-2 text-xs text-muted-foreground">
-                        <ReactMarkdown>{print.summary}</ReactMarkdown>
-                      </div>
-                    )}
+                    <hr className="my-2 border-t" />
                   </Link>
                 ))}
               </div>
@@ -280,22 +284,6 @@ export default async function TopicPage({
           )}
         </div>
       </div>
-
-      {/* Empty States */}
-      {processes.length === 0 &&
-        proceedingPoints.length === 0 &&
-        prints.length === 0 && (
-          <CardWrapper>
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Lightbulb className="mb-4 h-16 w-16 text-muted-foreground/50" />
-              <h3 className="mb-2 text-lg font-medium">Brak danych</h3>
-              <p className="text-sm text-muted-foreground">
-                Nie znaleziono procesów, obrad ani druków związanych z tym
-                tematem.
-              </p>
-            </div>
-          </CardWrapper>
-        )}
     </div>
   )
 }

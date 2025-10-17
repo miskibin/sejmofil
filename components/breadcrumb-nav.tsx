@@ -21,6 +21,8 @@ const urlToPolishName: { [key: string]: string } = {
   points: 'Punkty porządku dziennego',
   profile: 'Profil',
   proceedings: 'Posiedzenia',
+  topics: 'Tematy',
+  prints: 'Druki',
 
   // Add more mappings as needed
 }
@@ -49,15 +51,17 @@ const Breadcrumbs: React.FC = () => {
         {pathSegments?.map((segment, index) => {
           const href = `/${pathSegments.slice(0, index + 1).join('/')}`
           const isLast = index === pathSegments.length - 1
+          // Decode URL-encoded segment first
+          const decodedSegment = decodeURIComponent(segment)
           const polishName =
-            urlToPolishName[segment.replace('-results', '')] || segment
+            urlToPolishName[segment.replace('-results', '')] || decodedSegment
 
           return (
             <li key={href}>
               <div className="flex items-center">
                 <ChevronRight className="h-4 w-4 font-bold" />
                 {isLast ? (
-                  <span className="ml-1 text-sm font-medium md:ml-2">
+                  <span className="ml-1 text-sm font-medium md:ml-2 line-clamp-1">
                     {polishName}
                   </span>
                 ) : (
