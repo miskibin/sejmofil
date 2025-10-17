@@ -6,11 +6,12 @@ import { VotingList } from '@/components/voting-list'
 import { getPrintComments } from '@/lib/queries/print'
 import {
   getActsForProcess,
+  getAllProcessStages,
   getProcessDetails,
   getProcessPrint,
   getProcessVotings,
-  getSimilarPrints,
 } from '@/lib/queries/process'
+import { getSimilarPrints } from '@/lib/queries/print'
 import { getPointsByPrintNumbers } from '@/lib/supabase/getPointsByPrintNumbers'
 import { cn } from '@/lib/utils'
 import { BookOpen, FileText, Sparkles, Vote } from 'lucide-react'

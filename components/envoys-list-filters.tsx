@@ -4,18 +4,13 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+import { FilterField, type FilterConfig } from '@/components/filter-components'
 import { getDistrictFromPostalCode } from '@/lib/utils/districts'
 import { Filter } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
@@ -41,16 +36,6 @@ interface EnvoysListFiltersProps {
   onProfessionsChange: (value: string[]) => void
   selectedProfessions: string[]
   onSortChange: (field: SortField) => void
-}
-
-interface FilterButtonConfig {
-  label: string
-  placeholder: string
-  type: 'select' | 'postal' | 'professions'
-  onChange: (value: string) => void
-  options?: { value: string; label: string }[]
-  defaultValue?: string
-  badge?: string | number
 }
 
 const RANKING_OPTIONS = {
@@ -103,16 +88,12 @@ export function EnvoysListFilters({
     )
   }
 
-  const filteredProfessions = professions.filter((prof) =>
-    prof.name.toLowerCase().includes(professionFilter.toLowerCase())
-  )
-
-  const filterButtonConfigs: FilterButtonConfig[] = [
+  const filterConfigs: FilterConfig[] = [
     {
       label: 'Klub parlamentarny',
       placeholder: 'Wybierz klub',
       type: 'select',
-      onChange: (value) => onClubChange(value),
+      onChange: (value) => onClubChange(value as string),
       options: [
         { value: 'all', label: 'Wszystkie kluby' },
         ...clubs.map((club) => ({ value: club, label: club })),
@@ -142,10 +123,14 @@ export function EnvoysListFilters({
       type: 'professions',
       onChange: toggleProfession,
       badge: selectedProfessions.length || undefined,
-      options: filteredProfessions.map((prof) => ({
-        value: prof.name,
-        label: prof.name,
-      })),
+      options: professions
+        .filter((prof) =>
+          prof.name.toLowerCase().includes(professionFilter.toLowerCase())
+        )
+        .map((prof) => ({
+          value: prof.name,
+          label: prof.name,
+        })),
     },
   ]
 
@@ -203,132 +188,14 @@ export function EnvoysListFilters({
       {isFiltersVisible && (
         <>
           <div className="flex flex-col flex-wrap gap-4 md:flex-row">
-            {filterButtonConfigs.map(
-              ({
-                label,
-                placeholder,
-                type,
-                onChange,
-                options,
-                defaultValue,
-                badge,
-              }) => (
-                <div key={placeholder} className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    {label}
-                  </label>
-                  {type === 'select' && (
-                    <Select
-                      defaultValue={defaultValue}
-                      onValueChange={onChange}
-                    >
-                      <SelectTrigger className="w-full md:w-[180px]">
-                        <SelectValue placeholder={placeholder} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {options?.map(({ value, label }) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                  {type === 'postal' && (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        placeholder={placeholder}
-                        onChange={(e) => onChange(e.target.value)}
-                        maxLength={6}
-                        className="w-full md:w-[180px]"
-                      />
-                      {badge && (
-                        <Badge
-                          variant="secondary"
-                          className="whitespace-nowrap"
-                        >
-                          {badge}
-                        </Badge>
-                      )}
-                    </div>
-                  )}
-                  {type === 'professions' && (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-9 w-[180px] justify-between border-dashed"
-                        >
-                          {placeholder}
-                          {badge && (
-                            <>
-                              <Separator
-                                orientation="vertical"
-                                className="mx-2 h-4"
-                              />
-                              <Badge
-                                variant="secondary"
-                                className="rounded-sm px-1 font-normal"
-                              >
-                                {badge}
-                              </Badge>
-                            </>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 p-2" align="start">
-                        <div className="flex flex-col gap-2">
-                          <Input
-                            placeholder="Szukaj zawodu..."
-                            value={professionFilter}
-                            onChange={(e) =>
-                              setProfessionFilter(e.target.value)
-                            }
-                            className="mb-2"
-                          />
-                          <div className="max-h-[300px] overflow-y-auto">
-                            {filteredProfessions.length === 0 ? (
-                              <p className="py-4 text-center text-sm text-muted-foreground">
-                                Nie znaleziono zawodów
-                              </p>
-                            ) : (
-                              <div className="flex flex-col gap-1">
-                                {filteredProfessions.map((prof) => (
-                                  <button
-                                    key={prof.name}
-                                    onClick={() => toggleProfession(prof.name)}
-                                    className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-primary/20"
-                                  >
-                                    <div
-                                      className={`flex h-4 w-4 items-center justify-center rounded-sm border border-primary ${
-                                        selectedProfessions.includes(prof.name)
-                                          ? 'bg-primary text-primary-foreground'
-                                          : 'opacity-50'
-                                      }`}
-                                    >
-                                      {selectedProfessions.includes(
-                                        prof.name
-                                      ) && '✓'}
-                                    </div>
-                                    <span className="flex-grow text-left">
-                                      {prof.name}
-                                    </span>
-                                    <span className="text-muted-foreground">
-                                      ({prof.count})
-                                    </span>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                </div>
-              )
-            )}
+            {filterConfigs.map((config) => (
+              <FilterField
+                key={config.placeholder}
+                config={config}
+                searchValue={professionFilter}
+                onSearchChange={setProfessionFilter}
+              />
+            ))}
           </div>
           {searchParams?.get('ranking') !== 'none' &&
             searchParams?.get('ranking') && (
