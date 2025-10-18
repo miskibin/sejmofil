@@ -187,7 +187,8 @@ type ProceedingFromDB = {
   }>
 }
 
-export const getProceedings = cache(async (): Promise<ProceedingFromDB[]> => {
+// Note: Not using unstable_cache here because it needs server context (cookies)
+export async function getProceedings(): Promise<ProceedingFromDB[]> {
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -215,4 +216,4 @@ export const getProceedings = cache(async (): Promise<ProceedingFromDB[]> => {
   }
   
   return (data || []) as ProceedingFromDB[]
-})
+}

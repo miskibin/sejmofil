@@ -54,7 +54,7 @@ export async function getPrintsByTopic(
     LIMIT toInteger($limit)
   `
 
-  const res = await runQuery<PrintShort>(query, { topicName, limit })
+  const res = await runQuery<PrintShort>(query, { topicName, limit: Math.floor(limit) })
   return res
 }
 
@@ -93,7 +93,7 @@ export async function getProcessesByTopic(
     documentType: string
     description: string
     changeDate: string
-  }>(query, { topicName, limit })
+  }>(query, { topicName, limit: Math.floor(limit) })
   return res
 }
 
@@ -122,7 +122,7 @@ export async function getSimilarTopics(
 
   const res = await runQuery<TopicWithId>(query, {
     topicName,
-    limit,
+    limit: Math.floor(limit),
   })
   return res
 }
@@ -149,6 +149,6 @@ export async function getAllTopics(
   const res = await runQuery<{
     topic: TopicWithId
     printCount: number
-  }>(query, { limit })
+  }>(query, { limit: Math.floor(limit) })
   return res.map((r) => ({ ...r.topic, printCount: r.printCount }))
 }
