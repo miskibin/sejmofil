@@ -5,11 +5,24 @@ export type ProcessVoteCount = {
   downvotes: number
 }
 
+type VoteData = Array<{ vote_type: string | null }>
+type BatchVoteData = Array<{ process_id: number; vote_type: string | null }>
+
+// Helper to aggregate vote counts
+function aggregateVotes(votes: VoteData): ProcessVoteCount {
+  return votes.reduce(
+    (acc, vote) => {
+      if (vote.vote_type === 'up') acc.upvotes++
+      if (vote.vote_type === 'down') acc.downvotes++
+      return acc
+    },
+    { upvotes: 0, downvotes: 0 }
+  )
+}
+
 export async function getProcessVoteCounts(processId: number): Promise<ProcessVoteCount> {
   const supabase = await createClient()
   
-  // Query all votes for this process and aggregate in application layer
-  // Note: RPC function 'get_process_vote_counts' doesn't exist in database
   const { data, error } = await supabase
     .from('process_votes')
     .select('vote_type')
@@ -21,33 +34,19 @@ export async function getProcessVoteCounts(processId: number): Promise<ProcessVo
     return { upvotes: 0, downvotes: 0 }
   }
 
-  // Aggregate the counts in application layer
-  const counts = ((data || []) as Array<{ vote_type: string | null }>).reduce(
-    (acc, vote) => {
-      if (vote.vote_type === 'up') acc.upvotes++
-      if (vote.vote_type === 'down') acc.downvotes++
-      return acc
-    },
-    { upvotes: 0, downvotes: 0 }
-  )
-
-  return counts
+  return aggregateVotes((data || []) as VoteData)
 }
 
 /**
  * Batch fetch vote counts for multiple processes in a single query
- * This is more efficient than calling getProcessVoteCounts multiple times
  */
 export async function getBatchProcessVoteCounts(
   processIds: number[]
 ): Promise<Map<number, ProcessVoteCount>> {
-  if (processIds.length === 0) {
-    return new Map()
-  }
+  if (!processIds.length) return new Map()
 
   const supabase = await createClient()
   
-  // Fetch all votes for all processes in one query
   const { data, error } = await supabase
     .from('process_votes')
     .select('process_id, vote_type')
@@ -56,20 +55,12 @@ export async function getBatchProcessVoteCounts(
 
   if (error) {
     console.error('Error fetching batch process vote counts:', error)
-    // Return empty map with default values
     return new Map(processIds.map(id => [id, { upvotes: 0, downvotes: 0 }]))
   }
 
-  // Aggregate counts per process
-  const countsMap = new Map<number, ProcessVoteCount>()
+  const countsMap = new Map(processIds.map(id => [id, { upvotes: 0, downvotes: 0 }]))
   
-  // Initialize all process IDs with zero counts
-  processIds.forEach(id => {
-    countsMap.set(id, { upvotes: 0, downvotes: 0 })
-  })
-  
-  // Aggregate the votes
-  ;((data || []) as Array<{ process_id: number; vote_type: string | null }>).forEach(vote => {
+  ;(data as BatchVoteData).forEach(vote => {
     const current = countsMap.get(vote.process_id)
     if (current) {
       if (vote.vote_type === 'up') current.upvotes++
@@ -106,26 +97,19 @@ export async function toggleProcessVote(
 
   try {
     const existing = await getProcessUserVote(processId, userId)
-    const vote_type = existing === voteType ? null : voteType;
+    const vote_type = existing === voteType ? null : voteType
 
     const { error } = await supabase.from('process_votes').upsert(
       {
         process_id: processId,
         user_id: userId,
-        vote_type: vote_type,
+        vote_type,
         created_at: new Date().toISOString(),
       } as any,
-      {
-        // Using any temporarily due to type generation issues
-        onConflict: 'process_id,user_id',
-      }
+      { onConflict: 'process_id,user_id' }
     )
 
-    if (error) {
-      console.error('Error updating process vote:', error)
-      throw error
-    }
-
+    if (error) throw error
     return { success: true }
   } catch (error) {
     return {

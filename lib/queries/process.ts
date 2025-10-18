@@ -165,7 +165,7 @@ export const getLatestPrints = cache(async (
     LIMIT toInteger($limit)
   `
 
-  const res = await runQuery<PrintResponse>(query, { limit })
+  const res = await runQuery<PrintResponse>(query, { limit: Math.floor(limit) })
   return res.map((r) => r.p)
 })
 
