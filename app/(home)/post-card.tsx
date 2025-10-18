@@ -1,5 +1,5 @@
 'use client'
-import Image from 'next/image'
+import { ImageWithFallback } from '@/components/ui/image-with-fallback'
 import { MessageSquare, Share2, Vote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -104,9 +104,10 @@ export default function PostCard({
         {/* Image */}
         <Link href={postUrl} className="block w-full md:w-[200px] lg:w-[300px] order-1 md:order-2">
           <div className="relative rounded-lg overflow-hidden bg-muted aspect-[16/10] shrink-0">
-            <Image
+            <ImageWithFallback
               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}
               alt={title}
+              fallbackSrc="/default.jpg"
               className="object-cover object-center hover:scale-105 transition-transform duration-300"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 200px, 300px"
