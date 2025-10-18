@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { Search } from 'lucide-react'
-import Image from 'next/image'
+import { ImageWithFallback } from '@/components/ui/image-with-fallback'
 import Link from 'next/link'
 import { PrintListItem } from '@/lib/types/print'
 import ReactMarkdown from 'react-markdown'
@@ -287,9 +287,10 @@ export default function ProcessSearchPage({
                 className="relative h-[200px] sm:h-auto sm:w-[300px]"
               >
                 <div className="relative w-full h-full">
-                  <Image
+                  <ImageWithFallback
                     src={photoUrls[print.number]}
                     alt={print.title}
+                    fallbackSrc="/default.jpg"
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, 300px"
