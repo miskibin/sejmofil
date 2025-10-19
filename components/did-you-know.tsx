@@ -9,7 +9,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 export default async function PlebiscytCard() {
-  const mostInterruptions = (await getPersonWithMostInterruptions()) || 0
+  const mostInterruptions = (await getPersonWithMostInterruptions()) || { name: 'N/A', count: 0, id: '0' }
   const mostAbsents = await getPersonWithMostAbsents()
   const leastAbsents = await getPersonWithMostAbsents(true)
   const mostStatements = await getPersonWithMostStatements()
