@@ -1,24 +1,18 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  getPersonWithMostAbsents,
-  getPersonWithMostInterruptions,
-  getPersonWithMostStatements,
-} from '@/lib/queries/person'
 import { getProceedingDates } from '@/lib/queries/proceeding'
 import {
   getNextProceedingDate,
   getTimeUntilNextProceeding,
-  truncateText,
 } from '@/lib/utils'
-import { getLatestCitizations } from '@/lib/supabase/getLatestCitizations'
-import { getTopDiscussedTopics } from '@/lib/supabase/getTopDiscussedTopics'
+import { getAllTopics } from '@/lib/queries/topic'
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
 import { SidebarAuthSection } from '@/components/sidebar-auth-section'
 import { useSupabaseSession } from '@/lib/hooks/use-supabase-session'
+import DidYouKnow from '@/components/did-you-know'
+import PoliticianQuotes from '@/components/politician-quotes'
 
 export default async function Sidebar() {
   // Fetch all required data
@@ -26,40 +20,8 @@ export default async function Sidebar() {
   const nextDate = getNextProceedingDate(proceedings)
   const timeUntil = getTimeUntilNextProceeding(nextDate)
 
-  const mostInterruptions = await getPersonWithMostAbsents() // TODO WAIT FOR DB
-  const mostAbsents = await getPersonWithMostAbsents()
-  const mostStatements = await getPersonWithMostStatements()
-  const citations = await getLatestCitizations(2)
-  const topTopics = [
-    'Koronawirus',
-    'Obrady',
-    'Pandemia',
-    'Prawo',
-    'Polityka',
-    'Sejm',
-    'Rząd',
-    'Kryzys',
-    'Zdrowie',
-    'Edukacja',
-  ]
-
-  const politicians = [
-    {
-      name: mostAbsents.name,
-      stat: `Nieobecności: ${mostAbsents.count}`,
-      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostAbsents.id}.jpeg`,
-    },
-    {
-      name: mostStatements.name,
-      stat: `Wypowiedzi: ${mostStatements.count}`,
-      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostStatements.id}.jpeg`,
-    },
-    {
-      name: mostInterruptions.name,
-      stat: `Przerwał/a: ${mostInterruptions.count} razy`,
-      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostInterruptions.id}.jpeg`,
-    },
-  ]
+  const allTopics = await getAllTopics(10)
+  const topTopics = allTopics.map((topic) => topic.name)
 
   return (
     <div className="w-80 space-y-12 text-card-foreground/80">
@@ -114,50 +76,12 @@ export default async function Sidebar() {
       </div>
 
       {/* Updated Did you know section with real data */}
-      <div className="space-y-6">
-        <h2 className="text-lg text-muted-foreground">Czy Wiesz, że?</h2>
-        <div className="space-y-6">
-          {politicians.map((item) => (
-            <div key={item.name} className="flex items-start gap-3">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={item.image} />
-                <AvatarFallback>{item.name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">{item.name}</div>
-                <div className="text-base text-card-foreground/60">
-                  {item.stat}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div>
+        <DidYouKnow />
       </div>
 
-      {/* Updated Quotes section with real data */}
-      <div className="space-y-6">
-        <h2 className="text-lg text-muted-foreground">Cytaty</h2>
-        <div className="space-y-6">
-          {citations.map((citation, index) => (
-            <div key={index} className="flex items-start gap-3">
-              <Avatar className="w-8 h-8">
-                <AvatarImage
-                  src={`https://api.sejm.gov.pl/sejm/term10/MP/${citation.statement_id}/photo`}
-                />
-                <AvatarFallback>{citation.speaker_name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">
-                  {citation.speaker_name}
-                </div>
-                <p className="text-base text-card-foreground/60 line-clamp-3">
-                  {truncateText(citation.citation, 100)}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Politician Quotes section */}
+      <PoliticianQuotes />
 
       {/* Dashboard CTA */}
       <div className="space-y-4">
