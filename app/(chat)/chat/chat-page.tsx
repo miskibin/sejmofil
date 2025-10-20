@@ -6,6 +6,7 @@ import type { ChatMessage as ChatMessageType } from '@/hooks/useChat'
 import { ChatInput } from '@/components/ui/chat-input'
 import { Message } from '@/components/ui/message'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 const MessageCircleIcon = () => (
   <svg
@@ -33,7 +34,7 @@ interface ReferenceData {
 }
 
 export default function ChatPage() {
-  const { messages, isLoading, error, sendMessage } = useChat()
+  const { messages, isLoading, error, sendMessage, clearMessages } = useChat()
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -132,9 +133,11 @@ export default function ChatPage() {
                   <MessageCircleIcon />
                 </div>
                 <h2 className="text-lg font-semibold mb-2">Zacznij rozmowę</h2>
-                <p className="text-sm text-muted-foreground max-w-md">
-                  Pytaj mnie o procedury sejmowe, głosowania, ustawy i inne
-                  zagadnienia parlamentarne
+                <p className="text-sm text-muted-foreground max-w-md mb-3">
+                  Pytaj mnie o druki sejmowe
+                </p>
+                <p className="text-xs text-muted-foreground/70 max-w-md italic">
+                  Beta: Na razie chat może odpowiadać tylko na pytania o druki sejmowe
                 </p>
               </div>
             </div>
@@ -147,7 +150,6 @@ export default function ChatPage() {
                   content={message.content}
                   references={message.references}
                   patternHandlers={patternHandlers}
-                  contentClassName={cn('rounded-lg border')}
                 />
               ))}
               {isLoading && (
@@ -173,7 +175,13 @@ export default function ChatPage() {
           </div>
         </div>
       )}
-
+      {messages.length > 0 && (
+        <div className="mt-3 flex justify-center">
+          <Button onClick={clearMessages} disabled={isLoading} variant="ghost">
+            zapytaj o coś nowego
+          </Button>
+        </div>
+      )}
       {/* Input Area */}
       <div className="border-t border-border bg-background p-4">
         <div className="max-w-4xl mx-auto w-full">
