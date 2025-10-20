@@ -9,18 +9,36 @@ const openai = new OpenAI({
 })
 
 // Initialize Langfuse for tracing (optional, will work without it)
+// Lazy Langfuse initializer to avoid import-time side effects during Next build
 let langfuse: any = null
-try {
-  if (process.env.NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY && process.env.NEXT_PUBLIC_LANGFUSE_SECRET_KEY) {
-    const { Langfuse } = require('langfuse')
-    langfuse = new Langfuse({
-      publicKey: process.env.NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY,
-      secretKey: process.env.NEXT_PUBLIC_LANGFUSE_SECRET_KEY,
-      baseUrl: process.env.NEXT_PUBLIC_LANGFUSE_HOST || 'https://cloud.langfuse.com',
-    })
+let _langfuseInitPromise: Promise<any> | null = null
+async function getLangfuse() {
+  if (langfuse) return langfuse
+  if (_langfuseInitPromise) return _langfuseInitPromise
+
+  // Only attempt to initialize if env vars are present
+  if (!process.env.NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY || !process.env.NEXT_PUBLIC_LANGFUSE_SECRET_KEY) {
+    return null
   }
-} catch (error) {
-  console.warn('Langfuse initialization failed, tracing disabled:', error)
+
+  _langfuseInitPromise = (async () => {
+    try {
+      // dynamic import so bundler/build-time doesn't execute package code
+      const mod = await import('langfuse')
+      const Langfuse = mod?.Langfuse || mod?.default || mod
+      langfuse = new Langfuse({
+        publicKey: process.env.NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY,
+        secretKey: process.env.NEXT_PUBLIC_LANGFUSE_SECRET_KEY,
+        baseUrl: process.env.NEXT_PUBLIC_LANGFUSE_HOST || 'https://cloud.langfuse.com',
+      })
+      return langfuse
+    } catch (error) {
+      console.warn('Langfuse initialization failed, tracing disabled:', error)
+      return null
+    }
+  })()
+
+  return _langfuseInitPromise
 }
 
 interface ChatMessage {
@@ -121,46 +139,51 @@ URL: ${doc.url || 'brak'}
 
   console.log('[RESPONSE] System message length:', systemMessage.length)
 
-  // Create trace in Langfuse if available
+  // Create trace in Langfuse if available (lazy init)
   let generation: any = null
   let parentTrace: any = null
-  if (langfuse) {
-    parentTrace = langfuse.trace({
-      name: 'chat-response-generation',
-      userId: conversationId || 'anonymous',
-      metadata: {
-        documentCount: contextDocuments.length,
-        date: dateStr,
-      },
-    })
-
-    // Track retrieved chunks/documents as separate observations
-    contextDocuments.forEach((doc, idx) => {
-      parentTrace.span({
-        name: `retrieved-chunk-${idx + 1}`,
-        input: messages[messages.length - 1]?.content || '',
+  try {
+    const lf = await getLangfuse()
+    if (lf) {
+      parentTrace = lf.trace({
+        name: 'chat-response-generation',
+        userId: conversationId || 'anonymous',
         metadata: {
-          chunkIndex: idx + 1,
-          type: doc.type,
-          score: doc.score,
-          title: doc.title?.substring(0, 100),
-        },
-        output: {
-          title: doc.title,
-          type: doc.type,
-          contentLength: doc.content.length,
-          url: doc.url,
-          score: doc.score,
+          documentCount: contextDocuments.length,
+          date: dateStr,
         },
       })
-    })
 
-    generation = parentTrace.generation({
-      name: 'openai-chat',
-      model: 'gpt-5-nano',
-      input: messages,
-      systemPrompt: systemMessage,
-    })
+      // Track retrieved chunks/documents as separate observations
+      contextDocuments.forEach((doc, idx) => {
+        parentTrace.span({
+          name: `retrieved-chunk-${idx + 1}`,
+          input: messages[messages.length - 1]?.content || '',
+          metadata: {
+            chunkIndex: idx + 1,
+            type: doc.type,
+            score: doc.score,
+            title: doc.title?.substring(0, 100),
+          },
+          output: {
+            title: doc.title,
+            type: doc.type,
+            contentLength: doc.content.length,
+            url: doc.url,
+            score: doc.score,
+          },
+        })
+      })
+
+      generation = parentTrace.generation({
+        name: 'openai-chat',
+        model: 'gpt-5-nano',
+        input: messages,
+        systemPrompt: systemMessage,
+      })
+    }
+  } catch (err) {
+    console.warn('Langfuse trace init failed:', err)
   }
 
   try {
@@ -292,8 +315,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Flush Langfuse if available
-    if (langfuse) {
-      await langfuse.flush()
+    try {
+      const lf = await getLangfuse()
+      if (lf && lf.flush) await lf.flush()
+    } catch (err) {
+      // ignore
     }
 
     const responsePayload = {

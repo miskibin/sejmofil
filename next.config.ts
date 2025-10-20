@@ -24,7 +24,9 @@ const nextConfig: NextConfig = {
       static: 180,
     },
   },
-  output: 'standalone',
+  // Standalone output creates symlinks which can fail on Windows/CI (EPERM).
+  // Enable standalone only on non-Windows platforms.
+  output: process.platform === 'win32' ? undefined : 'standalone',
   compress: true,
   reactStrictMode: true,
 }
