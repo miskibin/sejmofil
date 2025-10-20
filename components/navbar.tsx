@@ -16,6 +16,7 @@ import {
 } from './ui/sheet'
 
 const navLinks = [
+  { href: '/chat', text: 'Chat', badge: 'beta' },
   { href: '/envoys', text: 'Posłowie' },
   { href: '/processes', text: 'Procesy Sejmowe' },
   { href: '/proceedings', text: 'Posiedzenia' },
@@ -94,10 +95,15 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-lg"
+                  className="relative flex items-center text-lg"
                   onClick={handleLinkClick}
                 >
                   {link.text}
+                  {link.badge && (
+                    <span className="absolute -right-3 -top-2 inline-flex items-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                      {link.badge}
+                    </span>
+                  )}
                 </Link>
               ))}
               <Link href="/about" className="text-lg" onClick={handleLinkClick}>
@@ -121,8 +127,13 @@ export default function Navbar() {
         {/* Desktop Navigation Links */}
         <div className="hidden items-center space-x-6 md:flex">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} prefetch={true}>
+            <Link key={link.href} href={link.href} prefetch={true} className="relative flex items-center">
               {link.text}
+              {link.badge && (
+                <span className="absolute -right-2 -top-2 inline-flex items-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {link.badge}
+                </span>
+              )}
             </Link>
           ))}
         </div>

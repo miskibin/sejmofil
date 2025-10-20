@@ -123,8 +123,9 @@ URL: ${doc.url || 'brak'}
 
   // Create trace in Langfuse if available
   let generation: any = null
+  let parentTrace: any = null
   if (langfuse) {
-    const trace = langfuse.trace({
+    parentTrace = langfuse.trace({
       name: 'chat-response-generation',
       userId: conversationId || 'anonymous',
       metadata: {
@@ -133,7 +134,28 @@ URL: ${doc.url || 'brak'}
       },
     })
 
-    generation = trace.generation({
+    // Track retrieved chunks/documents as separate observations
+    contextDocuments.forEach((doc, idx) => {
+      parentTrace.span({
+        name: `retrieved-chunk-${idx + 1}`,
+        input: messages[messages.length - 1]?.content || '',
+        metadata: {
+          chunkIndex: idx + 1,
+          type: doc.type,
+          score: doc.score,
+          title: doc.title?.substring(0, 100),
+        },
+        output: {
+          title: doc.title,
+          type: doc.type,
+          contentLength: doc.content.length,
+          url: doc.url,
+          score: doc.score,
+        },
+      })
+    })
+
+    generation = parentTrace.generation({
       name: 'openai-chat',
       model: 'gpt-5-nano',
       input: messages,
