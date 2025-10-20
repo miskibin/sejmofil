@@ -278,7 +278,7 @@ export async function POST(request: NextRequest) {
           conversation_id: conversationId,
           role: 'user',
           content: userMessage,
-        })
+        } as any)
 
       // Save assistant message
       await supabase
@@ -287,7 +287,7 @@ export async function POST(request: NextRequest) {
           conversation_id: conversationId,
           role: 'assistant',
           content: response,
-        })
+        } as any)
       console.log('[POST] Conversation saved')
     }
 
