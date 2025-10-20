@@ -1,10 +1,12 @@
 import Breadcrumbs from '@/components/breadcrumb-nav'
 import { Footer } from '@/components/footer'
 import Navbar from '@/components/navbar'
+import { NavigationProgress } from '@/components/navigation-progress'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
+import './nprogress.css'
 import { Toaster } from '@/components/ui/toaster'
 
 const inter = Inter({
@@ -78,6 +80,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} bg-neutral-50 antialiased`}>
+        {/* Navigation Progress Bar */}
+        <NavigationProgress />
+        
         {/* Google Analytics - load asynchronously with afterInteractive strategy */}
         <Script 
           src="https://www.googletagmanager.com/gtag/js?id=G-094FXXHQDE"

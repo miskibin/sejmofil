@@ -73,69 +73,49 @@ export function PostVoting({
         return
       }
 
-      if (isVoting) {
-        return
-      }
+      if (isVoting) return
 
       setIsVoting(true)
-      setError(null) // Clear any previous errors
+      setError(null)
       
       try {
-        // Optimistic update for better UX
-        const optimisticVotes = { ...votes }
         const isRemovingVote = userVote === voteType
+        const optimisticVotes = { ...votes }
         
-        // Adjust vote counts optimistically
+        // Optimistic update
         if (isRemovingVote) {
-          optimisticVotes[`${voteType}votes` as keyof typeof optimisticVotes] -= 1
+          optimisticVotes[`${voteType}votes`] -= 1
         } else {
-          // If changing vote type, decrease the other type
-          if (userVote) {
-            optimisticVotes[`${userVote}votes` as keyof typeof optimisticVotes] -= 1
-          }
-          optimisticVotes[`${voteType}votes` as keyof typeof optimisticVotes] += 1
+          if (userVote) optimisticVotes[`${userVote}votes`] -= 1
+          optimisticVotes[`${voteType}votes`] += 1
         }
         
-        // Update UI immediately
         setVotes(optimisticVotes)
         setUserVote(isRemovingVote ? null : voteType)
         
-        // Send to server
         const result = await toggleVote(pointId, user.id, voteType)
         
         if (result.success) {
-          // Get the actual counts from server to ensure consistency
           const serverCounts = await getVoteCounts(pointId)
           setVotes(serverCounts)
-          
-          // Update user vote state based on the action
-          if (isRemovingVote) {
-            setUserVote(null)
-          } else {
-            setUserVote(voteType)
-          }
         } else {
-          // Revert optimistic update on error
-          setError(result.error || 'Failed to save vote. Please try again.')
-          const revertCounts = await getVoteCounts(pointId)
+          setError(result.error || 'Failed to save vote')
+          const [revertCounts, revertUserVote] = await Promise.all([
+            getVoteCounts(pointId),
+            getUserVote(pointId, user.id)
+          ])
           setVotes(revertCounts)
-          const revertUserVote = await getUserVote(pointId, user.id)
           setUserVote(revertUserVote)
         }
       } catch (error) {
-        // Handle unexpected errors
-        console.error('Unexpected error in handleVote:', error)
-        setError('An unexpected error occurred. Please try again.')
-        
-        // Revert to server state
-        try {
-          const revertCounts = await getVoteCounts(pointId)
-          setVotes(revertCounts)
-          const revertUserVote = await getUserVote(pointId, user.id)
-          setUserVote(revertUserVote)
-        } catch (revertError) {
-          console.error('Failed to revert vote state:', revertError)
-        }
+        console.error('Vote error:', error)
+        setError('An unexpected error occurred')
+        const [revertCounts, revertUserVote] = await Promise.all([
+          getVoteCounts(pointId),
+          getUserVote(pointId, user.id)
+        ])
+        setVotes(revertCounts)
+        setUserVote(revertUserVote)
       } finally {
         setIsVoting(false)
       }

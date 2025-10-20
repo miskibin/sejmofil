@@ -1,21 +1,18 @@
 import { getAllProcessPrints } from '@/lib/queries/print'
 import ProcessClientPage from './client-page'
-import { getProcessVoteCounts, ProcessVoteCount } from '@/lib/supabase/processVotes';
+import { getBatchProcessVoteCounts } from '@/lib/supabase/processVotes';
 
 export default async function ProcessesPage() {
   const prints = await getAllProcessPrints();
 
-  // Alternative approach: Get all vote counts first, then map them
-  const voteCountsPromises = prints.map(print => 
-    getProcessVoteCounts(parseInt(print.number))
-  );
+  // Batch fetch all vote counts in a single query to avoid cookie() concurrency issues
+  const processIds = prints.map(print => parseInt(print.number))
+  const voteCountsMap = await getBatchProcessVoteCounts(processIds)
   
-  const voteCounts = await Promise.all(voteCountsPromises);
-  
-  // Map the results back to prints in original order
-  const printsWithVotes = prints.map((print, index) => ({
+  // Map the results back to prints
+  const printsWithVotes = prints.map(print => ({
     ...print,
-    votes: voteCounts[index]
+    votes: voteCountsMap.get(parseInt(print.number)) || { upvotes: 0, downvotes: 0 }
   }));
 
   return <ProcessClientPage prints={printsWithVotes} />;

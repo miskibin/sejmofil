@@ -52,7 +52,7 @@ export async function getPrintsRelatedToTopic(
   return result.map((record) => record.print)
 }
 
-export async function getSimmilarPrints(
+export async function getSimilarPrints(
   printNumber: string,
   maxVectorDistance: number = 0.5
 ): Promise<Print[]> {
@@ -157,42 +157,44 @@ export async function getPrintComments(number: string): Promise<Comment[]> {
   return runQuery<Comment>(query, { number })
 }
 
+/**
+ * Get prints for an envoy by relationship type
+ * @param id Person ID
+ * @param relationshipType 'AUTHORED' or 'SUBJECT'
+ * @param limit Number of results to return
+ */
+async function getEnvoyPrintsByRelationship(
+  id: number,
+  relationshipType: 'AUTHORED' | 'SUBJECT' = 'AUTHORED',
+  limit: number = 5
+): Promise<PrintShort[]> {
+  const query = `
+    MATCH (p:Person {id: toInteger($id)})-[:${relationshipType}]->(print:Print)
+    RETURN print {
+      number: print.number,
+      title: print.title,
+      documentDate: print.documentDate,
+      summary: print.summary
+    } as print
+    ORDER BY print.documentDate DESC
+    LIMIT toInteger($limit)
+  `
+  const result = await runQuery<{ print: PrintShort }>(query, { id, limit: Math.floor(limit) })
+  return result.map((record) => record.print)
+}
+
 export async function getEnvoyPrints(
   id: number,
   limit: number = 5
 ): Promise<PrintShort[]> {
-  const query = `
-  MATCH (p:Person {id: toInteger($id)})-[:AUTHORED]->(print:Print)
-  RETURN print {
-    number: print.number,
-    title: print.title,
-    documentDate: print.documentDate,
-    summary: print.summary
-  } as print
-  ORDER BY print.documentDate DESC
-  LIMIT 5
-    `
-  const result = await runQuery<{ print: PrintShort }>(query, { id, limit })
-  return result.map((record) => record.print)
+  return getEnvoyPrintsByRelationship(id, 'AUTHORED', limit)
 }
 
 export async function getEnvoySubjectPrints(
   id: number,
   limit: number = 5
 ): Promise<PrintShort[]> {
-  const query = `
-      MATCH (p:Person {id: toInteger($id)})-[:SUBJECT]->(print:Print)
-      RETURN print {
-        number: print.number,
-        title: print.title,
-        documentDate: print.documentDate,
-        summary: print.summary
-      } as print
-      ORDER BY print.documentDate DESC
-      LIMIT 5
-    `
-  const result = await runQuery<{ print: PrintShort }>(query, { id, limit })
-  return result.map((record) => record.print)
+  return getEnvoyPrintsByRelationship(id, 'SUBJECT', limit)
 }
 
 export async function getPrintsByNumbersAndVotings(

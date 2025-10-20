@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/popover'
 import { FaFacebook, FaGithub, FaGoogle, FaShieldAlt } from 'react-icons/fa'
 import { cn } from '@/lib/utils'
-import { OAuthResponse } from '@supabase/supabase-js'
 import { Separator } from '@/components/ui/separator'
 
 type LoginDialogProps = {
@@ -42,6 +41,7 @@ export function LoginDialog({
   const currentPath = usePathname()
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -60,19 +60,30 @@ export function LoginDialog({
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [supabase.auth])
 
-  useEffect(() => {
-    const returnPath = sessionStorage.getItem('returnPath')
-    if (returnPath) {
-      router.push(returnPath)
-      sessionStorage.removeItem('returnPath')
+  async function handleLogin(provider: 'github' | 'google' | 'facebook') {
+    setIsLoading(true)
+    try {
+      const origin = window.location.origin
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${origin}/auth/callback?redirect_to=${currentPath}`,
+        },
+      })
+
+      if (error) {
+        console.error('Error signing in:', error.message)
+        setIsLoading(false)
+        return
+      }
+
+      // The redirect will happen automatically
+    } catch (err) {
+      console.error('Login error:', err)
+      setIsLoading(false)
     }
-  }, [])
-
-  function handleLogin(loginFunction: () => Promise<OAuthResponse>) {
-    sessionStorage.setItem('returnPath', currentPath)
-    loginFunction()
   }
 
   async function handleLogout() {
@@ -161,13 +172,8 @@ export function LoginDialog({
           <div className="space-y-4 p-5">
             <Button
               type="button"
-              onClick={() =>
-                handleLogin(() =>
-                  supabase.auth.signInWithOAuth({
-                    provider: 'github',
-                  })
-                )
-              }
+              onClick={() => handleLogin('github')}
+              disabled={isLoading}
               className="w-full bg-[#24292e] hover:bg-[#1a1e22] text-white transition-all duration-300"
               variant="link"
             >
@@ -176,13 +182,8 @@ export function LoginDialog({
             </Button>
             <Button
               type="button"
-              onClick={() =>
-                handleLogin(() =>
-                  supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                  })
-                )
-              }
+              onClick={() => handleLogin('google')}
+              disabled={isLoading}
               className="w-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 shadow-sm transition-all duration-300"
               variant="link"
             >
@@ -190,13 +191,9 @@ export function LoginDialog({
               Zaloguj się przez Google
             </Button>
             <Button
-              onClick={() =>
-                handleLogin(() =>
-                  supabase.auth.signInWithOAuth({
-                    provider: 'facebook',
-                  })
-                )
-              }
+              type="button"
+              onClick={() => handleLogin('facebook')}
+              disabled={isLoading}
               className="w-full bg-[#5865F2]  text-white transition-all duration-300"
               variant="link"
             >

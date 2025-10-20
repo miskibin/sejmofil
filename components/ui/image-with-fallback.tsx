@@ -8,6 +8,8 @@ type ImageWithFallbackProps = {
   alt: string
   fallbackSrc: string
   fill?: boolean
+  width?: number
+  height?: number
   className?: string
   sizes?: string
 }

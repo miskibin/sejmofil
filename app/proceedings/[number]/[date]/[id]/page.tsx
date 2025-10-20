@@ -1,3 +1,4 @@
+import { MarkdownContent, SummaryCard, InfoDisplay } from '@/components/shared-content-components'
 import StatCard from '@/components/stat-card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -28,67 +29,6 @@ import { PrintSection } from './components/print-section'
 
 // Use ISR instead of force-dynamic
 export const revalidate = 3600 // Revalidate every hour
-
-// Update the SummarySection component to handle null values
-const SummarySection = ({
-  content,
-  title,
-  subtitle,
-  emptyText,
-}: {
-  content: string | null | undefined
-  title: string
-  subtitle: string
-  emptyText: string
-}) => (
-  <CardWrapper
-    title={title}
-    subtitle={subtitle}
-    className="h-full"
-    headerIcon={<Sparkles className="h-5 w-5 text-primary" fill="#76052a" />}
-  >
-    {content && content !== 'null' ? (
-      <div className="prose prose-sm max-w-none">
-        <ReactMarkdown>{content}</ReactMarkdown>
-      </div>
-    ) : (
-      <EmptyState text={emptyText} image="empty.svg" />
-    )}
-  </CardWrapper>
-)
-
-const TabContent = ({ content }: { content: string | null | undefined }) => {
-  if (!content || content === 'null') return null
-  return (
-    <div className="prose prose-sm max-w-none">
-      <ReactMarkdown>{content}</ReactMarkdown>
-    </div>
-  )
-}
-
-// Add new OfficialInfo component
-const OfficialInfo = ({
-  official_topic,
-  official_point,
-}: {
-  official_topic: string
-  official_point: string
-}) => (
-  <div className="space-y-4">
-    <div className="space-y-2">
-      <h3 className="text-sm font-medium text-muted-foreground">
-        Temat oficjalny
-      </h3>
-      <p className="text-sm">{official_topic || 'Brak oficjalnego tematu'}</p>
-    </div>
-    <div className="space-y-2">
-      <h3 className="text-sm font-medium text-muted-foreground">
-        Punkt porządku dziennego
-      </h3>
-      <p className="text-sm">{official_point || 'Brak numeru punktu'}</p>
-    </div>
-  </div>
-)
 
 export async function generateMetadata({}: {
   params: Promise<{ id: number }>
@@ -285,7 +225,7 @@ export default async function PointDetail({
       <div className="grid auto-rows-min grid-cols-1 gap-x-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-x-6">
         {/* Main topic section - Make it full width on mobile */}
         <div className="col-span-full lg:col-span-4">
-          <SummarySection
+          <SummaryCard
             title="Główne Zagadnienia"
             subtitle="Kluczowe tematy"
             content={point.summary_main?.main_topics}
@@ -346,12 +286,20 @@ export default async function PointDetail({
                       {tab.value === 'prints' ? (
                         <PrintSection prints={printsWithStages} />
                       ) : tab.value === 'official' ? (
-                        <OfficialInfo
-                          official_topic={point.official_topic}
-                          official_point={point.official_point}
+                        <InfoDisplay
+                          items={[
+                            {
+                              label: 'Temat oficjalny',
+                              value: point.official_topic,
+                            },
+                            {
+                              label: 'Punkt porządku dziennego',
+                              value: point.official_point,
+                            },
+                          ]}
                         />
                       ) : (
-                        <TabContent content={tab.content} />
+                        <MarkdownContent content={tab.content} />
                       )}
                     </TabsContent>
                   ))}

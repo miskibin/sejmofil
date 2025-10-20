@@ -245,33 +245,44 @@ export default async function TopicPage({
         <div className="space-y-6">
           {/* Graph Visualization */}
           {similarTopics.length > 0 && (
-            <TopicGraph
-              currentTopic={topic.name}
-              similarTopics={similarTopics}
-            />
-          )}
-
-          {/* Similar Topics List */}
-          {similarTopics.length > 0 && (
             <CardWrapper
               title="Podobne tematy"
-              subtitle={`${similarTopics.length} tematów`}
+              subtitle={`${similarTopics.length} ${similarTopics.length === 1 ? 'temat' : similarTopics.length < 5 ? 'tematy' : 'tematów'}`}
               headerIcon={<Network className="h-5 w-5" />}
             >
+              <TopicGraph
+                currentTopic={topic.name}
+                currentTopicId={id}
+                similarTopics={similarTopics.map((t) => ({
+                  ...t,
+                  id: encodeURIComponent(t.name),
+                }))}
+              />
+            </CardWrapper>
+          )}
+
+          {/* Related Prints */}
+          {prints.length > 0 && (
+            <CardWrapper
+              title="Powiązane druki"
+              subtitle={`${prints.length} druków`}
+              headerIcon={<FileText className="h-5 w-5" />}
+            >
               <div className="space-y-3">
-                {similarTopics.map((similarTopic) => (
+                {prints.slice(0, 5).map((print) => (
                   <Link
-                    key={similarTopic.name}
-                    href={`/topics/${encodeURIComponent(similarTopic.name)}`}
+                    key={print.number}
+                    href={`/prints/${print.number}`}
+                    className="block group"
                   >
                     <div className="flex items-start justify-between gap-4 space-y-2">
                       <div className="flex-1 space-y-2">
                         <h3 className="font-semibold leading-tight group-hover:text-primary transition-colors">
-                          {similarTopic.name}
+                          Druk {print.number}
                         </h3>
-                        {similarTopic.description && (
-                          <p className="line-clamp-3 text-xs text-muted-foreground">
-                            {similarTopic.description}
+                        {print.title && (
+                          <p className="line-clamp-2 text-xs text-muted-foreground">
+                            {print.title}
                           </p>
                         )}
                       </div>
