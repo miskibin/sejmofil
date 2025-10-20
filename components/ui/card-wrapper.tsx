@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
-import Image from 'next/image'
+import { ImageWithFallback } from '@/components/ui/image-with-fallback'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 import { SourcePopover } from './source-popover'
@@ -49,10 +49,11 @@ export function CardWrapper({
     >
       {imageSrc && (
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-t-lg p-2">
-          <Image
+          <ImageWithFallback
             src={imageSrc}
             alt=""
-            className="h-full w-full rounded-t-lg"
+            fallbackSrc="/default.jpg"
+            className="h-full w-full rounded-t-lg object-cover"
             width={500}
             height={300}
           />

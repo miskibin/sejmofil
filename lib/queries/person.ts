@@ -114,6 +114,10 @@ export async function getPersonWithMostInterruptions(): Promise<RecordHolder> {
     LIMIT 1
   `
   const result = await runQuery<RecordHolder>(query)
+  // If no interruptions data exists, return a fallback
+  if (!result || result.length === 0) {
+    return null as any
+  }
   return result[0]
 }
 

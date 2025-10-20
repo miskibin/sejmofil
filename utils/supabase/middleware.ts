@@ -32,9 +32,18 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
+  // creating a new response object with NextResponse.next() make sure to:
+  // 1. Pass the request in it, like so:
+  //    const myNewResponse = NextResponse.next({ request })
+  // 2. Copy over the cookies from supabaseResponse.cookies, like so:
+  //    supabaseResponse.cookies.getAll().forEach((cookie) => {
+  //      myNewResponse.cookies.set(cookie)
+  //    })
+  // 3. Change the supabaseResponse object to your new response object and return it.
+
+  // Refreshing the auth token
+  await supabase.auth.getUser()
 
   return supabaseResponse
 }

@@ -170,3 +170,50 @@ export const getAllCategories = cache(async (): Promise<string[]> => {
     .slice(0, 5)
     .map(([category]) => category)
 })
+
+type ProceedingFromDB = {
+  number: number
+  dates: string[]
+  proceeding_day: Array<{
+    id: number
+    date: string
+    proceeding_point_ai: Array<{
+      id: number
+      topic: string
+      summary_tldr: string | null
+      voting_numbers: number[]
+      official_point: string | null
+    }>
+  }>
+}
+
+// Note: Not using unstable_cache here because it needs server context (cookies)
+export async function getProceedings(): Promise<ProceedingFromDB[]> {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('proceeding')
+    .select(`
+      number,
+      dates,
+      proceeding_day (
+        id,
+        date,
+        proceeding_point_ai (
+          id,
+          topic,
+          summary_tldr,
+          voting_numbers,
+          official_point
+        )
+      )
+    `)
+    .order('number', { ascending: false })
+  
+  if (error) {
+    console.error('Error fetching proceedings:', error)
+    return []
+  }
+  
+  return (data || []) as ProceedingFromDB[]
+}

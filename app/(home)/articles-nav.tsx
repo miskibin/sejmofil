@@ -1,6 +1,6 @@
 "use client"
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useState, useTransition } from 'react'
+import { useCallback, useTransition } from 'react'
 import {
   Carousel,
   CarouselContent,
@@ -12,11 +12,9 @@ import {
 export default function ArticlesNav({ 
   categories, 
   activeSort,
-  onTransitionChange
 }: { 
   categories: string[]
   activeSort: string
-  onTransitionChange?: (isTransitioning: boolean) => void
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -38,8 +36,7 @@ export default function ArticlesNav({
       params.set('sort', value)
       router.push(`?${params.toString()}`, { scroll: false })
     })
-    onTransitionChange?.(true)
-  }, [router, searchParams, onTransitionChange])
+  }, [router, searchParams])
 
   return (
     <div className="relative w-full max-w-full md:max-w-4xl">
