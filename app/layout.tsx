@@ -1,6 +1,4 @@
-import Breadcrumbs from '@/components/breadcrumb-nav'
-import { Footer } from '@/components/footer'
-import Navbar from '@/components/navbar'
+import '../instrumentation'
 import { NavigationProgress } from '@/components/navigation-progress'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -8,6 +6,7 @@ import Script from 'next/script'
 import './globals.css'
 import './nprogress.css'
 import { Toaster } from '@/components/ui/toaster'
+import { LayoutContent } from './layout-content'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -97,15 +96,8 @@ export default function RootLayout({
           `}
         </Script>
 
-        <Navbar />
-        <main className="container mx-auto mt-8 sm:mt-4 max-w-7xl p-1 sm:p-6 lg:p-12 2xl:max-w-[1400px]">
-          <Breadcrumbs />
-
-          <div className="mt-8 min-h-screen">{children}</div>
-        </main>
-        <hr className="mx-4 my-8" />
-
-        <Footer />
+        <LayoutContent>{children}</LayoutContent>
+        
         <Toaster />
       </body>
     </html>

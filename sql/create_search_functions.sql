@@ -1,0 +1,20 @@
+-- Chat RAG Configuration
+-- 
+-- Vector Search is performed using Neo4j's vector indexes
+-- The following indexes are used for semantic search:
+-- 
+-- 1. topicEmbeddingIndex - for Topic nodes with embeddings
+-- 2. printEmbeddingIndex - for Print nodes (legislative documents/druki) with embeddings
+-- 3. organizationEmbeddingIndex - for Organization nodes with embeddings
+--
+-- All embeddings are generated using OpenAI's text-embedding-3-small model (1536 dimensions)
+-- and stored in Neo4j with cosine similarity distance metric.
+--
+-- Neo4j Vector Search Query Pattern:
+-- CALL db.index.vector.queryNodes('indexName', topK, $embedding)
+-- YIELD node, score
+-- 
+-- The score returned is the distance (lower = more similar)
+-- Convert to similarity: similarity = 1 - distance
+--
+-- Note: Supabase is used only for conversation/message storage, not for RAG embeddings.
