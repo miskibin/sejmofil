@@ -23,8 +23,10 @@ ENV DB_URI=${DB_URI} \
     NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL} \
     NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 
-# Copy package.json, pnpm-lock.yaml and pnpm-workspace.yaml to install dependencies
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy dependency files
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml ./
 
 # Install dependencies using pnpm
 RUN pnpm install --frozen-lockfile
