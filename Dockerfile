@@ -4,6 +4,9 @@ FROM node:23-alpine AS builder
 # Set the working directory
 WORKDIR /app
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Declare build arguments for all environment variables
 ARG DB_URI
 ARG DB_USER
@@ -20,17 +23,17 @@ ENV DB_URI=${DB_URI} \
     NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL} \
     NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 
-# Copy package.json and package-lock.json to install dependencies
-COPY package*.json ./
+# Copy package.json, pnpm-lock.yaml and pnpm-workspace.yaml to install dependencies
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies using pnpm
+RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the source code
 COPY . .
 
 # Build the Next.js application in standalone mode
-RUN npm run build
+RUN pnpm build
 
 # Stage 2: Run the standalone production application
 FROM node:23-alpine AS runner
