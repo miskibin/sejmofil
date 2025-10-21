@@ -34,7 +34,7 @@ interface ReferenceData {
 }
 
 export default function ChatPage() {
-  const { messages, isLoading, error, sendMessage, clearMessages } = useChat()
+  const { messages, isLoading, error, sendMessage, clearMessages, status, isGenerating } = useChat()
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -154,10 +154,14 @@ export default function ChatPage() {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-bounce" />
-                    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:0.2s]" />
-                    <div className="h-2 w-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:0.4s]" />
+                  <div className="flex flex-col gap-2">
+                    {status && !isGenerating && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
+                        <div className="h-2 w-2 bg-primary rounded-full animate-pulse" />
+                        {status}
+                      </div>
+                    )}
+                    
                   </div>
                 </div>
               )}

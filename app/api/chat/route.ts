@@ -97,10 +97,14 @@ async function retrieveContext(userMessage: string): Promise<ContextDocument[]> 
   return documents
 }
 
-async function generateResponse(
+// Status callback type for streaming progress
+type StatusCallback = (status: string) => void
+
+async function generateResponseWithStatus(
   messages: ChatMessage[],
   contextDocuments: ContextDocument[],
-  conversationId?: string
+  conversationId: string | undefined,
+  onStatus?: StatusCallback
 ): Promise<{ response: string; references: ContextDocument[] }> {
   console.log('[RESPONSE] Generating response with', contextDocuments.length, 'context documents')
   console.log('[RESPONSE] Conversation ID:', conversationId)
@@ -285,7 +289,7 @@ export async function POST(request: NextRequest) {
 
     // Generate response using OpenAI with Langfuse tracing
     console.log('[POST] Generating response...')
-    const { response, references } = await generateResponse(
+    const { response, references } = await generateResponseWithStatus(
       messages,
       contextDocuments,
       conversationId || user.id
