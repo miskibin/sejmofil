@@ -231,10 +231,12 @@ export default function ChatPage() {
                                     {toolCall.result && (
                                       <details className="mt-1 cursor-pointer" open>
                                         <summary className="text-xs text-muted-foreground/75 hover:text-muted-foreground">
-                                          Wynik ↓
+                                          Rezultat ↓
                                         </summary>
-                                        <pre className="text-xs bg-background/50 p-2 rounded mt-1 overflow-auto max-h-40 text-muted-foreground">
-                                          {toolCall.result}
+                                        <pre className="text-xs bg-background/50 p-2 rounded mt-1 overflow-auto max-h-40 text-muted-foreground whitespace-pre-wrap">
+                                          {typeof toolCall.result === 'string'
+                                            ? toolCall.result
+                                            : JSON.stringify(toolCall.result, null, 2)}
                                         </pre>
                                       </details>
                                     )}
