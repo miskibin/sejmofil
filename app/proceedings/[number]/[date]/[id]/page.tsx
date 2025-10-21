@@ -216,12 +216,19 @@ export default async function PointDetail({
           <Badge className="text-xs sm:text-sm" variant="outline">
             {point.official_point}
           </Badge>
+          <span className="text-sm text-muted-foreground">
+            {new Date(point.proceeding_day.date).toLocaleDateString('pl-PL', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </span>
         </div>
         <h1 className="break-words text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
           {title}
         </h1>
         {point.summary_tldr && (
-          <p className="text-lg text-muted-foreground sm:text-xl">
+          <p className="text-lg leading-relaxed text-muted-foreground sm:text-xl">
             {point.summary_tldr}
           </p>
         )}
@@ -326,20 +333,47 @@ export default async function PointDetail({
 
         {/* Right column - Secondary info (1/3 width) */}
         <div className="space-y-6">
-          {/* Main topics card */}
-          <SummaryCard
-            title="Główne Zagadnienia"
-            subtitle="Kluczowe tematy"
-            content={point.summary_main?.main_topics}
-            emptyText="Brak głównych zagadnień"
-          />
+          {/* Main topics card - always show if available */}
+          {point.summary_main?.main_topics && (
+            <SummaryCard
+              title="Główne Zagadnienia"
+              subtitle="Kluczowe tematy"
+              content={point.summary_main?.main_topics}
+              emptyText="Brak głównych zagadnień"
+            />
+          )}
 
-          {/* Club analysis */}
+          {/* Club analysis - only show if sufficient data */}
           {chartData.length >= 7 && (
             <CardWrapper title="Analiza klubów" subtitle="Stosunek do tematu">
               <TopicAttitudeChart data={chartData} />
             </CardWrapper>
           )}
+
+          {/* Proceeding info card */}
+          <Card className="p-4">
+            <h3 className="mb-3 text-sm font-semibold">Informacje o posiedzeniu</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Posiedzenie:</span>
+                <span className="font-medium">
+                  #{point.proceeding_day.proceeding.number}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Data:</span>
+                <span className="font-medium">
+                  {new Date(point.proceeding_day.date).toLocaleDateString('pl-PL')}
+                </span>
+              </div>
+              {printsWithStages.length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Druki:</span>
+                  <span className="font-medium">{printsWithStages.length}</span>
+                </div>
+              )}
+            </div>
+          </Card>
         </div>
       </div>
 

@@ -296,13 +296,14 @@ export function DiscussionEntries({
 
       {/* Add load all button */}
       {!showAll && sortedStatements.length > 2 && (
-        <div className="flex justify-center pt-4">
+        <div className="flex justify-center border-t pt-6">
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={() => setShowAll(true)}
-            className="w-full max-w-sm"
+            className="w-full max-w-md"
+            size="lg"
           >
-            Załaduj wszystkie ({sortedStatements.length - 2} pozostało)
+            Pokaż wszystkie wypowiedzi ({sortedStatements.length - 2} pozostało)
           </Button>
         </div>
       )}
