@@ -27,10 +27,9 @@ export interface UseChatReturn {
   setConversationId: (id: string | null) => void
   status: string | null
   isGenerating: boolean
-  useStreaming?: boolean
 }
 
-export function useChat(initialConversationId?: string, useStreaming: boolean = true): UseChatReturn {
+export function useChat(initialConversationId?: string): UseChatReturn {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -41,7 +40,7 @@ export function useChat(initialConversationId?: string, useStreaming: boolean = 
     initialConversationId || null
   )
 
-  const sendMessageWithStreaming = useCallback(
+  const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim()) return
 
@@ -73,8 +72,8 @@ export function useChat(initialConversationId?: string, useStreaming: boolean = 
 
         setMessages((prev) => [...prev, placeholderMessage])
 
-        // Call streaming API
-        const response = await fetch('/api/chat/stream', {
+        // Call agent API endpoint (SSE streaming)
+        const response = await fetch('/api/chat/agent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -233,79 +232,6 @@ export function useChat(initialConversationId?: string, useStreaming: boolean = 
     [messages, conversationId]
   )
 
-  const sendMessageWithoutStreaming = useCallback(
-    async (content: string) => {
-      if (!content.trim()) return
-
-      setError(null)
-      setIsLoading(true)
-      setStatus('Przetwarzanie...')
-
-      try {
-        // Add user message to state
-        const userMessage: ChatMessage = {
-          id: `msg-${Date.now()}`,
-          role: 'user',
-          content: content.trim(),
-          timestamp: new Date(),
-        }
-
-        setMessages((prev) => [...prev, userMessage])
-        setInput('')
-
-        // Call API
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messages: [
-              ...messages.map((m) => ({
-                role: m.role,
-                content: m.content,
-              })),
-              {
-                role: 'user',
-                content: content.trim(),
-              },
-            ],
-            conversationId,
-          }),
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.error || 'Failed to send message')
-        }
-
-        const data = await response.json()
-
-        // Add assistant message to state
-        const assistantMessage: ChatMessage = {
-          id: `msg-${Date.now()}-assistant`,
-          role: 'assistant',
-          content: data.message,
-          timestamp: new Date(),
-          references: data.references,
-        }
-
-        setMessages((prev) => [...prev, assistantMessage])
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-        setError(errorMessage)
-        console.error('[useChat] Chat error:', err)
-      } finally {
-        setIsLoading(false)
-        setStatus(null)
-        setIsGenerating(false)
-      }
-    },
-    [messages, conversationId]
-  )
-
-  const sendMessage = useStreaming ? sendMessageWithStreaming : sendMessageWithoutStreaming
-
   const clearMessages = useCallback(() => {
     setMessages([])
     setInput('')
@@ -326,6 +252,5 @@ export function useChat(initialConversationId?: string, useStreaming: boolean = 
     setConversationId,
     status,
     isGenerating,
-    useStreaming,
   }
 }
