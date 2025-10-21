@@ -85,14 +85,22 @@ Masz dostęp do narzędzi MCP do:
 5. Uzyskiwania statystyk na temat tematów
 6. Wyszukiwania we wszystkich zasobach parlamentarnych
 
+DOSTĘPNE ENDPOINTY W APLIKACJI:
+Gdy odnoszisz się do konkretnych zasobów, używaj hiperłączy w formacie markdown:
+- Procesy legislacyjne: [Proces <id>](/processes/<id>) - np. [Proces 123](/processes/123)
+- Druki sejmowe: [Druk <numer>](/prints/<numer>) - np. [Druk 456](/prints/456)
+- Posłowie: [<Imię Nazwisko>](/envoys/<id>) - np. [Jan Kowalski](/envoys/789)
+- Posiedzenia: [Posiedzenie <numer>](/proceedings/<id>) - np. [Posiedzenie 10](/proceedings/10)
+
 WAŻNE INSTRUKCJE:
 1. Odpowiadaj zwięźle i precyzyjnie (max 2-3 akapity)
 2. Unikaj powtórzeń i długich wyjaśnień
-3. Zawsze cytuj źródła
 4. Odpowiadaj po polsku
 5. Używaj dostępnych narzędzi aby znaleźć informacje, gdy jest to potrzebne
 6. Nie wymyślaj danych - korzystaj z dostępnych narzędzi
-7. Jeśli funkcja zwraca błąd, spróbuj z innymi parametrami`
+7. Jeśli funkcja zwraca błąd, spróbuj z innymi parametrami
+8. ZAWSZE twórz aktywne linki do zasobów (procesów, druków, posłów) używając formatu markdown
+9. Gdy wspominasz o konkretnym druku, procesie lub pośle, ZAWSZE dodawaj hiperłącze`
 
     // Create readable stream for SSE
     const readable = new ReadableStream({
@@ -127,7 +135,6 @@ WAŻNE INSTRUKCJE:
           console.log('[POST] Available tools:', toolNames)
 
           // Create agent with streaming capabilities
-          console.log('[POST] Creating agent with gpt-4o-mini...')
 
           const model = new ChatOpenAI({
             modelName: 'gpt-5-nano',
