@@ -2,6 +2,8 @@ import { CardWrapper } from '@/components/ui/card-wrapper'
 import { getAllProcessPrints } from '@/lib/queries/print'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default async function PrintsPage() {
   const prints = await getAllProcessPrints()
 
