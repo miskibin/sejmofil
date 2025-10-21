@@ -1,5 +1,8 @@
 import type { MetadataRoute } from 'next'
 
+// Static content - cache for 1 day
+export const revalidate = 86400
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Sejmofil',

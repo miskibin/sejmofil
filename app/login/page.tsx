@@ -4,6 +4,9 @@ import { Github, Lock } from 'lucide-react'
 import { signInWithGitHub, signInWithGoogle, signInWithFacebook } from './actions'
 import { FaFacebook, FaGoogle } from 'react-icons/fa'
 
+// Static page - cache for 1 day
+export const revalidate = 86400
+
 export default function LoginPage() {
   return (
     <div className="flex items-center justify-center">

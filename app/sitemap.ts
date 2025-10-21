@@ -3,6 +3,9 @@ import { MetadataRoute } from 'next'
 import { getAllEnvoys } from '@/lib/queries/person'
 import { getLatestPrints } from '@/lib/queries/process'
 
+// Dynamic content - cache for 1 hour
+export const revalidate = 3600
+
 type ProceedingWithDays = {
   number: number
   proceeding_day?: Array<{
