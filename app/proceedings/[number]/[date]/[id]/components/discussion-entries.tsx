@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
-import { AlertTriangle, Brain, ExternalLink, Heart, Scale } from 'lucide-react'
+import { AlertTriangle, Brain, ExternalLink, Heart, Scale, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -136,11 +136,12 @@ export function DiscussionEntries({
 
   return (
     <div className="mb-4 space-y-4">
-      <div className="flex items-center justify-between border-b pb-4">
+      <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {filterMode === 'featured' ? (
-            <div className="flex gap-2">
-              <span className="font-medium">Wyróżnione</span>
+            <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="font-medium text-primary">Wyróżnione</span>
               <span className="text-muted-foreground">
                 ({filteredStatements.length} z {statements.length})
               </span>
@@ -161,7 +162,7 @@ export function DiscussionEntries({
           value={filterMode}
           onValueChange={(value: FilterMode) => handleModeChange(value)}
         >
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -180,11 +181,22 @@ export function DiscussionEntries({
       <div className="mb-4 space-y-6">
         {displayedStatements.map((statement) => {
           const speaker = getSpeakerInfo(statement.speaker_name)
+          const isHighlighted =
+            (statement.statement_ai?.speaker_rating?.emotions ?? 0) >= 4 ||
+            (statement.statement_ai?.speaker_rating?.manipulation ?? 0) >= 4
 
           return (
-            <div key={statement.id} className={cn('flex flex-col')}>
-              {/* Header - Now top section on mobile */}
-              <div className="mb-4 flex items-center gap-3">
+            <div
+              key={statement.id}
+              className={cn(
+                'rounded-lg border p-4 transition-all hover:shadow-md',
+                isHighlighted && filterMode === 'featured'
+                  ? 'border-primary/30 bg-primary/5'
+                  : 'bg-card'
+              )}
+            >
+              {/* Header */}
+              <div className="mb-3 flex items-center gap-3">
                 <Link
                   href={speaker?.id ? `/envoys/${speaker.id}` : '#'}
                   className="flex-shrink-0"
@@ -196,36 +208,41 @@ export function DiscussionEntries({
                         : '/placeholder.svg'
                     }
                     alt={statement.speaker_name}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
+                    width={48}
+                    height={48}
+                    className="rounded-full ring-2 ring-border"
                     loading="lazy"
                   />
                 </Link>
 
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
-                  <Link
-                    href={speaker?.id ? `/envoys/${speaker.id}` : '#'}
-                    className="text-sm font-medium hover:underline"
-                  >
-                    {statement.speaker_name}
-                  </Link>
-                  <span className="text-xs text-muted-foreground">
-                    ({speaker?.club || 'Brak klubu'})
-                  </span>
+                <div className="flex flex-1 flex-col gap-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      href={speaker?.id ? `/envoys/${speaker.id}` : '#'}
+                      className="text-sm font-semibold hover:underline"
+                    >
+                      {statement.speaker_name}
+                    </Link>
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                      {speaker?.club || 'Brak klubu'}
+                    </span>
+                  </div>
                   <TooltipProvider>
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap gap-1">
                       {Object.entries(statement.statement_ai.speaker_rating)
                         .filter(([, value]) => value >= 4)
                         .map(([key, value]) => (
                           <Tooltip key={key}>
-                            <TooltipTrigger>
-                              <div className="flex items-center">
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
                                 {metricIcons[key]?.icon}
+                                <span className="text-xs font-medium">
+                                  {value}/5
+                                </span>
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              {metricIcons[key]?.tooltip}: {value}/5
+                              {metricIcons[key]?.tooltip}
                             </TooltipContent>
                           </Tooltip>
                         ))}
@@ -235,9 +252,9 @@ export function DiscussionEntries({
               </div>
 
               {/* Content section */}
-              <div className="w-full">
+              <div className="space-y-3">
                 {statement.statement_ai?.summary_tldr && (
-                  <p className="mb-2 text-sm text-foreground/90">
+                  <p className="text-sm leading-relaxed text-foreground">
                     {statement.statement_ai.summary_tldr}
                   </p>
                 )}
@@ -245,12 +262,12 @@ export function DiscussionEntries({
                 {/* Citations */}
                 {Array.isArray(statement.statement_ai?.citations) &&
                   statement.statement_ai.citations.length > 0 && (
-                    <div className="mt-2 space-y-2">
+                    <div className="space-y-2">
                       {statement.statement_ai.citations.map(
                         (citation, index) => (
                           <blockquote
                             key={index}
-                            className="border-l-2 border-primary/30 pl-3 text-sm italic text-muted-foreground"
+                            className="border-l-2 border-primary pl-4 text-sm italic text-muted-foreground"
                           >
                             {citation}
                           </blockquote>
@@ -260,15 +277,15 @@ export function DiscussionEntries({
                   )}
 
                 {/* Footer with reactions */}
-                <div className="mt-2 flex items-center justify-between">
-                <StatementReactions statementId={statement.id} />
+                <div className="flex items-center justify-between border-t pt-3">
+                  <StatementReactions statementId={statement.id} />
 
                   <Link
                     href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${proceedingNumber}/${proceedingDate}/transcripts/${statement.number_source}`}
                     target="_blank"
-                    className="flex items-center gap-1 text-xs text-primary hover:underline"
+                    className="flex items-center gap-1 text-xs text-primary transition-colors hover:text-primary/80 hover:underline"
                   >
-                    całość <ExternalLink className="h-3 w-3" />
+                    Pełna transkrypcja <ExternalLink className="h-3 w-3" />
                   </Link>
                 </div>
               </div>
@@ -279,13 +296,14 @@ export function DiscussionEntries({
 
       {/* Add load all button */}
       {!showAll && sortedStatements.length > 2 && (
-        <div className="flex justify-center pt-4">
+        <div className="flex justify-center border-t pt-6">
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={() => setShowAll(true)}
-            className="w-full max-w-sm"
+            className="w-full max-w-md"
+            size="lg"
           >
-            Załaduj wszystkie ({sortedStatements.length - 2} pozostało)
+            Pokaż wszystkie wypowiedzi ({sortedStatements.length - 2} pozostało)
           </Button>
         </div>
       )}

@@ -207,82 +207,94 @@ export default async function PointDetail({
           </Alert>
         ))}
 
-      {/* Header section - Make it more responsive */}
-      <div className="space-x-4 space-y-2 sm:space-y-4">
-        <div className="flex flex-col space-y-2">
-          <h1 className="break-words text-2xl font-bold sm:text-3xl">
-            {title}
-          </h1>
+      {/* Hero Header section - improved visual hierarchy */}
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge className="text-xs sm:text-sm" variant="default">
+            {category}
+          </Badge>
+          <Badge className="text-xs sm:text-sm" variant="outline">
+            {point.official_point}
+          </Badge>
+          <span className="text-sm text-muted-foreground">
+            {new Date(point.proceeding_day.date).toLocaleDateString('pl-PL', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </span>
         </div>
-        <Badge className="text-xs sm:text-sm" variant="default">
-          {category}
-        </Badge>
-        <Badge className="text-xs sm:text-sm" variant="outline">
-          {point.official_point}
-        </Badge>
+        <h1 className="break-words text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+          {title}
+        </h1>
+        {point.summary_tldr && (
+          <p className="text-lg leading-relaxed text-muted-foreground sm:text-xl">
+            {point.summary_tldr}
+          </p>
+        )}
       </div>
 
-      <div className="grid auto-rows-min grid-cols-1 gap-x-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-x-6">
-        {/* Main topic section - Make it full width on mobile */}
-        <div className="col-span-full lg:col-span-4">
-          <SummaryCard
-            title="Główne Zagadnienia"
-            subtitle="Kluczowe tematy"
-            content={point.summary_main?.main_topics}
-            emptyText="Brak głównych zagadnień"
-          />
+      {/* Quick stats bar - more compact and informative */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-lg border bg-card p-4 text-center">
+          <p className="text-2xl font-bold">{point.statements.length}</p>
+          <p className="text-sm text-muted-foreground">Wypowiedzi</p>
         </div>
-
-        {/* Stats cards - Adjust grid for better mobile layout */}
-        <div className="col-span-full mt-4 flex h-full flex-col gap-4 sm:mt-0 lg:col-span-8">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <StatCard
-              headerIcon={
-                <Sparkles className="h-5 w-5 text-primary" fill="#76052a" />
-              }
-              sourceDescription="Emocje mierzone są na podstawie metryk, opisanych w zakładce 'o projekcie'. Każda wypowiedź jest oceniana w skali od 1 do 5"
-              title="Emocjonalność"
-              value={`${Math.round(
+        <div className="rounded-lg border bg-card p-4 text-center">
+          <p className="text-2xl font-bold">{speakerNames.length}</p>
+          <p className="text-sm text-muted-foreground">Uczestników</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 text-center">
+          <div className="flex items-center justify-center gap-1">
+            <Sparkles className="h-5 w-5 text-primary" fill="#76052a" />
+            <p className="text-2xl font-bold">
+              {Math.round(
                 point.statements.reduce(
                   (acc, s) =>
                     acc + (s.statement_ai?.speaker_rating?.emotions || 0),
                   0
                 ) / point.statements.length
-              )}/5`}
-              category="Legislacja"
-            />
-            <StatCard
-              title="Wypowiedzi"
-              value={Math.round(point.statements.length)}
-              category="Legislacja"
-            />
-            <StatCard
-              title="Uczestnicy"
-              value={Math.round(speakerNames.length)}
-              category="Legislacja"
-            />
+              )}
+              /5
+            </p>
           </div>
+          <p className="text-sm text-muted-foreground">Emocjonalność</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 text-center">
+          <p className="text-2xl font-bold">
+            {simpleVotingResults.length > 0
+              ? simpleVotingResults.length
+              : '-'}
+          </p>
+          <p className="text-sm text-muted-foreground">Głosowań</p>
+        </div>
+      </div>
 
+      {/* Main content - improved layout */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Left column - Summary and key info (2/3 width) */}
+        <div className="space-y-6 lg:col-span-2">
+          {/* AI Summary tabs - more prominent */}
           {tabs.length > 0 && (
-            <Card className="flex min-h-96 flex-1 flex-col p-4">
+            <Card className="p-6">
+              <div className="mb-4 flex items-center gap-2">
+                <Sparkles className="h-6 w-6 text-primary" fill="#76052a" />
+                <h2 className="text-xl font-bold">Analiza AI</h2>
+              </div>
               <Tabs
                 defaultValue={tabs[0].value}
                 className="flex flex-1 flex-col"
               >
-                <TabsList>
+                <TabsList className="w-full justify-start overflow-x-auto">
                   {tabs.map((tab) => (
                     <TabsTrigger key={tab.value} value={tab.value}>
                       {tab.label}
                     </TabsTrigger>
                   ))}
                 </TabsList>
-                <div className="flex-1">
+                <div className="mt-6">
                   {tabs.map((tab) => (
-                    <TabsContent
-                      key={tab.value}
-                      value={tab.value}
-                      className="mt-6 h-full"
-                    >
+                    <TabsContent key={tab.value} value={tab.value}>
                       {tab.value === 'prints' ? (
                         <PrintSection prints={printsWithStages} />
                       ) : tab.value === 'official' ? (
@@ -307,65 +319,88 @@ export default async function PointDetail({
               </Tabs>
             </Card>
           )}
-        </div>
-      </div>
 
-      {/* Second grid section */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-6">
-        {/* Charts and analysis section */}
-        <div className="col-span-full lg:col-span-6">
-          <CardWrapper title="Analiza klubów" subtitle="Stosunek do tematu">
-            <div className="w-full overflow-x-auto">
-              {chartData.length >= 7 ? (
-                <TopicAttitudeChart data={chartData} />
-              ) : (
-                <EmptyState
-                  text="Za mało danych do wyświetlenia analizy klubów"
-                  image="/empty.svg"
-                />
+          {/* Voting Results - if available */}
+          {simpleVotingResults.length > 0 && (
+            <CardWrapper
+              title="Głosowania"
+              subtitle={`${simpleVotingResults.length} głosowań w tej sprawie`}
+            >
+              <VotingList votings={simpleVotingResults} />
+            </CardWrapper>
+          )}
+        </div>
+
+        {/* Right column - Secondary info (1/3 width) */}
+        <div className="space-y-6">
+          {/* Main topics card - always show if available */}
+          {point.summary_main?.main_topics && (
+            <SummaryCard
+              title="Główne Zagadnienia"
+              subtitle="Kluczowe tematy"
+              content={point.summary_main?.main_topics}
+              emptyText="Brak głównych zagadnień"
+            />
+          )}
+
+          {/* Club analysis - only show if sufficient data */}
+          {chartData.length >= 7 && (
+            <CardWrapper title="Analiza klubów" subtitle="Stosunek do tematu">
+              <TopicAttitudeChart data={chartData} />
+            </CardWrapper>
+          )}
+
+          {/* Proceeding info card */}
+          <Card className="p-4">
+            <h3 className="mb-3 text-sm font-semibold">Informacje o posiedzeniu</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Posiedzenie:</span>
+                <span className="font-medium">
+                  #{point.proceeding_day.proceeding.number}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Data:</span>
+                <span className="font-medium">
+                  {new Date(point.proceeding_day.date).toLocaleDateString('pl-PL')}
+                </span>
+              </div>
+              {printsWithStages.length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Druki:</span>
+                  <span className="font-medium">{printsWithStages.length}</span>
+                </div>
               )}
             </div>
-          </CardWrapper>
-        </div>
-
-        {/* Voting section */}
-        <div className="col-span-full lg:col-span-6">
-          <CardWrapper
-            title="Głosowania"
-            className="h-full"
-            subtitle="Wyniki głosowań"
-          >
-            <VotingList votings={simpleVotingResults} />
-          </CardWrapper>
-        </div>
-
-        {/* Replace the Statements section with: */}
-        <div className="col-span-full">
-          <CardWrapper
-            title="Wypowiedzi"
-            subtitle={`Przebieg dyskusji (${point.statements.length})`}
-            headerIcon={
-              <Sparkles className="h-5 w-5 text-primary" fill="#76052a" />
-            }
-            sourceDescription="
-              Dane pochodzą z oficjalnej strony sejmowej i analizowane przez AI. 
-              Ocena emocji w wypowiedzieach opisana jest w zakładce `o projekcie`. 
-              Odpowiedzi wyróżnione - to takie, które zostały zakwalifikowane jako najbardziej szokujące i emocjonalne. 
-            "
-            sourceUrls={[
-              `${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/transcripts/pdf`,
-            ]}
-          >
-            <DiscussionEntries
-              statements={point.statements}
-              speakerClubs={speakerClubs}
-              proceedingNumber={point.proceeding_day.proceeding.number}
-              proceedingDate={point.proceeding_day.date}
-              initialMode="featured"
-            />
-          </CardWrapper>
+          </Card>
         </div>
       </div>
+
+      {/* Discussion section - full width for better readability */}
+      <CardWrapper
+        title="Przebieg dyskusji"
+        subtitle={`${point.statements.length} wypowiedzi`}
+        headerIcon={
+          <Sparkles className="h-5 w-5 text-primary" fill="#76052a" />
+        }
+        sourceDescription="
+          Dane pochodzą z oficjalnej strony sejmowej i analizowane przez AI. 
+          Ocena emocji w wypowiedzieach opisana jest w zakładce `o projekcie`. 
+          Odpowiedzi wyróżnione - to takie, które zostały zakwalifikowane jako najbardziej szokujące i emocjonalne. 
+        "
+        sourceUrls={[
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${point.proceeding_day.proceeding.number}/${point.proceeding_day.date}/transcripts/pdf`,
+        ]}
+      >
+        <DiscussionEntries
+          statements={point.statements}
+          speakerClubs={speakerClubs}
+          proceedingNumber={point.proceeding_day.proceeding.number}
+          proceedingDate={point.proceeding_day.date}
+          initialMode="featured"
+        />
+      </CardWrapper>
 
       {/* Add this at the bottom of the JSX, before the closing div */}
       <div className="flex items-center justify-between border-t pt-6">
