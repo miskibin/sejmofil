@@ -18,14 +18,14 @@ export async function getLatestVersion(): Promise<{
 
   try {
     const response = await fetch(
-      'https://api.github.com/repos/miskibin/sejmofront/releases/latest',
+      'https://api.github.com/repos/miskibin/sejmofil/releases/latest',
       { next: { revalidate: 3600 } }
     )
 
     if (!response.ok)
       return {
         version: 'v0.0.0',
-        url: 'https://github.com/miskibin/sejmofront/releases',
+        url: 'https://github.com/miskibin/sejmofil/releases',
       }
 
     const data: GitHubRelease = await response.json()
@@ -37,7 +37,7 @@ export async function getLatestVersion(): Promise<{
   } catch {
     return {
       version: 'v0.0.0',
-      url: 'https://github.com/miskibin/sejmofront/releases',
+      url: 'https://github.com/miskibin/sejmofil/releases',
     }
   }
 }
