@@ -1,5 +1,12 @@
 import { useCallback, useState } from 'react'
 
+export interface ToolCall {
+  iteration: number
+  toolName: string
+  arguments: Record<string, any>
+  result?: string
+}
+
 export interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
@@ -13,6 +20,7 @@ export interface ChatMessage {
     downloadUrl?: string
     changeDate?: string | null
   }>
+  toolCalls?: ToolCall[]
 }
 
 export interface UseChatReturn {
@@ -104,6 +112,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
         let buffer = ''
         let assistantContent = ''
         let references: any[] = []
+        let toolCalls: ToolCall[] = []
 
         console.log('[useChat] Starting stream read loop')
         let chunkCount = 0
@@ -155,6 +164,47 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                         return {
                           ...msg,
                           content: assistantContent,
+                        }
+                      }
+                      return msg
+                    })
+                  })
+                } else if (data.type === 'tool_call') {
+                  const toolCall: ToolCall = {
+                    iteration: data.data.iteration,
+                    toolName: data.data.toolName,
+                    arguments: data.data.arguments,
+                  }
+                  toolCalls.push(toolCall)
+                  console.log('[useChat] Tool call', data.data.iteration, ':', data.data.toolName)
+                  setMessages((prev) => {
+                    return prev.map((msg) => {
+                      if (msg.id === assistantMessageId) {
+                        return {
+                          ...msg,
+                          toolCalls,
+                        }
+                      }
+                      return msg
+                    })
+                  })
+                } else if (data.type === 'tool_result') {
+                  const iteration = data.data.iteration
+                  const result = data.data.result
+                  console.log('[useChat] Tool result for iteration', iteration, ':', result?.substring(0, 100))
+                  
+                  // Find and update the tool call with the result
+                  const toolCallIndex = toolCalls.findIndex(tc => tc.iteration === iteration)
+                  if (toolCallIndex !== -1) {
+                    toolCalls[toolCallIndex].result = result
+                  }
+                  
+                  setMessages((prev) => {
+                    return prev.map((msg) => {
+                      if (msg.id === assistantMessageId) {
+                        return {
+                          ...msg,
+                          toolCalls,
                         }
                       }
                       return msg
