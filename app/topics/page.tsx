@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   description: 'Odkryj wszystkie tematy dyskutowane w polskim Sejmie',
 }
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
+
 
 export default async function TopicsPage() {
   const topics = await getAllTopics(100)
@@ -26,7 +27,9 @@ export default async function TopicsPage() {
             <Lightbulb className="h-7 w-7 text-primary" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Tematy parlamentarne</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Tematy parlamentarne
+            </h1>
             <p className="text-muted-foreground">
               Odkryj {topics.length} tematów dyskutowanych w Sejmie
             </p>
@@ -49,7 +52,9 @@ export default async function TopicsPage() {
               >
                 <CardWrapper className="group relative h-full overflow-hidden transition-all hover:shadow-xl hover:border-primary/50">
                   <div className="absolute right-3 top-3 rounded-full bg-primary/10 px-3 py-1 z-10">
-                    <span className="text-xs font-semibold text-primary">#{index + 1}</span>
+                    <span className="text-xs font-semibold text-primary">
+                      #{index + 1}
+                    </span>
                   </div>
                   <div className="space-y-4 pt-2">
                     <div className="space-y-2">
@@ -65,8 +70,12 @@ export default async function TopicsPage() {
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1.5 rounded-lg bg-primary/5 px-3 py-1.5">
                         <FileText className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-medium">{topic.printCount}</span>
-                        <span className="text-xs text-muted-foreground">druków</span>
+                        <span className="text-sm font-medium">
+                          {topic.printCount}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          druków
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -100,7 +109,10 @@ export default async function TopicsPage() {
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <FileText className="h-3.5 w-3.5" />
-                    <span>{topic.printCount} {topic.printCount === 1 ? 'druk' : 'druków'}</span>
+                    <span>
+                      {topic.printCount}{' '}
+                      {topic.printCount === 1 ? 'druk' : 'druków'}
+                    </span>
                   </div>
                 </div>
               </CardWrapper>
