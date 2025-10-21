@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { ChevronDown, Brain } from "lucide-react";
 import { PencilIcon, Save, Undo } from "lucide-react";
+import Link from "next/link";
 
 // Define the pattern handler type
 export interface PatternHandler {
@@ -132,9 +133,9 @@ export function Message({
   }, [actionButtons]);
 
   const markdownComponents = React.useMemo(() => {
-    if (patternHandlers.length === 0) return undefined;
-
     const processChildren = (children: React.ReactNode) => {
+      if (patternHandlers.length === 0) return children;
+      
       if (Array.isArray(children)) {
         return children.map((c, index) =>
           typeof c === "string" ? (
@@ -148,6 +149,39 @@ export function Message({
     };
 
     return {
+      // Custom link component to use Next.js Link for internal navigation
+      a: ({ href, children, ...props }: { href?: string; children?: React.ReactNode; [key: string]: any }) => {
+        // Check if it's an internal link
+        const isInternal = href && (
+          href.startsWith('/') || 
+          href.startsWith('#')
+        );
+        
+        if (isInternal) {
+          return (
+            <Link 
+              href={href} 
+              className="text-primary hover:underline font-medium transition-colors"
+              {...props}
+            >
+              {children}
+            </Link>
+          );
+        }
+        
+        // External link
+        return (
+          <a 
+            href={href} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-primary hover:underline font-medium transition-colors"
+            {...props}
+          >
+            {children}
+          </a>
+        );
+      },
       p: ({ children }: { children?: React.ReactNode }) => (
         <p>{processChildren(children)}</p>
       ),

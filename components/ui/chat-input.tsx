@@ -1,32 +1,32 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import { ChevronDown, PlusCircle, Send, Square } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Toggle } from "@/components/ui/toggle";
+import * as React from 'react'
+import { ChevronDown, PlusCircle, Send, Square } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Toggle } from '@/components/ui/toggle'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu'
 
 export interface ChatInputProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  onSend: (message: string) => void;
-  onStopGeneration?: () => void;
-  isLoading?: boolean;
-  placeholder?: string;
+  onSend: (message: string) => void
+  onStopGeneration?: () => void
+  isLoading?: boolean
+  placeholder?: string
   tools?: {
-    icon: React.ReactNode;
-    label: string;
-    id: string;
-    type?: "toggle" | "dropdown";
-    options?: { value: string; label: string }[];
-    value?: string;
-    onChange?: (value: string) => void;
-  }[];
+    icon: React.ReactNode
+    label: string
+    id: string
+    type?: 'toggle' | 'dropdown'
+    options?: { value: string; label: string }[]
+    value?: string
+    onChange?: (value: string) => void
+  }[]
 }
 
 export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
@@ -36,46 +36,46 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
       onSend,
       onStopGeneration,
       isLoading = false,
-      placeholder = "Message...",
+      placeholder = 'Message...',
       tools = [],
       ...props
     },
     ref
   ) => {
-    const [input, setInput] = React.useState("");
-    const [activeTools, setActiveTools] = React.useState<string[]>([]);
-    const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-    const toolbarRef = React.useRef<HTMLDivElement>(null);
+    const [input, setInput] = React.useState('')
+    const [activeTools, setActiveTools] = React.useState<string[]>([])
+    const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+    const toolbarRef = React.useRef<HTMLDivElement>(null)
 
     // Handle merged refs
     const mergedRef = React.useMemo(
       () => (node: HTMLTextAreaElement | null) => {
         if (node) {
-          if (typeof ref === "function") ref(node);
-          else if (ref) ref.current = node;
-          textareaRef.current = node;
+          if (typeof ref === 'function') ref(node)
+          else if (ref) ref.current = node
+          textareaRef.current = node
         }
       },
       [ref]
-    );
+    )
 
     // Handle sending message
     const handleSendMessage = React.useCallback(
       (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!input.trim() || isLoading) return;
-        onSend(input.trim());
-        setInput("");
+        e.preventDefault()
+        if (!input.trim() || isLoading) return
+        onSend(input.trim())
+        setInput('')
       },
       [input, isLoading, onSend]
-    );
+    )
 
     // Toggle tool selection
     const toggleTool = React.useCallback((id: string) => {
       setActiveTools((prev) =>
         prev.includes(id) ? prev.filter((tool) => tool !== id) : [...prev, id]
-      );
-    }, []);
+      )
+    }, [])
 
     // Adjust textarea padding based on toolbar height
     React.useEffect(() => {
@@ -83,34 +83,34 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
         if (textareaRef.current && toolbarRef.current) {
           textareaRef.current.style.paddingBottom = `${
             toolbarRef.current.offsetHeight + 8
-          }px`;
+          }px`
         }
-      };
+      }
 
-      adjustPadding();
+      adjustPadding()
 
       // Observe toolbar size changes
-      const resizeObserver = new ResizeObserver(adjustPadding);
-      if (toolbarRef.current) resizeObserver.observe(toolbarRef.current);
+      const resizeObserver = new ResizeObserver(adjustPadding)
+      if (toolbarRef.current) resizeObserver.observe(toolbarRef.current)
 
-      return () => resizeObserver.disconnect();
-    }, [activeTools.length]);
+      return () => resizeObserver.disconnect()
+    }, [activeTools.length])
 
     // Auto-resize textarea
     React.useEffect(() => {
-      if (!textareaRef.current) return;
+      if (!textareaRef.current) return
 
-      const scrollTop = textareaRef.current.scrollTop;
-      textareaRef.current.style.height = "auto";
+      const scrollTop = textareaRef.current.scrollTop
+      textareaRef.current.style.height = 'auto'
       textareaRef.current.style.height = `${Math.min(
         textareaRef.current.scrollHeight,
         200
-      )}px`;
-      textareaRef.current.scrollTop = scrollTop;
-    }, [input]);
+      )}px`
+      textareaRef.current.scrollTop = scrollTop
+    }, [input])
 
     return (
-      <div className={cn("relative w-full max-w-[800px] mx-auto", className)}>
+      <div className={cn('relative w-full max-w-[800px] mx-auto', className)}>
         <form onSubmit={handleSendMessage} className="relative">
           <div className="relative bg-background border rounded-lg overflow-hidden shadow-sm">
             <textarea
@@ -120,9 +120,9 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage(e);
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  handleSendMessage(e)
                 }
               }}
               rows={1}
@@ -147,7 +147,7 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
 
                 {tools.map((tool) => (
                   <React.Fragment key={tool.id}>
-                    {tool.type === "dropdown" ? (
+                    {tool.type === 'dropdown' ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild disabled={isLoading}>
                           <Button
@@ -169,12 +169,12 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                             <DropdownMenuItem
                               key={option.value}
                               className={cn(
-                                "text-xs cursor-pointer",
+                                'text-xs cursor-pointer',
                                 tool.value === option.value &&
-                                  "bg-muted font-medium"
+                                  'bg-muted font-medium'
                               )}
                               onClick={() => {
-                                tool.onChange?.(option.value);
+                                tool.onChange?.(option.value)
                               }}
                             >
                               {option.label}
@@ -189,10 +189,10 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                         size="sm"
                         variant="outline"
                         className={cn(
-                          "h-7 rounded-md px-2 flex items-center gap-1 text-xs  me-2",
+                          'h-7 rounded-md px-2 flex items-center gap-1 text-xs  me-2',
                           activeTools.includes(tool.id)
-                            ? "bg-muted text-foreground"
-                            : "text-muted-foreground"
+                            ? 'text-foreground'
+                            : 'text-muted-foreground'
                         )}
                         disabled={isLoading}
                       >
@@ -223,10 +223,10 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
                     variant="ghost"
                     disabled={!input.trim()}
                     className={cn(
-                      "h-7 w-7 rounded-full flex-shrink-0 p-0",
+                      'h-7 w-7 rounded-full flex-shrink-0 p-0',
                       input.trim()
-                        ? "text-primary hover:text-primary"
-                        : "text-muted-foreground"
+                        ? 'text-primary hover:text-primary'
+                        : 'text-muted-foreground'
                     )}
                   >
                     <Send size={14} />
@@ -238,8 +238,8 @@ export const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
           </div>
         </form>
       </div>
-    );
+    )
   }
-);
+)
 
-ChatInput.displayName = "ChatInput";
+ChatInput.displayName = 'ChatInput'

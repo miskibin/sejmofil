@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useMemo } from 'react'
+import React, { useEffect, useRef, useMemo, useState } from 'react'
 import { useChat } from '@/hooks/useChat'
 import type { ChatMessage as ChatMessageType } from '@/hooks/useChat'
 import { ChatInput } from '@/components/ui/chat-input'
@@ -13,6 +13,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { Zap } from 'lucide-react'
 
 const MessageCircleIcon = () => (
   <svg
@@ -50,6 +51,7 @@ export default function ChatPage() {
     isGenerating,
   } = useChat()
 
+  const [selectedModel, setSelectedModel] = useState<string>('gpt-5-nano')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Build reference map from all messages' references
@@ -134,6 +136,25 @@ export default function ChatPage() {
   const handleSendMessage = async (content: string) => {
     await sendMessage(content)
   }
+
+  // Define tools for ChatInput (model selector)
+  const tools = [
+    {
+      id: 'model',
+      label: 'Model',
+      icon: <Zap size={14} />,
+      type: 'dropdown' as const,
+      value: selectedModel,
+      options: [
+        { value: 'gpt-5-nano', label: 'GPT-5 Nano' },
+        { value: 'gpt-5-mini', label: 'GPT-5 Mini' },
+      ],
+      onChange: (value: string) => {
+        setSelectedModel(value)
+        console.log('Model changed to:', value)
+      },
+    },
+  ]
 
   return (
     <div className="flex flex-col h-screen w-full bg-background pt-20">
@@ -267,6 +288,7 @@ export default function ChatPage() {
             onSend={handleSendMessage}
             isLoading={isLoading}
             placeholder="Zadaj pytanie o sejm... (Shift+Enter dla nowej linii)"
+            tools={tools}
           />
         </div>
       </div>
