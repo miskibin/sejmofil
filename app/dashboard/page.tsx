@@ -13,8 +13,8 @@ import { getProceedingDates } from '@/lib/queries/proceeding'
 import { getNextProceedingDate, getTimeUntilNextProceeding } from '@/lib/utils'
 import { Code, Paintbrush, ScrollText } from 'lucide-react'
 
-// Use ISR instead of force-dynamic for better performance
-export const revalidate = 3600 // 1 hour
+// Skip prerendering since this page queries Neo4j which is unavailable at build time
+export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   const proceedings = await getProceedingDates()
