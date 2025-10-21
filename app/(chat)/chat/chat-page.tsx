@@ -7,6 +7,12 @@ import { ChatInput } from '@/components/ui/chat-input'
 import { Message } from '@/components/ui/message'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 
 const MessageCircleIcon = () => (
   <svg
@@ -153,13 +159,73 @@ export default function ChatPage() {
           ) : (
             <div className="space-y-4 py-4">
               {messages.map((message: ChatMessageType) => (
-                <Message
-                  key={message.id}
-                  sender={message.role}
-                  content={message.content}
-                  references={message.references}
-                  patternHandlers={patternHandlers}
-                />
+                <div key={message.id}>
+                  <Message
+                    sender={message.role}
+                    content={message.content}
+                    references={message.references}
+                    patternHandlers={patternHandlers}
+                  />
+                  {/* Show tool calls in accordion after assistant message */}
+                  {message.role === 'assistant' &&
+                    message.toolCalls &&
+                    message.toolCalls.length > 0 && (
+                      <div className="mt-3">
+                        <Accordion type="single" collapsible defaultValue="">
+                          <AccordionItem value="tool-calls">
+                            <AccordionTrigger className="text-xs font-semibold text-muted-foreground hover:text-foreground py-2">
+                              Kroki agenta ({message.toolCalls.length})
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <div className="flex flex-col gap-2 pt-2">
+                                {message.toolCalls.map((toolCall, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="rounded px-3 py-2 border border-border"
+                                  >
+                                    <p className="text-xs text-muted-foreground">
+                                      <span className="font-semibold">
+                                        Krok {toolCall.iteration}:
+                                      </span>{' '}
+                                      Wywoływanie{' '}
+                                      <span className="text-primary font-mono">
+                                        {toolCall.toolName}
+                                      </span>
+                                    </p>
+                                    {Object.keys(toolCall.arguments).length >
+                                      0 && (
+                                      <details className="mt-1 cursor-pointer">
+                                        <summary className="text-xs text-muted-foreground/75 hover:text-muted-foreground">
+                                          Parametry →
+                                        </summary>
+                                        <pre className="text-xs bg-background/50 p-2 rounded mt-1 overflow-auto max-h-32 text-muted-foreground">
+                                          {JSON.stringify(
+                                            toolCall.arguments,
+                                            null,
+                                            2
+                                          )}
+                                        </pre>
+                                      </details>
+                                    )}
+                                    {toolCall.result && (
+                                      <details className="mt-1 cursor-pointer" open>
+                                        <summary className="text-xs text-muted-foreground/75 hover:text-muted-foreground">
+                                          Wynik ↓
+                                        </summary>
+                                        <pre className="text-xs bg-background/50 p-2 rounded mt-1 overflow-auto max-h-40 text-muted-foreground">
+                                          {toolCall.result}
+                                        </pre>
+                                      </details>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </div>
+                    )}
+                </div>
               ))}
               {isLoading && (
                 <div className="flex justify-start">

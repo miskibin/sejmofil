@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@langchain/core": "^1.0.1",
+    "@langchain/mcp-adapters": "^1.0.0",
     "@langchain/openai": "^1.0.0",
     "@langfuse/otel": "^4.2.0",
     "@langfuse/tracing": "^4.2.0",
