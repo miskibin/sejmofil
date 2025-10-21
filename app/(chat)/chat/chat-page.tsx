@@ -34,7 +34,15 @@ interface ReferenceData {
 }
 
 export default function ChatPage() {
-  const { messages, isLoading, error, sendMessage, clearMessages, status, isGenerating } = useChat()
+  const {
+    messages,
+    isLoading,
+    error,
+    sendMessage,
+    clearMessages,
+    status,
+    isGenerating,
+  } = useChat()
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -137,7 +145,8 @@ export default function ChatPage() {
                   Pytaj mnie o druki sejmowe
                 </p>
                 <p className="text-xs text-muted-foreground/70 max-w-md italic">
-                  Beta: Na razie chat może odpowiadać tylko na pytania o druki sejmowe
+                  Beta: Na razie chat może odpowiadać tylko na pytania o druki
+                  sejmowe
                 </p>
               </div>
             </div>
@@ -161,7 +170,6 @@ export default function ChatPage() {
                         {status}
                       </div>
                     )}
-                    
                   </div>
                 </div>
               )}
