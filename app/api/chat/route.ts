@@ -8,6 +8,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
+// Log presence of API key for debugging in production
+console.log('[INIT] OPENAI_API_KEY present?', !!process.env.OPENAI_API_KEY)
+
 // Initialize Langfuse for tracing (optional, will work without it)
 // Lazy Langfuse initializer to avoid import-time side effects during Next build
 let langfuse: any = null
