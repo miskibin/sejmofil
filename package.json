@@ -9,8 +9,6 @@
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
     "prettier": "prettier . --write",
-    "debug:neo4j": "npx tsx debug-neo4j.ts",
-    "test:chat": "npx tsx test-chat-api.ts",
     "husky:prepare": "pnpm husky && pnpm husky:add-precommit && pnpm husky:add-prepush",
     "husky:add-precommit": "powershell -Command \"New-Item -Path .husky/pre-commit -ItemType File -Force; Set-Content -Path .husky/pre-commit -Value 'pnpm lint-staged && pnpm lint && echo Committing finished'\"",
     "husky:add-prepush": "powershell -Command \"New-Item -Path .husky/pre-push -ItemType File -Force; Set-Content -Path .husky/pre-push -Value 'pnpm lint && echo Pushing finished'\""

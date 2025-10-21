@@ -1,6 +1,8 @@
+'use client'
+
 import { SOCIAL_LINKS, SUPPORT_LINKS } from '@/lib/config/links'
-import { getLatestVersion } from '@/lib/github'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import {
   FaArrowRight,
   FaDiscord,
@@ -49,8 +51,23 @@ const aboutLinks = [
   { name: 'Kontakt', url: '/contact' },
 ]
 
-export async function Footer() {
-  const { version, url } = await getLatestVersion()
+export function Footer() {
+  const [version, setVersion] = useState<string>('main')
+  const [url, setUrl] = useState<string>('#')
+
+  useEffect(() => {
+    const fetchVersion = async () => {
+      try {
+        const response = await fetch('/api/version')
+        const data = await response.json()
+        setVersion(data.version || 'main')
+        setUrl(data.url || '#')
+      } catch (error) {
+        console.error('Failed to fetch version:', error)
+      }
+    }
+    fetchVersion()
+  }, [])
 
   return (
     <footer className="bg-gray-50 px-4 py-8 sm:py-16 md:px-8">
