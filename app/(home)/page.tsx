@@ -2,6 +2,7 @@ import {
   getLatestProceedingPoints,
   getPopularProceedingPoints,
   getAllCategories,
+  getMaxProceedingNumber,
 } from '@/lib/supabase/getProceedings'
 import ArticlesSection from './articles-section'
 import Sidebar from './sidebar'
@@ -33,9 +34,10 @@ export default async function FeedPage({ searchParams }: PageProps) {
   const params = await searchParams
   const sort = typeof params?.sort === 'string' ? params.sort : 'foryou'
 
-  const [posts, allCategories] = await Promise.all([
+  const [posts, allCategories, maxProceedingNumber] = await Promise.all([
     getPosts(sort),
     getAllCategories(),
+    getMaxProceedingNumber(),
   ])
 
   return (
@@ -45,6 +47,7 @@ export default async function FeedPage({ searchParams }: PageProps) {
           posts={posts}
           sort={sort}
           allCategories={allCategories}
+          maxProceedingNumber={maxProceedingNumber}
         />
       </div>
       <div className="hidden lg:block w-80 flex-shrink-0">

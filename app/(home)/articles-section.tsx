@@ -9,14 +9,16 @@ import { useInfiniteScroll } from '@/lib/hooks/use-infinite-scroll'
 
 const ITEMS_PER_PAGE = 10
 
-export default function ArticlesSection({ 
-  posts, 
-  sort, 
-  allCategories, 
-}: { 
+export default function ArticlesSection({
+  posts,
+  sort,
+  allCategories,
+  maxProceedingNumber,
+}: {
   posts: LatestPointsResult[]
   sort: string
   allCategories: string[]
+  maxProceedingNumber: number
 }) {
   const [displayedPosts, hasMore, loadMore] = useInfiniteScroll(posts, ITEMS_PER_PAGE)
   const loadingRef = useRef<HTMLDivElement>(null)
@@ -47,10 +49,12 @@ export default function ArticlesSection({
       <div className="space-y-2 md:space-y-4">
         {displayedPosts.map((post) => (
           <div key={`${post.proceedingNumber}-${post.pointId}`}>
-            <PostCard 
+            <PostCard
               {...post}
               comments={parseInt(post.comments) || 0}
               proceedingNumber={post.proceedingNumber.toString()}
+              officialPoint={post.officialPoint}
+              maxProceedingNumber={maxProceedingNumber}
             />
             <hr className="border-t border-gray-200 mb-4" />
           </div>

@@ -14,6 +14,7 @@ type ProceedingDayPoint = {
   topic: string
   summary_tldr: string | null
   voting_numbers: number[]
+  official_point: string | null
   proceeding_day: {
     date: string
     proceeding: {
@@ -31,7 +32,7 @@ export const getLatestProceedingPoints = cache(async (category?: string): Promis
     supabase
       .from('proceeding_point_ai')
       .select(`
-        id, topic, summary_tldr, voting_numbers,
+        id, topic, summary_tldr, voting_numbers, official_point,
         proceeding_day!inner (
           date,
           proceeding!inner (number, title)
@@ -81,6 +82,7 @@ export const getLatestProceedingPoints = cache(async (category?: string): Promis
         proceedingNumber: point.proceeding_day.proceeding.number,
         date: point.proceeding_day.date,
         votingNumbers: point.voting_numbers,
+        officialPoint: point.official_point || null,
         votes,
       }
     })
@@ -94,7 +96,7 @@ export const getPopularProceedingPoints = cache(async (): Promise<LatestPointsRe
     supabase
       .from('proceeding_point_ai')
       .select(`
-        id, topic, summary_tldr, voting_numbers,
+        id, topic, summary_tldr, voting_numbers, official_point,
         proceeding_day!inner (
           date,
           proceeding!inner (number, title)
@@ -146,6 +148,7 @@ export const getPopularProceedingPoints = cache(async (): Promise<LatestPointsRe
         proceedingNumber: point.proceeding_day.proceeding.number,
         date: point.proceeding_day.date,
         votingNumbers: point.voting_numbers,
+        officialPoint: point.official_point || null,
         votes: voteData.votes,
       }
     })
@@ -169,6 +172,18 @@ export const getAllCategories = cache(async (): Promise<string[]> => {
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5)
     .map(([category]) => category)
+})
+
+export const getMaxProceedingNumber = cache(async (): Promise<number> => {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('proceeding')
+    .select('number')
+    .order('number', { ascending: false })
+    .limit(1)
+    .single()
+
+  return data?.number || 0
 })
 
 type ProceedingFromDB = {
