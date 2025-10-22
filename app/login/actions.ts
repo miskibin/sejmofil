@@ -3,10 +3,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
+import { getPublicOrigin } from '@/lib/utils/url'
 
 export async function signInWithGitHub(formData?: FormData) {
   const supabase = await createClient()
-  const origin = (await headers()).get('origin')
+  const origin = getPublicOrigin(await headers())
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -28,7 +29,7 @@ export async function signInWithGitHub(formData?: FormData) {
 
 export async function signInWithGoogle(formData?: FormData) {
   const supabase = await createClient()
-  const origin = (await headers()).get('origin')
+  const origin = getPublicOrigin(await headers())
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -50,7 +51,7 @@ export async function signInWithGoogle(formData?: FormData) {
 
 export async function signInWithFacebook(formData?: FormData) {
   const supabase = await createClient()
-  const origin = (await headers()).get('origin')
+  const origin = getPublicOrigin(await headers())
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -73,11 +74,11 @@ export async function signInWithFacebook(formData?: FormData) {
 export async function signOut() {
   const supabase = await createClient()
   const { error } = await supabase.auth.signOut()
-  
+
   if (error) {
     console.error('Error signing out:', error.message)
     throw error
   }
-  
+
   redirect('/')
 }
