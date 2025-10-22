@@ -9,7 +9,7 @@ import { Langfuse } from 'langfuse'
 console.log('[INIT] OPENAI_API_KEY present?', !!process.env.OPENAI_API_KEY)
 console.log(
   '[INIT] MCP Server URL:',
-  process.env.MCP_SERVER_URL || 'http://localhost:8000'
+  process.env.MCP_SERVER_URL || 'https://neomcp.msulawiak.pl'
 )
 console.log('[INIT] Langfuse configured:', {
   publicKey: !!process.env.NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY,
@@ -123,7 +123,7 @@ WAŻNE INSTRUKCJE:
           // Initialize MCP Client
           console.log('[POST] Initializing MCP Client...')
           const mcpServerUrl =
-            process.env.MCP_SERVER_URL || 'http://localhost:8000'
+            process.env.MCP_SERVER_URL || 'https://neomcp.msulawiak.pl'
 
           const client = new MultiServerMCPClient({
             sejmofil: {
