@@ -73,6 +73,7 @@ export interface LatestPointsResult {
   proceedingNumber: number
   date: string
   votingNumbers: number[]
+  officialPoint: string | null
 }
 
 export interface Vote {

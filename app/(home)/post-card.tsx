@@ -1,6 +1,6 @@
 'use client'
 import { ImageWithFallback } from '@/components/ui/image-with-fallback'
-import { MessageSquare, Share2, Vote } from 'lucide-react'
+import { MessageSquare, Share2, Vote, Calendar, Hash } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
@@ -18,6 +18,8 @@ export default function PostCard({
   proceedingNumber,
   date,
   votingNumbers,
+  officialPoint,
+  maxProceedingNumber,
   initialVotes = { upvotes: 0, downvotes: 0 },
 }: {
   category: string
@@ -28,17 +30,31 @@ export default function PostCard({
   proceedingNumber: string
   date: string
   votingNumbers?: any[]
+  officialPoint?: string | null
+  maxProceedingNumber: number
   initialVotes?: { upvotes: number; downvotes: number }
 }) {
   const hasVotes = Boolean(votingNumbers?.length)
   const [isSharing, setIsSharing] = useState(false)
-  
+
   const postUrl = `/proceedings/${proceedingNumber}/${date}/${pointId}`
   const formattedDate = new Date(date).toLocaleDateString('pl-PL', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   })
+
+  // Get proceeding label
+  const proceedingNum = parseInt(proceedingNumber)
+  let proceedingLabel = proceedingNumber
+  if (proceedingNum === maxProceedingNumber) {
+    proceedingLabel = `${proceedingNumber} (ostatnie)`
+  } else if (proceedingNum === maxProceedingNumber - 1) {
+    proceedingLabel = `${proceedingNumber} (przedostatnie)`
+  }
+
+  // Clean official point text
+  const cleanOfficialPoint = officialPoint?.replace(/porządku dziennego/gi, '').trim()
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -80,12 +96,24 @@ export default function PostCard({
       <div className="flex flex-col md:flex-row items-start gap-3 sm:gap-6">
         {/* Text content */}
         <div className="flex-1 min-w-0 order-2 md:order-1">
-          {/* Category and badges */}
-          <div className="flex items-center gap-2 flex-wrap mb-2">
+          {/* Category */}
+          <div className="flex items-center gap-2 mb-2">
             <span className="text-primary text-sm font-medium flex items-center gap-2">
               <span className="w-2 h-2 bg-primary rounded-full" />
               {category}
             </span>
+          </div>
+          {/* Badges */}
+          <div className="flex items-center gap-2 flex-wrap mb-2">
+            <Badge variant="outline" className="gap-1">
+              <Calendar className="h-3 w-3" />
+              {proceedingLabel}
+            </Badge>
+            {cleanOfficialPoint && (
+              <Badge variant="outline" className="gap-1">
+                {cleanOfficialPoint}
+              </Badge>
+            )}
             {hasVotes && (
               <Badge variant="secondary" className="gap-1">
                 <Vote className="h-3 w-3" />
