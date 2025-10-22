@@ -1,4 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
+
+const CHAT_STORAGE_KEY = 'sejmofil-chat-messages'
+const MAX_MESSAGES = 6 // Maximum number of messages to store (3 pairs)
 
 export interface ToolCall {
   iteration: number
@@ -37,6 +40,38 @@ export interface UseChatReturn {
   isGenerating: boolean
 }
 
+// Helper functions for localStorage
+function loadMessagesFromStorage(): ChatMessage[] {
+  if (typeof window === 'undefined') return []
+  
+  try {
+    const stored = localStorage.getItem(CHAT_STORAGE_KEY)
+    if (!stored) return []
+    
+    const parsed = JSON.parse(stored)
+    // Convert timestamp strings back to Date objects
+    return parsed.map((msg: any) => ({
+      ...msg,
+      timestamp: new Date(msg.timestamp),
+    }))
+  } catch (error) {
+    console.error('[useChat] Error loading messages from storage:', error)
+    return []
+  }
+}
+
+function saveMessagesToStorage(messages: ChatMessage[]) {
+  if (typeof window === 'undefined') return
+  
+  try {
+    // Keep only the last MAX_MESSAGES
+    const messagesToSave = messages.slice(-MAX_MESSAGES)
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messagesToSave))
+  } catch (error) {
+    console.error('[useChat] Error saving messages to storage:', error)
+  }
+}
+
 export function useChat(initialConversationId?: string): UseChatReturn {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
@@ -47,6 +82,22 @@ export function useChat(initialConversationId?: string): UseChatReturn {
   const [conversationId, setConversationId] = useState<string | null>(
     initialConversationId || null
   )
+
+  // Load messages from localStorage on mount
+  useEffect(() => {
+    const loadedMessages = loadMessagesFromStorage()
+    if (loadedMessages.length > 0) {
+      console.log('[useChat] Loaded', loadedMessages.length, 'messages from storage')
+      setMessages(loadedMessages)
+    }
+  }, [])
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      saveMessagesToStorage(messages)
+    }
+  }, [messages])
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -80,6 +131,9 @@ export function useChat(initialConversationId?: string): UseChatReturn {
 
         setMessages((prev) => [...prev, placeholderMessage])
 
+        // Get the last MAX_MESSAGES messages for context (to limit token usage)
+        const recentMessages = messages.slice(-MAX_MESSAGES)
+
         // Call agent API endpoint (SSE streaming)
         const response = await fetch('/api/chat/agent', {
           method: 'POST',
@@ -88,7 +142,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
           },
           body: JSON.stringify({
             messages: [
-              ...messages.map((m) => ({
+              ...recentMessages.map((m) => ({
                 role: m.role,
                 content: m.content,
               })),
@@ -288,6 +342,10 @@ export function useChat(initialConversationId?: string): UseChatReturn {
     setError(null)
     setStatus(null)
     setIsGenerating(false)
+    // Clear localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(CHAT_STORAGE_KEY)
+    }
   }, [])
 
   return {

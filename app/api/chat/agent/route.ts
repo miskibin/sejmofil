@@ -3,12 +3,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAgent } from 'langchain'
 import { MultiServerMCPClient } from '@langchain/mcp-adapters'
 import { ChatOpenAI } from '@langchain/openai'
+import { CallbackHandler } from 'langfuse-langchain'
+import { Langfuse } from 'langfuse'
 
 console.log('[INIT] OPENAI_API_KEY present?', !!process.env.OPENAI_API_KEY)
 console.log(
   '[INIT] MCP Server URL:',
   process.env.MCP_SERVER_URL || 'http://localhost:8000'
 )
+console.log('[INIT] Langfuse configured:', {
+  publicKey: !!process.env.NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY,
+  secretKey: !!process.env.NEXT_PUBLIC_LANGFUSE_SECRET_KEY,
+  host: process.env.NEXT_PUBLIC_LANGFUSE_HOST,
+})
 
 // Helper to send SSE events
 function createSSEMessage(type: string, data: any): string {
@@ -134,11 +141,35 @@ WAŻNE INSTRUKCJE:
           const toolNames = tools.map((t: any) => t.name).join(', ')
           console.log('[POST] Available tools:', toolNames)
 
-          // Create agent with streaming capabilities
+          // Initialize Langfuse client
+          const langfuse = new Langfuse({
+            publicKey: process.env.NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY,
+            secretKey: process.env.NEXT_PUBLIC_LANGFUSE_SECRET_KEY,
+            baseUrl: process.env.NEXT_PUBLIC_LANGFUSE_HOST,
+          })
 
+          // Create a trace for this entire agent run
+          const trace = langfuse.trace({
+            name: 'chat-agent',
+            sessionId: conversationId || undefined,
+            userId: user.id,
+            metadata: {
+              userMessage: userMessage.substring(0, 100),
+              conversationId: conversationId || 'new',
+              timestamp: new Date().toISOString(),
+            },
+          })
+
+          // Create Langfuse callback handler attached to this trace
+          const langfuseHandler = new CallbackHandler({
+            root: trace,
+          })
+
+          // Create agent with streaming capabilities
           const model = new ChatOpenAI({
             modelName: 'gpt-5-nano',
             streaming: true,
+            callbacks: [langfuseHandler],
           })
 
           const agent = createAgent({
@@ -174,7 +205,9 @@ WAŻNE INSTRUKCJE:
             {
               messages: agentMessages,
             },
-            { streamMode: 'values' }
+            { 
+              streamMode: 'values',
+            }
           )
 
           let assistantResponse = ''
@@ -311,6 +344,12 @@ WAŻNE INSTRUKCJE:
           }
 
           controller.enqueue(createSSEMessage('done', { success: true }))
+          
+          // Flush Langfuse to ensure all traces are sent
+          await langfuseHandler.flushAsync()
+          await langfuse.flushAsync()
+          console.log('[POST] Langfuse traces flushed')
+          
           controller.close()
         } catch (error) {
           console.error('[POST] Streaming error:', error)
