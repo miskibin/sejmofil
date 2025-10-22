@@ -176,14 +176,15 @@ export const getAllCategories = cache(async (): Promise<string[]> => {
 
 export const getMaxProceedingNumber = cache(async (): Promise<number> => {
   const supabase = await createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('proceeding')
     .select('number')
     .order('number', { ascending: false })
     .limit(1)
     .single()
 
-  return data?.number || 0
+  if (error || !data) return 0
+  return (data as { number: number }).number
 })
 
 type ProceedingFromDB = {
