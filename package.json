@@ -59,6 +59,7 @@
     "framer-motion": "^11.15.0",
     "langchain": "^1.0.1",
     "langfuse": "^3.38.6",
+    "langfuse-langchain": "^3.38.6",
     "lodash": "^4.17.21",
     "lucide-react": "^0.468.0",
     "neo4j-driver": "^5.27.0",
