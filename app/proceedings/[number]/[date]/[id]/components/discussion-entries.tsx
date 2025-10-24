@@ -1,5 +1,6 @@
 'use client'
 import { StatementReactions } from '@/components/statement-reactions'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -135,25 +136,28 @@ export function DiscussionEntries({
     : sortedStatements.slice(0, 2)
 
   return (
-    <div className="mb-4 space-y-4">
-      <div className="flex items-center justify-between border-b pb-4">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          {filterMode === 'featured' ? (
-            <div className="flex gap-2">
-              <span className="font-medium">Wyróżnione</span>
-              <span className="text-muted-foreground">
-                ({filteredStatements.length} z {statements.length})
-              </span>
-            </div>
-          ) : (
-            uniqueClubs.includes(filterMode) && (
-              <div className="flex gap-2">
-                <span className="font-medium">{filterMode}</span>
-                <span className="text-muted-foreground">
-                  ({filteredStatements.length})
-                </span>
-              </div>
-            )
+    <div className="space-y-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-sm">
+          {filterMode === 'featured' && (
+            <span className="font-medium text-primary">
+              ✨ Wyróżnione ({filteredStatements.length} z {statements.length})
+            </span>
+          )}
+          {filterMode === 'normal' && (
+            <span className="font-medium">
+              📅 Chronologicznie ({filteredStatements.length})
+            </span>
+          )}
+          {filterMode === 'all' && (
+            <span className="font-medium">
+              📋 Wszystkie ({filteredStatements.length})
+            </span>
+          )}
+          {uniqueClubs.includes(filterMode) && (
+            <span className="font-medium">
+              🏛️ {filterMode} ({filteredStatements.length})
+            </span>
           )}
         </div>
 
@@ -161,30 +165,33 @@ export function DiscussionEntries({
           value={filterMode}
           onValueChange={(value: FilterMode) => handleModeChange(value)}
         >
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="featured">Najciekawsze</SelectItem>
-            <SelectItem value="normal">Chronologicznie</SelectItem>
-            <SelectItem value="all">Wszystkie</SelectItem>
+            <SelectItem value="featured">✨ Najciekawsze</SelectItem>
+            <SelectItem value="normal">📅 Chronologicznie</SelectItem>
+            <SelectItem value="all">📋 Wszystkie</SelectItem>
             {uniqueClubs.map((club) => (
               <SelectItem key={club} value={club}>
-                Tylko {club}
+                🏛️ Tylko {club}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      <div className="mb-4 space-y-6">
+      <div className="space-y-4">
         {displayedStatements.map((statement) => {
           const speaker = getSpeakerInfo(statement.speaker_name)
 
           return (
-            <div key={statement.id} className={cn('flex flex-col')}>
-              {/* Header - Now top section on mobile */}
-              <div className="mb-4 flex items-center gap-3">
+            <div
+              key={statement.id}
+              className="group rounded-lg border bg-card p-4 transition-shadow hover:shadow-md"
+            >
+              {/* Header */}
+              <div className="mb-3 flex items-start gap-3">
                 <Link
                   href={speaker?.id ? `/envoys/${speaker.id}` : '#'}
                   className="flex-shrink-0"
@@ -196,36 +203,42 @@ export function DiscussionEntries({
                         : '/placeholder.svg'
                     }
                     alt={statement.speaker_name}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
+                    width={48}
+                    height={48}
+                    className="rounded-full ring-2 ring-border transition-all group-hover:ring-primary"
                     loading="lazy"
                   />
                 </Link>
 
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
-                  <Link
-                    href={speaker?.id ? `/envoys/${speaker.id}` : '#'}
-                    className="text-sm font-medium hover:underline"
-                  >
-                    {statement.speaker_name}
-                  </Link>
-                  <span className="text-xs text-muted-foreground">
-                    ({speaker?.club || 'Brak klubu'})
-                  </span>
+                <div className="flex flex-1 flex-col gap-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      href={speaker?.id ? `/envoys/${speaker.id}` : '#'}
+                      className="font-semibold hover:underline"
+                    >
+                      {statement.speaker_name}
+                    </Link>
+                    <Badge variant="outline">
+                      {speaker?.club || 'Brak klubu'}
+                    </Badge>
+                  </div>
+
                   <TooltipProvider>
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap gap-1">
                       {Object.entries(statement.statement_ai.speaker_rating)
                         .filter(([, value]) => value >= 4)
                         .map(([key, value]) => (
                           <Tooltip key={key}>
-                            <TooltipTrigger>
-                              <div className="flex items-center">
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
                                 {metricIcons[key]?.icon}
+                                <span className="text-xs font-medium">
+                                  {value}/5
+                                </span>
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              {metricIcons[key]?.tooltip}: {value}/5
+                              {metricIcons[key]?.tooltip}
                             </TooltipContent>
                           </Tooltip>
                         ))}
@@ -235,9 +248,9 @@ export function DiscussionEntries({
               </div>
 
               {/* Content section */}
-              <div className="w-full">
+              <div className="space-y-3">
                 {statement.statement_ai?.summary_tldr && (
-                  <p className="mb-2 text-sm text-foreground/90">
+                  <p className="leading-relaxed text-foreground">
                     {statement.statement_ai.summary_tldr}
                   </p>
                 )}
@@ -245,14 +258,14 @@ export function DiscussionEntries({
                 {/* Citations */}
                 {Array.isArray(statement.statement_ai?.citations) &&
                   statement.statement_ai.citations.length > 0 && (
-                    <div className="mt-2 space-y-2">
+                    <div className="space-y-2 rounded-md bg-muted/50 p-3">
                       {statement.statement_ai.citations.map(
                         (citation, index) => (
                           <blockquote
                             key={index}
-                            className="border-l-2 border-primary/30 pl-3 text-sm italic text-muted-foreground"
+                            className="border-l-2 border-primary/50 pl-3 text-sm italic text-muted-foreground"
                           >
-                            {citation}
+                            &ldquo;{citation}&rdquo;
                           </blockquote>
                         )
                       )}
@@ -260,15 +273,15 @@ export function DiscussionEntries({
                   )}
 
                 {/* Footer with reactions */}
-                <div className="mt-2 flex items-center justify-between">
-                <StatementReactions statementId={statement.id} />
+                <div className="flex items-center justify-between border-t pt-3">
+                  <StatementReactions statementId={statement.id} />
 
                   <Link
                     href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/proceedings/${proceedingNumber}/${proceedingDate}/transcripts/${statement.number_source}`}
                     target="_blank"
-                    className="flex items-center gap-1 text-xs text-primary hover:underline"
+                    className="flex items-center gap-1 text-sm text-primary transition-colors hover:text-primary/80 hover:underline"
                   >
-                    całość <ExternalLink className="h-3 w-3" />
+                    Czytaj całość <ExternalLink className="h-3 w-3" />
                   </Link>
                 </div>
               </div>
