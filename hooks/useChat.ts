@@ -8,6 +8,7 @@ export interface ToolCall {
   toolName: string
   arguments: Record<string, any>
   result?: string
+  duration?: number // Time in milliseconds
 }
 
 export interface ChatMessage {
@@ -32,7 +33,7 @@ export interface UseChatReturn {
   setInput: (input: string) => void
   isLoading: boolean
   error: string | null
-  sendMessage: (content: string) => Promise<void>
+  sendMessage: (content: string, model?: string) => Promise<void>
   clearMessages: () => void
   conversationId: string | null
   setConversationId: (id: string | null) => void
@@ -100,7 +101,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
   }, [messages])
 
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, model?: string) => {
       if (!content.trim()) return
 
       setError(null)
@@ -152,6 +153,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
               },
             ],
             conversationId,
+            model, // Pass the selected model
           }),
         })
 
@@ -228,6 +230,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     iteration: data.data.iteration,
                     toolName: data.data.toolName,
                     arguments: data.data.arguments,
+                    duration: data.data.duration,
                   }
                   toolCalls.push(toolCall)
                   console.log('[useChat] Tool call', data.data.iteration, ':', data.data.toolName)
@@ -245,12 +248,14 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                 } else if (data.type === 'tool_result') {
                   const iteration = data.data.iteration
                   const result = data.data.result
+                  const duration = data.data.duration
                   console.log('[useChat] Tool result for iteration', iteration, ':', result?.substring(0, 100))
                   
-                  // Find and update the tool call with the result
+                  // Find and update the tool call with the result and duration
                   const toolCallIndex = toolCalls.findIndex(tc => tc.iteration === iteration)
                   if (toolCallIndex !== -1) {
                     toolCalls[toolCallIndex].result = result
+                    toolCalls[toolCallIndex].duration = duration
                   }
                   
                   setMessages((prev) => {

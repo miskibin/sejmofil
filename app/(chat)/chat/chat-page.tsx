@@ -134,7 +134,7 @@ export default function ChatPage() {
   }, [messages])
 
   const handleSendMessage = async (content: string) => {
-    await sendMessage(content)
+    await sendMessage(content, selectedModel)
   }
 
   // Define tools for ChatInput (model selector)
@@ -204,15 +204,22 @@ export default function ChatPage() {
                                     key={idx}
                                     className="rounded px-3 py-2 border border-border"
                                   >
-                                    <p className="text-xs text-muted-foreground">
-                                      <span className="font-semibold">
-                                        Krok {toolCall.iteration}:
-                                      </span>{' '}
-                                      Wywoływanie{' '}
-                                      <span className="text-primary font-mono">
-                                        {toolCall.toolName}
-                                      </span>
-                                    </p>
+                                    <div className="flex items-center justify-between">
+                                      <p className="text-xs text-muted-foreground">
+                                        <span className="font-semibold">
+                                          Krok {toolCall.iteration}:
+                                        </span>{' '}
+                                        Wywoływanie{' '}
+                                        <span className="text-primary font-mono">
+                                          {toolCall.toolName}
+                                        </span>
+                                      </p>
+                                      {toolCall.duration && (
+                                        <span className="text-xs text-muted-foreground/75 font-mono">
+                                          {toolCall.duration}ms
+                                        </span>
+                                      )}
+                                    </div>
                                     {Object.keys(toolCall.arguments).length >
                                       0 && (
                                       <details className="mt-1 cursor-pointer">

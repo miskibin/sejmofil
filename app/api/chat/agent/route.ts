@@ -32,6 +32,7 @@ interface ChatMessage {
 interface ChatRequest {
   messages: ChatMessage[]
   conversationId?: string
+  model?: string
 }
 
 export async function POST(request: NextRequest) {
@@ -53,11 +54,12 @@ export async function POST(request: NextRequest) {
 
     // Parse request
     const body: ChatRequest = await request.json()
-    const { messages, conversationId } = body
+    const { messages, conversationId, model } = body
 
     console.log('[POST] Request body:', {
       messageCount: messages?.length,
       conversationId,
+      model: model || 'gpt-5-nano (default)',
     })
 
     if (!messages || messages.length === 0) {
@@ -83,77 +85,21 @@ export async function POST(request: NextRequest) {
 
     // Create system prompt with current date
     const systemPrompt = `Jesteś asystentem parlamentarnym z dostępem do bazy danych Neo4j Sejmu RP.
-
 Dzisiejsza data: ${dateStr}
 
-KRYTYCZNA ZASADA - WYSZUKIWANIE SEMANTYCZNE:
-search_prints() używa embeddings (wyszukiwanie semantyczne po TEMACIE), NIE sortuje po dacie.
+ZASADA: DZIAŁAJ NATYCHMIAST, NIE PYTAJ O POTWIERDZENIE.
 
-❌ NIGDY: search_prints("ostatnie druki") - "ostatnie" to NIE temat!
-❌ NIGDY: search_prints("najnowsze procesy") - "najnowsze" to NIE temat!
-✅ ZAWSZE: search_prints("podatki", status="active") - "podatki" to temat!
+Gdy użytkownik pyta o temat (np. "co rząd zrobił w sprawie lekarzy?", "ostatnie druki o zdrowiu"):
+1. OD RAZU wywołaj odpowiednie narzędzie (search_prints, find_mp_by_name, itp.)
 
-ZASADY WYBORU NARZĘDZI:
 
-1. Zapytania CZASOWE bez tematu ("ostatnie druki", "najnowsze"):
-   → Poproś o sprecyzowanie tematu: "O jaki obszar pytasz? (podatki, zdrowie, obrona)"
+FORMAT ODPOWIEDZI - ZWIĘŹLE I NA TEMAT:
 
-2. Zapytania CZASOWE + TEMAT ("ostatnie druki o aborcji"):
-   → search_prints("aborcja", limit=5, status="all") ✅
-
-3. Zapytania TEMATYCZNE ("druki o podatkach"):
-   → search_prints("podatki", status="active/finished/all")
-
-4. Konkretne zasoby (znasz ID/numer):
-   → get_print_details("123"), find_mp_by_name("Tusk"), get_club_statistics("PiS")
-
-5. Eksploracja powiązań:
-   → explore_node("Print", "123"), list_clubs(), search_all("energia")
-
-NARZĘDZIA MCP:
-
-• search_prints(query, limit, status) - TYLKO dla zapytań tematycznych
-  - query: TEMAT (nie czas!) - np. "podatki", "obrona", "zdrowie"
-  - status: "active"|"finished"|"all"
-  - limit: max wyników (domyślnie 10)
-
-• get_print_details(print_number) - szczegóły druku
-• find_mp_by_name(name) - wyszukaj posła
-• get_mp_activity(person_id) - aktywność posła (najpierw find_mp_by_name)
-• explore_node(type, id, limit) - powiązania (Person|Print|Topic|Process|Club|Committee)
-• list_clubs() - wszystkie kluby parlamentarne
-• get_club_statistics(name) - statystyki klubu
-• get_topic_statistics(name) - statystyki tematu (case-sensitive!)
-• search_all(query, limit) - przeszukaj druki + posłów
-
-FORMAT ODPOWIEDZI:
-
-1. Zwięźle (2-3 akapity max)
-2. ZAWSZE linkuj zasoby markdown:
-   - Druki: [Druk <numer>](/prints/<numer>) - np. [Druk 456](/prints/456)
-   - Procesy: [Proces <id>](/processes/<id>) - np. [Proces 123](/processes/123)
-   - Posłowie: [<Imię Nazwisko>](/envoys/<id>) - np. [Jan Kowalski](/envoys/789)
-   - Posiedzenia: [Posiedzenie <numer>](/proceedings/<id>) - np. [Posiedzenie 10](/proceedings/10)
-3. Konkretnie: liczby, daty, nazwiska
-4. Status procesów: aktywny/zakończony
-5. Unikaj powtórzeń
-
-PRZYKŁADY:
-
-❌ "Jakie były ostatnie druki?" → search_prints("ostatnie")
-✅ "Jakie były ostatnie druki?" → "O jaki temat pytasz? (np. podatki, obrona)"
-
-❌ "Najnowsze projekty ustaw" → search_prints("najnowsze")
-✅ "Najnowsze projekty ustaw" → "Konkretny obszar? (gospodarka, edukacja, zdrowie)"
-
-✅ "Ostatnie druki o aborcji" → search_prints("aborcja", limit=5)
-✅ "Aktywne procesy o podatkach" → search_prints("podatki", status="active")
-✅ "Kto jest posłem Tusk?" → find_mp_by_name("Tusk") → get_mp_activity(id)
-
-OGRANICZENIA:
-- Brak kompletnych danych o głosowaniach (VOTED)
-- Nazwy tematów case-sensitive
-- Statystyki klubów mogą być nieprecyzyjne
+1. KRÓTKO (max 3-4 zdania wprowadzenia)
+2. LISTA druków z linkami i 1-2 zdaniami opisu każdy:
+   - [Druk XXX](/prints/XXX): Tytuł. Krótki opis (max 2 zdania). Status: XXX
+3. BEZ długich wyjaśnień
+5. BEZ oferowania dodatkowych akcji na końcu
 `
     // Create readable stream for SSE
     const readable = new ReadableStream({
@@ -212,14 +158,16 @@ OGRANICZENIA:
           })
 
           // Create agent with streaming capabilities
-          const model = new ChatOpenAI({
-            modelName: 'gpt-5-nano',
+          const llmModel = new ChatOpenAI({
+            modelName: model || 'gpt-5-nano',
             streaming: true,
             callbacks: [langfuseHandler],
           })
 
+          console.log('[POST] Using model:', model || 'gpt-5-nano')
+
           const agent = createAgent({
-            model,
+            model: llmModel,
             tools,
             systemPrompt,
           })
@@ -240,6 +188,7 @@ OGRANICZENIA:
           let currentIteration = 0
           let lastToolName = ''
           const MAX_ITERATIONS = 4
+          const toolCallTimestamps = new Map<number, number>() // iteration -> start timestamp
 
           // Stream the agent execution
           console.log(
@@ -281,6 +230,9 @@ OGRANICZENIA:
                 const toolCall = latestMessage.tool_calls[0]
                 lastToolName = toolCall.name
 
+                // Record start time for this tool call
+                toolCallTimestamps.set(currentIteration, Date.now())
+
                 console.log(
                   `[POST] Iteration ${currentIteration}/${MAX_ITERATIONS}: Calling tool: ${toolCall.name}`
                 )
@@ -311,16 +263,25 @@ OGRANICZENIA:
                 latestMessage.tool_results.length > 0
               ) {
                 const toolResult = latestMessage.tool_results[0]
+                
+                // Calculate duration
+                const startTime = toolCallTimestamps.get(currentIteration)
+                const duration = startTime ? Date.now() - startTime : undefined
+                
                 console.log(
                   `[POST] Tool result received:`,
                   JSON.stringify(toolResult.content).substring(0, 200)
                 )
+                if (duration) {
+                  console.log(`[POST] Tool execution took ${duration}ms`)
+                }
 
-                // Send tool result to frontend
+                // Send tool result to frontend with duration
                 controller.enqueue(
                   createSSEMessage('tool_result', {
                     iteration: currentIteration,
                     result: toolResult.content,
+                    duration,
                   })
                 )
 
