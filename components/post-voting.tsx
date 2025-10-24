@@ -133,7 +133,7 @@ export function PostVoting({
           variant="ghost"
           size="sm"
           className={cn(
-            'gap-1 px-2 py-1 h-8 rounded-full transition-all',
+            'gap-1.5 px-3 py-1 h-9 rounded-full transition-all',
             userVote === 'up'
               ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md'
               : 'hover:bg-primary/10',
@@ -146,8 +146,8 @@ export function PostVoting({
           }}
           disabled={isVoting || isLoading}
         >
-          <ArrowUp className="w-3.5 h-3.5" />
-          <span className="text-xs font-medium">{votes?.upvotes ?? 0}</span>
+          <ArrowUp className="w-4 h-4" />
+          <span className="text-sm font-medium min-w-[1.5rem] text-center">{votes?.upvotes ?? 0}</span>
         </Button>
 
         {/* Downvote Button */}
@@ -155,7 +155,7 @@ export function PostVoting({
           variant="ghost"
           size="sm"
           className={cn(
-            'gap-1 px-2 py-1 h-8 rounded-full transition-all',
+            'gap-1.5 px-3 py-1 h-9 rounded-full transition-all',
             userVote === 'down'
               ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md'
               : 'hover:bg-destructive/10',
@@ -168,8 +168,8 @@ export function PostVoting({
           }}
           disabled={isVoting || isLoading}
         >
-          <ArrowUp className="w-3.5 h-3.5 rotate-180" />
-          <span className="text-xs font-medium">{votes?.downvotes ?? 0}</span>
+          <ArrowUp className="w-4 h-4 rotate-180" />
+          <span className="text-sm font-medium min-w-[1.5rem] text-center">{votes?.downvotes ?? 0}</span>
         </Button>
       </div>
 
