@@ -41,15 +41,19 @@ export default async function PlebiscytCard() {
       },
       image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${leastAbsents.id}.jpeg`,
     },
-    ...(mostInterruptions ? [{
-      ...mostInterruptions,
-      mainStat: {
-        value: mostInterruptions.count,
-        url: `/envoys?ranking=interruptions`,
-        displayText: `Przerwał/a: ${mostInterruptions.count} razy`,
-      },
-      image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostInterruptions.id}.jpeg`,
-    }] : []),
+    ...(mostInterruptions
+      ? [
+          {
+            ...mostInterruptions,
+            mainStat: {
+              value: mostInterruptions.count,
+              url: `/envoys?ranking=interruptions`,
+              displayText: `Przerwał/a: ${mostInterruptions.count} razy`,
+            },
+            image: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/MP/${mostInterruptions.id}.jpeg`,
+          },
+        ]
+      : []),
     {
       name: 'Donald Tusk',
       id: '400',

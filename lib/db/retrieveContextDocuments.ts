@@ -24,7 +24,7 @@ export async function retrieveContextDocuments(
   try {
     console.log('[NEO4J] Starting vector search with limit:', limit)
     console.log('[NEO4J] Embedding dimension:', embedding.length)
-    
+
     const documents: ContextDocument[] = []
 
     // Search Prints with embeddings (ONLY prints for now)
@@ -48,8 +48,12 @@ export async function retrieveContextDocuments(
         limit,
       })
 
-      console.log('[NEO4J] Print query returned:', prints?.length || 0, 'results')
-      
+      console.log(
+        '[NEO4J] Print query returned:',
+        prints?.length || 0,
+        'results'
+      )
+
       if (prints && Array.isArray(prints)) {
         prints.forEach((print: any, i: number) => {
           console.log(`[NEO4J] Print ${i}:`, {
@@ -60,7 +64,7 @@ export async function retrieveContextDocuments(
             changeDate: print.changeDate,
           })
         })
-        
+
         documents.push(
           ...prints.map((print: any) => {
             const doc: ContextDocument = {
@@ -89,12 +93,12 @@ export async function retrieveContextDocuments(
     }
 
     console.log('[NEO4J] Final documents before sorting:', documents.length)
-    
+
     // Sort by similarity score (higher is better)
     documents.sort((a, b) => b.score - a.score)
 
     console.log('[NEO4J] Documents after sorting:', documents.length)
-    
+
     // Return only the top N documents
     const result = documents.slice(0, limit)
     console.log('[NEO4J] Returning:', result.length, 'documents')
@@ -106,7 +110,7 @@ export async function retrieveContextDocuments(
         title: doc.title?.substring(0, 50),
       })
     })
-    
+
     return result
   } catch (error) {
     console.error('[NEO4J] Error retrieving context documents:', error)

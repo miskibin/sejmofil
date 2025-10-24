@@ -145,10 +145,9 @@ interface PrintResponse {
   p: PrintShort
 }
 // Cache expensive getLatestPrints query
-export const getLatestPrints = cache(async (
-  limit: number = 10
-): Promise<PrintShort[]> => {
-  const query = `
+export const getLatestPrints = cache(
+  async (limit: number = 10): Promise<PrintShort[]> => {
+    const query = `
     MATCH (p:Print)
     WHERE p.short_title IS NOT NULL
     RETURN p {
@@ -165,9 +164,12 @@ export const getLatestPrints = cache(async (
     LIMIT toInteger($limit)
   `
 
-  const res = await runQuery<PrintResponse>(query, { limit: Math.floor(limit) })
-  return res.map((r) => r.p)
-})
+    const res = await runQuery<PrintResponse>(query, {
+      limit: Math.floor(limit),
+    })
+    return res.map((r) => r.p)
+  }
+)
 
 // Moved to lib/queries/print.ts - use getPrintsByTopic from there
 
