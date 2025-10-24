@@ -16,7 +16,7 @@ export async function GET(request: Request) {
       if (redirectTo) {
         return NextResponse.redirect(`${origin}${redirectTo}`)
       }
-
+      
       // Default redirect to home page
       return NextResponse.redirect(`${origin}/`)
     }

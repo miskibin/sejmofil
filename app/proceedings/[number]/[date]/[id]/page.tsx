@@ -1,8 +1,4 @@
-import {
-  MarkdownContent,
-  SummaryCard,
-  InfoDisplay,
-} from '@/components/shared-content-components'
+import { MarkdownContent, SummaryCard, InfoDisplay } from '@/components/shared-content-components'
 import StatCard from '@/components/stat-card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'

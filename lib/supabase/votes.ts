@@ -8,9 +8,9 @@ export async function getVoteCounts(pointId: number): Promise<VoteCount> {
     const { data, error } = await createClient().rpc('get_vote_counts', {
       point_id: pointId,
     } as any)
-
+    
     if (error) throw error
-
+    
     return (Array.isArray(data) ? data[0] : data) || DEFAULT_VOTES
   } catch (error) {
     console.error(`Vote counts error for point ${pointId}:`, error)
@@ -63,9 +63,9 @@ export async function toggleVote(
     return { success: true }
   } catch (error) {
     console.error(`Toggle vote error for point ${pointId}:`, error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to update vote',
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to update vote' 
     }
   }
 }

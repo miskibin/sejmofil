@@ -1,11 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { CardWrapper } from '@/components/ui/card-wrapper'
 import { Github, Lock } from 'lucide-react'
-import {
-  signInWithGitHub,
-  signInWithGoogle,
-  signInWithFacebook,
-} from './actions'
+import { signInWithGitHub, signInWithGoogle, signInWithFacebook } from './actions'
 import { FaFacebook, FaGoogle } from 'react-icons/fa'
 
 export default function LoginPage() {
@@ -18,7 +14,7 @@ export default function LoginPage() {
       >
         <form className="space-y-4">
           <input type="hidden" name="redirectTo" value="/" />
-
+          
           <Button
             formAction={signInWithGitHub}
             className="flex w-full items-center gap-2 bg-[#24292e] hover:bg-[#1a1e22] text-white"

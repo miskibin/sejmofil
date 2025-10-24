@@ -10,7 +10,7 @@ export async function getReactionsForStatementClient(
 }
 
 export async function getUserReactionsClient(
-  statementId: number,
+  statementId: number, 
   userId: string
 ): Promise<Reaction[]> {
   // TODO: Implement reaction functionality when database schema is ready
@@ -19,8 +19,8 @@ export async function getUserReactionsClient(
 }
 
 export async function addReactionClient(
-  statementId: number,
-  userId: string,
+  statementId: number, 
+  userId: string, 
   emoji: string
 ): Promise<Reaction | null> {
   // TODO: Implement reaction functionality when database schema is ready
@@ -29,8 +29,8 @@ export async function addReactionClient(
 }
 
 export async function removeReactionClient(
-  statementId: number,
-  userId: string,
+  statementId: number, 
+  userId: string, 
   emoji: string
 ): Promise<boolean> {
   // TODO: Implement reaction functionality when database schema is ready

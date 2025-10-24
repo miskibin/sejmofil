@@ -32,7 +32,7 @@ export function getPublicOrigin(headers: Headers): string {
     // Docker hostnames are typically 12 character hex strings
     const hostWithoutPort = host.replace(/:\d+$/, '')
     const isDockerHostname = /^[0-9a-f]{12}$/i.test(hostWithoutPort)
-
+    
     // Don't use Docker container hostnames
     if (!isDockerHostname) {
       // In production, assume https. In development (localhost), use http
@@ -42,7 +42,7 @@ export function getPublicOrigin(headers: Headers): string {
   }
 
   // Final fallback - default to production URL or localhost in development
-  return process.env.NODE_ENV === 'development'
-    ? 'http://localhost:3000'
+  return process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3000' 
     : 'https://sejmofil.pl'
 }

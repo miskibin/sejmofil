@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useTransition } from 'react'
 import {
@@ -7,12 +7,12 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@/components/ui/carousel'
+} from "@/components/ui/carousel"
 
-export default function ArticlesNav({
-  categories,
+export default function ArticlesNav({ 
+  categories, 
   activeSort,
-}: {
+}: { 
   categories: string[]
   activeSort: string
 }) {
@@ -24,39 +24,31 @@ export default function ArticlesNav({
     ['Dla Ciebie', 'foryou'],
     ['Najnowsze', 'latest'],
     ['Popularne', 'popular'],
-    ...categories.map((category) => [
+    ...categories.map(category => [
       category,
-      `category-${encodeURIComponent(category.toLowerCase())}`,
-    ]),
+      `category-${encodeURIComponent(category.toLowerCase())}`
+    ])
   ] as const
 
-  const handleSort = useCallback(
-    (value: string) => {
-      startTransition(() => {
-        const params = new URLSearchParams(searchParams.toString())
-        params.set('sort', value)
-        router.push(`?${params.toString()}`, { scroll: false })
-      })
-    },
-    [router, searchParams]
-  )
+  const handleSort = useCallback((value: string) => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('sort', value)
+      router.push(`?${params.toString()}`, { scroll: false })
+    })
+  }, [router, searchParams])
 
   return (
     <div className="relative w-full max-w-full md:max-w-4xl">
-      <Carousel opts={{ align: 'start', dragFree: true }}>
+      <Carousel opts={{ align: "start", dragFree: true }}>
         <CarouselContent className="-ml-1 sm:-ml-2 md:-ml-4">
           {navItems.map(([label, value]) => (
-            <CarouselItem
-              key={value}
-              className="pl-1 sm:pl-2 md:pl-4 basis-auto"
-            >
+            <CarouselItem key={value} className="pl-1 sm:pl-2 md:pl-4 basis-auto">
               <button
                 onClick={() => handleSort(value)}
                 disabled={isPending}
                 className={`px-2 sm:px-3 py-1 sm:py-2 text-sm font-medium transition-colors hover:text-primary whitespace-nowrap ${
-                  activeSort === value
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
+                  activeSort === value ? 'text-primary' : 'text-muted-foreground'
                 } ${isPending ? 'opacity-50 ' : ''}`}
               >
                 {label}
