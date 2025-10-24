@@ -28,25 +28,25 @@ export async function getReactions(
   targetType: 'statement' | 'process'
 ): Promise<ReactionCount[]> {
   const supabase = createClient()
-  
+
   try {
     const { data, error } = await supabase
       .from('reactions')
       .select('emoji')
       .eq('target_id', targetId)
       .eq('target_type', targetType)
-    
+
     if (error) {
       console.error('Error getting reactions:', error)
       return []
     }
-    
+
     // Count reactions by emoji
     const reactionCounts: Record<string, number> = {}
     data?.forEach(({ emoji }) => {
       reactionCounts[emoji] = (reactionCounts[emoji] || 0) + 1
     })
-    
+
     return Object.entries(reactionCounts)
       .map(([emoji, count]) => ({ emoji, count }))
       .sort((a, b) => b.count - a.count)
@@ -62,7 +62,7 @@ export async function getUserReaction(
   userId: string
 ): Promise<string | null> {
   const supabase = createClient()
-  
+
   try {
     const { data, error } = await supabase
       .from('reactions')
@@ -71,15 +71,16 @@ export async function getUserReaction(
       .eq('target_type', targetType)
       .eq('user_id', userId)
       .single()
-    
+
     if (error) {
-      if (error.code === 'PGRST116') { // No rows returned
+      if (error.code === 'PGRST116') {
+        // No rows returned
         return null
       }
       console.error('Error getting user reaction:', error)
       return null
     }
-    
+
     return (data as any)?.emoji || null
   } catch (error) {
     console.error('Error getting user reaction:', error)
@@ -117,7 +118,7 @@ export async function toggleReaction(
   emoji: string
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = createClient()
-  
+
   try {
     // Check for existing reaction
     const { data: existingReaction, error: checkError } = await supabase
@@ -127,12 +128,12 @@ export async function toggleReaction(
       .eq('target_type', targetType)
       .eq('user_id', userId)
       .single()
-    
+
     if (checkError && checkError.code !== 'PGRST116') {
       console.error('Error checking existing reaction:', checkError)
       return { success: false, error: checkError.message }
     }
-    
+
     if (existingReaction) {
       if ((existingReaction as any).emoji === emoji) {
         // Same emoji, remove the reaction
@@ -142,20 +143,19 @@ export async function toggleReaction(
           .eq('target_id', targetId)
           .eq('target_type', targetType)
           .eq('user_id', userId)
-        
+
         if (deleteError) {
           console.error('Error removing reaction:', deleteError)
           return { success: false, error: deleteError.message }
         }
       } else {
         // Different emoji, update the reaction
-        const { error: updateError } = await (supabase
-          .from('reactions') as any)
+        const { error: updateError } = await (supabase.from('reactions') as any)
           .update({ emoji, updated_at: new Date().toISOString() })
           .eq('target_id', targetId)
           .eq('target_type', targetType)
           .eq('user_id', userId)
-        
+
         if (updateError) {
           console.error('Error updating reaction:', updateError)
           return { success: false, error: updateError.message }
@@ -163,21 +163,21 @@ export async function toggleReaction(
       }
     } else {
       // No existing reaction, add new one
-      const { error: insertError } = await (supabase
-        .from('reactions') as any)
-        .insert({
-          target_id: targetId,
-          target_type: targetType,
-          user_id: userId,
-          emoji
-        })
-      
+      const { error: insertError } = await (
+        supabase.from('reactions') as any
+      ).insert({
+        target_id: targetId,
+        target_type: targetType,
+        user_id: userId,
+        emoji,
+      })
+
       if (insertError) {
         console.error('Error adding reaction:', insertError)
         return { success: false, error: insertError.message }
       }
     }
-    
+
     return { success: true }
   } catch (error) {
     console.error('Error toggling reaction:', error)
