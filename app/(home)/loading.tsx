@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Loading() {
   return (
@@ -10,7 +10,7 @@ export default function Loading() {
             <Skeleton key={i} className="h-10 w-24" />
           ))}
         </div>
-        
+
         {/* Post Skeletons */}
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -28,7 +28,7 @@ export default function Loading() {
           ))}
         </div>
       </div>
-      
+
       {/* Sidebar Skeleton */}
       <div className="hidden lg:block w-80 flex-shrink-0">
         <Skeleton className="h-96 w-full" />
