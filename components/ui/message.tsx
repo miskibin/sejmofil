@@ -1,45 +1,45 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import ReactMarkdown from "react-markdown";
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
-import { ChevronDown, Brain } from "lucide-react";
-import { PencilIcon, Save, Undo } from "lucide-react";
-import Link from "next/link";
+import * as React from 'react'
+import { useState } from 'react'
+import { cn } from '@/lib/utils'
+import ReactMarkdown from 'react-markdown'
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
+import { ChevronDown, Brain } from 'lucide-react'
+import { PencilIcon, Save, Undo } from 'lucide-react'
+import Link from 'next/link'
 
 // Define the pattern handler type
 export interface PatternHandler {
-  pattern: RegExp;
-  render: (match: RegExpExecArray) => React.ReactNode;
+  pattern: RegExp
+  render: (match: RegExpExecArray) => React.ReactNode
 }
 
 // Define a generic action button interface
 export interface ActionButton {
-  id: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-  title?: string;
-  className?: string;
-  position?: "inside" | "outside"; // Whether button should appear inside or outside the message
+  id: string
+  icon: React.ReactNode
+  onClick: () => void
+  title?: string
+  className?: string
+  position?: 'inside' | 'outside' // Whether button should appear inside or outside the message
 }
 
 export interface MessageProps {
-  content: string;
-  sender: "user" | "assistant";
-  actionButtons?: ActionButton[]; // Custom action buttons
-  editable?: boolean; // Whether this message can be edited
-  onEdit?: (content: string) => void;
-  patternHandlers?: PatternHandler[];
-  className?: string;
-  contentClassName?: string; // Additional className for the content container
+  content: string
+  sender: 'user' | 'assistant'
+  actionButtons?: ActionButton[] // Custom action buttons
+  editable?: boolean // Whether this message can be edited
+  onEdit?: (content: string) => void
+  patternHandlers?: PatternHandler[]
+  className?: string
+  contentClassName?: string // Additional className for the content container
   references?: Array<{
-    type: string;
-    title: string;
-    url?: string | null;
-    score: number;
-  }>;
+    type: string
+    title: string
+    url?: string | null
+    score: number
+  }>
 }
 
 export function Message({
@@ -53,134 +53,140 @@ export function Message({
   contentClassName,
   references,
 }: MessageProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedContent, setEditedContent] = useState(content);
-  const [showReasoning, setShowReasoning] = useState(false);
-  const [showSources, setShowSources] = useState(false);
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedContent, setEditedContent] = useState(content)
+  const [showReasoning, setShowReasoning] = useState(false)
+  const [showSources, setShowSources] = useState(false)
 
   // Parse think tags: extract reasoning and clean display content in one pass
   // Support "thinking" models by hiding <think>...</think> content in collapsible UI
   const { reasoning, displayContent } = React.useMemo(() => {
-    const THINK_TAG_REGEX = /<think>([\s\S]*?)<\/think>/i;
-    const match = THINK_TAG_REGEX.exec(content);
+    const THINK_TAG_REGEX = /<think>([\s\S]*?)<\/think>/i
+    const match = THINK_TAG_REGEX.exec(content)
 
     if (!match) {
-      return { reasoning: null, displayContent: content };
+      return { reasoning: null, displayContent: content }
     }
 
     return {
       reasoning: match[1].trim(),
-      displayContent: content.replace(THINK_TAG_REGEX, "").trim(),
-    };
-  }, [content]);
+      displayContent: content.replace(THINK_TAG_REGEX, '').trim(),
+    }
+  }, [content])
 
   const handleSaveEdit = () => {
-    setIsEditing(false);
-    if (onEdit && editedContent !== content) onEdit(editedContent);
-  };
+    setIsEditing(false)
+    if (onEdit && editedContent !== content) onEdit(editedContent)
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSaveEdit();
-    else if (e.key === "Escape") {
-      setIsEditing(false);
-      setEditedContent(content);
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleSaveEdit()
+    else if (e.key === 'Escape') {
+      setIsEditing(false)
+      setEditedContent(content)
     }
-  };
+  }
 
   const processContent = React.useCallback(
     (text: string): React.ReactNode => {
-      if (!text || typeof text !== "string" || patternHandlers.length === 0)
-        return text;
-      const segments: React.ReactNode[] = [];
-      let cursor = 0;
+      if (!text || typeof text !== 'string' || patternHandlers.length === 0)
+        return text
+      const segments: React.ReactNode[] = []
+      let cursor = 0
       while (cursor < text.length) {
         let earliest: {
-          handler: PatternHandler;
-          match: RegExpExecArray;
-          index: number;
-        } | null = null;
+          handler: PatternHandler
+          match: RegExpExecArray
+          index: number
+        } | null = null
         for (const handler of patternHandlers) {
-          handler.pattern.lastIndex = cursor;
-          const match = handler.pattern.exec(text);
+          handler.pattern.lastIndex = cursor
+          const match = handler.pattern.exec(text)
           if (match && (!earliest || match.index < earliest.index))
-            earliest = { handler, match, index: match.index };
+            earliest = { handler, match, index: match.index }
         }
         if (!earliest) {
-          segments.push(text.slice(cursor));
-          break;
+          segments.push(text.slice(cursor))
+          break
         }
         if (earliest.index > cursor)
-          segments.push(text.slice(cursor, earliest.index));
-        let rendered;
+          segments.push(text.slice(cursor, earliest.index))
+        let rendered
         try {
           rendered =
-            earliest.handler.render(earliest.match) ?? earliest.match[0];
+            earliest.handler.render(earliest.match) ?? earliest.match[0]
         } catch {
-          rendered = earliest.match[0];
+          rendered = earliest.match[0]
         }
-        segments.push(rendered);
-        cursor = earliest.index + earliest.match[0].length;
+        segments.push(rendered)
+        cursor = earliest.index + earliest.match[0].length
       }
-      return <>{segments}</>;
+      return <>{segments}</>
     },
     [patternHandlers]
-  );
+  )
 
   const { insideButtons, outsideButtons } = React.useMemo(() => {
-    const inside = actionButtons.filter((btn) => btn.position !== "outside");
-    const outside = actionButtons.filter((btn) => btn.position === "outside");
-    return { insideButtons: inside, outsideButtons: outside };
-  }, [actionButtons]);
+    const inside = actionButtons.filter((btn) => btn.position !== 'outside')
+    const outside = actionButtons.filter((btn) => btn.position === 'outside')
+    return { insideButtons: inside, outsideButtons: outside }
+  }, [actionButtons])
 
   const markdownComponents = React.useMemo(() => {
     const processChildren = (children: React.ReactNode) => {
-      if (patternHandlers.length === 0) return children;
-      
+      if (patternHandlers.length === 0) return children
+
       if (Array.isArray(children)) {
         return children.map((c, index) =>
-          typeof c === "string" ? (
+          typeof c === 'string' ? (
             processContent(c)
           ) : (
             <React.Fragment key={index}>{c}</React.Fragment>
           )
-        );
+        )
       }
-      return typeof children === "string" ? processContent(children) : children;
-    };
+      return typeof children === 'string' ? processContent(children) : children
+    }
 
     return {
       // Custom link component to use Next.js Link for internal navigation
-      a: ({ href, children, ...props }: { href?: string; children?: React.ReactNode; [key: string]: any }) => {
+      a: ({
+        href,
+        children,
+        ...props
+      }: {
+        href?: string
+        children?: React.ReactNode
+        [key: string]: any
+      }) => {
         // Check if it's an internal link
-        const isInternal = href && (
-          href.startsWith('/') || 
-          href.startsWith('#')
-        );
-        
+        const isInternal =
+          href && (href.startsWith('/') || href.startsWith('#'))
+
         if (isInternal) {
           return (
-            <Link 
-              href={href} 
+            <Link
+              href={href}
               className="text-primary hover:underline font-medium transition-colors"
               {...props}
             >
               {children}
             </Link>
-          );
+          )
         }
-        
+
         // External link
         return (
-          <a 
-            href={href} 
-            target="_blank" 
+          <a
+            href={href}
+            target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline font-medium transition-colors"
             {...props}
           >
             {children}
           </a>
-        );
+        )
       },
       p: ({ children }: { children?: React.ReactNode }) => (
         <p>{processChildren(children)}</p>
@@ -188,24 +194,24 @@ export function Message({
       li: ({ children }: { children?: React.ReactNode }) => (
         <li>{processChildren(children)}</li>
       ),
-    };
-  }, [patternHandlers, processContent]);
+    }
+  }, [patternHandlers, processContent])
 
   return (
     <div
       className={cn(
-        "group relative flex flex-col w-full",
-        sender === "user" ? "items-end" : "items-start",
+        'group relative flex flex-col w-full',
+        sender === 'user' ? 'items-end' : 'items-start',
         className
       )}
     >
       <div className="relative">
         <div
           className={cn(
-            "max-w-[90vw] sm:max-w-[70vw]",
-            sender === "user"
-              ? "bg-primary text-primary-foreground rounded-lg"
-              : "",
+            'max-w-[90vw] sm:max-w-[70vw]',
+            sender === 'user'
+              ? 'bg-primary text-primary-foreground rounded-lg'
+              : '',
             contentClassName
           )}
         >
@@ -213,10 +219,10 @@ export function Message({
             <div className="p-3">
               <textarea
                 className={cn(
-                  "w-full p-2 rounded-md border resize-none focus:outline-none focus:ring-1 focus:ring-primary",
-                  sender === "user"
-                    ? "bg-primary/90 text-primary-foreground border-primary-foreground/20"
-                    : "bg-muted text-foreground border-input"
+                  'w-full p-2 rounded-md border resize-none focus:outline-none focus:ring-1 focus:ring-primary',
+                  sender === 'user'
+                    ? 'bg-primary/90 text-primary-foreground border-primary-foreground/20'
+                    : 'bg-muted text-foreground border-input'
                 )}
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
@@ -227,8 +233,8 @@ export function Message({
               <div className="flex justify-end gap-2 mt-2">
                 <button
                   onClick={() => {
-                    setIsEditing(false);
-                    setEditedContent(content);
+                    setIsEditing(false)
+                    setEditedContent(content)
                   }}
                   className="text-white transition-colors"
                   title="Cancel"
@@ -248,14 +254,14 @@ export function Message({
             <div className="p-3">
               <div
                 className={cn(
-                  "prose prose-sm max-w-none text-base",
-                  sender === "user"
-                    ? "prose-invert prose-p:text-primary-foreground"
-                    : "prose-neutral dark:prose-invert"
+                  'prose prose-sm max-w-none text-base',
+                  sender === 'user'
+                    ? 'prose-invert prose-p:text-primary-foreground'
+                    : 'prose-neutral dark:prose-invert'
                 )}
               >
                 <ReactMarkdown components={markdownComponents}>
-                  {displayContent || ""}
+                  {displayContent || ''}
                 </ReactMarkdown>
                 {reasoning && (
                   <div className="mt-3 text-sm border rounded-md bg-muted/40">
@@ -273,8 +279,8 @@ export function Message({
                           <span className="font-medium">Model reasoning</span>
                           <ChevronDown
                             className={cn(
-                              "h-4 w-4 transition-transform",
-                              showReasoning ? "rotate-180" : "rotate-0"
+                              'h-4 w-4 transition-transform',
+                              showReasoning ? 'rotate-180' : 'rotate-0'
                             )}
                           />
                         </button>
@@ -282,8 +288,8 @@ export function Message({
                       <CollapsibleContent className="px-3 pb-3 pt-0 [&[data-state=closed]]:hidden">
                         <div
                           className={cn(
-                            "prose prose-xs max-w-none text-muted-foreground whitespace-pre-wrap break-words",
-                            sender === "user" ? "prose-invert" : ""
+                            'prose prose-xs max-w-none text-muted-foreground whitespace-pre-wrap break-words',
+                            sender === 'user' ? 'prose-invert' : ''
                           )}
                         >
                           {reasoning}
@@ -292,58 +298,70 @@ export function Message({
                     </Collapsible>
                   </div>
                 )}
-                {references && references.length > 0 && sender === "assistant" && (
-                  <Collapsible open={showSources} onOpenChange={setShowSources} className="mt-3">
-                    <div className="flex items-center justify-between cursor-pointer select-none">
-                      <button
-                        type="button"
-                        onClick={() => setShowSources((o) => !o)}
-                        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors py-1"
-                      >
-                        <span className="text-sm font-medium">Źródła ({references.length})</span>
-                        <ChevronDown
-                          className={cn(
-                            "h-4 w-4 transition-transform",
-                            showSources ? "rotate-180" : "rotate-0"
-                          )}
-                        />
-                      </button>
-                    </div>
-                    <CollapsibleContent className="mt-2 space-y-3 [&[data-state=closed]]:hidden">
-                      {references.map((ref, index) => (
-                        <div
-                          key={index}
-                          id={`reference-${index + 1}`}
-                          className="text-sm border-l-2 border-primary/30 pl-3 py-2 rounded-r-sm hover:bg-muted/30 transition-colors"
+                {references &&
+                  references.length > 0 &&
+                  sender === 'assistant' && (
+                    <Collapsible
+                      open={showSources}
+                      onOpenChange={setShowSources}
+                      className="mt-3"
+                    >
+                      <div className="flex items-center justify-between cursor-pointer select-none">
+                        <button
+                          type="button"
+                          onClick={() => setShowSources((o) => !o)}
+                          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors py-1"
                         >
-                          <div className="flex items-start justify-between gap-3 mb-1">
-                            <div className="flex items-start gap-2 flex-1">
-                              <span className="font-semibold text-primary min-w-max">[{index + 1}]</span>
-                              {ref.url ? (
-                                <a
-                                  href={ref.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:underline font-medium leading-snug"
-                                >
-                                  {ref.title}
-                                </a>
-                              ) : (
-                                <span className="text-foreground font-medium leading-snug">{ref.title}</span>
-                              )}
+                          <span className="text-sm font-medium">
+                            Źródła ({references.length})
+                          </span>
+                          <ChevronDown
+                            className={cn(
+                              'h-4 w-4 transition-transform',
+                              showSources ? 'rotate-180' : 'rotate-0'
+                            )}
+                          />
+                        </button>
+                      </div>
+                      <CollapsibleContent className="mt-2 space-y-3 [&[data-state=closed]]:hidden">
+                        {references.map((ref, index) => (
+                          <div
+                            key={index}
+                            id={`reference-${index + 1}`}
+                            className="text-sm border-l-2 border-primary/30 pl-3 py-2 rounded-r-sm hover:bg-muted/30 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-3 mb-1">
+                              <div className="flex items-start gap-2 flex-1">
+                                <span className="font-semibold text-primary min-w-max">
+                                  [{index + 1}]
+                                </span>
+                                {ref.url ? (
+                                  <a
+                                    href={ref.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:underline font-medium leading-snug"
+                                  >
+                                    {ref.title}
+                                  </a>
+                                ) : (
+                                  <span className="text-foreground font-medium leading-snug">
+                                    {ref.title}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap ml-auto">
+                                {(ref.score * 100).toFixed(0)}%
+                              </span>
                             </div>
-                            <span className="text-xs text-muted-foreground whitespace-nowrap ml-auto">
-                              {(ref.score * 100).toFixed(0)}%
-                            </span>
+                            <div className="text-xs text-muted-foreground capitalize pl-6">
+                              {ref.type}
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground capitalize pl-6">
-                            {ref.type}
-                          </div>
-                        </div>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                )}
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )}
               </div>
             </div>
           )}
@@ -355,7 +373,7 @@ export function Message({
                     key={button.id}
                     onClick={button.onClick}
                     className={cn(
-                      "text-muted-foreground hover:text-foreground transition-colors p-1",
+                      'text-muted-foreground hover:text-foreground transition-colors p-1',
                       button.className
                     )}
                     title={button.title}
@@ -374,7 +392,7 @@ export function Message({
                 key={button.id}
                 onClick={button.onClick}
                 className={cn(
-                  "text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-muted",
+                  'text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-muted',
                   button.className
                 )}
                 title={button.title}
@@ -395,5 +413,5 @@ export function Message({
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-
 export default async function TopicsPage() {
   const topics = await getAllTopics(100)
   const topTopics = topics.slice(0, 3)

@@ -5,6 +5,7 @@ import { MultiServerMCPClient } from '@langchain/mcp-adapters'
 import { ChatOpenAI } from '@langchain/openai'
 import { CallbackHandler } from 'langfuse-langchain'
 import { Langfuse } from 'langfuse'
+import { systemPrompt as baseSystemPrompt } from '@/lib/config/prompts'
 
 console.log('[INIT] OPENAI_API_KEY present?', !!process.env.OPENAI_API_KEY)
 console.log(
@@ -81,33 +82,23 @@ export async function POST(request: NextRequest) {
       day: 'numeric',
     })
 
-    // Create system prompt
-    const systemPrompt = `Jesteś asystentem Sejmu Polskiego. Dzisiejsza data to: ${dateStr}
+    // Create system prompt with current date
+    const systemPrompt = `${baseSystemPrompt}
 
-Masz dostęp do narzędzi MCP do:
-1. Wyszukiwania drików parlamentarnych
-2. Uzyskiwania informacji o parlamentarzystach
-3. Wyszukiwania informacji o procesach legislacyjnych
-4. Wyszukiwania podobnych tematów
-5. Uzyskiwania statystyk na temat tematów
-6. Wyszukiwania we wszystkich zasobach parlamentarnych
+Dzisiejsza data to: ${dateStr}
 
 DOSTĘPNE ENDPOINTY W APLIKACJI:
-Gdy odnoszisz się do konkretnych zasobów, używaj hiperłączy w formacie markdown:
+Gdy odnoszysz się do konkretnych zasobów, używaj hiperłączy w formacie markdown:
 - Procesy legislacyjne: [Proces <id>](/processes/<id>) - np. [Proces 123](/processes/123)
 - Druki sejmowe: [Druk <numer>](/prints/<numer>) - np. [Druk 456](/prints/456)
 - Posłowie: [<Imię Nazwisko>](/envoys/<id>) - np. [Jan Kowalski](/envoys/789)
 - Posiedzenia: [Posiedzenie <numer>](/proceedings/<id>) - np. [Posiedzenie 10](/proceedings/10)
 
-WAŻNE INSTRUKCJE:
+DODATKOWE ZASADY:
 1. Odpowiadaj zwięźle i precyzyjnie (max 2-3 akapity)
 2. Unikaj powtórzeń i długich wyjaśnień
-4. Odpowiadaj po polsku
-5. Używaj dostępnych narzędzi aby znaleźć informacje, gdy jest to potrzebne
-6. Nie wymyślaj danych - korzystaj z dostępnych narzędzi
-7. Jeśli funkcja zwraca błąd, spróbuj z innymi parametrami
-8. ZAWSZE twórz aktywne linki do zasobów (procesów, druków, posłów) używając formatu markdown
-9. Gdy wspominasz o konkretnym druku, procesie lub pośle, ZAWSZE dodawaj hiperłącze`
+3. ZAWSZE twórz aktywne linki do zasobów (procesów, druków, posłów) używając formatu markdown
+4. Gdy wspominasz o konkretnym druku, procesie lub pośle, ZAWSZE dodawaj hiperłącze`
 
     // Create readable stream for SSE
     const readable = new ReadableStream({
@@ -205,7 +196,7 @@ WAŻNE INSTRUKCJE:
             {
               messages: agentMessages,
             },
-            { 
+            {
               streamMode: 'values',
             }
           )
@@ -260,7 +251,10 @@ WAŻNE INSTRUKCJE:
               }
 
               // Check if it's a tool result message
-              if (latestMessage.tool_results && latestMessage.tool_results.length > 0) {
+              if (
+                latestMessage.tool_results &&
+                latestMessage.tool_results.length > 0
+              ) {
                 const toolResult = latestMessage.tool_results[0]
                 console.log(
                   `[POST] Tool result received:`,
@@ -344,12 +338,12 @@ WAŻNE INSTRUKCJE:
           }
 
           controller.enqueue(createSSEMessage('done', { success: true }))
-          
+
           // Flush Langfuse to ensure all traces are sent
           await langfuseHandler.flushAsync()
           await langfuse.flushAsync()
           console.log('[POST] Langfuse traces flushed')
-          
+
           controller.close()
         } catch (error) {
           console.error('[POST] Streaming error:', error)

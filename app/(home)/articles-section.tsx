@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import ArticlesNav from './articles-nav'
 import PostCard from './post-card'
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from '@/components/ui/skeleton'
 import type { LatestPointsResult } from '@/lib/types/proceeding'
 import { useInfiniteScroll } from '@/lib/hooks/use-infinite-scroll'
 
@@ -20,7 +20,10 @@ export default function ArticlesSection({
   allCategories: string[]
   maxProceedingNumber: number
 }) {
-  const [displayedPosts, hasMore, loadMore] = useInfiniteScroll(posts, ITEMS_PER_PAGE)
+  const [displayedPosts, hasMore, loadMore] = useInfiniteScroll(
+    posts,
+    ITEMS_PER_PAGE
+  )
   const loadingRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -42,10 +45,7 @@ export default function ArticlesSection({
 
   return (
     <div className="space-y-12">
-      <ArticlesNav 
-        categories={allCategories} 
-        activeSort={sort}
-      />
+      <ArticlesNav categories={allCategories} activeSort={sort} />
       <div className="space-y-2 md:space-y-4">
         {displayedPosts.map((post) => (
           <div key={`${post.proceedingNumber}-${post.pointId}`}>
@@ -60,7 +60,10 @@ export default function ArticlesSection({
           </div>
         ))}
         {hasMore && (
-          <div ref={loadingRef} className="h-10 flex items-center justify-center">
+          <div
+            ref={loadingRef}
+            className="h-10 flex items-center justify-center"
+          >
             <Skeleton className="h-4 w-[100px]" />
           </div>
         )}
