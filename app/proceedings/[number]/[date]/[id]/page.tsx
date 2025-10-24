@@ -306,42 +306,40 @@ export default async function PointDetail({
       )}
 
       {/* Voting and Club Analysis - Side by Side */}
-      {(simpleVotingResults.length > 0 || chartData.length >= 7) && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Voting Results Card */}
-          <div className="min-w-0 h-full">
-            {simpleVotingResults.length > 0 ? (
-              <VotingCardEnhanced votings={simpleVotingResults} />
-            ) : (
-              <Card className="p-5 h-full">
-                <h2 className="mb-4 text-xl font-semibold">Głosowania</h2>
-                <EmptyState image="/empty.svg" text="Brak głosowań" />
-              </Card>
-            )}
-          </div>
-
-          {/* Club Analysis Card */}
-          <div className="min-w-0 h-full">
-            {chartData.length >= 7 ? (
-              <Card className="p-5 h-full">
-                <h2 className="mb-4 text-xl font-semibold">
-                  Stosunek klubów do tematu
-                </h2>
-                <div className="w-full overflow-x-auto">
-                  <TopicAttitudeChart data={chartData} />
-                </div>
-              </Card>
-            ) : (
-              <Card className="p-5 h-full">
-                <h2 className="mb-4 text-xl font-semibold">
-                  Stosunek klubów do tematu
-                </h2>
-                <EmptyState image="/empty.svg" text="Za mało danych o stanowiskach klubów" />
-              </Card>
-            )}
-          </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Voting Results Card */}
+        <div className="min-w-0 h-full">
+          {simpleVotingResults.length > 0 ? (
+            <VotingCardEnhanced votings={simpleVotingResults} />
+          ) : (
+            <Card className="p-5 h-full">
+              <h2 className="mb-4 text-xl font-semibold">Głosowania</h2>
+              <EmptyState image="/empty.svg" text="Brak głosowań" />
+            </Card>
+          )}
         </div>
-      )}
+
+        {/* Club Analysis Card */}
+        <div className="min-w-0 h-full">
+          {chartData.length >= 7 ? (
+            <Card className="p-5 h-full">
+              <h2 className="mb-4 text-xl font-semibold">
+                Stosunek klubów do tematu
+              </h2>
+              <div className="w-full overflow-x-auto">
+                <TopicAttitudeChart data={chartData} />
+              </div>
+            </Card>
+          ) : (
+            <Card className="p-5 h-full">
+              <h2 className="mb-4 text-xl font-semibold">
+                Stosunek klubów do tematu
+              </h2>
+              <EmptyState image="/empty.svg" text="Za mało danych o stanowiskach klubów" />
+            </Card>
+          )}
+        </div>
+      </div>
 
       {/* Main Content Area with Tabs */}
       <div className="rounded-lg border bg-card">

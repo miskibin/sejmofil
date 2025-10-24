@@ -15,6 +15,7 @@ type ProceedingDayPoint = {
   summary_tldr: string | null
   voting_numbers: number[]
   official_point: string | null
+  statements?: { statement: { id: number } }[]
   proceeding_day: {
     date: string
     proceeding: {
@@ -32,10 +33,17 @@ export const getLatestProceedingPoints = cache(async (category?: string): Promis
     supabase
       .from('proceeding_point_ai')
       .select(`
-        id, topic, summary_tldr, voting_numbers, official_point,
+        id, 
+        topic, 
+        summary_tldr, 
+        voting_numbers, 
+        official_point,
         proceeding_day!inner (
           date,
           proceeding!inner (number, title)
+        ),
+        statements:statement_to_point!proceeding_point_ai_id(
+          statement:statement_id(id)
         )
       `)
       .order('id', { ascending: false })
@@ -43,7 +51,10 @@ export const getLatestProceedingPoints = cache(async (category?: string): Promis
       .limit(1000),
   ])
 
-  if (pointsRes.error) return []
+  if (pointsRes.error) {
+    console.error('Error fetching proceeding points:', pointsRes.error)
+    return []
+  }
 
   const voteCounts = (voteCountsRes.data || []) as VoteCount[]
   const data = (pointsRes.data || []) as ProceedingDayPoint[]
@@ -70,6 +81,7 @@ export const getLatestProceedingPoints = cache(async (category?: string): Promis
     .map((point) => {
       const [category, title] = point.topic?.split(' | ') || []
       const votes = votesByPointId[point.id] || { upvotes: 0, downvotes: 0 }
+      const statementsCount = point.statements?.length || 0
       return {
         category: category || 'Punkt obrad',
         title: title || point.topic || 'Bez tytułu',
@@ -84,6 +96,7 @@ export const getLatestProceedingPoints = cache(async (category?: string): Promis
         votingNumbers: point.voting_numbers,
         officialPoint: point.official_point || null,
         votes,
+        statementsCount,
       }
     })
 })
@@ -96,17 +109,27 @@ export const getPopularProceedingPoints = cache(async (): Promise<LatestPointsRe
     supabase
       .from('proceeding_point_ai')
       .select(`
-        id, topic, summary_tldr, voting_numbers, official_point,
+        id, 
+        topic, 
+        summary_tldr, 
+        voting_numbers, 
+        official_point,
         proceeding_day!inner (
           date,
           proceeding!inner (number, title)
+        ),
+        statements:statement_to_point!proceeding_point_ai_id(
+          statement:statement_id(id)
         )
       `)
       .order('id', { ascending: false })
       .limit(1000),
   ])
 
-  if (pointsRes.error) return []
+  if (pointsRes.error) {
+    console.error('Error fetching popular proceeding points:', pointsRes.error)
+    return []
+  }
 
   const voteCounts = (voteCountsRes.data || []) as VoteCount[]
   const points = (pointsRes.data || []) as ProceedingDayPoint[]
@@ -136,6 +159,7 @@ export const getPopularProceedingPoints = cache(async (): Promise<LatestPointsRe
         score: 0,
         votes: { upvotes: 0, downvotes: 0 },
       }
+      const statementsCount = point.statements?.length || 0
       return {
         category: category || 'Punkt obrad',
         title: title || point.topic || 'Bez tytułu',
@@ -150,6 +174,7 @@ export const getPopularProceedingPoints = cache(async (): Promise<LatestPointsRe
         votingNumbers: point.voting_numbers,
         officialPoint: point.official_point || null,
         votes: voteData.votes,
+        statementsCount,
       }
     })
 })
