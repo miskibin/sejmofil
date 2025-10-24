@@ -21,7 +21,7 @@ export default async function Sidebar() {
   const timeUntil = getTimeUntilNextProceeding(nextDate)
 
   const allTopics = await getAllTopics(10)
-  const topTopics = allTopics.map((topic) => topic.name)
+  const topTopics = allTopics.map((topic) => topic.name).slice(0, 5)
 
   return (
     <div className="w-80 space-y-12 text-card-foreground/80">
@@ -38,7 +38,7 @@ export default async function Sidebar() {
             <Link
               key={topic}
               href={`/topics/${encodeURIComponent(topic)}`}
-              className="px-4 py-2 bg-card text-sm hover:bg-primary/10 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-card text-sm hover:bg-primary/10 transition-all duration-200 cursor-pointer rounded-lg border border-border/50 hover:border-primary/30 hover:shadow-sm"
             >
               {topic}
             </Link>
@@ -46,9 +46,10 @@ export default async function Sidebar() {
         </div>
         <Link
           href="/topics"
-          className="block text-sm text-primary hover:text-primary/80"
+          className="inline-flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors"
         >
           Zobacz więcej tematów
+          <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
 

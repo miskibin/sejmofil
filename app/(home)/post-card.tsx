@@ -96,41 +96,56 @@ export default function PostCard({
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-0 shadow-md">
       {/* Header with Category Badge */}
-      <CardHeader className="pb-3 space-y-3">
-        <div className="flex items-start justify-between gap-3">
+      <CardHeader className="pb-3 px-4 sm:px-6 space-y-3">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
           {/* Category Badge - now more prominent */}
-          <Badge 
-            variant="default" 
-            className="shrink-0 gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full"
+          <Badge
+            variant="default"
+            className="shrink-0 gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-semibold rounded-full max-w-[60%] sm:max-w-none"
           >
-            <span className="w-1.5 h-1.5 bg-primary-foreground rounded-full animate-pulse" />
-            {category}
+            <span className="w-1.5 h-1.5 bg-primary-foreground rounded-full animate-pulse flex-shrink-0" />
+            <span className="truncate">{category.split(' ').slice(0, 2).join(' ')}</span>
           </Badge>
-          
-          {/* All Meta Badges in one row */}
-          <div className="flex items-center gap-2 flex-wrap justify-end text-xs">
-            <Badge variant="outline" className="gap-1.5 h-7 px-2.5 rounded-full border-border/50">
+
+          {/* All Meta Badges - responsive display */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end text-xs flex-shrink-0">
+            {/* Desktop only: Proceeding number */}
+            <Badge
+              variant="outline"
+              className="gap-1.5 h-7 px-2.5 rounded-full border-border/50 hidden sm:flex"
+            >
               <Calendar className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline font-medium">{proceedingLabel}</span>
-              <span className="sm:hidden font-medium">{proceedingNumber}</span>
+              <span className="font-medium">{proceedingLabel}</span>
             </Badge>
-            
+
+            {/* Desktop only: Official point */}
             {cleanOfficialPoint && (
-              <Badge variant="outline" className="gap-1.5 h-7 px-2.5 rounded-full border-border/50">
+              <Badge
+                variant="outline"
+                className="gap-1.5 h-7 px-2.5 rounded-full border-border/50 hidden sm:flex"
+              >
                 <Hash className="h-3.5 w-3.5" />
                 <span className="font-medium">{cleanOfficialPoint}</span>
               </Badge>
             )}
-            
+
+            {/* Show votings count on all screens */}
             {hasVotes && (
-              <Badge variant="secondary" className="gap-1.5 h-7 px-2.5 rounded-full">
+              <Badge
+                variant="secondary"
+                className="gap-1.5 h-7 px-2.5 rounded-full"
+              >
                 <Vote className="h-3.5 w-3.5" />
                 <span className="font-medium">{votingNumbers!.length}</span>
               </Badge>
             )}
-            
+
+            {/* Show statements count on all screens - outline style */}
             {statementsCount > 0 && (
-              <Badge variant="secondary" className="gap-1.5 h-7 px-2.5 rounded-full">
+              <Badge
+                variant="outline"
+                className="gap-1.5 h-7 px-2.5 rounded-full border-border/50"
+              >
                 <MessageSquare className="h-3.5 w-3.5" />
                 <span className="font-medium">{statementsCount}</span>
               </Badge>
@@ -139,7 +154,7 @@ export default function PostCard({
         </div>
       </CardHeader>
 
-      <CardContent className="pb-4 space-y-4">
+      <CardContent className="pb-4 px-4 sm:px-6 space-y-4">
         {/* Main Content Area */}
         <div className="flex flex-col md:flex-row items-start gap-4">
           {/* Text content */}
@@ -149,21 +164,24 @@ export default function PostCard({
                 {title}
               </h2>
             </Link>
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed line-clamp-2 md:line-clamp-3">
-              {truncateText(description, 320, true)}
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed line-clamp-3">
+              {truncateText(description, 400, true)}
             </p>
           </div>
 
           {/* Image */}
-          <Link href={postUrl} className="block w-full md:w-[280px] lg:w-[360px] order-1 md:order-2">
-            <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-muted to-muted/50 aspect-[16/10] shrink-0 shadow-sm group-hover:shadow-lg transition-shadow duration-300">
+          <Link
+            href={postUrl}
+            className="block w-full md:w-72 lg:w-96 order-1 md:order-2"
+          >
+            <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-muted to-muted/50 aspect-video shrink-0 shadow-sm group-hover:shadow-lg transition-shadow duration-300">
               <ImageWithFallback
                 src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${proceedingNumber}/${date}/${pointId}.jpg`}
                 alt={title}
                 fallbackSrc="/default.jpg"
                 className="object-cover object-center group-hover:scale-110 transition-transform duration-500 ease-out"
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 280px, 360px"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 288px, 384px"
               />
             </div>
           </Link>
@@ -171,10 +189,15 @@ export default function PostCard({
       </CardContent>
 
       {/* Footer - Actions */}
-      <CardFooter className="flex flex-wrap items-center gap-3 pt-3 pb-4 border-t">
+      <CardFooter className="flex flex-wrap items-center gap-3 pt-3 pb-4 px-4 sm:px-6 border-t">
         <PostVoting pointId={pointId} initialVotes={initialVotes} />
-        
-        <Button variant="ghost" size="sm" className="gap-2 h-9 px-3 rounded-full" asChild>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2 h-9 px-3 rounded-full"
+          asChild
+        >
           <Link href={`${postUrl}#comments`}>
             <MessageSquare className="w-4 h-4" />
             <span className="text-sm font-medium">{comments}</span>
@@ -193,7 +216,7 @@ export default function PostCard({
           disabled={isSharing}
         >
           <Share2 className={cn('w-4 h-4', isSharing && 'animate-pulse')} />
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium hidden xl:block">
             {isSharing ? 'Udostępnianie...' : 'Udostępnij'}
           </span>
         </Button>
