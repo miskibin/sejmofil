@@ -6,6 +6,9 @@ export async function GET() {
     return Response.json({ version, url })
   } catch (error) {
     console.error('Failed to fetch version:', error)
-    return Response.json({ version: 'main', url: '#' }, { status: 200 })
+    return Response.json(
+      { version: 'main', url: '#' },
+      { status: 200 }
+    )
   }
 }

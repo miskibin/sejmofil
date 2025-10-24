@@ -128,7 +128,10 @@ export function TopicGraph({
           const match = hsl.match(/hsl\(([^)]+)\)/)
           if (match) {
             // Convert space-separated to comma-separated for canvas
-            const values = match[1].trim().split(/\s+/).join(', ')
+            const values = match[1]
+              .trim()
+              .split(/\s+/)
+              .join(', ')
             return `hsla(${values}, ${alpha})`
           }
           return hsl
@@ -171,7 +174,10 @@ export function TopicGraph({
           const match = hsl.match(/hsl\(([^)]+)\)/)
           if (match) {
             // Convert space-separated to comma-separated for canvas
-            const values = match[1].trim().split(/\s+/).join(', ')
+            const values = match[1]
+              .trim()
+              .split(/\s+/)
+              .join(', ')
             return `hsl(${values})`
           }
           return hsl
@@ -180,7 +186,10 @@ export function TopicGraph({
         const hslToHsla = (hsl: string, alpha: number) => {
           const match = hsl.match(/hsl\(([^)]+)\)/)
           if (match) {
-            const values = match[1].trim().split(/\s+/).join(', ')
+            const values = match[1]
+              .trim()
+              .split(/\s+/)
+              .join(', ')
             return `hsla(${values}, ${alpha})`
           }
           return hsl

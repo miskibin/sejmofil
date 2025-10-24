@@ -23,7 +23,9 @@ export function LayoutContent({ children }: LayoutContentProps) {
       <Navbar />
 
       {shouldShowMinimalLayout ? (
-        <main>{children}</main>
+        <main>
+          {children}
+        </main>
       ) : (
         <main className="container mx-auto mt-8 sm:mt-4 max-w-7xl p-1 sm:p-6 lg:p-12 2xl:max-w-[1400px]">
           <Breadcrumbs />

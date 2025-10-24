@@ -44,7 +44,7 @@ const socialLinks = [
 const navLinks = [
   { name: 'Polityka Prywatności', url: '/privacy' },
   { name: 'Regulamin', url: '/terms-of-service' },
-]
+] 
 
 const aboutLinks = [
   { name: 'O projekcie', url: '/about' },
