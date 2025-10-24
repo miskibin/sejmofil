@@ -41,23 +41,22 @@ export default function ArticlesSection({
   }, [hasMore, loadMore])
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-6">
       <ArticlesNav 
         categories={allCategories} 
         activeSort={sort}
       />
-      <div className="space-y-2 md:space-y-4">
+      <div className="space-y-4 md:space-y-6">
         {displayedPosts.map((post) => (
-          <div key={`${post.proceedingNumber}-${post.pointId}`}>
-            <PostCard
-              {...post}
-              comments={parseInt(post.comments) || 0}
-              proceedingNumber={post.proceedingNumber.toString()}
-              officialPoint={post.officialPoint}
-              maxProceedingNumber={maxProceedingNumber}
-            />
-            <hr className="border-t border-gray-200 mb-4" />
-          </div>
+          <PostCard
+            key={`${post.proceedingNumber}-${post.pointId}`}
+            {...post}
+            comments={parseInt(post.comments) || 0}
+            proceedingNumber={post.proceedingNumber.toString()}
+            officialPoint={post.officialPoint}
+            maxProceedingNumber={maxProceedingNumber}
+            statementsCount={post.statementsCount}
+          />
         ))}
         {hasMore && (
           <div ref={loadingRef} className="h-10 flex items-center justify-center">

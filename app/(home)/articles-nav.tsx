@@ -1,6 +1,8 @@
 "use client"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useTransition } from 'react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import {
   Carousel,
   CarouselContent,
@@ -39,26 +41,38 @@ export default function ArticlesNav({
   }, [router, searchParams])
 
   return (
-    <div className="relative w-full max-w-full md:max-w-4xl">
-      <Carousel opts={{ align: "start", dragFree: true }}>
-        <CarouselContent className="-ml-1 sm:-ml-2 md:-ml-4">
+    <div className="relative w-full">
+      <Carousel 
+        opts={{ 
+          align: "start", 
+          dragFree: true,
+          skipSnaps: false
+        }}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-2">
           {navItems.map(([label, value]) => (
-            <CarouselItem key={value} className="pl-1 sm:pl-2 md:pl-4 basis-auto">
-              <button
+            <CarouselItem key={value} className="pl-2 basis-auto">
+              <Button
+                variant={activeSort === value ? "default" : "outline"}
+                size="sm"
                 onClick={() => handleSort(value)}
                 disabled={isPending}
-                className={`px-2 sm:px-3 py-1 sm:py-2 text-sm font-medium transition-colors hover:text-primary whitespace-nowrap ${
-                  activeSort === value ? 'text-primary' : 'text-muted-foreground'
-                } ${isPending ? 'opacity-50 ' : ''}`}
+                className={cn(
+                  "rounded-full px-4 py-2 text-sm font-medium transition-all",
+                  "hover:shadow-md",
+                  activeSort === value && "shadow-md",
+                  isPending && "opacity-50 cursor-not-allowed"
+                )}
               >
                 {label}
-              </button>
+              </Button>
             </CarouselItem>
           ))}
         </CarouselContent>
         <div className="hidden sm:block">
-          <CarouselPrevious />
-          <CarouselNext />
+          <CarouselPrevious className="-left-4" />
+          <CarouselNext className="-right-4" />
         </div>
       </Carousel>
     </div>
