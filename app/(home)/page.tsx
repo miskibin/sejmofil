@@ -1,6 +1,7 @@
 import {
   getLatestProceedingPoints,
   getPopularProceedingPoints,
+  getForYouProceedingPoints,
   getAllCategories,
   getMaxProceedingNumber,
 } from '@/lib/supabase/getProceedings'
@@ -21,12 +22,14 @@ async function getPosts(sort: string) {
       return getPopularProceedingPoints()
     case 'latest':
       return getLatestProceedingPoints()
+    case 'foryou':
+      return getForYouProceedingPoints()
     default:
       if (sort.startsWith('category-')) {
         const category = decodeURIComponent(sort.replace('category-', ''))
         return getLatestProceedingPoints(category)
       }
-      return getLatestProceedingPoints()
+      return getForYouProceedingPoints()
   }
 }
 

@@ -33,16 +33,9 @@ export async function getAdjacentPoints(
     .select('id')
     .eq('proceeding_id', proceedingId)
 
-  const proceedingDayIds = proceedingDays?.map(d => d.id) || []
-
-  console.log('=== DATABASE DEBUG ===')
-  console.log('Current point ID:', pointId)
-  console.log('Proceeding ID:', proceedingId)
-  console.log('Proceeding day IDs:', proceedingDayIds)
-  console.log('Current proceeding_day_id:', currentPoint.proceeding_day_id)
+  const proceedingDayIds = proceedingDays?.map((d: { id: number }) => d.id) || []
 
   if (proceedingDayIds.length === 0) {
-    console.log('No proceeding days found!')
     return { prev: null, next: null }
   }
 
@@ -64,10 +57,6 @@ export async function getAdjacentPoints(
     .order('id', { ascending: true })
     .limit(1)
     .maybeSingle()
-
-  console.log('Prev point:', prevPoint, 'Error:', prevError)
-  console.log('Next point:', nextPoint, 'Error:', nextError)
-  console.log('=====================')
 
   return {
     prev: prevPoint ? (prevPoint as unknown as AdjacentPoint) : null,
