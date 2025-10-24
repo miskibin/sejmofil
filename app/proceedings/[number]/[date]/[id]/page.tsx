@@ -252,7 +252,7 @@ export default async function PointDetail({
         <div className="p-6 space-y-4 bg-gradient-to-b from-background to-card">
           {/* Voting and Quick Stats in one row */}
           <div className="flex items-center justify-between gap-4 pb-4 border-b">
-            <div className="grid grid-cols-3 gap-4 flex-1 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 flex-1 text-sm">
               <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground mb-1">Emocjonalność</span>
                 <div className="flex items-center gap-0.5">
@@ -270,7 +270,7 @@ export default async function PointDetail({
                 <span className="text-xs text-muted-foreground mb-1">Wypowiedzi</span>
                 <span className="text-2xl font-bold text-foreground">{point.statements.length}</span>
               </div>
-              <div className="flex flex-col">
+              <div className="hidden sm:flex flex-col">
                 <span className="text-xs text-muted-foreground mb-1">Mówcy</span>
                 <span className="text-2xl font-bold text-foreground">{speakerNames.length}</span>
               </div>

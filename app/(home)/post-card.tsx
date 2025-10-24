@@ -97,18 +97,18 @@ export default function PostCard({
     <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-0 shadow-md">
       {/* Header with Category Badge */}
       <CardHeader className="pb-3 px-4 sm:px-6 space-y-3">
-        <div className="flex items-start justify-between gap-2 sm:gap-3">
+        <div className="flex items-start justify-between gap-3">
           {/* Category Badge - now more prominent */}
           <Badge
             variant="default"
-            className="shrink-0 gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-semibold rounded-full max-w-[60%] sm:max-w-none"
+            className="shrink-0 gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full"
           >
-            <span className="w-1.5 h-1.5 bg-primary-foreground rounded-full animate-pulse flex-shrink-0" />
-            <span className="truncate">{category.split(' ').slice(0, 2).join(' ')}</span>
+            <span className="w-1.5 h-1.5 bg-primary-foreground rounded-full animate-pulse" />
+            {category.split(' ').slice(0, 2).join(' ')}
           </Badge>
 
           {/* All Meta Badges - responsive display */}
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end text-xs flex-shrink-0">
+          <div className="flex items-center gap-2 flex-wrap justify-end text-xs">
             {/* Desktop only: Proceeding number */}
             <Badge
               variant="outline"
