@@ -218,48 +218,49 @@ export default async function PointDetail({
           </Alert>
         ))}
 
-      {/* Hero Section with Key Info */}
-      <div className="rounded-lg border bg-card overflow-hidden shadow-lg">
-        {/* AI-Generated Image Header with enhanced gradient overlay */}
-        <div className="relative h-64 w-full bg-gradient-to-br from-primary/20 via-primary/10 to-background">
+      {/* Hero Section with Key Info - Medium Banner */}
+      <Card className="overflow-hidden shadow-lg">
+        {/* Medium height banner with image */}
+        <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-background sm:h-48">
           <ImageWithFallback
             src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/proceedings/${number}/${date}/${id}.jpg`}
             alt={title}
             fallbackSrc="/default.jpg"
-            className="object-cover object-center opacity-80"
+            className="object-cover object-center"
             fill
             sizes="100vw"
           />
-          {/* Strong dark gradient with blur for better readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 backdrop-blur-[2px]" />
+          {/* Subtle overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           
-          {/* Content overlay on image */}
-          <div className="absolute inset-0 flex flex-col justify-end p-6 pb-8">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <Badge variant="default" className="shadow-md backdrop-blur-sm">
+          {/* Content overlay */}
+          <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Badge variant="default" className="shadow-sm backdrop-blur-sm">
                 {category}
               </Badge>
-              <Badge variant="secondary" className="shadow-md backdrop-blur-sm">
+              <Badge variant="secondary" className="shadow-sm backdrop-blur-sm">
                 Punkt {point.official_point}
               </Badge>
             </div>
-            <h1 className="mb-2 break-words text-2xl font-bold text-white sm:text-3xl lg:text-4xl [text-shadow:_0_2px_10px_rgb(0_0_0_/_80%)]">
+            <h1 className="break-words text-xl font-bold text-white sm:text-2xl lg:text-3xl [text-shadow:_0_1px_8px_rgb(0_0_0_/_60%)]">
               {title}
             </h1>
           </div>
         </div>
 
-        <div className="p-6 space-y-4 bg-gradient-to-b from-background to-card">
-          {/* Voting and Quick Stats in one row */}
-          <div className="flex items-center justify-between gap-4 pb-4 border-b">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 flex-1 text-sm">
+        {/* Stats and voting section */}
+        <div className="p-4 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            {/* Statistics */}
+            <div className="flex flex-wrap gap-6 sm:gap-8">
               <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground mb-1">Emocjonalność</span>
-                <div className="flex items-center gap-0.5">
+                <span className="text-sm text-muted-foreground">Emocjonalność</span>
+                <div className="mt-1 flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
                       key={star}
-                      className={`text-base ${star <= avgEmotionality ? 'text-primary' : 'text-muted-foreground/30'}`}
+                      className={`text-lg ${star <= avgEmotionality ? 'text-primary' : 'text-muted-foreground/30'}`}
                     >
                       ★
                     </span>
@@ -267,20 +268,22 @@ export default async function PointDetail({
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground mb-1">Wypowiedzi</span>
-                <span className="text-2xl font-bold text-foreground">{point.statements.length}</span>
+                <span className="text-sm text-muted-foreground">Wypowiedzi</span>
+                <span className="mt-1 text-xl font-bold">{point.statements.length}</span>
               </div>
-              <div className="hidden sm:flex flex-col">
-                <span className="text-xs text-muted-foreground mb-1">Mówcy</span>
-                <span className="text-2xl font-bold text-foreground">{speakerNames.length}</span>
+              <div className="flex flex-col">
+                <span className="text-sm text-muted-foreground">Mówcy</span>
+                <span className="mt-1 text-xl font-bold">{speakerNames.length}</span>
               </div>
             </div>
+            
+            {/* Voting */}
             <div className="flex-shrink-0">
               <PostVoting pointId={id} initialVotes={initialVotes} />
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* TL;DR Summary - More Prominent */}
       {point.summary_tldr && (
