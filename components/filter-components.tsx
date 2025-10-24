@@ -87,10 +87,9 @@ export const CheckboxListFilter = ({
   searchValue,
   onSearchChange,
 }: ProfessionFilterProps) => {
-  const filteredOptions =
-    config.options?.filter((opt) =>
-      opt.label.toLowerCase().includes(searchValue.toLowerCase())
-    ) ?? []
+  const filteredOptions = config.options?.filter((opt) =>
+    opt.label.toLowerCase().includes(searchValue.toLowerCase())
+  ) ?? []
 
   return (
     <Popover>
@@ -104,10 +103,7 @@ export const CheckboxListFilter = ({
           {config.badge && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge
-                variant="secondary"
-                className="rounded-sm px-1 font-normal"
-              >
+              <Badge variant="secondary" className="rounded-sm px-1 font-normal">
                 {config.badge}
               </Badge>
             </>

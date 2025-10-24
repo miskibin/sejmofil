@@ -135,9 +135,9 @@ export default function Navbar() {
 
       {/* Right section with actions */}
       <div className="flex items-center justify-end gap-2 md:gap-4">
-        <Link href="/chat" prefetch={true}>
-          <MessageCircle className="h-5 w-5" />
-        </Link>
+          <Link href="/chat" prefetch={true}>
+            <MessageCircle className="h-5 w-5" />
+          </Link>
         <Link href="/about" prefetch={true}>
           <Button className="hidden bg-primary transition-colors hover:bg-[#7A1230] md:block">
             O Projekcie

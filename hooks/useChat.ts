@@ -43,11 +43,11 @@ export interface UseChatReturn {
 // Helper functions for localStorage
 function loadMessagesFromStorage(): ChatMessage[] {
   if (typeof window === 'undefined') return []
-
+  
   try {
     const stored = localStorage.getItem(CHAT_STORAGE_KEY)
     if (!stored) return []
-
+    
     const parsed = JSON.parse(stored)
     // Convert timestamp strings back to Date objects
     return parsed.map((msg: any) => ({
@@ -62,7 +62,7 @@ function loadMessagesFromStorage(): ChatMessage[] {
 
 function saveMessagesToStorage(messages: ChatMessage[]) {
   if (typeof window === 'undefined') return
-
+  
   try {
     // Keep only the last MAX_MESSAGES
     const messagesToSave = messages.slice(-MAX_MESSAGES)
@@ -87,11 +87,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
   useEffect(() => {
     const loadedMessages = loadMessagesFromStorage()
     if (loadedMessages.length > 0) {
-      console.log(
-        '[useChat] Loaded',
-        loadedMessages.length,
-        'messages from storage'
-      )
+      console.log('[useChat] Loaded', loadedMessages.length, 'messages from storage')
       setMessages(loadedMessages)
     }
   }, [])
@@ -184,32 +180,17 @@ export function useChat(initialConversationId?: string): UseChatReturn {
 
           chunkCount++
           const chunk = decoder.decode(value, { stream: true })
-          console.log(
-            '[useChat] Received chunk',
-            chunkCount,
-            'size:',
-            chunk.length
-          )
-
+          console.log('[useChat] Received chunk', chunkCount, 'size:', chunk.length)
+          
           buffer += chunk
-          console.log(
-            '[useChat] Buffer size:',
-            buffer.length,
-            'first 200 chars:',
-            buffer.substring(0, 200)
-          )
+          console.log('[useChat] Buffer size:', buffer.length, 'first 200 chars:', buffer.substring(0, 200))
 
           // Split by double newlines (SSE message separator)
           const messages = buffer.split('\n\n')
 
           // Keep the last incomplete message in buffer
           buffer = messages[messages.length - 1]
-          console.log(
-            '[useChat] Split into',
-            messages.length,
-            'parts, keeping incomplete:',
-            buffer.length
-          )
+          console.log('[useChat] Split into', messages.length, 'parts, keeping incomplete:', buffer.length)
 
           for (let i = 0; i < messages.length - 1; i++) {
             const msg = messages[i]
@@ -218,10 +199,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
             if (msg.startsWith('data: ')) {
               try {
                 const jsonStr = msg.substring(6)
-                console.log(
-                  '[useChat] Parsing JSON:',
-                  jsonStr.substring(0, 100)
-                )
+                console.log('[useChat] Parsing JSON:', jsonStr.substring(0, 100))
                 const data = JSON.parse(jsonStr)
                 console.log('[useChat] Received SSE event:', data.type)
 
@@ -232,10 +210,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                   // Mark that we're now generating (hide status bubble)
                   setIsGenerating(true)
                   assistantContent += data.data.data
-                  console.log(
-                    '[useChat] Added content, total length:',
-                    assistantContent.length
-                  )
+                  console.log('[useChat] Added content, total length:', assistantContent.length)
                   // Update message content in real-time
                   setMessages((prev) => {
                     return prev.map((msg) => {
@@ -255,12 +230,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     arguments: data.data.arguments,
                   }
                   toolCalls.push(toolCall)
-                  console.log(
-                    '[useChat] Tool call',
-                    data.data.iteration,
-                    ':',
-                    data.data.toolName
-                  )
+                  console.log('[useChat] Tool call', data.data.iteration, ':', data.data.toolName)
                   setMessages((prev) => {
                     return prev.map((msg) => {
                       if (msg.id === assistantMessageId) {
@@ -275,21 +245,14 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                 } else if (data.type === 'tool_result') {
                   const iteration = data.data.iteration
                   const result = data.data.result
-                  console.log(
-                    '[useChat] Tool result for iteration',
-                    iteration,
-                    ':',
-                    result?.substring(0, 100)
-                  )
-
+                  console.log('[useChat] Tool result for iteration', iteration, ':', result?.substring(0, 100))
+                  
                   // Find and update the tool call with the result
-                  const toolCallIndex = toolCalls.findIndex(
-                    (tc) => tc.iteration === iteration
-                  )
+                  const toolCallIndex = toolCalls.findIndex(tc => tc.iteration === iteration)
                   if (toolCallIndex !== -1) {
                     toolCalls[toolCallIndex].result = result
                   }
-
+                  
                   setMessages((prev) => {
                     return prev.map((msg) => {
                       if (msg.id === assistantMessageId) {
@@ -303,11 +266,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                   })
                 } else if (data.type === 'references') {
                   references = data.data.references
-                  console.log(
-                    '[useChat] Received',
-                    references.length,
-                    'references'
-                  )
+                  console.log('[useChat] Received', references.length, 'references')
                   setMessages((prev) => {
                     return prev.map((msg) => {
                       if (msg.id === assistantMessageId) {
@@ -328,31 +287,18 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                   setStatus(null)
                 }
               } catch (e) {
-                console.error(
-                  '[useChat] Error parsing SSE data:',
-                  e,
-                  'message:',
-                  msg.substring(0, 200)
-                )
+                console.error('[useChat] Error parsing SSE data:', e, 'message:', msg.substring(0, 200))
               }
             }
           }
         }
 
         // Process any remaining buffer content
-        console.log(
-          '[useChat] Final buffer:',
-          buffer.length,
-          'content:',
-          buffer.substring(0, 200)
-        )
+        console.log('[useChat] Final buffer:', buffer.length, 'content:', buffer.substring(0, 200))
         if (buffer.trim() && buffer.startsWith('data: ')) {
           try {
             const jsonStr = buffer.substring(6)
-            console.log(
-              '[useChat] Parsing final message JSON:',
-              jsonStr.substring(0, 100)
-            )
+            console.log('[useChat] Parsing final message JSON:', jsonStr.substring(0, 100))
             const data = JSON.parse(jsonStr)
             console.log('[useChat] Final SSE event:', data.type)
             if (data.type === 'references') {
@@ -371,20 +317,14 @@ export function useChat(initialConversationId?: string): UseChatReturn {
               })
             }
           } catch (e) {
-            console.error(
-              '[useChat] Error parsing final buffer:',
-              e,
-              'buffer:',
-              buffer.substring(0, 200)
-            )
+            console.error('[useChat] Error parsing final buffer:', e, 'buffer:', buffer.substring(0, 200))
           }
         }
 
         setStatus(null)
         console.log('[useChat] Stream processing complete')
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Unknown error'
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error'
         setError(errorMessage)
         setStatus(null)
         console.error('[useChat] Chat error:', err)

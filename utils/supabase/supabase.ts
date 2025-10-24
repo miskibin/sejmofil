@@ -577,7 +577,7 @@ export type Database = {
             columns: ['conversation_id']
             referencedRelation: 'chat_conversations'
             referencedColumns: ['id']
-          },
+          }
         ]
       }
     }

@@ -179,10 +179,7 @@ async function getEnvoyPrintsByRelationship(
     ORDER BY print.documentDate DESC
     LIMIT toInteger($limit)
   `
-  const result = await runQuery<{ print: PrintShort }>(query, {
-    id,
-    limit: Math.floor(limit),
-  })
+  const result = await runQuery<{ print: PrintShort }>(query, { id, limit: Math.floor(limit) })
   return result.map((record) => record.print)
 }
 

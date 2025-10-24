@@ -2,6 +2,8 @@ import { runQuery } from '../db/client'
 import { PrintShort } from '../types/print'
 import { Topic } from '../types/process'
 
+
+
 export interface TopicWithId extends Topic {
   id: string
 }
@@ -54,10 +56,7 @@ export async function getPrintsByTopic(
     LIMIT toInteger($limit)
   `
 
-  const res = await runQuery<PrintShort>(query, {
-    topicName,
-    limit: Math.floor(limit),
-  })
+  const res = await runQuery<PrintShort>(query, { topicName, limit: Math.floor(limit) })
   return res
 }
 
