@@ -7,13 +7,18 @@ import { getPublicOrigin } from '@/lib/utils/url'
 
 export async function signInWithGitHub(formData?: FormData) {
   const supabase = await createClient()
-  const origin = getPublicOrigin(await headers())
+  const headersList = await headers()
+  const origin = getPublicOrigin(headersList)
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
+  
+  // Get the referer to preserve mobile/desktop origin
+  const referer = headersList.get('referer')
+  const callbackOrigin = referer ? new URL(referer).origin : origin
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
     options: {
-      redirectTo: `${origin}/auth/callback?redirect_to=${redirectTo}`,
+      redirectTo: `${callbackOrigin}/auth/callback?redirect_to=${redirectTo}`,
     },
   })
 
@@ -29,13 +34,18 @@ export async function signInWithGitHub(formData?: FormData) {
 
 export async function signInWithGoogle(formData?: FormData) {
   const supabase = await createClient()
-  const origin = getPublicOrigin(await headers())
+  const headersList = await headers()
+  const origin = getPublicOrigin(headersList)
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
+  
+  // Get the referer to preserve mobile/desktop origin
+  const referer = headersList.get('referer')
+  const callbackOrigin = referer ? new URL(referer).origin : origin
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${origin}/auth/callback?redirect_to=${redirectTo}`,
+      redirectTo: `${callbackOrigin}/auth/callback?redirect_to=${redirectTo}`,
     },
   })
 
@@ -51,13 +61,18 @@ export async function signInWithGoogle(formData?: FormData) {
 
 export async function signInWithFacebook(formData?: FormData) {
   const supabase = await createClient()
-  const origin = getPublicOrigin(await headers())
+  const headersList = await headers()
+  const origin = getPublicOrigin(headersList)
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
+  
+  // Get the referer to preserve mobile/desktop origin
+  const referer = headersList.get('referer')
+  const callbackOrigin = referer ? new URL(referer).origin : origin
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'facebook',
     options: {
-      redirectTo: `${origin}/auth/callback?redirect_to=${redirectTo}`,
+      redirectTo: `${callbackOrigin}/auth/callback?redirect_to=${redirectTo}`,
     },
   })
 

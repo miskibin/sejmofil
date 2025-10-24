@@ -5,8 +5,10 @@ import { getPublicOrigin } from '@/lib/utils/url'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const origin = getPublicOrigin(request.headers)
   const redirectTo = requestUrl.searchParams.get('redirect_to')?.toString()
+  
+  // Preserve the origin from the callback URL to maintain mobile/desktop version
+  const origin = `${requestUrl.protocol}//${requestUrl.host}`
 
   if (code) {
     const supabase = await createClient()
