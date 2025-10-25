@@ -147,7 +147,7 @@ export default function ChatPage() {
       value: selectedModel,
       options: [
         { value: 'gpt-5-nano', label: 'GPT-5 Nano' },
-        { value: 'gpt-5-mini', label: 'GPT-5 Mini' },
+        { value: 'gpt-5-mini-2025-08-07', label: 'GPT-5 Mini' },
       ],
       onChange: (value: string) => {
         setSelectedModel(value)
@@ -157,13 +157,13 @@ export default function ChatPage() {
   ]
 
   return (
-    <div className="flex flex-col h-screen w-full bg-background pt-20">
+    <div className="flex flex-col h-[100dvh] w-full bg-background">
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto w-full p-4">
+      <div className="flex-1 overflow-y-auto pt-20 pb-4">
+        <div className="max-w-4xl mx-auto w-full px-4">
           {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
+            <div className="flex items-center justify-center min-h-[50vh] md:min-h-[60vh]">
+              <div className="text-center px-4">
                 <div className="h-12 w-12 text-muted-foreground mx-auto mb-4">
                   <MessageCircleIcon />
                 </div>
@@ -202,20 +202,19 @@ export default function ChatPage() {
                                 {message.toolCalls.map((toolCall, idx) => (
                                   <div
                                     key={idx}
-                                    className="rounded px-3 py-2 border border-border"
+                                    className="rounded px-3 py-2 border border-border bg-muted/30"
                                   >
-                                    <div className="flex items-center justify-between">
-                                      <p className="text-xs text-muted-foreground">
-                                        <span className="font-semibold">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <p className="text-xs font-semibold">
+                                        <span className="text-muted-foreground">
                                           Krok {toolCall.iteration}:
                                         </span>{' '}
-                                        Wywoływanie{' '}
                                         <span className="text-primary font-mono">
                                           {toolCall.toolName}
                                         </span>
                                       </p>
-                                      {toolCall.duration && (
-                                        <span className="text-xs text-muted-foreground/75 font-mono">
+                                      {toolCall.duration !== undefined && (
+                                        <span className="text-xs font-mono bg-primary/10 text-primary px-2 py-0.5 rounded">
                                           {toolCall.duration}ms
                                         </span>
                                       )}
@@ -223,10 +222,10 @@ export default function ChatPage() {
                                     {Object.keys(toolCall.arguments).length >
                                       0 && (
                                       <details className="mt-1 cursor-pointer">
-                                        <summary className="text-xs text-muted-foreground/75 hover:text-muted-foreground">
-                                          Parametry →
+                                        <summary className="text-xs text-muted-foreground hover:text-foreground font-medium">
+                                          📥 Parametry
                                         </summary>
-                                        <pre className="text-xs bg-background/50 p-2 rounded mt-1 overflow-auto max-h-32 text-muted-foreground">
+                                        <pre className="text-xs bg-background border border-border p-2 rounded mt-1 overflow-auto max-h-32 text-foreground/80">
                                           {JSON.stringify(
                                             toolCall.arguments,
                                             null,
@@ -236,15 +235,24 @@ export default function ChatPage() {
                                       </details>
                                     )}
                                     {toolCall.result && (
-                                      <details className="mt-1 cursor-pointer" open>
-                                        <summary className="text-xs text-muted-foreground/75 hover:text-muted-foreground">
-                                          Rezultat ↓
+                                      <details
+                                        className="mt-2 cursor-pointer"
+                                        open
+                                      >
+                                        <summary className="text-xs text-muted-foreground hover:text-foreground font-medium">
+                                          📤 Rezultat
                                         </summary>
-                                        <pre className="text-xs bg-background/50 p-2 rounded mt-1 overflow-auto max-h-40 text-muted-foreground whitespace-pre-wrap">
-                                          {typeof toolCall.result === 'string'
-                                            ? toolCall.result
-                                            : JSON.stringify(toolCall.result, null, 2)}
-                                        </pre>
+                                        <div className="text-xs bg-background border border-border p-2 rounded mt-1 overflow-auto max-h-40">
+                                          <pre className="text-foreground/80 whitespace-pre-wrap break-words">
+                                            {typeof toolCall.result === 'string'
+                                              ? toolCall.result
+                                              : JSON.stringify(
+                                                  toolCall.result,
+                                                  null,
+                                                  2
+                                                )}
+                                          </pre>
+                                        </div>
                                       </details>
                                     )}
                                   </div>
@@ -277,21 +285,31 @@ export default function ChatPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="max-w-4xl mx-auto w-full px-4">
-          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm text-destructive mb-4">
+        <div className="max-w-4xl mx-auto w-full px-4 pb-2">
+          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm text-destructive">
             {error}
           </div>
         </div>
       )}
+
+      {/* Clear Messages Button */}
       {messages.length > 0 && (
-        <div className="mt-3 flex justify-center">
-          <Button onClick={clearMessages} disabled={isLoading} variant="ghost">
-            zapytaj o coś nowego
-          </Button>
+        <div className="max-w-4xl mx-auto w-full px-4 pb-2">
+          <div className="flex justify-center">
+            <Button
+              onClick={clearMessages}
+              disabled={isLoading}
+              variant="ghost"
+              size="sm"
+            >
+              zapytaj o coś nowego
+            </Button>
+          </div>
         </div>
       )}
-      {/* Input Area */}
-      <div className="border-t border-border bg-background p-4">
+
+      {/* Input Area - Fixed at bottom */}
+      <div className="sticky bottom-0 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 p-3 md:p-4">
         <div className="max-w-4xl mx-auto w-full">
           <ChatInput
             onSend={handleSendMessage}
