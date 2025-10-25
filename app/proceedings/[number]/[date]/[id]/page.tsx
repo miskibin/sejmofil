@@ -29,6 +29,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getVotingResultsByNumbrs } from '@/lib/queries/proceeding'
 import { PrintSection } from './components/print-section'
 import { getVoteCounts } from '@/lib/supabase/votes'
+import { getProcessesByPrintNumbers } from '@/lib/queries/pointProcesses'
+import { RelatedProcesses } from './components/related-processes'
 
 // Use ISR instead of force-dynamic
 export const revalidate = 3600 // Revalidate every hour
@@ -140,6 +142,11 @@ export default async function PointDetail({
 
   // Get vote counts for this point
   const initialVotes = await getVoteCounts(id)
+
+  // Fetch related processes from print numbers
+  const relatedProcesses = point.print_numbers?.length > 0
+    ? await getProcessesByPrintNumbers(point.print_numbers.map(String))
+    : []
 
   // Define available tabs with their content
   const tabs = [
@@ -302,10 +309,15 @@ export default async function PointDetail({
 
       {/* Quick Insights Section */}
       {point.statements.length > 0 && (
-        <QuickInsights
-          statements={point.statements}
-          speakerClubs={speakerClubs}
-        />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <QuickInsights
+            statements={point.statements}
+            speakerClubs={speakerClubs}
+          />
+          {relatedProcesses.length > 0 && (
+            <RelatedProcesses processes={relatedProcesses} />
+          )}
+        </div>
       )}
 
       {/* Voting and Club Analysis - Side by Side */}
@@ -355,8 +367,8 @@ export default async function PointDetail({
                   value={tab.value}
                   className="h-14 gap-2 data-[state=active]:border-b-2 data-[state=active]:border-primary"
                 >
-                  <span className="hidden sm:inline">{tab.icon}</span>
-                  {tab.label}
+                  <span>{tab.icon}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
