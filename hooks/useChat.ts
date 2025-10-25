@@ -108,6 +108,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
 
       // Timeout for the entire request (60 seconds)
       const requestTimeout = setTimeout(() => {
+        console.error('[Chat] Timeout')
         setError('Przekroczono czas oczekiwania. Spróbuj ponownie z krótszym pytaniem.')
         setIsLoading(false)
         setIsGenerating(false)
@@ -165,11 +166,15 @@ export function useChat(initialConversationId?: string): UseChatReturn {
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error')
+          console.error('[Chat] API error:', response.status)
           throw new Error(`Request failed: ${response.status} - ${errorText}`)
         }
 
         const reader = response.body?.getReader()
-        if (!reader) throw new Error('No response stream available')
+        if (!reader) {
+          console.error('[Chat] No stream')
+          throw new Error('No response stream available')
+        }
 
         const decoder = new TextDecoder()
         let buffer = ''
@@ -279,6 +284,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                 } else if (data.type === 'done') {
                   setStatus(null)
                 } else if (data.type === 'error') {
+                  console.error('[Chat] Server error:', data.data.message)
                   setError(data.data.message)
                   setStatus(null)
                 }
@@ -291,6 +297,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
 
         // Check if we received any content
         if (!hasReceivedContent) {
+          console.error('[Chat] No content received')
           throw new Error('No response received from server')
         }
 
@@ -322,7 +329,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
         setStatus(null)
       } catch (err) {
         clearTimeout(requestTimeout)
-        console.error('Chat error:', err)
+        console.error('[Chat] Error:', err)
         const errorMessage = err instanceof Error ? err.message : 'Nieznany błąd'
         setError(`Błąd: ${errorMessage}`)
         setStatus(null)
