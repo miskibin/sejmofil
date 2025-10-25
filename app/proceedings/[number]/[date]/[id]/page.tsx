@@ -237,20 +237,20 @@ export default async function PointDetail({
             fill
             sizes="100vw"
           />
-          {/* Subtle overlay for readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          {/* Stronger overlay for better readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
           
           {/* Content overlay */}
           <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Badge variant="default" className="shadow-sm backdrop-blur-sm">
+              <Badge variant="default" className="bg-primary/90 shadow-md backdrop-blur-sm">
                 {category}
               </Badge>
-              <Badge variant="secondary" className="shadow-sm backdrop-blur-sm">
+              <Badge variant="secondary" className="bg-secondary/90 shadow-md backdrop-blur-sm">
                 Punkt {point.official_point}
               </Badge>
             </div>
-            <h1 className="break-words text-xl font-bold text-white sm:text-2xl lg:text-3xl [text-shadow:_0_1px_8px_rgb(0_0_0_/_60%)]">
+            <h1 className="break-words text-xl font-bold text-white sm:text-2xl lg:text-3xl [text-shadow:_0_2px_12px_rgb(0_0_0_/_80%)]">
               {title}
             </h1>
           </div>
