@@ -17,12 +17,19 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      if (redirectTo) {
-        return NextResponse.redirect(`${origin}${redirectTo}`)
-      }
+      const finalRedirect = redirectTo || '/'
       
-      // Default redirect to home page
-      return NextResponse.redirect(`${origin}/`)
+      // Create response with proper cache headers to prevent caching issues
+      const response = NextResponse.redirect(`${origin}${finalRedirect}`, {
+        status: 303, // Use 303 See Other for POST->GET redirect pattern
+      })
+      
+      // Add headers to prevent caching and ensure fresh content
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      
+      return response
     }
   }
 

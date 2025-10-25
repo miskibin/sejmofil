@@ -79,6 +79,8 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <head>
+        {/* Ensure viewport is set early for proper mobile rendering */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <script
           async
           src="https://umami.msulawiak.pl/script.js"
