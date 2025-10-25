@@ -25,6 +25,10 @@ interface ChatRequest {
 }
 
 export async function POST(request: NextRequest) {
+  // Set longer timeout for streaming (if on Vercel, max is 60s for hobby, 300s for pro)
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 55000) // 55s timeout to be safe
+
   try {
     // Check authentication
     const supabase = await createClient()
@@ -33,6 +37,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
+      clearTimeout(timeoutId)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -41,6 +46,7 @@ export async function POST(request: NextRequest) {
     const { messages, conversationId, model } = body
 
     if (!messages || messages.length === 0) {
+      clearTimeout(timeoutId)
       return NextResponse.json(
         { error: 'Messages are required' },
         { status: 400 }
@@ -84,6 +90,8 @@ CZEGO UNIKAĆ:
     // Create readable stream for SSE
     const readable = new ReadableStream({
       async start(controller) {
+        let mcpClient: MultiServerMCPClient | null = null
+        
         try {
           // Send initial status
           controller.enqueue(
@@ -92,19 +100,24 @@ CZEGO UNIKAĆ:
             })
           )
 
-          // Initialize MCP Client
+          // Initialize MCP Client with timeout handling
           const mcpServerUrl =
             process.env.MCP_SERVER_URL || 'https://neomcp.msulawiak.pl'
 
-          const client = new MultiServerMCPClient({
+          mcpClient = new MultiServerMCPClient({
             sejmofil: {
               transport: 'sse',
               url: `${mcpServerUrl}/sse`,
             },
           })
 
-          // Get tools from MCP
-          const tools = await client.getTools()
+          // Get tools from MCP with timeout
+          const toolsPromise = mcpClient.getTools()
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('MCP connection timeout')), 10000)
+          )
+          
+          const tools = await Promise.race([toolsPromise, timeoutPromise]) as any
 
           // Initialize Langfuse client
           const langfuse = new Langfuse({
@@ -161,15 +174,22 @@ CZEGO UNIKAĆ:
           const MAX_ITERATIONS = 4
           const toolCallTimestamps = new Map<number, number>()
 
-          // Stream the agent execution
-          const stream = await agent.stream(
-            {
-              messages: agentMessages,
-            },
-            {
-              streamMode: 'values',
-            }
-          )
+          // Stream the agent execution with timeout protection
+          let stream
+          try {
+            stream = await agent.stream(
+              {
+                messages: agentMessages,
+              },
+              {
+                streamMode: 'values',
+              }
+            )
+          } catch (streamError) {
+            throw new Error(
+              `Failed to start agent stream: ${streamError instanceof Error ? streamError.message : 'Unknown error'}`
+            )
+          }
 
           let assistantResponse = ''
           let toolCallInfo: { name: string; args: any; result: string }[] = []
@@ -333,32 +353,60 @@ CZEGO UNIKAĆ:
 
           controller.enqueue(createSSEMessage('done', { success: true }))
 
-          // Flush Langfuse to ensure all traces are sent
-          await langfuseHandler.flushAsync()
-          await langfuse.flushAsync()
+          // Flush Langfuse asynchronously (don't block on it)
+          Promise.all([
+            langfuseHandler.flushAsync().catch(() => {}),
+            langfuse.flushAsync().catch(() => {})
+          ]).catch(() => {})
 
           controller.close()
         } catch (error) {
+          console.error('Agent error:', error)
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+          
           controller.enqueue(
             createSSEMessage('error', {
-              message: error instanceof Error ? error.message : 'Unknown error',
+              message: `Wystąpił błąd: ${errorMessage}`,
             })
           )
+          controller.enqueue(
+            createSSEMessage('content', {
+              data: 'Przepraszam, wystąpił błąd podczas przetwarzania zapytania. Spróbuj ponownie.',
+            })
+          )
+          controller.enqueue(createSSEMessage('done', { success: false }))
           controller.close()
+        } finally {
+          // Cleanup MCP client
+          if (mcpClient) {
+            try {
+              await mcpClient.close?.()
+            } catch (e) {
+              // Ignore cleanup errors
+            }
+          }
         }
       },
     })
 
+    clearTimeout(timeoutId)
+    
     return new NextResponse(readable, {
       headers: {
         'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-transform',
         Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no', // Disable nginx buffering
       },
     })
   } catch (error) {
+    clearTimeout(timeoutId)
+    console.error('API error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }

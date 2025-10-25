@@ -106,6 +106,14 @@ export function useChat(initialConversationId?: string): UseChatReturn {
       setStatus('Przygotowanie pytania...')
       setIsLoading(true)
 
+      // Timeout for the entire request (60 seconds)
+      const requestTimeout = setTimeout(() => {
+        setError('Przekroczono czas oczekiwania. Spróbuj ponownie z krótszym pytaniem.')
+        setIsLoading(false)
+        setIsGenerating(false)
+        setStatus(null)
+      }, 60000)
+
       try {
         // Add user message to state
         const userMessage: ChatMessage = {
@@ -156,17 +164,19 @@ export function useChat(initialConversationId?: string): UseChatReturn {
         })
 
         if (!response.ok) {
-          throw new Error('Failed to send message')
+          const errorText = await response.text().catch(() => 'Unknown error')
+          throw new Error(`Request failed: ${response.status} - ${errorText}`)
         }
 
         const reader = response.body?.getReader()
-        if (!reader) throw new Error('No response stream')
+        if (!reader) throw new Error('No response stream available')
 
         const decoder = new TextDecoder()
         let buffer = ''
         let assistantContent = ''
         let references: any[] = []
         let toolCalls: ToolCall[] = []
+        let hasReceivedContent = false
 
         while (true) {
           const { done, value } = await reader.read()
@@ -193,6 +203,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                 if (data.type === 'status') {
                   setStatus(data.data.message)
                 } else if (data.type === 'content') {
+                  hasReceivedContent = true
                   // Mark that we're now generating (hide status bubble)
                   setIsGenerating(true)
                   assistantContent += data.data.data
@@ -278,6 +289,11 @@ export function useChat(initialConversationId?: string): UseChatReturn {
           }
         }
 
+        // Check if we received any content
+        if (!hasReceivedContent) {
+          throw new Error('No response received from server')
+        }
+
         // Process any remaining buffer content
         if (buffer.trim() && buffer.startsWith('data: ')) {
           try {
@@ -302,12 +318,25 @@ export function useChat(initialConversationId?: string): UseChatReturn {
           }
         }
 
+        clearTimeout(requestTimeout)
         setStatus(null)
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-        setError(errorMessage)
+        clearTimeout(requestTimeout)
+        console.error('Chat error:', err)
+        const errorMessage = err instanceof Error ? err.message : 'Nieznany błąd'
+        setError(`Błąd: ${errorMessage}`)
         setStatus(null)
+        
+        // Remove the placeholder assistant message if it's empty
+        setMessages((prev) => {
+          const lastMsg = prev[prev.length - 1]
+          if (lastMsg && lastMsg.role === 'assistant' && !lastMsg.content) {
+            return prev.slice(0, -1)
+          }
+          return prev
+        })
       } finally {
+        clearTimeout(requestTimeout)
         setIsLoading(false)
         setIsGenerating(false)
       }
