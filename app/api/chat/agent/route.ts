@@ -53,6 +53,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('[Agent] Starting, messages:', messages.length, 'model:', model || 'default')
+
     // Get user's last message
     const userMessage = messages[messages.length - 1]?.content || ''
 
@@ -118,6 +120,7 @@ CZEGO UNIKAĆ:
           )
           
           const tools = await Promise.race([toolsPromise, timeoutPromise]) as any
+          console.log('[Agent] MCP tools loaded:', Array.isArray(tools) ? tools.length : 0)
 
           // Initialize Langfuse client
           const langfuse = new Langfuse({
@@ -186,6 +189,7 @@ CZEGO UNIKAĆ:
               }
             )
           } catch (streamError) {
+            console.error('[Agent] Stream start failed:', streamError)
             throw new Error(
               `Failed to start agent stream: ${streamError instanceof Error ? streamError.message : 'Unknown error'}`
             )
@@ -215,6 +219,8 @@ CZEGO UNIKAĆ:
 
                 const toolCall = latestMessage.tool_calls[0]
                 lastToolName = toolCall.name
+
+                console.log('[Agent] Tool call:', toolCall.name)
 
                 // Record start time for this tool call
                 toolCallTimestamps.set(currentIteration, Date.now())
@@ -315,6 +321,7 @@ CZEGO UNIKAĆ:
 
           // Set fallback message if no response generated
           if (!assistantResponse || assistantResponse.length === 0) {
+            console.warn('[Agent] No response generated')
             assistantResponse =
               'Przepraszam, nie udało się wygenerować odpowiedzi. Spróbuj ponownie.'
           }
@@ -347,6 +354,7 @@ CZEGO UNIKAĆ:
                 content: assistantResponse,
               } as any)
             } catch (err) {
+              console.error('[Agent] DB save failed:', err)
               // Silently fail - not critical
             }
           }
@@ -359,9 +367,10 @@ CZEGO UNIKAĆ:
             langfuse.flushAsync().catch(() => {})
           ]).catch(() => {})
 
+          console.log('[Agent] Completed successfully')
           controller.close()
         } catch (error) {
-          console.error('Agent error:', error)
+          console.error('[Agent] Error:', error)
           const errorMessage = error instanceof Error ? error.message : 'Unknown error'
           
           controller.enqueue(
@@ -401,7 +410,7 @@ CZEGO UNIKAĆ:
     })
   } catch (error) {
     clearTimeout(timeoutId)
-    console.error('API error:', error)
+    console.error('[Agent] Top-level error:', error)
     return NextResponse.json(
       { 
         error: 'Internal server error',
