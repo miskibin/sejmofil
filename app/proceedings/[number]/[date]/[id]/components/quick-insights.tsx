@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
-import { AlertTriangle, Heart, Users } from 'lucide-react'
+import { AlertTriangle, Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -46,24 +46,6 @@ export function QuickInsights({
     return currentScore > maxScore ? current : max
   }, statements[0])
 
-  // Get top 3 most active speakers
-  const speakerCounts = statements.reduce(
-    (acc, s) => {
-      acc[s.speaker_name] = (acc[s.speaker_name] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>
-  )
-
-  const topSpeakers = Object.entries(speakerCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 3)
-    .map(([name, count]) => ({
-      name,
-      count,
-      info: speakerClubs.find((s) => s.name === name),
-    }))
-
   const getSpeakerInfo = (name: string) => {
     return speakerClubs.find((s) => s.name === name)
   }
@@ -75,8 +57,13 @@ export function QuickInsights({
   const emotionalScore = mostEmotional?.statement_ai?.speaker_rating?.emotions || 0
   const controversialScore = mostControversial?.statement_ai?.speaker_rating?.manipulation || 0
 
+  // Only render if we have at least one card to show
+  if (emotionalScore < 3 && controversialScore < 3) {
+    return null
+  }
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <>
       {/* Most Emotional Statement - only show if score >= 3 */}
       {emotionalScore >= 3 && (
         <Card className="flex flex-col p-4">
@@ -196,47 +183,6 @@ export function QuickInsights({
         </div>
       </Card>
       )}
-
-      {/* Top Speakers */}
-      <Card className="flex flex-col p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <div className="rounded-full bg-blue-500/10 p-2">
-            <Users className="h-4 w-4 text-blue-600" />
-          </div>
-          <h3 className="text-sm font-semibold">Najaktywniejsze osoby</h3>
-        </div>
-        <div className="flex flex-1 flex-col gap-3">
-          {topSpeakers.map((speaker, idx) => (
-            <Link
-              key={speaker.name}
-              href={speaker.info?.id ? `/envoys/${speaker.info.id}` : '#'}
-              className="-m-1 flex items-center gap-2 rounded-md p-1 hover:bg-muted/50"
-            >
-              <Image
-                src={
-                  speaker.info?.id
-                    ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/MP/${speaker.info.id}/photo`
-                    : '/placeholder.svg'
-                }
-                alt={speaker.name}
-                width={32}
-                height={32}
-                className="rounded-full"
-                loading="lazy"
-              />
-              <div className="flex flex-1 flex-col">
-                <span className="text-sm font-medium">{speaker.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  {speaker.info?.club}
-                </span>
-              </div>
-              <Badge variant="outline" className="text-sm">
-                {speaker.count}
-              </Badge>
-            </Link>
-          ))}
-        </div>
-      </Card>
-    </div>
+    </>
   )
 }

@@ -32,7 +32,7 @@ export default async function Sidebar() {
 
       {/* Updated Topics section with real data */}
       <div className="space-y-4">
-        <h2 className="text-lg text-muted-foreground">Popularne Tematy</h2>
+        <h2 className="text-lg font-semibold">Popularne Tematy</h2>
         <div className="flex flex-wrap gap-2">
           {topTopics.map((topic) => (
             <Link
@@ -66,7 +66,7 @@ export default async function Sidebar() {
               ) : (
                 <>
                   za{' '}
-                  <span className="text-primary  font-bold">{timeUntil}</span>
+                  <span className="text-primary text-2xl  font-bold">{timeUntil}</span>
                 </>
               )
             ) : (

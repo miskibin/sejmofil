@@ -54,7 +54,9 @@ export default async function FeedPage({ searchParams }: PageProps) {
         />
       </div>
       <div className="hidden lg:block w-80 flex-shrink-0">
-        <Sidebar />
+        <div className="sticky">
+          <Sidebar />
+        </div>
       </div>
     </div>
   )

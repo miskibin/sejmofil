@@ -3,7 +3,10 @@
 import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/empty-state'
 import { VotingResult as SimpleVoting } from '@/lib/queries/proceeding'
-import { VotingResult as DetailedVoting, getVotingDetails } from '@/lib/api/sejm'
+import {
+  VotingResult as DetailedVoting,
+  getVotingDetails,
+} from '@/lib/api/sejm'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ChevronDown, ChevronUp, ThumbsDown, ThumbsUp } from 'lucide-react'
@@ -24,7 +27,10 @@ interface Props {
 
 export function VotingCardEnhanced({ votings }: Props) {
   const [primaryVoting, setPrimaryVoting] = useState<SimpleVoting | null>(null)
-  const [detailedVoting, setDetailedVoting] = useState<DetailedVoting | null>(null)
+  const [detailedVoting, setDetailedVoting] = useState<DetailedVoting | null>(
+    null
+  )
+  const [modalVoting, setModalVoting] = useState<DetailedVoting | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [showAllVotings, setShowAllVotings] = useState(false)
 
@@ -45,6 +51,12 @@ export function VotingCardEnhanced({ votings }: Props) {
     }
   }, [primaryVoting])
 
+  const handleOtherVotingClick = async (voting: SimpleVoting) => {
+    const details = await getVotingDetails(voting.sitting, voting.votingNumber)
+    setModalVoting(details)
+    setShowModal(true)
+  }
+
   if (votings.length === 0) {
     return (
       <Card className="p-5">
@@ -58,22 +70,31 @@ export function VotingCardEnhanced({ votings }: Props) {
 
   // Calculate percentages from detailed voting
   const totalVotes = detailedVoting?.totalVoted || 0
-  const yesPercent = totalVotes > 0 ? ((detailedVoting?.yes || 0) / totalVotes) * 100 : 0
-  const noPercent = totalVotes > 0 ? ((detailedVoting?.no || 0) / totalVotes) * 100 : 0
-  const abstainPercent = totalVotes > 0 ? ((detailedVoting?.abstain || 0) / totalVotes) * 100 : 0
+  const yesPercent =
+    totalVotes > 0 ? ((detailedVoting?.yes || 0) / totalVotes) * 100 : 0
+  const noPercent =
+    totalVotes > 0 ? ((detailedVoting?.no || 0) / totalVotes) * 100 : 0
+  const abstainPercent =
+    totalVotes > 0 ? ((detailedVoting?.abstain || 0) / totalVotes) * 100 : 0
 
   // Get club votes from detailed voting
-  const clubVotes = detailedVoting?.votes?.reduce((acc, vote) => {
-    if (!vote.club) return acc
-    if (!acc[vote.club]) {
-      acc[vote.club] = { yes: 0, no: 0, abstain: 0, absent: 0 }
-    }
-    if (vote.vote === 'YES') acc[vote.club].yes++
-    else if (vote.vote === 'NO') acc[vote.club].no++
-    else if (vote.vote === 'ABSTAIN') acc[vote.club].abstain++
-    else acc[vote.club].absent++
-    return acc
-  }, {} as Record<string, { yes: number; no: number; abstain: number; absent: number }>)
+  const clubVotes = detailedVoting?.votes?.reduce(
+    (acc, vote) => {
+      if (!vote.club) return acc
+      if (!acc[vote.club]) {
+        acc[vote.club] = { yes: 0, no: 0, abstain: 0, absent: 0 }
+      }
+      if (vote.vote === 'YES') acc[vote.club].yes++
+      else if (vote.vote === 'NO') acc[vote.club].no++
+      else if (vote.vote === 'ABSTAIN') acc[vote.club].abstain++
+      else acc[vote.club].absent++
+      return acc
+    },
+    {} as Record<
+      string,
+      { yes: number; no: number; abstain: number; absent: number }
+    >
+  )
 
   // Transform club votes to chart data format (using percentages for stacked bars)
   const chartData = clubVotes
@@ -98,59 +119,37 @@ export function VotingCardEnhanced({ votings }: Props) {
     <>
       <Card className="p-5">
         <h2 className="mb-4 text-xl font-semibold">
-          Głosowania · {votings.length}
+          {detailedVoting?.topic || primaryVoting?.topic || 'Brak tematu'}
         </h2>
 
         {primaryVoting && (
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold">{primaryVoting.topic}</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                Głosowanie nr {primaryVoting.votingNumber}
-              </p>
-            </div>
+              {detailedVoting?.title && (
+                <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
+                  {detailedVoting.title}
+                </p>
+              )}
 
-            {/* Overall Results Bar */}
-            <div className="space-y-2">
-              <div className="flex h-10 w-full overflow-hidden rounded-lg">
-                {yesPercent > 0 && (
-                  <div
-                    style={{ width: `${yesPercent}%` }}
-                    className="flex items-center justify-center bg-success text-sm font-semibold text-white"
-                  >
-                    {yesPercent > 15 && `${yesPercent.toFixed(0)}%`}
-                  </div>
-                )}
-                {noPercent > 0 && (
-                  <div
-                    style={{ width: `${noPercent}%` }}
-                    className="flex items-center justify-center bg-destructive text-sm font-semibold text-white"
-                  >
-                    {noPercent > 15 && `${noPercent.toFixed(0)}%`}
-                  </div>
-                )}
-                {abstainPercent > 0 && (
-                  <div
-                    style={{ width: `${abstainPercent}%` }}
-                    className="flex items-center justify-center bg-muted text-sm font-semibold text-muted-foreground"
-                  >
-                    {abstainPercent > 15 && `${abstainPercent.toFixed(0)}%`}
-                  </div>
-                )}
-              </div>
-
+              {/* Overall Results */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-success">
                   <ThumbsUp className="h-4 w-4" />
-                  <span className="font-semibold">{detailedVoting?.yes || primaryVoting.yes}</span>
+                  <span className="font-semibold">
+                    {detailedVoting?.yes || primaryVoting.yes}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-destructive">
                   <ThumbsDown className="h-4 w-4" />
-                  <span className="font-semibold">{detailedVoting?.no || primaryVoting.no}</span>
+                  <span className="font-semibold">
+                    {detailedVoting?.no || primaryVoting.no}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <span className="text-xs">Wstrzymało:</span>
-                  <span className="font-semibold">{detailedVoting?.abstain || 0}</span>
+                  <span className="font-semibold">
+                    {detailedVoting?.abstain || 0}
+                  </span>
                 </div>
               </div>
             </div>
@@ -158,15 +157,20 @@ export function VotingCardEnhanced({ votings }: Props) {
             {/* Club Votes Chart */}
             {chartData.length > 0 && (
               <div className="space-y-3 border-t pt-4">
-                <h4 className="font-semibold">Głosy klubów</h4>
                 <div className="w-full overflow-hidden">
                   <ChartContainer
                     config={{
                       yes: { label: 'Za', color: 'hsl(var(--success))' },
-                      no: { label: 'Przeciw', color: 'hsl(var(--destructive))' },
-                      abstain: { label: 'Wstrzymało się', color: 'hsl(var(--muted))' },
+                      no: {
+                        label: 'Przeciw',
+                        color: 'hsl(var(--destructive))',
+                      },
+                      abstain: {
+                        label: 'Wstrzymało się',
+                        color: 'hsl(var(--muted))',
+                      },
                     }}
-                    className="h-[280px] w-full min-w-0"
+                    className="h-[380px] w-full min-w-0"
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
@@ -208,13 +212,16 @@ export function VotingCardEnhanced({ votings }: Props) {
                                 <div className="rounded-lg border bg-background p-2.5 shadow-lg">
                                   <p className="font-medium mb-1">{label}</p>
                                   <p className="text-xs text-success">
-                                    Za: {data.yes} ({data.yesPercent.toFixed(1)}%)
+                                    Za: {data.yes} ({data.yesPercent.toFixed(1)}
+                                    %)
                                   </p>
                                   <p className="text-xs text-destructive">
-                                    Przeciw: {data.no} ({data.noPercent.toFixed(1)}%)
+                                    Przeciw: {data.no} (
+                                    {data.noPercent.toFixed(1)}%)
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    Wstrzymało się: {data.abstain} ({data.abstainPercent.toFixed(1)}%)
+                                    Wstrzymało się: {data.abstain} (
+                                    {data.abstainPercent.toFixed(1)}%)
                                   </p>
                                 </div>
                               )
@@ -251,11 +258,12 @@ export function VotingCardEnhanced({ votings }: Props) {
                 {showAllVotings && (
                   <div className="mt-2 space-y-1">
                     {otherVotings.map((voting, idx) => (
-                      <div
+                      <button
                         key={idx}
-                        className="flex items-center justify-between rounded p-2 text-xs hover:bg-muted"
+                        onClick={() => handleOtherVotingClick(voting)}
+                        className="flex w-full items-center justify-between rounded p-2 text-xs hover:bg-muted transition-colors cursor-pointer"
                       >
-                        <span className="flex-1 truncate">{voting.topic}</span>
+                        <span className="flex-1 truncate text-left">{voting.topic}</span>
                         <span className="flex items-center gap-2 text-muted-foreground">
                           <span className="flex items-center gap-1 text-success">
                             <ThumbsUp className="h-3 w-3" />
@@ -266,7 +274,7 @@ export function VotingCardEnhanced({ votings }: Props) {
                             {voting.no}
                           </span>
                         </span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -276,9 +284,9 @@ export function VotingCardEnhanced({ votings }: Props) {
         )}
       </Card>
 
-      {detailedVoting && (
+      {modalVoting && (
         <VotingDetailModal
-          voting={detailedVoting}
+          voting={modalVoting}
           open={showModal}
           onOpenChange={setShowModal}
         />

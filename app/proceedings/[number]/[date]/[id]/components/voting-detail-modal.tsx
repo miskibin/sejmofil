@@ -45,6 +45,11 @@ export function VotingDetailModal({ voting, open, onOpenChange }: Props) {
           <CredenzaTitle className="sm:text-xltext-start text-lg leading-tight">
             {voting.topic}
           </CredenzaTitle>
+          {voting.title && (
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {voting.title}
+            </p>
+          )}
           <div className="flex max-w-[98vw] flex-wrap gap-2">
             <Badge variant="outline" className="text-xs sm:text-sm">
               Głosowało: {voting.totalVoted}
