@@ -171,153 +171,49 @@ CZEGO UNIKAĆ:
             content: msg.content,
           }))
 
-          // Track iteration and tool calls for frontend visibility
-          let currentIteration = 0
-          let lastToolName = ''
-          const MAX_ITERATIONS = 4
-          const toolCallTimestamps = new Map<number, number>()
-
-          // Stream the agent execution with timeout protection
-          let stream
+          // Invoke agent (non-streaming, wait for complete response)
+          console.log(`[Agent] Invoking agent with ${agentMessages.length} messages`)
+          
+          let result
           try {
-            stream = await agent.stream(
-              {
-                messages: agentMessages,
-              },
-              {
-                streamMode: 'values',
-              }
-            )
-          } catch (streamError) {
-            console.error('[Agent] Stream start failed:', streamError)
+            result = await agent.invoke({
+              messages: agentMessages,
+            })
+            console.log(`[Agent] Invocation complete, result keys:`, Object.keys(result))
+          } catch (invokeError) {
+            console.error('[Agent] Invoke failed:', invokeError)
             throw new Error(
-              `Failed to start agent stream: ${streamError instanceof Error ? streamError.message : 'Unknown error'}`
+              `Failed to invoke agent: ${invokeError instanceof Error ? invokeError.message : 'Unknown error'}`
             )
           }
 
+          // Extract assistant response from result
           let assistantResponse = ''
-          let toolCallInfo: { name: string; args: any; result: string }[] = []
-
-          for await (const chunk of stream) {
-            const latestMessage = chunk.messages?.at(-1)
-
-            if (latestMessage) {
-              // Get message type for proper detection
-              const msgType = latestMessage.constructor?.name || ''
-
-              // Check if it's a tool call (AIMessage with tool_calls)
-              if (
-                latestMessage.tool_calls &&
-                latestMessage.tool_calls.length > 0
-              ) {
-                currentIteration++
-
-                // Check if max iterations reached
-                if (currentIteration > MAX_ITERATIONS) {
-                  break
-                }
-
-                const toolCall = latestMessage.tool_calls[0]
-                lastToolName = toolCall.name
-
-                console.log('[Agent] Tool call:', toolCall.name)
-
-                // Record start time for this tool call
-                toolCallTimestamps.set(currentIteration, Date.now())
-
-                // Send tool call info to frontend
-                controller.enqueue(
-                  createSSEMessage('tool_call', {
-                    iteration: currentIteration,
-                    toolName: toolCall.name,
-                    arguments: toolCall.args,
-                  })
-                )
-
-                controller.enqueue(
-                  createSSEMessage('status', {
-                    message: `Krok ${currentIteration}/${MAX_ITERATIONS}: Wywołuję funkcję "${toolCall.name}"...`,
-                  })
-                )
-              }
-
-              // Check if it's a tool result message (ToolMessage)
-              else if (
-                msgType === 'ToolMessage' ||
-                latestMessage.tool_call_id
-              ) {
-                // Calculate duration
-                const startTime = toolCallTimestamps.get(currentIteration)
-                const duration = startTime ? Date.now() - startTime : undefined
-
-                // Format result for display
-                let formattedResult: string
-                const resultContent = latestMessage.content
-
-                if (typeof resultContent === 'string') {
-                  formattedResult = resultContent
-                } else if (Array.isArray(resultContent)) {
-                  // Handle array of content items
-                  formattedResult = resultContent
-                    .map((item: any) => {
-                      if (typeof item === 'string') return item
-                      if (item.type === 'text') return item.text
-                      return JSON.stringify(item)
-                    })
-                    .join('\n')
-                } else {
-                  formattedResult = JSON.stringify(resultContent, null, 2)
-                }
-
-                // Send tool result to frontend with duration
-                controller.enqueue(
-                  createSSEMessage('tool_result', {
-                    iteration: currentIteration,
-                    result: formattedResult,
-                    duration,
-                    toolName: lastToolName,
-                  })
-                )
-
-                controller.enqueue(
-                  createSSEMessage('status', {
-                    message: `Krok ${currentIteration}/${MAX_ITERATIONS}: Przetwarzanie wyników${duration ? ` (${duration}ms)` : ''}...`,
-                  })
-                )
-              }
-
-              // Always extract content from AIMessage or AIMessageChunk (streaming)
-              // The final response comes as AIMessage with content and no tool_calls
-              if (
-                (msgType === 'AIMessage' || msgType === 'AIMessageChunk') &&
-                latestMessage.content
-              ) {
-                // Only update assistant response if this is NOT a tool call message
-                if (
-                  !latestMessage.tool_calls ||
-                  latestMessage.tool_calls.length === 0
-                ) {
-                  // Extract content from AIMessage
-                  if (typeof latestMessage.content === 'string') {
-                    assistantResponse = latestMessage.content
-                  } else if (
-                    Array.isArray(latestMessage.content) &&
-                    latestMessage.content.length > 0
-                  ) {
-                    const textContent = latestMessage.content.find(
-                      (c: any) => typeof c === 'string' || c.type === 'text'
-                    )
-                    if (textContent) {
-                      assistantResponse =
-                        typeof textContent === 'string'
-                          ? textContent
-                          : textContent.text || ''
-                    }
-                  }
-                }
+          
+          console.log(`[Agent] Result has ${result.messages?.length || 0} messages`)
+          
+          if (result.messages && result.messages.length > 0) {
+            // Get the last AI message
+            const lastMessage = result.messages[result.messages.length - 1]
+            console.log(`[Agent] Last message type:`, lastMessage?.constructor?.name)
+            
+            if (lastMessage && typeof lastMessage.content === 'string') {
+              assistantResponse = lastMessage.content
+              console.log(`[Agent] Extracted response, length: ${assistantResponse.length}`)
+            } else if (lastMessage && Array.isArray(lastMessage.content)) {
+              const textContent = lastMessage.content.find(
+                (c: any) => typeof c === 'string' || c?.type === 'text'
+              )
+              if (textContent) {
+                assistantResponse = typeof textContent === 'string' 
+                  ? textContent 
+                  : (String(textContent?.text || ''))
+                console.log(`[Agent] Extracted response from array, length: ${assistantResponse.length}`)
               }
             }
           }
+          
+          console.log(`[Agent] Final response length: ${assistantResponse.length}`)
 
           // Set fallback message if no response generated
           if (!assistantResponse || assistantResponse.length === 0) {
