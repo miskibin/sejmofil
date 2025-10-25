@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { getPublicOrigin } from '@/lib/utils/url'
+import { headers } from 'next/headers'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const redirectTo = requestUrl.searchParams.get('redirect_to')?.toString()
   
-  // Preserve the origin from the callback URL to maintain mobile/desktop version
-  const origin = `${requestUrl.protocol}//${requestUrl.host}`
+  // Use getPublicOrigin to get the correct public URL (handles Docker/proxy scenarios)
+  const headersList = await headers()
+  const origin = getPublicOrigin(headersList)
 
   if (code) {
     const supabase = await createClient()

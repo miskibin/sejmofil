@@ -4,7 +4,14 @@ import { Github, Lock } from 'lucide-react'
 import { signInWithGitHub, signInWithGoogle, signInWithFacebook } from './actions'
 import { FaFacebook, FaGoogle } from 'react-icons/fa'
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ from?: string }>
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams
+  const redirectTo = params.from || '/'
+  
   return (
     <div className="flex items-center justify-center">
       <CardWrapper
@@ -13,7 +20,7 @@ export default function LoginPage() {
         title="Zaloguj się"
       >
         <form className="space-y-4">
-          <input type="hidden" name="redirectTo" value="/" />
+          <input type="hidden" name="redirectTo" value={redirectTo} />
           
           <Button
             formAction={signInWithGitHub}
