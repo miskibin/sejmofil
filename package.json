@@ -57,6 +57,8 @@
     "debounce": "^2.2.0",
     "embla-carousel-react": "^8.5.1",
     "framer-motion": "^11.15.0",
+    "highcharts": "^12.4.0",
+    "highcharts-react-official": "^3.2.3",
     "langchain": "^1.0.1",
     "langfuse": "^3.38.6",
     "langfuse-langchain": "^3.38.6",
