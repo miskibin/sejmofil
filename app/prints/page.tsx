@@ -1,6 +1,12 @@
 import { CardWrapper } from '@/components/ui/card-wrapper'
 import { getAllProcessPrints } from '@/lib/queries/print'
 import Link from 'next/link'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Druki sejmowe | Sejmofil',
+  description: 'Przeglądaj wszystkie druki sejmowe X kadencji. Projekty ustaw, uchwał i innych aktów prawnych.',
+}
 
 export const dynamic = 'force-dynamic'
 

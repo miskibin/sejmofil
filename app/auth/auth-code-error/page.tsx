@@ -2,6 +2,12 @@ import { Button } from '@/components/ui/button'
 import { CardWrapper } from '@/components/ui/card-wrapper'
 import { AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Błąd uwierzytelniania | Sejmofil',
+  description: 'Wystąpił problem podczas logowania. Spróbuj ponownie.',
+}
 
 export default function AuthCodeErrorPage() {
   return (

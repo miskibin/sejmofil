@@ -35,12 +35,23 @@ import { RelatedProcesses } from './components/related-processes'
 // Use ISR instead of force-dynamic
 export const revalidate = 3600 // Revalidate every hour
 
-export async function generateMetadata({}: {
-  params: Promise<{ id: number }>
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: number; number: string; date: string }>
 }): Promise<Metadata> {
+  const { id } = await params
+  const point = await getPointDetails(id)
+
+  if (!point) {
+    return {
+      title: 'Punkt obrad nie znaleziony',
+    }
+  }
+
   return {
-    title: `Punkt obrad | Sejmofil`,
-    description: `Analiza punktu obrad w Sejmie.`,
+    title: `${point.topic} | Sejmofil`,
+    description: point.summary_tldr || `Punkt obrad ${id} w Sejmie RP`,
   }
 }
 

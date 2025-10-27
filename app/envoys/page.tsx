@@ -5,6 +5,12 @@ import {
 } from '@/lib/queries/person'
 import { cache, Suspense } from 'react'
 import { EnvoysListClient } from './components/envoys-list-client'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Posłowie | Sejmofil',
+  description: 'Przeglądaj listę posłów X kadencji Sejmu RP. Zobacz ich aktywność, wypowiedzi, przerwania i dane biograficzne.',
+}
 
 // Use ISR instead of force-dynamic for better performance
 export const revalidate = 3600 // 1 hour
