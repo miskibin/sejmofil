@@ -301,6 +301,13 @@ CZEGO UNIKAĆ:
               'Przepraszam, nie udało się wygenerować odpowiedzi. Spróbuj ponownie.'
           }
 
+          // Post-process response to convert relative links to absolute URLs
+          const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sejmofil.pl'
+          assistantResponse = assistantResponse.replace(
+            /\[([^\]]+)\]\(\/([^)]+)\)/g,
+            `[$1](${origin}/$2)`
+          )
+
           // Send the final response
           controller.enqueue(
             createSSEMessage('status', {
