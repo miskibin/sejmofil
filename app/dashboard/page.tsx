@@ -12,6 +12,12 @@ import { CardWrapper } from '@/components/ui/card-wrapper'
 import { getProceedingDates } from '@/lib/queries/proceeding'
 import { getNextProceedingDate, getTimeUntilNextProceeding } from '@/lib/utils'
 import { Code, Paintbrush, ScrollText } from 'lucide-react'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Dashboard | Sejmofil',
+  description: 'Dashboard z najważniejszymi statystykami i informacjami o pracy Sejmu. Kalendarz posiedzeń, gorące tematy i ciekawostki.',
+}
 
 // Skip prerendering since this page queries Neo4j which is unavailable at build time
 export const dynamic = 'force-dynamic'

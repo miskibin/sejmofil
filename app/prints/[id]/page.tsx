@@ -3,6 +3,27 @@ import { getPrint } from '@/lib/queries/print'
 import { notFound } from 'next/navigation'
 import { FaRegFilePdf } from 'react-icons/fa'
 import ReactMarkdown from 'react-markdown'
+import { Metadata } from 'next'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const print = await getPrint(id)
+
+  if (!print) {
+    return {
+      title: 'Druk nie znaleziony',
+    }
+  }
+
+  return {
+    title: `Druk nr ${print.number} | Sejmofil`,
+    description: print.title,
+  }
+}
 
 export default async function PrintDetailPage({
   params,
