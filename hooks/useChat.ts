@@ -102,6 +102,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
     async (content: string, model?: string) => {
       if (!content.trim()) return
 
+      console.log('[useChat] Sending message:', content, 'with model:', model)
       setError(null)
       setStatus('Przygotowanie pytania...')
       setIsLoading(true)
@@ -135,12 +136,16 @@ export function useChat(initialConversationId?: string): UseChatReturn {
           content: '',
           timestamp: new Date(),
           references: [],
+          toolCalls: [],
         }
 
+        console.log('[useChat] Added placeholder message:', assistantMessageId)
         setMessages((prev) => [...prev, placeholderMessage])
 
         // Get the last MAX_MESSAGES messages for context (to limit token usage)
         const recentMessages = messages.slice(-MAX_MESSAGES)
+
+        console.log('[useChat] Calling /api/chat/agent with', recentMessages.length + 1, 'messages')
 
         // Call agent API endpoint (SSE streaming)
         const response = await fetch('/api/chat/agent', {
@@ -206,12 +211,14 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                 const data = JSON.parse(jsonStr)
 
                 if (data.type === 'status') {
+                  console.log('[useChat] Status update:', data.data.message)
                   setStatus(data.data.message)
                 } else if (data.type === 'content') {
                   hasReceivedContent = true
                   // Mark that we're now generating (hide status bubble)
                   setIsGenerating(true)
                   assistantContent += data.data.data
+                  console.log('[useChat] Content chunk received, total length:', assistantContent.length)
                   // Update message content in real-time
                   setMessages((prev) => {
                     return prev.map((msg) => {
@@ -225,6 +232,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     })
                   })
                 } else if (data.type === 'tool_call') {
+                  console.log('[useChat] Tool call:', data.data.toolName, 'iteration:', data.data.iteration)
                   const toolCall: ToolCall = {
                     iteration: data.data.iteration,
                     toolName: data.data.toolName,
@@ -232,18 +240,20 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     duration: data.data.duration,
                   }
                   toolCalls.push(toolCall)
+                  // Update message with tool calls in real-time
                   setMessages((prev) => {
                     return prev.map((msg) => {
                       if (msg.id === assistantMessageId) {
                         return {
                           ...msg,
-                          toolCalls,
+                          toolCalls: [...toolCalls],
                         }
                       }
                       return msg
                     })
                   })
                 } else if (data.type === 'tool_result') {
+                  console.log('[useChat] Tool result for iteration:', data.data.iteration)
                   const iteration = data.data.iteration
                   const result = data.data.result
                   const duration = data.data.duration
@@ -257,6 +267,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     }
                   }
                   
+                  // Update message with tool results in real-time
                   setMessages((prev) => {
                     return prev.map((msg) => {
                       if (msg.id === assistantMessageId) {
@@ -269,6 +280,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     })
                   })
                 } else if (data.type === 'references') {
+                  console.log('[useChat] References received:', data.data.references.length)
                   references = data.data.references
                   setMessages((prev) => {
                     return prev.map((msg) => {
@@ -282,6 +294,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     })
                   })
                 } else if (data.type === 'done') {
+                  console.log('[useChat] Stream done')
                   setStatus(null)
                 } else if (data.type === 'error') {
                   console.error('[Chat] Server error:', data.data.message)
@@ -289,6 +302,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                   setStatus(null)
                 }
               } catch (e) {
+                console.warn('[useChat] Failed to parse SSE message:', msg)
                 // Silently skip malformed messages
               }
             }
@@ -300,6 +314,8 @@ export function useChat(initialConversationId?: string): UseChatReturn {
           console.error('[Chat] No content received')
           throw new Error('No response received from server')
         }
+
+        console.log('[useChat] Stream completed successfully with', toolCalls.length, 'tool calls')
 
         // Process any remaining buffer content
         if (buffer.trim() && buffer.startsWith('data: ')) {
