@@ -102,19 +102,9 @@ export function useChat(initialConversationId?: string): UseChatReturn {
     async (content: string, model?: string) => {
       if (!content.trim()) return
 
-      console.log('[useChat] Sending message:', content, 'with model:', model)
       setError(null)
       setStatus('Przygotowanie pytania...')
       setIsLoading(true)
-
-      // Timeout for the entire request (60 seconds)
-      const requestTimeout = setTimeout(() => {
-        console.error('[Chat] Timeout')
-        setError('Przekroczono czas oczekiwania. Spróbuj ponownie z krótszym pytaniem.')
-        setIsLoading(false)
-        setIsGenerating(false)
-        setStatus(null)
-      }, 60000)
 
       try {
         // Add user message to state
@@ -139,13 +129,10 @@ export function useChat(initialConversationId?: string): UseChatReturn {
           toolCalls: [],
         }
 
-        console.log('[useChat] Added placeholder message:', assistantMessageId)
         setMessages((prev) => [...prev, placeholderMessage])
 
         // Get the last MAX_MESSAGES messages for context (to limit token usage)
         const recentMessages = messages.slice(-MAX_MESSAGES)
-
-        console.log('[useChat] Calling /api/chat/agent with', recentMessages.length + 1, 'messages')
 
         // Call agent API endpoint (SSE streaming)
         const response = await fetch('/api/chat/agent', {
@@ -171,13 +158,11 @@ export function useChat(initialConversationId?: string): UseChatReturn {
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error')
-          console.error('[Chat] API error:', response.status)
           throw new Error(`Request failed: ${response.status} - ${errorText}`)
         }
 
         const reader = response.body?.getReader()
         if (!reader) {
-          console.error('[Chat] No stream')
           throw new Error('No response stream available')
         }
 
@@ -211,14 +196,12 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                 const data = JSON.parse(jsonStr)
 
                 if (data.type === 'status') {
-                  console.log('[useChat] Status update:', data.data.message)
                   setStatus(data.data.message)
                 } else if (data.type === 'content') {
                   hasReceivedContent = true
                   // Mark that we're now generating (hide status bubble)
                   setIsGenerating(true)
                   assistantContent += data.data.data
-                  console.log('[useChat] Content chunk received, total length:', assistantContent.length)
                   // Update message content in real-time
                   setMessages((prev) => {
                     return prev.map((msg) => {
@@ -232,7 +215,6 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     })
                   })
                 } else if (data.type === 'tool_call') {
-                  console.log('[useChat] Tool call:', data.data.toolName, 'iteration:', data.data.iteration)
                   const toolCall: ToolCall = {
                     iteration: data.data.iteration,
                     toolName: data.data.toolName,
@@ -253,7 +235,6 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     })
                   })
                 } else if (data.type === 'tool_result') {
-                  console.log('[useChat] Tool result for iteration:', data.data.iteration)
                   const iteration = data.data.iteration
                   const result = data.data.result
                   const duration = data.data.duration
@@ -280,7 +261,6 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     })
                   })
                 } else if (data.type === 'references') {
-                  console.log('[useChat] References received:', data.data.references.length)
                   references = data.data.references
                   setMessages((prev) => {
                     return prev.map((msg) => {
@@ -294,15 +274,12 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                     })
                   })
                 } else if (data.type === 'done') {
-                  console.log('[useChat] Stream done')
                   setStatus(null)
                 } else if (data.type === 'error') {
-                  console.error('[Chat] Server error:', data.data.message)
                   setError(data.data.message)
                   setStatus(null)
                 }
               } catch (e) {
-                console.warn('[useChat] Failed to parse SSE message:', msg)
                 // Silently skip malformed messages
               }
             }
@@ -311,11 +288,8 @@ export function useChat(initialConversationId?: string): UseChatReturn {
 
         // Check if we received any content
         if (!hasReceivedContent) {
-          console.error('[Chat] No content received')
           throw new Error('No response received from server')
         }
-
-        console.log('[useChat] Stream completed successfully with', toolCalls.length, 'tool calls')
 
         // Process any remaining buffer content
         if (buffer.trim() && buffer.startsWith('data: ')) {
@@ -341,11 +315,8 @@ export function useChat(initialConversationId?: string): UseChatReturn {
           }
         }
 
-        clearTimeout(requestTimeout)
         setStatus(null)
       } catch (err) {
-        clearTimeout(requestTimeout)
-        console.error('[Chat] Error:', err)
         const errorMessage = err instanceof Error ? err.message : 'Nieznany błąd'
         setError(`Błąd: ${errorMessage}`)
         setStatus(null)
@@ -359,7 +330,6 @@ export function useChat(initialConversationId?: string): UseChatReturn {
           return prev
         })
       } finally {
-        clearTimeout(requestTimeout)
         setIsLoading(false)
         setIsGenerating(false)
       }
