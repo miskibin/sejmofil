@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { getClubsWithStats, getClubInfluenceScores, getClubDemographics, getClubTopics } from '@/lib/queries/clubs'
+import { getClubsWithStats, getClubInfluenceScores, getClubDemographics, getClubTopics, ClubDemographics } from '@/lib/queries/clubs'
 import { ClubsContent } from './clubs-content'
 
 export const metadata: Metadata = {
@@ -32,7 +32,9 @@ async function getClubsData() {
     Promise.all(allTopicsPromises),
   ])
 
-  const allDemographics = allDemographicsResults.filter(Boolean)
+  const allDemographics = allDemographicsResults.filter(
+    (item): item is ClubDemographics & { clubId: string } => item !== null
+  )
 
   return {
     clubs,
