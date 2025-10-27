@@ -3,6 +3,12 @@ import { CardWrapper } from '@/components/ui/card-wrapper'
 import { Github, Lock } from 'lucide-react'
 import { signInWithGitHub, signInWithGoogle, signInWithFacebook } from './actions'
 import { FaFacebook, FaGoogle } from 'react-icons/fa'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Zaloguj się | Sejmofil',
+  description: 'Zaloguj się do Sejmofil, aby móc komentować, reagować i śledzić ulubionych posłów.',
+}
 
 type LoginPageProps = {
   searchParams: Promise<{ from?: string }>

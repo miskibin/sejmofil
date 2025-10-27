@@ -6,6 +6,27 @@ import { searchPersons } from '@/lib/queries/person'
 import { searchPrints } from '@/lib/queries/print'
 import { searchPoints } from '@/lib/supabase/searchPoints'
 import { Calendar, FileText, Users2 } from 'lucide-react'
+import { Metadata } from 'next'
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q: string }>
+}): Promise<Metadata> {
+  const { q: query } = await searchParams
+
+  if (!query) {
+    return {
+      title: 'Wyszukiwarka | Sejmofil',
+      description: 'Przeszukuj druki sejmowe, posłów i punkty obrad.',
+    }
+  }
+
+  return {
+    title: `Wyniki dla: ${query} | Sejmofil`,
+    description: `Wyniki wyszukiwania dla: ${query}. Znajdź druki sejmowe, posłów i punkty obrad.`,
+  }
+}
 
 export default async function SearchPage({
   searchParams,

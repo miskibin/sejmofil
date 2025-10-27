@@ -31,8 +31,8 @@ export async function generateMetadata({
   const envoy = await getEnvoyInfo(id)
 
   return {
-    title: `${envoy.firstLastName} `,
-    description: `Analiza AI, Cytaty, Biografia, działalność parlamentarna ${envoy.genitiveName} (${envoy.club})`,
+    title: `${envoy.firstLastName} | Sejmofil`,
+    description: `Analiza AI, cytaty, biografia i działalność parlamentarna ${envoy.genitiveName} (${envoy.club})`,
   }
 }
 

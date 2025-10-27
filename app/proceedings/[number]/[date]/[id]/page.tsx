@@ -35,12 +35,23 @@ import { RelatedProcesses } from './components/related-processes'
 // Use ISR instead of force-dynamic
 export const revalidate = 3600 // Revalidate every hour
 
-export async function generateMetadata({}: {
-  params: Promise<{ id: number }>
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string; number: string; date: string }>
 }): Promise<Metadata> {
+  const { id } = await params
+  const point = await getPointDetails(parseInt(id))
+
+  if (!point) {
+    return {
+      title: 'Punkt obrad nie znaleziony',
+    }
+  }
+
   return {
-    title: `Punkt obrad | Sejmofil`,
-    description: `Analiza punktu obrad w Sejmie.`,
+    title: `${point.topic} | Sejmofil`,
+    description: point.summary_tldr || `Punkt obrad ${id} w Sejmie RP`,
   }
 }
 
@@ -48,19 +59,20 @@ export default async function PointDetail({
   params,
   searchParams,
 }: {
-  params: Promise<{ id: number; number: string; date: string }>
+  params: Promise<{ id: string; number: string; date: string }>
   searchParams?: Promise<{ showAll?: string }>
 }) {
   const { id, number, date } = await params
-  if (!id) notFound()
+  const pointId = parseInt(id)
+  if (isNaN(pointId) || pointId < 1) notFound()
 
   const showAll = (await searchParams)?.showAll === 'true'
-  const point = await getPointDetails(id, showAll)
+  const point = await getPointDetails(pointId, showAll)
 
   // Check for related point
   const relatedPoint = point.official_point
     ? await getRelatedPoint(
-        id,
+        pointId,
         point.official_point,
         point.proceeding_day.proceeding.number
       )
@@ -141,7 +153,7 @@ export default async function PointDetail({
       : []
 
   // Get vote counts for this point
-  const initialVotes = await getVoteCounts(id)
+  const initialVotes = await getVoteCounts(pointId)
 
   // Fetch related processes from print numbers
   const relatedProcesses = point.print_numbers?.length > 0
@@ -286,7 +298,7 @@ export default async function PointDetail({
             
             {/* Voting */}
             <div className="flex-shrink-0">
-              <PostVoting pointId={id} initialVotes={initialVotes} />
+              <PostVoting pointId={pointId} initialVotes={initialVotes} />
             </div>
           </div>
         </div>

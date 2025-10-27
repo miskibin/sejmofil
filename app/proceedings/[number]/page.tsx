@@ -3,6 +3,27 @@ import { getProceedingDetails } from '@/lib/supabase/getProceedingDetails'
 import { sortPointsByImportance } from '@/lib/utils'
 import { notFound } from 'next/navigation'
 import { PointCard } from './components/point-card'
+import { Metadata } from 'next'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ number: string }>
+}): Promise<Metadata> {
+  const { number } = await params
+  const proceeding = await getProceedingDetails(parseInt(number))
+
+  if (!proceeding) {
+    return {
+      title: 'Posiedzenie nie znalezione',
+    }
+  }
+
+  return {
+    title: `${proceeding.title} | Sejmofil`,
+    description: `Posiedzenie nr ${number} Sejmu RP. Zobacz wszystkie punkty obrad i głosowania.`,
+  }
+}
 
 // Use ISR instead of force-dynamic
 export const revalidate = 3600 // Revalidate every hour
