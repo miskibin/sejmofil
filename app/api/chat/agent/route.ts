@@ -13,6 +13,21 @@ function createSSEMessage(type: string, data: any): string {
   return msg
 }
 
+// Helper to format tool names in Polish
+function formatToolNamePL(toolName: string): string {
+  const translations: Record<string, string> = {
+    search_mps: 'wyszukiwanie posłów',
+    search_prints: 'wyszukiwanie druków',
+    search_proceedings: 'wyszukiwanie posiedzeń',
+    get_mp_info: 'pobieranie informacji o pośle',
+    get_print_details: 'pobieranie szczegółów druku',
+    get_voting_results: 'pobieranie wyników głosowania',
+    search_votes: 'wyszukiwanie głosowań',
+    search_documents: 'wyszukiwanie dokumentów',
+  }
+  return translations[toolName] || toolName
+}
+
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   content: string
@@ -215,7 +230,7 @@ CZEGO UNIKAĆ:
 
                 controller.enqueue(
                   createSSEMessage('status', {
-                    message: `Krok ${currentIteration}/${MAX_ITERATIONS}: Wywołuję funkcję "${toolCall.name}"...`,
+                    message: `Wywoływanie funkcji: ${formatToolNamePL(toolCall.name)}`,
                   })
                 )
               }
@@ -260,7 +275,7 @@ CZEGO UNIKAĆ:
 
                 controller.enqueue(
                   createSSEMessage('status', {
-                    message: `Krok ${currentIteration}/${MAX_ITERATIONS}: Przetwarzanie wyników${duration ? ` (${duration}ms)` : ''}...`,
+                    message: `Przetwarzanie wyników${duration ? ` (${duration}ms)` : ''}`,
                   })
                 )
               }
