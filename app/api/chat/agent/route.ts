@@ -97,6 +97,8 @@ CZEGO UNIKAĆ:
           // Initialize MCP Client
           const mcpServerUrl = 'https://neomcp.msulawiak.pl'
 
+          console.log('[Agent] Connecting to MCP server:', mcpServerUrl)
+
           mcpClient = new MultiServerMCPClient({
             sejmofil: {
               transport: 'sse',
@@ -107,6 +109,7 @@ CZEGO UNIKAĆ:
           // Get tools from MCP
           const tools = await mcpClient.getTools()
           console.log('[Agent] MCP tools loaded:', Array.isArray(tools) ? tools.length : 0)
+          console.log('[Agent] Tool names:', tools.map((t: any) => t.name || 'unnamed').join(', '))
 
           // Initialize Langfuse client
           const langfuse = new Langfuse({
@@ -157,11 +160,17 @@ CZEGO UNIKAĆ:
             content: msg.content,
           }))
 
+          console.log('[Agent] Processing', agentMessages.length, 'messages')
+          console.log('[Agent] User message:', userMessage.substring(0, 100) + (userMessage.length > 100 ? '...' : ''))
+
           // Track iteration and tool calls for frontend visibility
           let currentIteration = 0
           let lastToolName = ''
           const MAX_ITERATIONS = 4
           const toolCallTimestamps = new Map<number, number>()
+          let streamError: Error | null = null
+
+          console.log('[Agent] Starting stream execution...')
 
           // Stream the agent execution
           const stream = await agent.stream(
@@ -182,6 +191,7 @@ CZEGO UNIKAĆ:
             if (latestMessage) {
               // Get message type for proper detection
               const msgType = latestMessage.constructor?.name || ''
+              console.log('[Agent] Stream chunk received, type:', msgType)
 
               // Check if it's a tool call (AIMessage with tool_calls)
               if (
@@ -192,11 +202,14 @@ CZEGO UNIKAĆ:
 
                 // Check if max iterations reached
                 if (currentIteration > MAX_ITERATIONS) {
+                  console.log('[Agent] Max iterations reached:', currentIteration)
+                  streamError = new Error(`Przekroczono limit iteracji (${MAX_ITERATIONS})`)
                   break
                 }
 
                 const toolCall = latestMessage.tool_calls[0]
                 lastToolName = toolCall.name
+                console.log('[Agent] Tool call:', toolCall.name, 'iteration:', currentIteration)
 
                 // Record start time for this tool call
                 toolCallTimestamps.set(currentIteration, Date.now())
@@ -276,6 +289,7 @@ CZEGO UNIKAĆ:
                   // Extract content from AIMessage
                   if (typeof latestMessage.content === 'string') {
                     assistantResponse = latestMessage.content
+                    console.log('[Agent] Content received, length:', assistantResponse.length)
                   } else if (
                     Array.isArray(latestMessage.content) &&
                     latestMessage.content.length > 0
@@ -288,6 +302,7 @@ CZEGO UNIKAĆ:
                         typeof textContent === 'string'
                           ? textContent
                           : textContent.text || ''
+                      console.log('[Agent] Content received from array, length:', assistantResponse.length)
                     }
                   }
                 }
@@ -295,10 +310,29 @@ CZEGO UNIKAĆ:
             }
           }
 
+          console.log('[Agent] Stream completed. Response length:', assistantResponse.length, 'Iterations:', currentIteration)
+
           // Set fallback message if no response generated
           if (!assistantResponse || assistantResponse.length === 0) {
+            const errorDetails = streamError 
+              ? streamError.message 
+              : currentIteration > MAX_ITERATIONS 
+                ? `Przekroczono limit iteracji (${MAX_ITERATIONS})` 
+                : currentIteration === 0
+                  ? 'Brak odpowiedzi z modelu - możliwy problem z połączeniem do API'
+                  : 'Agent wykonał akcje ale nie wygenerował odpowiedzi tekstowej'
+            
+            console.error('[Agent] No response generated. Error:', errorDetails, 'Iterations:', currentIteration)
+            
             assistantResponse =
               'Przepraszam, nie udało się wygenerować odpowiedzi. Spróbuj ponownie.'
+            
+            // Send error event to show in UI with exact error details
+            controller.enqueue(
+              createSSEMessage('error', {
+                message: `Błąd: ${errorDetails}`,
+              })
+            )
           }
 
           // Send the final response
@@ -344,8 +378,12 @@ CZEGO UNIKAĆ:
           console.log('[Agent] Completed successfully')
           controller.close()
         } catch (error) {
-          console.error('[Agent] Error:', error)
+          console.error('[Agent] Error occurred:', error)
+          console.error('[Agent] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
           const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+          const errorStack = error instanceof Error ? error.stack : undefined
+          
+          console.log('[Agent] Sending error to UI:', errorMessage)
           
           controller.enqueue(
             createSSEMessage('error', {
@@ -358,6 +396,7 @@ CZEGO UNIKAĆ:
             })
           )
           controller.enqueue(createSSEMessage('done', { success: false }))
+          console.log('[Agent] Error handling completed')
           controller.close()
         } finally {
           // Cleanup MCP client
