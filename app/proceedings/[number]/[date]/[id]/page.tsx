@@ -64,7 +64,7 @@ export default async function PointDetail({
 }) {
   const { id, number, date } = await params
   const pointId = parseInt(id)
-  if (!pointId) notFound()
+  if (isNaN(pointId) || pointId < 1) notFound()
 
   const showAll = (await searchParams)?.showAll === 'true'
   const point = await getPointDetails(pointId, showAll)
