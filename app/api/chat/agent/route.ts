@@ -299,6 +299,13 @@ CZEGO UNIKAĆ:
           if (!assistantResponse || assistantResponse.length === 0) {
             assistantResponse =
               'Przepraszam, nie udało się wygenerować odpowiedzi. Spróbuj ponownie.'
+            
+            // Send error event to show in UI
+            controller.enqueue(
+              createSSEMessage('error', {
+                message: 'Agent nie wygenerował odpowiedzi. Możliwe przyczyny: problem z połączeniem do narzędzi, przekroczenie limitów iteracji, lub błąd w przetwarzaniu.',
+              })
+            )
           }
 
           // Send the final response
