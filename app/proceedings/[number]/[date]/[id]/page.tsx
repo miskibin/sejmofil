@@ -1,4 +1,7 @@
-import { MarkdownContent, SummaryCard } from '@/components/shared-content-components'
+import {
+  MarkdownContent,
+  SummaryCard,
+} from '@/components/shared-content-components'
 import { ImageWithFallback } from '@/components/ui/image-with-fallback'
 import StatCard from '@/components/stat-card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -156,9 +159,10 @@ export default async function PointDetail({
   const initialVotes = await getVoteCounts(pointId)
 
   // Fetch related processes from print numbers
-  const relatedProcesses = point.print_numbers?.length > 0
-    ? await getProcessesByPrintNumbers(point.print_numbers.map(String))
-    : []
+  const relatedProcesses =
+    point.print_numbers?.length > 0
+      ? await getProcessesByPrintNumbers(point.print_numbers.map(String))
+      : []
 
   // Define available tabs with their content
   const tabs = [
@@ -251,14 +255,20 @@ export default async function PointDetail({
           />
           {/* Stronger overlay for better readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-          
+
           {/* Content overlay */}
           <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Badge variant="default" className="bg-primary/90 shadow-md backdrop-blur-sm">
+              <Badge
+                variant="default"
+                className="bg-primary/90 shadow-md backdrop-blur-sm"
+              >
                 {category}
               </Badge>
-              <Badge variant="secondary" className="bg-secondary/90 shadow-md backdrop-blur-sm">
+              <Badge
+                variant="secondary"
+                className="bg-secondary/90 shadow-md backdrop-blur-sm"
+              >
                 Punkt {point.official_point}
               </Badge>
             </div>
@@ -274,7 +284,9 @@ export default async function PointDetail({
             {/* Statistics */}
             <div className="flex flex-wrap gap-6 sm:gap-8">
               <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Emocjonalność</span>
+                <span className="text-sm text-muted-foreground">
+                  Emocjonalność
+                </span>
                 <div className="mt-1 flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
@@ -287,15 +299,21 @@ export default async function PointDetail({
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Wypowiedzi</span>
-                <span className="mt-1 text-xl font-bold">{point.statements.length}</span>
+                <span className="text-sm text-muted-foreground">
+                  Wypowiedzi
+                </span>
+                <span className="mt-1 text-xl font-bold">
+                  {point.statements.length}
+                </span>
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-muted-foreground">Mówcy</span>
-                <span className="mt-1 text-xl font-bold">{speakerNames.length}</span>
+                <span className="mt-1 text-xl font-bold">
+                  {speakerNames.length}
+                </span>
               </div>
             </div>
-            
+
             {/* Voting */}
             <div className="flex-shrink-0">
               <PostVoting pointId={pointId} initialVotes={initialVotes} />
@@ -312,9 +330,7 @@ export default async function PointDetail({
               <Sparkles className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-bold">Najważniejsze w skrócie</h2>
             </div>
-            <p className="text-base leading-relaxed">
-              {point.summary_tldr}
-            </p>
+            <p className="text-base leading-relaxed">{point.summary_tldr}</p>
           </div>
         </Card>
       )}
@@ -362,7 +378,10 @@ export default async function PointDetail({
               <h2 className="mb-4 text-xl font-semibold">
                 Stosunek klubów do tematu
               </h2>
-              <EmptyState image="/empty.svg" text="Za mało danych o stanowiskach klubów" />
+              <EmptyState
+                image="/empty.svg"
+                text="Za mało danych o stanowiskach klubów"
+              />
             </Card>
           )}
         </div>
@@ -392,7 +411,8 @@ export default async function PointDetail({
               <div className="mb-3 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold">
-                    Przebieg dyskusji · {point.statements.length} wypowiedzi od {speakerNames.length} mówców
+                    Przebieg dyskusji · {point.statements.length} wypowiedzi od{' '}
+                    {speakerNames.length} mówców
                   </h2>
                 </div>
               </div>

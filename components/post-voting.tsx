@@ -147,7 +147,9 @@ export function PostVoting({
           disabled={isVoting || isLoading}
         >
           <ArrowUp className="w-4 h-4" />
-          <span className="text-sm font-medium min-w-[1.5rem] text-center">{votes?.upvotes ?? 0}</span>
+          <span className="text-sm font-medium min-w-[1.5rem] text-center">
+            {votes?.upvotes ?? 0}
+          </span>
         </Button>
 
         {/* Downvote Button */}
@@ -169,7 +171,9 @@ export function PostVoting({
           disabled={isVoting || isLoading}
         >
           <ArrowUp className="w-4 h-4 rotate-180" />
-          <span className="text-sm font-medium min-w-[1.5rem] text-center">{votes?.downvotes ?? 0}</span>
+          <span className="text-sm font-medium min-w-[1.5rem] text-center">
+            {votes?.downvotes ?? 0}
+          </span>
         </Button>
       </div>
 

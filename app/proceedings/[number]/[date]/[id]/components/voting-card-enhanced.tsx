@@ -263,7 +263,9 @@ export function VotingCardEnhanced({ votings }: Props) {
                         onClick={() => handleOtherVotingClick(voting)}
                         className="flex w-full items-center justify-between rounded p-2 text-xs hover:bg-muted transition-colors cursor-pointer"
                       >
-                        <span className="flex-1 truncate text-left">{voting.topic}</span>
+                        <span className="flex-1 truncate text-left">
+                          {voting.topic}
+                        </span>
                         <span className="flex items-center gap-2 text-muted-foreground">
                           <span className="flex items-center gap-1 text-success">
                             <ThumbsUp className="h-3 w-3" />

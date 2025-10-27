@@ -13,6 +13,21 @@ function createSSEMessage(type: string, data: any): string {
   return msg
 }
 
+// Helper to format tool names in Polish
+function formatToolNamePL(toolName: string): string {
+  const translations: Record<string, string> = {
+    search_mps: 'wyszukiwanie posłów',
+    search_prints: 'wyszukiwanie druków',
+    search_proceedings: 'wyszukiwanie posiedzeń',
+    get_mp_info: 'pobieranie informacji o pośle',
+    get_print_details: 'pobieranie szczegółów druku',
+    get_voting_results: 'pobieranie wyników głosowania',
+    search_votes: 'wyszukiwanie głosowań',
+    search_documents: 'wyszukiwanie dokumentów',
+  }
+  return translations[toolName] || toolName
+}
+
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   content: string
@@ -85,7 +100,7 @@ CZEGO UNIKAĆ:
     const readable = new ReadableStream({
       async start(controller) {
         let mcpClient: MultiServerMCPClient | null = null
-        
+
         try {
           // Send initial status
           controller.enqueue(
@@ -106,7 +121,10 @@ CZEGO UNIKAĆ:
 
           // Get tools from MCP
           const tools = await mcpClient.getTools()
-          console.log('[Agent] MCP tools loaded:', Array.isArray(tools) ? tools.length : 0)
+          console.log(
+            '[Agent] MCP tools loaded:',
+            Array.isArray(tools) ? tools.length : 0
+          )
 
           // Initialize Langfuse client
           const langfuse = new Langfuse({
@@ -212,7 +230,7 @@ CZEGO UNIKAĆ:
 
                 controller.enqueue(
                   createSSEMessage('status', {
-                    message: `Krok ${currentIteration}/${MAX_ITERATIONS}: Wywołuję funkcję "${toolCall.name}"...`,
+                    message: `Wywoływanie funkcji: ${formatToolNamePL(toolCall.name)}`,
                   })
                 )
               }
@@ -257,7 +275,7 @@ CZEGO UNIKAĆ:
 
                 controller.enqueue(
                   createSSEMessage('status', {
-                    message: `Krok ${currentIteration}/${MAX_ITERATIONS}: Przetwarzanie wyników${duration ? ` (${duration}ms)` : ''}...`,
+                    message: `Przetwarzanie wyników${duration ? ` (${duration}ms)` : ''}`,
                   })
                 )
               }
@@ -338,15 +356,16 @@ CZEGO UNIKAĆ:
           // Flush Langfuse asynchronously (don't block on it)
           Promise.all([
             langfuseHandler.flushAsync().catch(() => {}),
-            langfuse.flushAsync().catch(() => {})
+            langfuse.flushAsync().catch(() => {}),
           ]).catch(() => {})
 
           console.log('[Agent] Completed successfully')
           controller.close()
         } catch (error) {
           console.error('[Agent] Error:', error)
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-          
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error'
+
           controller.enqueue(
             createSSEMessage('error', {
               message: `Wystąpił błąd: ${errorMessage}`,
@@ -383,9 +402,9 @@ CZEGO UNIKAĆ:
   } catch (error) {
     console.error('[Agent] Top-level error:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )

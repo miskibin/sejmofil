@@ -16,7 +16,8 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Dashboard | Sejmofil',
-  description: 'Dashboard z najważniejszymi statystykami i informacjami o pracy Sejmu. Kalendarz posiedzeń, gorące tematy i ciekawostki.',
+  description:
+    'Dashboard z najważniejszymi statystykami i informacjami o pracy Sejmu. Kalendarz posiedzeń, gorące tematy i ciekawostki.',
 }
 
 // Skip prerendering since this page queries Neo4j which is unavailable at build time
