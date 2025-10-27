@@ -199,13 +199,11 @@ CZEGO UNIKAĆ:
           console.log('[Agent Stream] Processing stream chunks...')
           for await (const chunk of stream) {
             const latestMessage = chunk.messages?.at(-1)
-            console.log('[Agent Stream] Chunk received, message type:', latestMessage?.constructor?.name)
+            console.log('[Agent Stream] Chunk received, has tool_calls:', !!latestMessage?.tool_calls, 'has tool_call_id:', !!latestMessage?.tool_call_id, 'has content:', !!latestMessage?.content)
 
             if (latestMessage) {
-              // Get message type for proper detection
-              const msgType = latestMessage.constructor?.name || ''
-
               // Check if it's a tool call (AIMessage with tool_calls)
+              // Don't rely on constructor.name as it gets mangled in production
               if (
                 latestMessage.tool_calls &&
                 latestMessage.tool_calls.length > 0
@@ -243,10 +241,8 @@ CZEGO UNIKAĆ:
               }
 
               // Check if it's a tool result message (ToolMessage)
-              else if (
-                msgType === 'ToolMessage' ||
-                latestMessage.tool_call_id
-              ) {
+              // Check for tool_call_id property instead of constructor name (production minification)
+              else if (latestMessage.tool_call_id) {
                 // Calculate duration
                 const startTime = toolCallTimestamps.get(currentIteration)
                 const duration = startTime ? Date.now() - startTime : undefined
@@ -289,10 +285,8 @@ CZEGO UNIKAĆ:
 
               // Always extract content from AIMessage or AIMessageChunk (streaming)
               // The final response comes as AIMessage with content and no tool_calls
-              if (
-                (msgType === 'AIMessage' || msgType === 'AIMessageChunk') &&
-                latestMessage.content
-              ) {
+              // Don't rely on constructor.name - check for content property instead
+              if (latestMessage.content) {
                 // Only update assistant response if this is NOT a tool call message
                 if (
                   !latestMessage.tool_calls ||
@@ -301,6 +295,7 @@ CZEGO UNIKAĆ:
                   // Extract content from AIMessage
                   if (typeof latestMessage.content === 'string') {
                     assistantResponse = latestMessage.content
+                    console.log('[Agent Stream] Content extracted (string), length:', assistantResponse.length)
                   } else if (
                     Array.isArray(latestMessage.content) &&
                     latestMessage.content.length > 0
@@ -313,6 +308,7 @@ CZEGO UNIKAĆ:
                         typeof textContent === 'string'
                           ? textContent
                           : textContent.text || ''
+                      console.log('[Agent Stream] Content extracted (array), length:', assistantResponse.length)
                     }
                   }
                 }
