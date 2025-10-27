@@ -31,7 +31,9 @@ export async function generateMetadata({
 
   return {
     title: `${topic?.name || 'Temat'} | Sejmofil`,
-    description: topic?.description || `Druki i punkty obrad dotyczące tematu: ${topicName}`,
+    description:
+      topic?.description ||
+      `Druki i punkty obrad dotyczące tematu: ${topicName}`,
   }
 }
 

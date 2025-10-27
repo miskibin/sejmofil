@@ -13,7 +13,9 @@ interface PageProps {
   }>
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { number, date } = await params
   const proceedingDay = await getProceedingDayDetails(parseInt(number), date)
 

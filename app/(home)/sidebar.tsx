@@ -2,10 +2,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getProceedingDates } from '@/lib/queries/proceeding'
-import {
-  getNextProceedingDate,
-  getTimeUntilNextProceeding,
-} from '@/lib/utils'
+import { getNextProceedingDate, getTimeUntilNextProceeding } from '@/lib/utils'
 import { getAllTopics } from '@/lib/queries/topic'
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
@@ -66,7 +63,9 @@ export default async function Sidebar() {
               ) : (
                 <>
                   za{' '}
-                  <span className="text-primary text-2xl  font-bold">{timeUntil}</span>
+                  <span className="text-primary text-2xl  font-bold">
+                    {timeUntil}
+                  </span>
                 </>
               )
             ) : (

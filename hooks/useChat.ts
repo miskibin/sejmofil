@@ -44,11 +44,11 @@ export interface UseChatReturn {
 // Helper functions for localStorage
 function loadMessagesFromStorage(): ChatMessage[] {
   if (typeof window === 'undefined') return []
-  
+
   try {
     const stored = localStorage.getItem(CHAT_STORAGE_KEY)
     if (!stored) return []
-    
+
     const parsed = JSON.parse(stored)
     // Convert timestamp strings back to Date objects
     return parsed.map((msg: any) => ({
@@ -62,7 +62,7 @@ function loadMessagesFromStorage(): ChatMessage[] {
 
 function saveMessagesToStorage(messages: ChatMessage[]) {
   if (typeof window === 'undefined') return
-  
+
   try {
     // Keep only the last MAX_MESSAGES
     const messagesToSave = messages.slice(-MAX_MESSAGES)
@@ -109,7 +109,9 @@ export function useChat(initialConversationId?: string): UseChatReturn {
       // Timeout for the entire request (60 seconds)
       const requestTimeout = setTimeout(() => {
         console.error('[Chat] Timeout')
-        setError('Przekroczono czas oczekiwania. Spróbuj ponownie z krótszym pytaniem.')
+        setError(
+          'Przekroczono czas oczekiwania. Spróbuj ponownie z krótszym pytaniem.'
+        )
         setIsLoading(false)
         setIsGenerating(false)
         setStatus(null)
@@ -247,16 +249,18 @@ export function useChat(initialConversationId?: string): UseChatReturn {
                   const iteration = data.data.iteration
                   const result = data.data.result
                   const duration = data.data.duration
-                  
+
                   // Find and update the tool call with the result and duration
-                  const toolCallIndex = toolCalls.findIndex(tc => tc.iteration === iteration)
+                  const toolCallIndex = toolCalls.findIndex(
+                    (tc) => tc.iteration === iteration
+                  )
                   if (toolCallIndex !== -1) {
                     toolCalls[toolCallIndex].result = result
                     if (duration !== undefined) {
                       toolCalls[toolCallIndex].duration = duration
                     }
                   }
-                  
+
                   setMessages((prev) => {
                     return prev.map((msg) => {
                       if (msg.id === assistantMessageId) {
@@ -330,10 +334,11 @@ export function useChat(initialConversationId?: string): UseChatReturn {
       } catch (err) {
         clearTimeout(requestTimeout)
         console.error('[Chat] Error:', err)
-        const errorMessage = err instanceof Error ? err.message : 'Nieznany błąd'
+        const errorMessage =
+          err instanceof Error ? err.message : 'Nieznany błąd'
         setError(`Błąd: ${errorMessage}`)
         setStatus(null)
-        
+
         // Remove the placeholder assistant message if it's empty
         setMessages((prev) => {
           const lastMsg = prev[prev.length - 1]

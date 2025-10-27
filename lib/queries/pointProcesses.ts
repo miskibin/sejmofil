@@ -50,9 +50,9 @@ export async function getProcessesByPrintNumbers(
     ORDER BY process.changeDate DESC
   `
 
-  const result = await runQuery<ProcessInfoResponse>(query, { 
-    printNumbers: printNumbers.map(String) 
+  const result = await runQuery<ProcessInfoResponse>(query, {
+    printNumbers: printNumbers.map(String),
   })
-  
-  return result.map(r => r.process)
+
+  return result.map((r) => r.process)
 }

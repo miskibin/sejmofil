@@ -11,12 +11,14 @@ export const truncateText = (
   maxLength: number,
   words: boolean = false
 ) => {
-  if (text.length <= maxLength) return text;
-  if (!words) return text.slice(0, maxLength - 1) + '…';
-  
-  const truncated = text.slice(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(' ');
-  return lastSpace === -1 ? truncated + '…' : truncated.slice(0, lastSpace) + '…';
+  if (text.length <= maxLength) return text
+  if (!words) return text.slice(0, maxLength - 1) + '…'
+
+  const truncated = text.slice(0, maxLength)
+  const lastSpace = truncated.lastIndexOf(' ')
+  return lastSpace === -1
+    ? truncated + '…'
+    : truncated.slice(0, lastSpace) + '…'
 }
 
 export function getNextProceedingDate(

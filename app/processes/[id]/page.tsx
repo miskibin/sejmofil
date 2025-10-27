@@ -38,7 +38,8 @@ export async function generateMetadata({
   const processDetails = await getProcessDetails(processId)
   return {
     title: `${processDetails?.title} | Sejmofil`,
-    description: processDetails?.description || 'Proces legislacyjny w Sejmie RP',
+    description:
+      processDetails?.description || 'Proces legislacyjny w Sejmie RP',
   }
 }
 

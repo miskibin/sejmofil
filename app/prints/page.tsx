@@ -5,7 +5,8 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Druki sejmowe | Sejmofil',
-  description: 'Przeglądaj wszystkie druki sejmowe X kadencji. Projekty ustaw, uchwał i innych aktów prawnych.',
+  description:
+    'Przeglądaj wszystkie druki sejmowe X kadencji. Projekty ustaw, uchwał i innych aktów prawnych.',
 }
 
 export const dynamic = 'force-dynamic'
