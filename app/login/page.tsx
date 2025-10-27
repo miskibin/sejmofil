@@ -1,13 +1,18 @@
 import { Button } from '@/components/ui/button'
 import { CardWrapper } from '@/components/ui/card-wrapper'
 import { Github, Lock } from 'lucide-react'
-import { signInWithGitHub, signInWithGoogle, signInWithFacebook } from './actions'
+import {
+  signInWithGitHub,
+  signInWithGoogle,
+  signInWithFacebook,
+} from './actions'
 import { FaFacebook, FaGoogle } from 'react-icons/fa'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Zaloguj się | Sejmofil',
-  description: 'Zaloguj się do Sejmofil, aby móc komentować, reagować i śledzić ulubionych posłów.',
+  description:
+    'Zaloguj się do Sejmofil, aby móc komentować, reagować i śledzić ulubionych posłów.',
 }
 
 type LoginPageProps = {
@@ -17,7 +22,7 @@ type LoginPageProps = {
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams
   const redirectTo = params.from || '/'
-  
+
   return (
     <div className="flex items-center justify-center">
       <CardWrapper
@@ -27,7 +32,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       >
         <form className="space-y-4">
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          
+
           <Button
             formAction={signInWithGitHub}
             className="flex w-full items-center gap-2 bg-[#24292e] hover:bg-[#1a1e22] text-white"

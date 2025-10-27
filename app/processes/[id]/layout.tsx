@@ -42,7 +42,7 @@ function LoadingState() {
         <Skeleton className="h-8 w-24" />
         <Skeleton className="h-8 w-24" />
       </div>
-      
+
       <div className="grid gap-4">
         {Array.from({ length: 5 }).map((_, i) => (
           <LoadingCard key={i} />
@@ -57,9 +57,5 @@ export default function ProcessesLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <Suspense fallback={<LoadingState />}>
-      {children}
-    </Suspense>
-  )
+  return <Suspense fallback={<LoadingState />}>{children}</Suspense>
 }

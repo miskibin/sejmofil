@@ -9,7 +9,8 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Posłowie | Sejmofil',
-  description: 'Przeglądaj listę posłów X kadencji Sejmu RP. Zobacz ich aktywność, wypowiedzi, przerwania i dane biograficzne.',
+  description:
+    'Przeglądaj listę posłów X kadencji Sejmu RP. Zobacz ich aktywność, wypowiedzi, przerwania i dane biograficzne.',
 }
 
 // Use ISR instead of force-dynamic for better performance

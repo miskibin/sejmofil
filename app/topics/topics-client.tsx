@@ -256,7 +256,9 @@ export function TopicsClient({ topics }: TopicsClientProps) {
                 </div>
                 <div className="flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-1.5">
                   <FileText className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">{topic.printCount}</span>
+                  <span className="text-sm font-medium">
+                    {topic.printCount}
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     {topic.printCount === 1 ? 'druk' : 'druków'}
                   </span>

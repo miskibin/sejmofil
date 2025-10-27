@@ -80,7 +80,10 @@ export default function RootLayout({
     <html lang="pl">
       <head>
         {/* Ensure viewport is set early for proper mobile rendering */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=5"
+        />
         <script
           async
           src="https://umami.msulawiak.pl/script.js"
@@ -90,9 +93,9 @@ export default function RootLayout({
       <body className={`${inter.variable} bg-neutral-50 antialiased`}>
         {/* Navigation Progress Bar */}
         <NavigationProgress />
-        
+
         {/* Google Analytics - load asynchronously with afterInteractive strategy */}
-        <Script 
+        <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-094FXXHQDE"
           strategy="afterInteractive"
         />
@@ -106,7 +109,7 @@ export default function RootLayout({
         </Script>
 
         <LayoutContent>{children}</LayoutContent>
-        
+
         <Toaster />
       </body>
     </html>

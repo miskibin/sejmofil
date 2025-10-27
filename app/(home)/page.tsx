@@ -11,7 +11,8 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Sejmofil - Analiza pracy Sejmu z AI',
-  description: 'Śledź najważniejsze punkty obrad, druki sejmowe i wypowiedzi posłów. Analiza AI pomaga zrozumieć polską politykę i pracę parlamentu.',
+  description:
+    'Śledź najważniejsze punkty obrad, druki sejmowe i wypowiedzi posłów. Analiza AI pomaga zrozumieć polską politykę i pracę parlamentu.',
 }
 
 // Enable ISR with revalidation every 5 minutes

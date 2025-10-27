@@ -16,8 +16,9 @@ export async function getTotalProceedingDays(): Promise<number> {
 }
 
 // Cache expensive getProceedingDates query
-export const getProceedingDates = cache(async (): Promise<ProceedingDates[]> => {
-  const query = `
+export const getProceedingDates = cache(
+  async (): Promise<ProceedingDates[]> => {
+    const query = `
       MATCH (p:Proceeding)
       UNWIND p.proceeding_dates AS date
       RETURN p.proceeding_number AS proceeding_number, 
@@ -25,11 +26,12 @@ export const getProceedingDates = cache(async (): Promise<ProceedingDates[]> => 
       ORDER BY proceeding_number;
     `
 
-  const result = await runQuery<Record<string, unknown> & ProceedingDates>(
-    query
-  )
-  return result
-})
+    const result = await runQuery<Record<string, unknown> & ProceedingDates>(
+      query
+    )
+    return result
+  }
+)
 
 export async function getProceedingPoints() {
   const query = `

@@ -10,7 +10,7 @@ export async function signInWithGitHub(formData?: FormData) {
   const headersList = await headers()
   const origin = getPublicOrigin(headersList)
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
-  
+
   // Get the referer to preserve mobile/desktop origin
   const referer = headersList.get('referer')
   const callbackOrigin = referer ? new URL(referer).origin : origin
@@ -37,7 +37,7 @@ export async function signInWithGoogle(formData?: FormData) {
   const headersList = await headers()
   const origin = getPublicOrigin(headersList)
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
-  
+
   // Get the referer to preserve mobile/desktop origin
   const referer = headersList.get('referer')
   const callbackOrigin = referer ? new URL(referer).origin : origin
@@ -64,7 +64,7 @@ export async function signInWithFacebook(formData?: FormData) {
   const headersList = await headers()
   const origin = getPublicOrigin(headersList)
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
-  
+
   // Get the referer to preserve mobile/desktop origin
   const referer = headersList.get('referer')
   const callbackOrigin = referer ? new URL(referer).origin : origin

@@ -33,7 +33,8 @@ export async function getAdjacentPoints(
     .select('id')
     .eq('proceeding_id', proceedingId)
 
-  const proceedingDayIds = proceedingDays?.map((d: { id: number }) => d.id) || []
+  const proceedingDayIds =
+    proceedingDays?.map((d: { id: number }) => d.id) || []
 
   if (proceedingDayIds.length === 0) {
     return { prev: null, next: null }

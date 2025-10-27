@@ -4,7 +4,14 @@ import React, { useEffect, useRef, useMemo, useState } from 'react'
 import { useChat } from '@/hooks/useChat'
 import type { ChatMessage as ChatMessageType } from '@/hooks/useChat'
 import { ChatInput } from '@/components/ui/chat-input'
-import { Message } from '@/components/ui/message'
+import { Message as OldMessage } from '@/components/ui/message-old'
+import {
+  Message,
+  MessageContent,
+  MessageAvatar,
+} from '@/components/ui/elevenlabs-message'
+import { Response } from '@/components/ui/response'
+import { ShimmeringText } from '@/components/ui/shimmering-text'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -181,17 +188,55 @@ export default function ChatPage() {
             <div className="space-y-4 py-4">
               {messages.map((message: ChatMessageType) => (
                 <div key={message.id}>
-                  <Message
-                    sender={message.role}
-                    content={message.content}
-                    references={message.references}
-                    patternHandlers={patternHandlers}
-                  />
+                  <Message from={message.role}>
+                    <MessageAvatar
+                      name={message.role === 'user' ? 'Ty' : 'AI'}
+                    />
+                    <MessageContent variant="contained">
+                      <Response>{message.content}</Response>
+                      {/* Show references if available */}
+                      {message.references && message.references.length > 0 && (
+                        <div className="text-xs text-muted-foreground mt-2 pt-2 border-t border-border/50">
+                          <details className="cursor-pointer">
+                            <summary className="font-medium hover:text-foreground">
+                              Źródła ({message.references.length})
+                            </summary>
+                            <div className="mt-2 space-y-2">
+                              {message.references.map((ref, idx) => (
+                                <div
+                                  key={idx}
+                                  className="pl-3 border-l-2 border-primary/30"
+                                >
+                                  <div className="font-medium text-foreground">
+                                    {ref.url ? (
+                                      <a
+                                        href={ref.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-primary hover:underline"
+                                      >
+                                        {ref.title}
+                                      </a>
+                                    ) : (
+                                      ref.title
+                                    )}
+                                  </div>
+                                  <div className="text-xs capitalize">
+                                    {ref.type} - {(ref.score * 100).toFixed(0)}%
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </details>
+                        </div>
+                      )}
+                    </MessageContent>
+                  </Message>
                   {/* Show tool calls in accordion after assistant message */}
                   {message.role === 'assistant' &&
                     message.toolCalls &&
                     message.toolCalls.length > 0 && (
-                      <div className="mt-3">
+                      <div className="mt-3 max-w-[80%]">
                         <Accordion type="single" collapsible defaultValue="">
                           <AccordionItem value="tool-calls">
                             <AccordionTrigger className="text-xs font-semibold text-muted-foreground hover:text-foreground py-2">
@@ -269,9 +314,14 @@ export default function ChatPage() {
                 <div className="flex justify-start">
                   <div className="flex flex-col gap-2">
                     {status && !isGenerating && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
+                      <div className="flex items-center gap-3 text-sm">
                         <div className="h-2 w-2 bg-primary rounded-full animate-pulse" />
-                        {status}
+                        <ShimmeringText
+                          text={status}
+                          className="text-muted-foreground"
+                          duration={1.5}
+                          repeat={true}
+                        />
                       </div>
                     )}
                   </div>
