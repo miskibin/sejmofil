@@ -25,6 +25,7 @@ interface ChatRequest {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('[Agent Route] POST request received')
   try {
     // Check authentication
     const supabase = await createClient()
@@ -32,7 +33,10 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser()
 
+    console.log('[Agent Route] User authenticated:', user?.id || 'none')
+
     if (!user) {
+      console.error('[Agent Route] Unauthorized - no user')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -40,7 +44,14 @@ export async function POST(request: NextRequest) {
     const body: ChatRequest = await request.json()
     const { messages, conversationId, model } = body
 
+    console.log('[Agent Route] Request parsed:', {
+      messageCount: messages?.length,
+      conversationId,
+      model,
+    })
+
     if (!messages || messages.length === 0) {
+      console.error('[Agent Route] No messages provided')
       return NextResponse.json(
         { error: 'Messages are required' },
         { status: 400 }
@@ -49,6 +60,7 @@ export async function POST(request: NextRequest) {
 
     // Get user's last message
     const userMessage = messages[messages.length - 1]?.content || ''
+    console.log('[Agent Route] User message:', userMessage.substring(0, 100))
 
     // Get current date
     const today = new Date()
@@ -87,6 +99,7 @@ CZEGO UNIKAĆ:
         let mcpClient: MultiServerMCPClient | null = null
         
         try {
+          console.log('[Agent Stream] Starting stream')
           // Send initial status
           controller.enqueue(
             createSSEMessage('status', {
@@ -96,6 +109,7 @@ CZEGO UNIKAĆ:
 
           // Initialize MCP Client
           const mcpServerUrl = 'https://neomcp.msulawiak.pl'
+          console.log('[Agent Stream] Connecting to MCP server:', mcpServerUrl)
 
           mcpClient = new MultiServerMCPClient({
             sejmofil: {
@@ -105,10 +119,12 @@ CZEGO UNIKAĆ:
           })
 
           // Get tools from MCP
+          console.log('[Agent Stream] Fetching tools from MCP...')
           const tools = await mcpClient.getTools()
-          console.log('[Agent] MCP tools loaded:', Array.isArray(tools) ? tools.length : 0)
+          console.log('[Agent] MCP tools loaded:', Array.isArray(tools) ? tools.length : 0, tools?.map((t: any) => t.name).join(', '))
 
           // Initialize Langfuse client
+          console.log('[Agent Stream] Initializing Langfuse')
           const langfuse = new Langfuse({
             publicKey: process.env.NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY,
             secretKey: process.env.NEXT_PUBLIC_LANGFUSE_SECRET_KEY,
@@ -133,18 +149,21 @@ CZEGO UNIKAĆ:
           })
 
           // Create agent with streaming capabilities
+          console.log('[Agent Stream] Creating agent with model:', model || 'gpt-5-nano')
           const llmModel = new ChatOpenAI({
             modelName: model || 'gpt-5-nano',
             streaming: true,
             callbacks: [langfuseHandler],
           })
 
+          console.log('[Agent Stream] Creating agent with', tools.length, 'tools')
           const agent = createAgent({
             model: llmModel,
             tools,
             systemPrompt: systemPromptContent,
           })
 
+          console.log('[Agent Stream] Agent created successfully')
           controller.enqueue(
             createSSEMessage('status', {
               message: 'Agent gotowy, przetwarzam pytanie...',
@@ -164,6 +183,7 @@ CZEGO UNIKAĆ:
           const toolCallTimestamps = new Map<number, number>()
 
           // Stream the agent execution
+          console.log('[Agent Stream] Starting agent stream with', agentMessages.length, 'messages')
           const stream = await agent.stream(
             {
               messages: agentMessages,
@@ -176,8 +196,10 @@ CZEGO UNIKAĆ:
           let assistantResponse = ''
           let toolCallInfo: { name: string; args: any; result: string }[] = []
 
+          console.log('[Agent Stream] Processing stream chunks...')
           for await (const chunk of stream) {
             const latestMessage = chunk.messages?.at(-1)
+            console.log('[Agent Stream] Chunk received, message type:', latestMessage?.constructor?.name)
 
             if (latestMessage) {
               // Get message type for proper detection
@@ -189,14 +211,17 @@ CZEGO UNIKAĆ:
                 latestMessage.tool_calls.length > 0
               ) {
                 currentIteration++
+                console.log('[Agent Stream] Tool call detected, iteration:', currentIteration)
 
                 // Check if max iterations reached
                 if (currentIteration > MAX_ITERATIONS) {
+                  console.log('[Agent Stream] Max iterations reached, stopping')
                   break
                 }
 
                 const toolCall = latestMessage.tool_calls[0]
                 lastToolName = toolCall.name
+                console.log('[Agent Stream] Calling tool:', toolCall.name, 'with args:', JSON.stringify(toolCall.args).substring(0, 100))
 
                 // Record start time for this tool call
                 toolCallTimestamps.set(currentIteration, Date.now())
@@ -296,17 +321,23 @@ CZEGO UNIKAĆ:
           }
 
           // Set fallback message if no response generated
+          console.log('[Agent Stream] Stream completed, response length:', assistantResponse.length)
           if (!assistantResponse || assistantResponse.length === 0) {
+            console.error('[Agent Stream] No response generated!')
             assistantResponse =
               'Przepraszam, nie udało się wygenerować odpowiedzi. Spróbuj ponownie.'
           }
 
           // Post-process response to convert relative links to absolute URLs
           const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sejmofil.pl'
+          console.log('[Agent Stream] Converting relative links with origin:', origin)
+          const beforeLinks = assistantResponse.match(/\[([^\]]+)\]\(\/([^)]+)\)/g)?.length || 0
           assistantResponse = assistantResponse.replace(
             /\[([^\]]+)\]\(\/([^)]+)\)/g,
             `[$1](${origin}/$2)`
           )
+          const afterLinks = assistantResponse.match(/\[([^\]]+)\]\(https?:\/\/[^)]+\)/g)?.length || 0
+          console.log('[Agent Stream] Converted', beforeLinks, 'relative links to', afterLinks, 'absolute links')
 
           // Send the final response
           controller.enqueue(
@@ -315,6 +346,7 @@ CZEGO UNIKAĆ:
             })
           )
 
+          console.log('[Agent Stream] Sending final content')
           controller.enqueue(
             createSSEMessage('content', {
               data: assistantResponse,
@@ -323,6 +355,7 @@ CZEGO UNIKAĆ:
 
           // Save to database if conversation ID provided
           if (conversationId) {
+            console.log('[Agent Stream] Saving to database, conversation:', conversationId)
             try {
               await supabase.from('chat_messages').insert({
                 conversation_id: conversationId,
@@ -335,7 +368,9 @@ CZEGO UNIKAĆ:
                 role: 'assistant',
                 content: assistantResponse,
               } as any)
+              console.log('[Agent Stream] Saved to database successfully')
             } catch (err) {
+              console.error('[Agent Stream] Failed to save to database:', err)
               // Silently fail - not critical
             }
           }
@@ -343,6 +378,7 @@ CZEGO UNIKAĆ:
           controller.enqueue(createSSEMessage('done', { success: true }))
 
           // Flush Langfuse asynchronously (don't block on it)
+          console.log('[Agent Stream] Flushing Langfuse...')
           Promise.all([
             langfuseHandler.flushAsync().catch(() => {}),
             langfuse.flushAsync().catch(() => {})
@@ -351,7 +387,8 @@ CZEGO UNIKAĆ:
           console.log('[Agent] Completed successfully')
           controller.close()
         } catch (error) {
-          console.error('[Agent] Error:', error)
+          console.error('[Agent] Error in stream:', error)
+          console.error('[Agent] Error stack:', error instanceof Error ? error.stack : 'no stack')
           const errorMessage = error instanceof Error ? error.message : 'Unknown error'
           
           controller.enqueue(
@@ -368,10 +405,13 @@ CZEGO UNIKAĆ:
           controller.close()
         } finally {
           // Cleanup MCP client
+          console.log('[Agent Stream] Cleanup: closing MCP client')
           if (mcpClient) {
             try {
               await mcpClient.close?.()
+              console.log('[Agent Stream] MCP client closed')
             } catch (e) {
+              console.error('[Agent Stream] Error closing MCP client:', e)
               // Ignore cleanup errors
             }
           }
