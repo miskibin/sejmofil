@@ -4,12 +4,29 @@ import { CardWrapper } from '@/components/ui/card-wrapper'
 import { getProceedingDayDetails } from '@/lib/supabase/getProceedingDayDetails'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 
 interface PageProps {
   params: Promise<{
     number: string
     date: string
   }>
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { number, date } = await params
+  const proceedingDay = await getProceedingDayDetails(parseInt(number), date)
+
+  if (!proceedingDay) {
+    return {
+      title: 'Dzień posiedzenia nie znaleziony',
+    }
+  }
+
+  return {
+    title: `${proceedingDay.proceeding.title} - ${new Date(date).toLocaleDateString('pl-PL')} | Sejmofil`,
+    description: `Dzień posiedzenia ${number} z dnia ${new Date(date).toLocaleDateString('pl-PL')}. Zobacz punkty obrad i wypowiedzi.`,
+  }
 }
 
 export default async function ProceedingDayPage({ params }: PageProps) {

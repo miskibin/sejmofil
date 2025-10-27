@@ -30,8 +30,8 @@ export async function generateMetadata({
   const topic = await getTopicByName(topicName)
 
   return {
-    title: topic?.name || 'Temat',
-    description: topic?.description || `Szczegóły tematu: ${topicName}`,
+    title: `${topic?.name || 'Temat'} | Sejmofil`,
+    description: topic?.description || `Druki i punkty obrad dotyczące tematu: ${topicName}`,
   }
 }
 
