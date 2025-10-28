@@ -10,7 +10,7 @@ import { getAllEntities } from '@/lib/queries/topic'
 import { FileText, TrendingUp } from 'lucide-react'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { TopicsClient } from './topics-client'
+import { EntitiesClient } from './entities-client'
 
 export const metadata: Metadata = {
   title: 'Tematy i Organizacje parlamentarne - Centrum Eksploracji',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function TopicsPage() {
+export default async function EntitiesPage() {
   const entities = await getAllEntities(['Topic', 'Organization'], 200)
   const featuredEntities = entities.slice(0, 10)
   const allEntities = entities.slice(3)
@@ -88,7 +88,7 @@ export default async function TopicsPage() {
       )}
 
       {/* Interactive Explorer */}
-      <TopicsClient entities={allEntities} />
+      <EntitiesClient entities={allEntities} />
     </div>
   )
 }
