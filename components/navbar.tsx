@@ -6,6 +6,7 @@ import { MessageCircle, Menu, Newspaper, Search } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { LoginDialog } from './login-dialog'
 import {
   Sheet,
@@ -24,6 +25,7 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,10 +72,13 @@ export default function Navbar() {
     setIsSidebarOpen(false)
   }
 
+  // Always show background on chat page
+  const shouldShowBackground = scrolled || pathname === '/chat'
+
   return (
     <nav
       className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-background/95 shadow-md backdrop-blur' : 'bg-transparent'
+        shouldShowBackground ? 'bg-background/95 shadow-md backdrop-blur' : 'bg-transparent'
       } grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3`}
     >
       {/* Left section with logo and links */}
