@@ -25,7 +25,7 @@ import { FileText, Grid3x3, List, Search, Building2, Hash } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useMemo } from 'react'
 
-interface TopicsClientProps {
+interface EntitiesClientProps {
   entities: Array<TopicWithId & { printCount: number; type: EntityType }>
 }
 
@@ -35,7 +35,7 @@ type SortOption = 'default' | 'prints' | 'alphabetical'
 type ViewMode = 'grid' | 'list'
 type FilterType = 'all' | 'topics' | 'organizations'
 
-export function TopicsClient({ entities }: TopicsClientProps) {
+export function EntitiesClient({ entities }: EntitiesClientProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortOption>('default')
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
