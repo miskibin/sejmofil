@@ -38,20 +38,28 @@ export function QuickInsights({
     return currentScore > maxScore ? current : max
   }, statements[0])
 
-  // Find most manipulative statement
-  const mostControversial = statements.reduce((max, current) => {
-    const currentScore =
-      current.statement_ai?.speaker_rating?.manipulation || 0
-    const maxScore = max.statement_ai?.speaker_rating?.manipulation || 0
-    return currentScore > maxScore ? current : max
-  }, statements[0])
+  // Find most manipulative statement (excluding the most emotional one to avoid duplicates)
+  const statementsForControversial = statements.filter(
+    (s) => s.id !== mostEmotional?.id
+  )
+  const mostControversial =
+    statementsForControversial.length > 0
+      ? statementsForControversial.reduce((max, current) => {
+          const currentScore =
+            current.statement_ai?.speaker_rating?.manipulation || 0
+          const maxScore = max.statement_ai?.speaker_rating?.manipulation || 0
+          return currentScore > maxScore ? current : max
+        }, statementsForControversial[0])
+      : null
 
   const getSpeakerInfo = (name: string) => {
     return speakerClubs.find((s) => s.name === name)
   }
 
   const emotionalSpeaker = getSpeakerInfo(mostEmotional?.speaker_name)
-  const controversialSpeaker = getSpeakerInfo(mostControversial?.speaker_name)
+  const controversialSpeaker = mostControversial
+    ? getSpeakerInfo(mostControversial.speaker_name)
+    : null
 
   // Check if scores are high enough to show cards
   const emotionalScore = mostEmotional?.statement_ai?.speaker_rating?.emotions || 0
