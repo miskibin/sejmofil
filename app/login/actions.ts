@@ -2,23 +2,16 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
-import { getPublicOrigin } from '@/lib/utils/url'
 
 export async function signInWithGitHub(formData?: FormData) {
   const supabase = await createClient()
-  const headersList = await headers()
-  const origin = getPublicOrigin(headersList)
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
-  
-  // Get the referer to preserve mobile/desktop origin
-  const referer = headersList.get('referer')
-  const callbackOrigin = referer ? new URL(referer).origin : origin
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sejmofil.pl'
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
     options: {
-      redirectTo: `${callbackOrigin}/auth/callback?redirect_to=${redirectTo}`,
+      redirectTo: `${origin}/auth/callback?redirect_to=${encodeURIComponent(redirectTo)}`,
     },
   })
 
@@ -34,18 +27,13 @@ export async function signInWithGitHub(formData?: FormData) {
 
 export async function signInWithGoogle(formData?: FormData) {
   const supabase = await createClient()
-  const headersList = await headers()
-  const origin = getPublicOrigin(headersList)
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
-  
-  // Get the referer to preserve mobile/desktop origin
-  const referer = headersList.get('referer')
-  const callbackOrigin = referer ? new URL(referer).origin : origin
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sejmofil.pl'
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${callbackOrigin}/auth/callback?redirect_to=${redirectTo}`,
+      redirectTo: `${origin}/auth/callback?redirect_to=${encodeURIComponent(redirectTo)}`,
     },
   })
 
@@ -61,18 +49,13 @@ export async function signInWithGoogle(formData?: FormData) {
 
 export async function signInWithFacebook(formData?: FormData) {
   const supabase = await createClient()
-  const headersList = await headers()
-  const origin = getPublicOrigin(headersList)
   const redirectTo = formData?.get('redirectTo')?.toString() || '/'
-  
-  // Get the referer to preserve mobile/desktop origin
-  const referer = headersList.get('referer')
-  const callbackOrigin = referer ? new URL(referer).origin : origin
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://sejmofil.pl'
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'facebook',
     options: {
-      redirectTo: `${callbackOrigin}/auth/callback?redirect_to=${redirectTo}`,
+      redirectTo: `${origin}/auth/callback?redirect_to=${encodeURIComponent(redirectTo)}`,
     },
   })
 

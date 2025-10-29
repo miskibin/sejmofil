@@ -35,7 +35,7 @@ export default async function PoliticianQuotes() {
                 alt={quote.speaker_name}
                 width={48}
                 height={48}
-                className="rounded-md"
+                className="h-12 w-12 rounded-md object-cover"
               />
               <p className="text-sm font-semibold text-primary">
                 {quote.speaker_name}

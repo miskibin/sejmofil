@@ -69,7 +69,7 @@ export function LoginDialog({
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${origin}/auth/callback?redirect_to=${currentPath}`,
+          redirectTo: `${origin}/auth/callback?redirect_to=${encodeURIComponent(currentPath)}`,
         },
       })
 
@@ -79,7 +79,7 @@ export function LoginDialog({
         return
       }
 
-      // The redirect will happen automatically
+      // The redirect will happen automatically via data.url
     } catch (err) {
       console.error('Login error:', err)
       setIsLoading(false)
