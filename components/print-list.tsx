@@ -15,7 +15,7 @@ export function PrintList({ prints }: PrintListProps) {
       {prints.map((print) => (
         <Link
           key={print.number}
-          href={`/druki/${print.number}`}
+          href={`/processes/${print.number}`}
           className="block rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
         >
           <p className="line-clamp-1 font-medium">{print.title}</p>
