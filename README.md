@@ -12,7 +12,7 @@ Sejmofil to inicjatywa non-profit, której celem jest wspieranie demokracji w Po
 ### Wymagania
 
 - Node.js 18+
-- npm
+- pnpm (recommended) or npm
 - Discord (aby otrzymać plik .env)
 
 ### Instalacja
@@ -27,10 +27,12 @@ cd sejmofil
 2. Zainstaluj zależności
 
 ```bash
-npm install
+pnpm install
 ```
 
 3. **Ważne**: Dołącz do [naszego Discorda](https://discord.com/invite/zH2J3z5Wbf) i poproś zespół o plik `.env`
+   - Alternatywnie, skopiuj `.env.example` do `.env.local` i skonfiguruj własne klucze
+   - Zobacz [docs/AUTH_SETUP.md](docs/AUTH_SETUP.md) aby skonfigurować autentykację
 
 4. Uruchom aplikację
 
@@ -39,6 +41,11 @@ pnpm dev
 ```
 
 Aplikacja będzie dostępna pod adresem `http://localhost:3000`
+
+### Konfiguracja Autentykacji
+
+Aby skonfigurować autentykację (GitHub, Google, Facebook), zobacz szczegółowy przewodnik:
+- [docs/AUTH_SETUP.md](docs/AUTH_SETUP.md)
 
 ## 🤝 Jak Pomóc?
 
