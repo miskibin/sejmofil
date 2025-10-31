@@ -21,6 +21,7 @@ ARG NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY
 ARG NEXT_PUBLIC_LANGFUSE_HOST
 
 # Set environment variables for the build process
+# NEXT_PUBLIC_* vars MUST be set here - they get baked into the JavaScript bundle
 ENV DB_URI=${DB_URI} \
     DB_USER=${DB_USER} \
     NEO4J_PASSWORD=${NEO4J_PASSWORD} \
@@ -53,32 +54,11 @@ FROM node:23-alpine AS runner
 # Set the working directory
 WORKDIR /app
 
-# Declare build arguments again to set runtime environment variables
-ARG DB_URI
-ARG DB_USER
-ARG NEO4J_PASSWORD
-ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
-ARG NEXT_PUBLIC_SUPABASE_URL
-ARG NEXT_PUBLIC_API_BASE_URL
-ARG NEXT_PUBLIC_SITE_URL
-ARG OPENAI_API_KEY
-ARG NEXT_PUBLIC_LANGFUSE_SECRET_KEY
-ARG NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY
-ARG NEXT_PUBLIC_LANGFUSE_HOST
-
 # Set environment variables for runtime
+# Note: NEXT_PUBLIC_* vars are already baked into the bundle from Stage 1
+# Runtime ENV vars will be provided via docker run -e flags
 ENV NODE_ENV=production \
-    DB_URI=${DB_URI} \
-    DB_USER=${DB_USER} \
-    NEO4J_PASSWORD=${NEO4J_PASSWORD} \
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY} \
-    NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL} \
-    NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL} \
-    NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} \
-    OPENAI_API_KEY=${OPENAI_API_KEY} \
-    NEXT_PUBLIC_LANGFUSE_SECRET_KEY=${NEXT_PUBLIC_LANGFUSE_SECRET_KEY} \
-    NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY=${NEXT_PUBLIC_LANGFUSE_PUBLIC_KEY} \
-    NEXT_PUBLIC_LANGFUSE_HOST=${NEXT_PUBLIC_LANGFUSE_HOST}
+    PORT=3000
 
 # Copy only the standalone build from the builder stage
 COPY --from=builder /app/.next/standalone ./

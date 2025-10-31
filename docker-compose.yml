@@ -2,6 +2,8 @@ version: '3.8'
 
 services:
   app:
+    container_name: sejmofil-app
+    hostname: sejmofil-app
     build:
       context: .
       args:
