@@ -54,11 +54,21 @@ FROM node:23-alpine AS runner
 # Set the working directory
 WORKDIR /app
 
+# Declare runtime build arguments for server-side env vars
+ARG DB_URI
+ARG DB_USER
+ARG NEO4J_PASSWORD
+ARG OPENAI_API_KEY
+
 # Set environment variables for runtime
 # Note: NEXT_PUBLIC_* vars are already baked into the bundle from Stage 1
-# Runtime ENV vars will be provided via docker run -e flags
+# Server-side vars (DB credentials, API keys) still needed at runtime
 ENV NODE_ENV=production \
-    PORT=3000
+    PORT=3000 \
+    DB_URI=${DB_URI} \
+    DB_USER=${DB_USER} \
+    NEO4J_PASSWORD=${NEO4J_PASSWORD} \
+    OPENAI_API_KEY=${OPENAI_API_KEY}
 
 # Copy only the standalone build from the builder stage
 COPY --from=builder /app/.next/standalone ./
