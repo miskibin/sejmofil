@@ -34,6 +34,7 @@ export interface UseChatReturn {
   isLoading: boolean
   error: string | null
   sendMessage: (content: string, model?: string) => Promise<void>
+  stopGeneration: () => void
   clearMessages: () => void
   conversationId: string | null
   setConversationId: (id: string | null) => void
@@ -82,6 +83,17 @@ export function useChat(initialConversationId?: string): UseChatReturn {
   const [conversationId, setConversationId] = useState<string | null>(
     initialConversationId || null
   )
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
+
+  const stopGeneration = useCallback(() => {
+    if (abortController) {
+      abortController.abort()
+      setAbortController(null)
+      setIsLoading(false)
+      setIsGenerating(false)
+      setStatus(null)
+    }
+  }, [abortController])
 
   // Load messages from localStorage on mount
   useEffect(() => {
@@ -105,6 +117,9 @@ export function useChat(initialConversationId?: string): UseChatReturn {
       setError(null)
       setStatus('Przygotowanie pytania...')
       setIsLoading(true)
+
+      const controller = new AbortController()
+      setAbortController(controller)
 
       try {
         // Add user message to state
@@ -140,6 +155,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: controller.signal,
           body: JSON.stringify({
             messages: [
               ...recentMessages.map((m) => ({
@@ -317,8 +333,13 @@ export function useChat(initialConversationId?: string): UseChatReturn {
 
         setStatus(null)
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Nieznany błąd'
-        setError(`Błąd: ${errorMessage}`)
+        if (err instanceof Error && err.name === 'AbortError') {
+          // Request was aborted - this is expected
+          setError('Generowanie zatrzymane')
+        } else {
+          const errorMessage = err instanceof Error ? err.message : 'Nieznany błąd'
+          setError(`Błąd: ${errorMessage}`)
+        }
         setStatus(null)
         
         // Remove the placeholder assistant message if it's empty
@@ -332,6 +353,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
       } finally {
         setIsLoading(false)
         setIsGenerating(false)
+        setAbortController(null)
       }
     },
     [messages, conversationId]
@@ -356,6 +378,7 @@ export function useChat(initialConversationId?: string): UseChatReturn {
     isLoading,
     error,
     sendMessage,
+    stopGeneration,
     clearMessages,
     conversationId,
     setConversationId,

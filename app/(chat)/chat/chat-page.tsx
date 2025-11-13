@@ -1,14 +1,31 @@
 'use client'
 
-import React, { useEffect, useRef, useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { useChat } from '@/hooks/useChat'
 import type { ChatMessage as ChatMessageType } from '@/hooks/useChat'
-import { ChatInput } from '@/components/ui/chat-input'
 import { 
   Message, 
   MessageContent
-} from '@/components/ui/message'
-import { Response } from '@/components/ui/response'
+} from '@/components/ui/shadcn-io/ai/message'
+import { Response } from '@/components/ui/shadcn-io/ai/response'
+import { 
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton
+} from '@/components/ui/shadcn-io/ai/conversation'
+import {
+  PromptInput,
+  PromptInputTextarea,
+  PromptInputToolbar,
+  PromptInputTools,
+  PromptInputButton,
+  PromptInputSubmit,
+  PromptInputModelSelect,
+  PromptInputModelSelectTrigger,
+  PromptInputModelSelectContent,
+  PromptInputModelSelectItem,
+  PromptInputModelSelectValue,
+} from '@/components/ui/shadcn-io/ai/prompt-input'
 import { ShimmeringText } from '@/components/ui/schimmering-text'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -42,47 +59,23 @@ export default function ChatPage() {
     isLoading,
     error,
     sendMessage,
+    stopGeneration,
     clearMessages,
     status,
     isGenerating,
   } = useChat()
 
   const [selectedModel, setSelectedModel] = useState<string>('gpt-5-nano')
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  // Auto-scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
 
   const handleSendMessage = async (content: string) => {
     await sendMessage(content, selectedModel)
   }
 
-  // Define tools for ChatInput (model selector)
-  const tools = [
-    {
-      id: 'model',
-      label: 'Model',
-      icon: <Zap size={14} />,
-      type: 'dropdown' as const,
-      value: selectedModel,
-      options: [
-        { value: 'gpt-5-nano', label: 'GPT-5 Nano' },
-        { value: 'gpt-5-mini-2025-08-07', label: 'GPT-5 Mini' },
-      ],
-      onChange: (value: string) => {
-        setSelectedModel(value)
-        console.log('Model changed to:', value)
-      },
-    },
-  ]
-
   return (
     <div className="flex flex-col h-[100dvh] w-full bg-background">
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto pt-20 pb-4">
-        <div className="max-w-4xl mx-auto w-full px-4">
+      {/* Messages Container with Conversation component */}
+      <Conversation className="pt-20 pb-4">
+        <ConversationContent className="max-w-4xl mx-auto w-full px-4">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center min-h-[50vh] md:min-h-[60vh]">
               <div className="text-center px-4">
@@ -111,7 +104,11 @@ export default function ChatPage() {
                         : 'justify-start flex-row'
                     )}
                   >
-                    <MessageContent variant={message.role === 'user' ? 'contained' : 'flat'}>
+                    <MessageContent 
+                      className={cn(
+                        message.role === 'user' && 'max-w-[80%]'
+                      )}
+                    >
                       {message.role === 'user' ? (
                         <div className="text-sm">{message.content}</div>
                       ) : (
@@ -120,7 +117,7 @@ export default function ChatPage() {
                       
                       {/* Show references if available */}
                       {message.references && message.references.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-border/50">
+                        <div className="mt-3 pt-3">
                           <p className="text-xs font-semibold text-muted-foreground mb-2">
                             Źródła:
                           </p>
@@ -316,11 +313,11 @@ export default function ChatPage() {
                   )}
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </div>
           )}
-        </div>
-      </div>
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
 
       {/* Error Message */}
       {error && (
@@ -348,14 +345,55 @@ export default function ChatPage() {
       )}
 
       {/* Input Area - Fixed at bottom */}
-      <div className="sticky bottom-0 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 p-3 md:p-4">
+      <div className="sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 p-3 md:p-4">
         <div className="max-w-4xl mx-auto w-full">
-          <ChatInput
-            onSend={handleSendMessage}
-            isLoading={isLoading}
-            placeholder="Zadaj pytanie o sejm... (Shift+Enter dla nowej linii)"
-            tools={tools}
-          />
+          <PromptInput 
+            onSubmit={(e) => {
+              e.preventDefault()
+              const formData = new FormData(e.currentTarget)
+              const message = formData.get('message') as string
+              if (message?.trim()) {
+                handleSendMessage(message.trim())
+                e.currentTarget.reset()
+              }
+            }}
+          >
+            <PromptInputTextarea 
+              placeholder="Zadaj pytanie o sejm..."
+              disabled={isLoading}
+            />
+            <PromptInputToolbar>
+              <PromptInputTools>
+                <PromptInputModelSelect 
+                  value={selectedModel} 
+                  onValueChange={setSelectedModel}
+                  disabled={isLoading}
+                >
+                  <PromptInputModelSelectTrigger className="h-8 gap-1 px-2">
+                    <Zap size={14} />
+                    <PromptInputModelSelectValue />
+                  </PromptInputModelSelectTrigger>
+                  <PromptInputModelSelectContent>
+                    <PromptInputModelSelectItem value="gpt-5-nano">
+                      GPT-5 Nano
+                    </PromptInputModelSelectItem>
+                    <PromptInputModelSelectItem value="gpt-5-mini-2025-08-07">
+                      GPT-5 Mini
+                    </PromptInputModelSelectItem>
+                  </PromptInputModelSelectContent>
+                </PromptInputModelSelect>
+              </PromptInputTools>
+              <PromptInputSubmit 
+                status={isLoading ? (isGenerating ? 'streaming' : 'submitted') : undefined}
+                onClick={(e) => {
+                  if (isLoading) {
+                    e.preventDefault()
+                    stopGeneration()
+                  }
+                }}
+              />
+            </PromptInputToolbar>
+          </PromptInput>
         </div>
       </div>
     </div>
